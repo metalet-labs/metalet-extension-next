@@ -119,7 +119,9 @@ const toResultTx = async () => {
         <div class="flex justify-between">
           <div class="label">TxID</div>
           <div class="text-xs flex gap-2">
-            <div class="hover:underline truncate w-48 cursor-pointer" @click="toResultTx" :title="result.txId">{{ result.txId }}</div>
+            <div class="hover:underline truncate w-48 cursor-pointer" @click="toResultTx" :title="result.txId">{{
+              result.txId
+            }}</div>
             <CopyIcon class="h-4 w-4 cursor-pointer text-blue-300 hover:text-blue-500" />
           </div>
         </div>
@@ -128,9 +130,7 @@ const toResultTx = async () => {
 
     <template #control>
       <div class="">
-        <button class="main-btn-bg w-full rounded-lg py-3 text-sm font-bold text-sky-100 outline-none" @click="ok">
-          OK
-        </button>
+        <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100 outline-none" @click="ok"> OK </button>
       </div>
     </template>
   </Modal>

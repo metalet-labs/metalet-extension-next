@@ -4,8 +4,8 @@ import { useRouter } from 'vue-router'
 
 import { getCurrentAccount, getAddress, type Account } from '@/lib/account'
 
-const address = ref<string>('')
-const account = ref<Account | undefined>()
+const address = ref<string>()
+const account = ref<Account>()
 
 const router = useRouter()
 
@@ -58,7 +58,7 @@ onMounted(async () => {
 
 <style lang="css" scoped>
 .label {
-  @apply text-sm font-bold text-gray-500;
+  @apply text-sm text-gray-500;
 }
 
 .value {

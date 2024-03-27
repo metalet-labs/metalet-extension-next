@@ -1,4 +1,5 @@
 import connector from './lib/connector'
+import { network } from '@/lib/network'
 import { isLocked } from './lib/password'
 import actions from './data/query-actions'
 import browser from 'webextension-polyfill'
@@ -9,6 +10,14 @@ import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
 // const browser = window.browser as typeof chrome
 browser.runtime.onMessage.addListener(async (msg, sender) => {
   try {
+    if (msg.channel === 'to-bg') {
+      if (msg.eventName === 'networkChanged') {
+        network.value = msg.args[0]
+        console.log('network', network.value)
+      }
+      return
+    }
+
     if (msg.channel === 'inter-metaidwallet') {
       if (msg.eventName === 'lock') {
         return await browser.action.setBadgeText({ text: '🔒' })

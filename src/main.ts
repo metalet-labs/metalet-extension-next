@@ -1,14 +1,13 @@
-import { createApp, ref } from 'vue'
-import { VueQueryPlugin } from '@tanstack/vue-query'
-import * as Sentry from '@sentry/vue'
-
 import './style.css'
 import Main from './Main.vue'
 import router from './router'
-import Notification from './components/Notification.vue'
-import { IS_DEV } from '@/data/config'
-
 import { Buffer } from 'buffer'
+import { createApp, ref } from 'vue'
+import * as Sentry from '@sentry/vue'
+import { IS_DEV } from '@/data/config'
+import { VueQueryPlugin } from '@tanstack/vue-query'
+import Notification from './components/Notification.vue'
+
 // @ts-ignore
 globalThis.Buffer = Buffer
 
@@ -45,4 +44,4 @@ if (!IS_DEV) {
 
 app.use(router)
 app.use(VueQueryPlugin)
-app.mount('body')
+app.mount('#app')

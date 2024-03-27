@@ -9,7 +9,7 @@ import ResetModal from '../ResetModal.vue'
 
 const router = useRouter()
 
-const account = ref<Account | undefined>()
+const account = ref<Account>()
 getCurrentAccount().then((acc) => {
   account.value = acc
 })
@@ -89,6 +89,6 @@ const toAccountList = () => {
 }
 
 .reset-button {
-  @apply rounded-lg border-2 py-3 text-sm font-bold;
+  @apply rounded-lg border-2 py-3 text-sm;
 }
 </style>

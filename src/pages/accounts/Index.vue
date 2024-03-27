@@ -44,7 +44,7 @@ const gotoWelcome = () => {
         <PlusIcon class="h-6 w-6 text-gray-400 group-hover:text-blue-500" />
       </div>
 
-      <div class="text-sm font-bold text-gray-700">Create new account</div>
+      <div class="text-sm text-gray-700">Create new account</div>
     </div>
   </div>
 </template>

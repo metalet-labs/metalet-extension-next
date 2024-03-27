@@ -29,9 +29,9 @@ export const getBTCTRate = async (): Promise<PageResult<FeeRate>> => {
 
 export const useBTCRateQuery = (options?: { enabled: ComputedRef<boolean> }) => {
   return useQuery({
-    queryKey: ['BTCRate'],
+    queryKey: ['BTCTRate'],
     queryFn: () => getBTCTRate(),
     select: (result) => result.list.reverse(),
-    // ...options,
+    ...options,
   })
 }

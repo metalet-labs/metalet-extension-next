@@ -137,10 +137,12 @@ const onSubmit = async () => {
         <RadioGroup v-model="selectedWordsLength">
           <div class="flex items-center gap-x-2">
             <RadioGroupOption v-slot="{ checked }" :value="length" v-for="length of wordsLengths" class="rounded">
-              <div :class="[
-                checked ? 'bg-blue-100 text-blue-500' : 'text-gray-500',
-                'w-full cursor-pointer rounded-inherit px-2 py-0.5 text-center text-xs',
-              ]">
+              <div
+                :class="[
+                  checked ? 'bg-blue-100 text-blue-500' : 'text-gray-500',
+                  'w-full cursor-pointer rounded-inherit px-2 py-0.5 text-center text-xs',
+                ]"
+              >
                 {{ `${length} words` }}
               </div>
             </RadioGroupOption>
@@ -150,8 +152,15 @@ const onSubmit = async () => {
 
       <div class="grid grid-cols-3 gap-2">
         <!-- input框 绑定粘贴事件 -->
-        <input v-for="(word, index) in words" :key="index" type="text" class="pit-input gradient-text font-bold"
-          :placeholder="(index + 1).toString()" v-model="words[index]" @paste.prevent="onPasteWords" />
+        <input
+          v-for="(word, index) in words"
+          :key="index"
+          type="text"
+          class="pit-input gradient-text "
+          :placeholder="(index + 1).toString()"
+          v-model="words[index]"
+          @paste.prevent="onPasteWords"
+        />
       </div>
     </div>
 
@@ -163,15 +172,20 @@ const onSubmit = async () => {
           <ChevronRightIcon :class="['h-4 w-4 text-gray-400 transition duration-200', open && 'rotate-90 transform']" />
         </DisclosureButton>
 
-        <transition enter-active-class="transition duration-100 ease-out" enter-from-class="transform scale-95 opacity-0"
-          enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-75 ease-out"
-          leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+        <transition
+          enter-active-class="transition duration-100 ease-out"
+          enter-from-class="transform scale-95 opacity-0"
+          enter-to-class="transform scale-100 opacity-100"
+          leave-active-class="transition duration-75 ease-out"
+          leave-from-class="transform scale-100 opacity-100"
+          leave-to-class="transform scale-95 opacity-0"
+        >
           <DisclosurePanel class="mt-1 space-y-2 rounded-lg bg-gray-100 p-4 text-sm text-gray-500 shadow-inner">
-            <h3 class="text-sm font-bold text-gray-900">What is a derivation path?</h3>
+            <h3 class="text-sm  text-gray-900">What is a derivation path?</h3>
             <p class="">
               A derivation path is used to generate your wallet address. You can use the default path or customize it.
             </p>
-            <p>The default path used by Metalet is <span class="font-bold">m/44'/10001'/0'</span></p>
+            <p>The default path used by Metalet is <span class="">m/44'/10001'/0'</span></p>
           </DisclosurePanel>
         </transition>
       </Disclosure>
@@ -238,8 +252,17 @@ const onSubmit = async () => {
 
     <!-- ok -->
     <div class="mt-32 flex items-center justify-center">
+<<<<<<< HEAD
       <button class="main-btn-bg mt-8 grow rounded-md py-3 text-sm font-bold text-sky-50" :class="[!finished && 'muted']"
         :disabled="!finished" @click="onSubmit">
+=======
+      <button
+        class="main-btn-bg mt-8 grow rounded-md py-3 text-sm  text-sky-50"
+        :class="[!finished && 'muted']"
+        :disabled="!finished"
+        @click="onSubmit"
+      >
+>>>>>>> feature/MetaIdPin
         OK
       </button>
     </div>

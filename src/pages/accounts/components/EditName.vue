@@ -8,7 +8,7 @@ import Modal from '@/components/Modal.vue'
 defineProps(['open'])
 const emit = defineEmits(['update:open'])
 
-const currentAccount = ref<Account | undefined>()
+const currentAccount = ref<Account>()
 getCurrentAccount().then((acc) => {
   currentAccount.value = acc
 })
@@ -43,14 +43,12 @@ async function onUpdateName() {
     <template #control>
       <div class="grid grid-cols-2 gap-x-4">
         <button
-          class="w-full rounded-lg border border-blue-primary bg-white py-3 text-sm font-bold text-gray-700"
+          class="w-full rounded-lg border border-blue-primary bg-white py-3 text-sm text-gray-700"
           @click="$emit('update:open', false)"
         >
           Cancel
         </button>
-        <button class="main-btn-bg w-full rounded-lg py-3 text-sm font-bold text-sky-100" @click="onUpdateName">
-          Confirm
-        </button>
+        <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="onUpdateName"> Confirm </button>
       </div>
     </template>
   </Modal>

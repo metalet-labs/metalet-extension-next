@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import { ref, computed, watch } from 'vue'
 import BRCToken from './BRCToken.vue'
 import { useRouter } from 'vue-router'
 import { getAddress } from '@/lib/account'
+import { ref, computed, watch } from 'vue'
+import { ArrowDownLeftIcon } from '@heroicons/vue/20/solid'
 import { type Inscription, useBRCInscriptionsQuery } from '@/queries/inscribe'
 
 const sizeRef = ref(10)
@@ -54,7 +55,7 @@ const toBRC20Detail = (inscriptionId: string) => {
   <div class="space-y-4">
     <div class="space-y-1" v-if="false">
       <div class="text-sm text-gray-500">NUMBER OF COLLECTIBLES</div>
-      <div class="text-xl font-bold">{{ inscriptionsCountDisplay }}</div>
+      <div class="text-xl">{{ inscriptionsCountDisplay }}</div>
     </div>
 
     <div v-if="false">
@@ -64,11 +65,9 @@ const toBRC20Detail = (inscriptionId: string) => {
       </button>
     </div>
 
-    <div v-if="isLoading" class="w-full py-3 text-center text-sm font-bold text-gray-500">
-      BRC Token List loading...
-    </div>
+    <div v-if="isLoading" class="w-full py-3 text-center text-sm text-gray-500"> BRC Token List loading... </div>
     <div v-else-if="inscriptions.length">
-      <div class="px-3 py-4 grid grid-cols-3 gap-x-1 gap-y-7">
+      <div class="px-3 py-4 grid grid-cols-3 gap-x-3 gap-y-7">
         <div
           v-for="inscription in inscriptions"
           @click="toBRC20Detail(inscription.inscriptionId)"
@@ -91,7 +90,7 @@ const toBRC20Detail = (inscriptionId: string) => {
         Load more Ordinals
       </div>
     </div>
-    <div v-else class="w-full py-3 text-center text-sm font-bold text-gray-500">No Ordinals yet.</div>
+    <div v-else class="w-full py-3 text-center text-sm text-gray-500">No Ordinals yet.</div>
   </div>
 </template>
 

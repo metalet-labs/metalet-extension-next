@@ -1,10 +1,12 @@
 import { ref } from 'vue'
 import useStorage from './storage'
 import { networks } from 'bitcoinjs-lib'
+import { notifyBg } from '@/lib/notify-bg'
 import { type Chain } from '@/lib/account'
 import { notifyContent } from '@/lib/notify-content'
 
 export type Service = Chain | 'all'
+
 
 export type Network = 'mainnet' | 'testnet'
 
@@ -26,9 +28,10 @@ export async function hasServiceNetwork(): Promise<boolean> {
 export const network = ref<Network>(await storage.get('network', { defaultValue: 'mainnet' }))
 
 export async function setNetwork(_network: Network) {
-  await storage.set('network', _network)
   network.value = _network
+  notifyBg('networkChanged')(_network)
   notifyContent('networkChanged')(_network)
+  await storage.set('network', _network)
 }
 
 export async function getNetwork(): Promise<Network> {

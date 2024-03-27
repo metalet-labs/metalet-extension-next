@@ -40,19 +40,22 @@ export async function createAction(
       }
       if (event.data?.nonce === nonce) {
         window.removeEventListener('message', actionListener)
-        if (event.data?.res?.error) {
-          throw new Error(event.data.res.error)
-        }
+        // if (event.data?.res?.error) {
+        //   throw new Error(event.data.res.error)
+        // }
         if (callback && typeof callback === 'function') {
           callback(event.data)
         }
       }
-      return true
+      // return true
     }
     window.addEventListener('message', actionListener)
   }
-  return await new Promise((resolve) => {
+  return await new Promise((resolve, reject) => {
     subscribe((echo: Echo) => {
+      if (echo.res.error) {
+        reject(echo.res.error)
+      }
       resolve(echo.res)
     })
   })

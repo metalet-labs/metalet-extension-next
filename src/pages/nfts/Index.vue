@@ -16,14 +16,14 @@ const nfts = [
   { id: 1, name: 'Ordinals', disabled: false },
   // { id: 2, name: 'Atomicals', disabled: true },
   { id: 3, name: 'MetaContract', disabled: false },
-  // { id: 4, name: 'MetaID Pin', disabled: false },
+  { id: 4, name: 'MetaID Pin', disabled: false },
 ]
 const selectedNFT = ref(nfts[0])
 
 const route = useRoute()
 const router = useRouter()
 
-const account = ref<Account | undefined>()
+const account = ref<Account>()
 getCurrentAccount().then((acc) => {
   account.value = acc
 })
@@ -122,7 +122,7 @@ function changeTab(index: number) {
 
 <style scoped lang="css">
 .tab {
-  @apply flex flex-1 items-center justify-center gap-2 rounded-inherit py-2 text-sm font-bold focus:outline-none focus:ring-0 ui-selected:bg-btn-blue ui-selected:text-blue-50;
+  @apply flex flex-1 items-center justify-center gap-2 rounded-inherit py-2 text-sm  focus:outline-none focus:ring-0 ui-selected:bg-btn-blue ui-selected:text-blue-50;
 }
 
 .tab > img {

@@ -282,6 +282,16 @@ const routes = [
         },
       },
       {
+        name: 'sendNFT',
+        path: '/nft/sendNFT/:nftType/:address/:id',
+        component: () => import('./pages/nfts/SendNFT.vue'),
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Send NFT',
+          noFooter: true,
+        },
+      },
+      {
         path: '/nfts/transfer-nft/:codehash/:genesis/:tokenIndex',
         component: () => import('./pages/nfts/Transfer.vue'),
         name: 'transfer-nft',
@@ -405,6 +415,43 @@ const routes = [
       { path: 'import', component: () => import('./pages/welcome/Import.vue') },
       { path: 'create', component: () => import('./pages/welcome/Create.vue') },
     ],
+  },
+  {
+    path: '/settings/toolkit',
+    component: () => import('./pages/settings/Toolkit.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'Toolkit',
+      noFooter: false,
+    },
+  },
+  {
+    path: '/settings/toolkit/btc-merge',
+    component: () => import('./pages/settings/components/BTCMerge.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'BTC Merge',
+      noFooter: false,
+    },
+  },
+  {
+    path: '/settings/toolkit/space-merge',
+    component: () => import('./pages/settings/components/SpaceMerge.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'Space Merge',
+      noFooter: false,
+    },
+  },
+
+  {
+    path: '/tools/path-finder',
+    component: () => import('./pages/tools/PathFinder.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'Path Finder',
+      noFooter: true,
+    },
   },
 ]
 

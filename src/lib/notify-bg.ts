@@ -9,15 +9,8 @@ async function emit(params: EmitParams) {
   if (IS_DEV) {
     return
   }
-  const ext = await import('webextension-polyfill').then((m) => m.default)
-  return await ext.runtime
-    .sendMessage({
-      channel: 'inter-metaidwallet',
-      ...params,
-    })
-    .catch((e) => {
-      console.error('notifyBg emit error: ', e)
-    })
+
+  window.browser.runtime.sendMessage({ ...params, channel: 'to-bg' })
 }
 
 export function notifyBg(eventName: string) {
