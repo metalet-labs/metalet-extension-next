@@ -44,7 +44,11 @@ watch(
         class="flex flex-col items-center justify-center rounded-md border cursor-pointer aspect-square"
       >
         <div class="text-xs">{{ rate.title }}</div>
+<<<<<<< HEAD
         <div class="mt-1.5 text-sm">{{ rate.feeRate }} sat/vB</div>
+=======
+        <div class="mt-1.5 text-sm ">{{ rate.feeRate }} sat/vB</div>
+>>>>>>> main
         <div class="mt-1 text-xs text-[#999999]">About</div>
         <div class="text-xs text-[#999999]">{{ rate.desc.replace('About', '') }}</div>
       </div>

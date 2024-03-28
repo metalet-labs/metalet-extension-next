@@ -75,7 +75,11 @@ const next = async () => {
     <div class="grow">
       <img :src="PasswordImg" class="mx-auto h-7 w-9" />
       <template v-if="phase === 1">
+<<<<<<< HEAD
         <h3 class="mt-4 text-center text-lg">Set Password</h3>
+=======
+        <h3 class="mt-4 text-center text-lg ">Set Password</h3>
+>>>>>>> main
 
         <div class="mt-16">
           <h4 class="mb-2 text-sm">Password</h4>

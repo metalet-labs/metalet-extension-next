@@ -136,7 +136,11 @@ async function transfer() {
           </div>
 
           <div class="">
+<<<<<<< HEAD
             <h3 class="text-sm">{{ nftInfo.name }}</h3>
+=======
+            <h3 class="text-sm ">{{ nftInfo.name }}</h3>
+>>>>>>> main
             <div class="text-xs text-gray-500">{{ '# ' + nft.tokenIndex }}</div>
           </div>
         </div>

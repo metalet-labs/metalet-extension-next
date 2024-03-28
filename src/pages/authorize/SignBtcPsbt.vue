@@ -76,11 +76,7 @@ getNetwork().then(async (networkType) => {
         </div>
 
         <div class="col-span-5 bg-teal-50 border-2 border-teal-300 border-dashed py-2 px-1 rounded-lg">
-          <<<<<<< HEAD
-          <div class="text-center text-sm font-bold text-teal-900">Outputs</div>
-          =======
           <div class="text-center text-sm text-teal-900">Outputs</div>
-          >>>>>>> feature/MetaIdPin
           <div class="mt-2 space-2 text-xs">
             <div class="border-2 border-teal-300 bg-teal-100 rounded p-1" v-for="output in outputs">
               <div class="">Address</div>

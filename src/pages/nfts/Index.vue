@@ -1,24 +1,16 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import BRCTokenList from './BRCTokenList.vue'
 import MetaIDPinList from './MetaIDPinList.vue'
 import { useRoute, useRouter } from 'vue-router'
+import { nftStore } from '@/stores/nftTypeStore'
+import InscriptionList from './InscriptionList.vue'
 import AccountItem from '../accounts/components/Item.vue'
+import { Squares2X2Icon } from '@heroicons/vue/24/outline'
 import { getCurrentAccount, type Account } from '@/lib/account'
 import MvcCollectionPanel from './components/MvcCollectionPanel.vue'
+import { ChevronDownIcon, CheckIcon } from '@heroicons/vue/24/solid'
 import { TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue'
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
-
-import { Squares2X2Icon } from '@heroicons/vue/24/outline'
-import { ChevronDownIcon, CheckIcon } from '@heroicons/vue/24/solid'
-
-const nfts = [
-  { id: 1, name: 'Ordinals', disabled: false },
-  // { id: 2, name: 'Atomicals', disabled: true },
-  { id: 3, name: 'MetaContract', disabled: false },
-  { id: 4, name: 'MetaID Pin', disabled: false },
-]
-const selectedNFT = ref(nfts[0])
 
 const route = useRoute()
 const router = useRouter()
@@ -43,19 +35,19 @@ function changeTab(index: number) {
 
 <template>
   <!-- 账号信息 -->
-  <AccountItem :account="account" :current-account="account" v-if="account" :show-network="true" class="mb-4" />
+  <AccountItem :account="account" :current-account="account" v-if="account" :show-network="true" class="mb-4 -mt-4" />
 
   <div class="relative">
     <div :class="['absolute right-0 z-10', selectedTab === 0 ? '' : 'hidden']">
-      <Listbox v-model="selectedNFT">
+      <Listbox v-model="nftStore.selectedNFT">
         <ListboxButton class="flex items-center gap-x-1.5 border-2 rounded-xl py-1.5 px-[18px] ml-auto">
           <Squares2X2Icon class="w-5 h-5" />
-          <span>{{ selectedNFT.name }}</span>
+          <span>{{ nftStore.selectedNFT.name }}</span>
           <ChevronDownIcon class="w-3 h-3" />
         </ListboxButton>
         <ListboxOptions class="p-[18px] bg-white rounded-xl select-box-shadow space-y-5 w-[184px]">
           <ListboxOption
-            v-for="nft in nfts"
+            v-for="nft in nftStore.nfts"
             :key="nft.id"
             :value="nft"
             :class="[!nft.disabled ? 'cursor-pointer' : 'cursor-not-allowed', 'flex items-center']"
@@ -65,7 +57,7 @@ function changeTab(index: number) {
             <div
               :class="[
                 'w-5 h-5 flex items-center justify-center bg-[#1E2BFF] rounded ml-auto',
-                selectedNFT.id !== nft.id ? 'hidden' : '',
+                nftStore.selectedNFT.id !== nft.id ? 'hidden' : '',
               ]"
             >
               <CheckIcon class="text-white w-2.5" />
@@ -86,12 +78,12 @@ function changeTab(index: number) {
       </TabList>
       <TabPanels class="mt-8">
         <!-- <TabPanel>
-          <div class="text-gray-primary mt-[58px] text-center">No collectibles yet</div>
+          <div class="text-[#909399] mt-[58px] text-center">No collectibles yet</div>
         </TabPanel> -->
         <TabPanel>
-          <MvcCollectionPanel v-if="selectedNFT.name === 'MetaContract'" />
-          <BRCTokenList v-else-if="selectedNFT.name === 'Ordinals'" />
-          <MetaIDPinList v-else-if="selectedNFT.name === 'MetaID Pin'" />
+          <MvcCollectionPanel v-if="nftStore.selectedNFT.name === 'MetaContract'" />
+          <InscriptionList v-else-if="nftStore.selectedNFT.name === 'Ordinals'" />
+          <MetaIDPinList v-else-if="nftStore.selectedNFT.name === 'MetaID Pin'" />
         </TabPanel>
       </TabPanels>
     </TabGroup>
@@ -154,3 +146,4 @@ function changeTab(index: number) {
   box-shadow: 0px 0px 6px 0px rgba(48, 49, 51, 0.15);
 }
 </style>
+@/stores/nftTypeStore

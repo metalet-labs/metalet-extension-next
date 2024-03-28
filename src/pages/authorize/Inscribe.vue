@@ -57,7 +57,11 @@ const copy = (txHex: string) => {
         </button>
       </div>
 
+<<<<<<< HEAD
       <div class="col-span-4 text-center">Transaction Details</div>
+=======
+      <div class="col-span-4  text-center">Transaction Details</div>
+>>>>>>> main
     </div>
 
     <!-- detail body -->

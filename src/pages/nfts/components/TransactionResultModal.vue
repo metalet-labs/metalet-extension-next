@@ -80,7 +80,11 @@ const toResultTx = async () => {
           </div>
 
           <div class="">
+<<<<<<< HEAD
             <h3 class="text-sm">{{ result.nft.name }}</h3>
+=======
+            <h3 class="text-sm ">{{ result.nft.name }}</h3>
+>>>>>>> main
             <div class="text-xs text-gray-500">{{ '# ' + result.nft.tokenIndex }}</div>
           </div>
         </div>

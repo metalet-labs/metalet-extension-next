@@ -46,7 +46,6 @@ const asset = computed(() => {
   if (btcAssets.value) {
     return btcAssets.value.find((asset) => asset.symbol === symbol.value!)
   }
-  console.log({ asset })
 })
 
 const coinType = computed(() => {

@@ -143,7 +143,11 @@ const cancelAction = async () => {
       class="absolute inset-0 z-10 flex h-full w-full flex-col items-center justify-center rounded-lg bg-white p-6"
       v-show="isFinished"
     >
+<<<<<<< HEAD
       <div class="gradient-text text-base">Task Finished</div>
+=======
+      <div class="gradient-text text-base ">Task Finished</div>
+>>>>>>> main
 
       <div class="mt-8 space-y-4 text-sm">
         <div v-for="txid in processTxids" :key="txid" class="space-y-1">

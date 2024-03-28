@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { Chain } from '@/lib/account'
+import { ref, computed, Ref } from 'vue'
 import { allAssets } from '@/data/assets'
 import { getAddress } from '@/lib/account'
 import { getAssetsDisplay } from '@/lib/assets'
-import { ref, computed, Ref, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AssetItem from './components/AssetItem.vue'
 import SearchInput from '@/components/SearchInput.vue'

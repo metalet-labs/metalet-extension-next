@@ -252,17 +252,12 @@ const onSubmit = async () => {
 
     <!-- ok -->
     <div class="mt-32 flex items-center justify-center">
-<<<<<<< HEAD
-      <button class="main-btn-bg mt-8 grow rounded-md py-3 text-sm font-bold text-sky-50" :class="[!finished && 'muted']"
-        :disabled="!finished" @click="onSubmit">
-=======
       <button
         class="main-btn-bg mt-8 grow rounded-md py-3 text-sm  text-sky-50"
         :class="[!finished && 'muted']"
         :disabled="!finished"
         @click="onSubmit"
       >
->>>>>>> feature/MetaIdPin
         OK
       </button>
     </div>

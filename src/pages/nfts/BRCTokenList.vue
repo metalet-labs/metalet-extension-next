@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
+import { ref, computed, watch } from 'vue'
 import BRCToken from './BRCToken.vue'
 import { useRouter } from 'vue-router'
 import { getAddress } from '@/lib/account'
-import { ref, computed, watch } from 'vue'
 import { ArrowDownLeftIcon } from '@heroicons/vue/20/solid'
 import { type Inscription, useBRCInscriptionsQuery } from '@/queries/inscribe'
 
-const sizeRef = ref(10)
-const addressRef = ref()
+const size = ref(10)
+const address = ref()
 const cursorRef = ref(0)
 const router = useRouter()
 const inscriptions = ref<Inscription[]>([])
 
-getAddress('btc').then((address) => {
-  addressRef.value = address
+getAddress('btc').then((_address) => {
+  address.value = _address
 })
 
-const { isLoading, data: inscriptionsData } = useBRCInscriptionsQuery(addressRef, cursorRef, sizeRef, {
-  enabled: computed(() => !!addressRef.value),
+const { isLoading, data: inscriptionsData } = useBRCInscriptionsQuery(address, cursorRef, size, {
+  enabled: computed(() => !!address.value),
 })
 
 watch(inscriptionsData, () => {
@@ -44,7 +44,7 @@ const toBRC20Detail = (inscriptionId: string) => {
   router.push({
     name: 'brc20Detail',
     params: {
-      address: addressRef.value,
+      address: address.value,
       inscriptionId,
     },
   })
