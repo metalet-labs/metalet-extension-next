@@ -17,7 +17,7 @@ const props = defineProps<{
 
   <div class="mt-4">
     <table class="w-full border-collapse rounded-lg text-center">
-      <thead class="">
+      <thead>
         <tr>
           <th class="th-cell">Asset</th>
           <th class="th-cell">Amount</th>

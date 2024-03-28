@@ -182,18 +182,18 @@ const onSubmit = async () => {
         >
           <DisclosurePanel class="mt-1 space-y-2 rounded-lg bg-gray-100 p-4 text-sm text-gray-500 shadow-inner">
             <h3 class="text-sm  text-gray-900">What is a derivation path?</h3>
-            <p class="">
+            <p>
               A derivation path is used to generate your wallet address. You can use the default path or customize it.
             </p>
-            <p>The default path used by Metalet is <span class="">m/44'/10001'/0'</span></p>
+            <p>The default path used by Metalet is <span>m/44'/10001'/0'</span></p>
           </DisclosurePanel>
         </transition>
       </Disclosure>
 
       <div class="mt-2 text-sm tracking-wide text-black">
-        <span class="">m/44'/</span>
+        <span>m/44'/</span>
         <input type="text" placeholder="10001" class="pit-input mx-2 w-16" v-model="pathDepth" />
-        <span class="">'/0'</span>
+        <span>'/0'</span>
       </div>
     </div>
 

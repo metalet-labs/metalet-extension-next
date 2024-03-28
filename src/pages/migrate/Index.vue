@@ -93,7 +93,7 @@ const importWallet = async () => {
 
 <template>
   <div class="flex h-full flex-col justify-between text-center">
-    <div class="">
+    <div>
       <div class="mt-12">
         <img class="mx-auto h-24 w-24" :src="MetaletLogoImg" alt="metalet-logo" />
       </div>

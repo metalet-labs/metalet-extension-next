@@ -129,7 +129,7 @@ const toResultTx = async () => {
     </template>
 
     <template #control>
-      <div class="">
+      <div>
         <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100 outline-none" @click="ok"> OK </button>
       </div>
     </template>

@@ -137,22 +137,18 @@ const cancelAction = async () => {
       class="absolute inset-0 z-10 flex h-full w-full items-center justify-center rounded-lg bg-white/40 backdrop-blur"
       v-show="running"
     >
-      <div class="">Processing...</div>
+      <div>Processing...</div>
     </div>
     <div
       class="absolute inset-0 z-10 flex h-full w-full flex-col items-center justify-center rounded-lg bg-white p-6"
       v-show="isFinished"
     >
-<<<<<<< HEAD
       <div class="gradient-text text-base">Task Finished</div>
-=======
-      <div class="gradient-text text-base ">Task Finished</div>
->>>>>>> main
 
       <div class="mt-8 space-y-4 text-sm">
         <div v-for="txid in processTxids" :key="txid" class="space-y-1">
           <div class="label flex items-center gap-x-2">
-            <div class="">Transaction ID</div>
+            <div>Transaction ID</div>
             <button @click="getHostAndToTx(txid)" class="h-5 w-5">
               <ArrowTopRightOnSquareIcon class="h-5 w-5 hover:text-blue-primary" />
             </button>

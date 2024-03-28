@@ -59,7 +59,7 @@ getNetwork().then(async (networkType) => {
           <div class="text-center text-sm text-sky-900">Inputs</div>
           <div class="mt-2 space-2 text-xs">
             <div class="border-2 border-sky-300 bg-sky-300 rounded p-1" v-for="input in inputs">
-              <div class="">Address</div>
+              <div>Address</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(input.address, 4) }}
               </div>
@@ -79,7 +79,7 @@ getNetwork().then(async (networkType) => {
           <div class="text-center text-sm text-teal-900">Outputs</div>
           <div class="mt-2 space-2 text-xs">
             <div class="border-2 border-teal-300 bg-teal-100 rounded p-1" v-for="output in outputs">
-              <div class="">Address</div>
+              <div>Address</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(output.address, 4) }}
               </div>

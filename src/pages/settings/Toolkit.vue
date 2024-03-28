@@ -21,7 +21,7 @@ const toSpaceMerge = () => {
       <div class="divide-y divide-gray-100">
         <div class="setting-item group cursor-pointer" @click="toBTCMerge">
           <div class="text-gray-500 group-hover:underline">BTC Merge</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
@@ -33,14 +33,14 @@ const toSpaceMerge = () => {
       <div class="divide-y divide-gray-100">
         <div class="setting-item group cursor-pointer" @click="toSpaceMerge">
           <div class="text-gray-500 group-hover:underline">Space Merge</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-not-allowed" title="coming sonn">
           <div class="text-gray-500 group-hover:underline">Ft Merge</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>

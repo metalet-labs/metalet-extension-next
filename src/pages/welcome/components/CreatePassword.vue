@@ -56,7 +56,7 @@ const submit = async () => {
           class="w-full rounded-md py-3.5 px-4 pr-5 border border-gray-soft focus:outline-none"
         />
         <div class="absolute right-0 top-0 flex h-full items-center pr-4">
-          <button class="" @click="isCovered = !isCovered">
+          <button @click="isCovered = !isCovered">
             <EyeIcon v-if="!isCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
             <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
           </button>
@@ -72,7 +72,7 @@ const submit = async () => {
           class="w-full rounded-md py-3.5 px-4 pr-5 border border-gray-soft focus:outline-none"
         />
         <div class="absolute right-0 top-0 flex h-full items-center pr-4">
-          <button class="" @click="isConfirmCovered = !isConfirmCovered">
+          <button @click="isConfirmCovered = !isConfirmCovered">
             <EyeIcon v-if="!isConfirmCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
             <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
           </button>

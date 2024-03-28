@@ -129,18 +129,14 @@ async function transfer() {
 <template>
   <div class="flex h-full flex-col">
     <div class="grow">
-      <div class="">
+      <div>
         <div class="flex items-center gap-4 rounded-md bg-gray-100 p-4" v-if="nft && nftInfo">
           <div class="h-12 w-12 overflow-hidden rounded">
             <img :src="coverUrl" class="object-cover" v-if="coverUrl" />
           </div>
 
-          <div class="">
-<<<<<<< HEAD
+          <div>
             <h3 class="text-sm">{{ nftInfo.name }}</h3>
-=======
-            <h3 class="text-sm ">{{ nftInfo.name }}</h3>
->>>>>>> main
             <div class="text-xs text-gray-500">{{ '# ' + nft.tokenIndex }}</div>
           </div>
         </div>
@@ -170,13 +166,13 @@ async function transfer() {
 
       <template #body>
         <div class="mt-4 space-y-4">
-          <div class="">
+          <div>
             <div class="flex items-center gap-4 rounded-md bg-gray-100 p-4" v-if="nft && nftInfo">
               <div class="h-12 w-12 overflow-hidden rounded">
                 <img :src="coverUrl" class="object-cover" v-if="coverUrl" />
               </div>
 
-              <div class="">
+              <div>
                 <h3 class="text-sm">{{ nftInfo.name }}</h3>
                 <div class="text-xs text-gray-500">{{ '# ' + nft.tokenIndex }}</div>
               </div>
@@ -191,7 +187,7 @@ async function transfer() {
       </template>
 
       <template #control>
-        <div class="" v-if="operationLock">
+        <div v-if="operationLock">
           <div class="w-full py-3 text-center text-sm text-gray-500">Operating...</div>
         </div>
         <div class="grid grid-cols-2 gap-x-4" v-else>

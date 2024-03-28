@@ -25,24 +25,24 @@ action
   <ul class="space-y-4 rounded-lg bg-gray-100 p-4 text-sm">
     <h3 class="text-base">{{ action.title }}</h3>
     <div class="space-y-2">
-      <div class="">
+      <div>
         <div class="label">codehash</div>
         <div class="value">{{ params.codehash }}</div>
       </div>
 
-      <div class="">
+      <div>
         <div class="label">genesis</div>
         <div class="value">{{ params.genesis }}</div>
       </div>
 
-      <div class="">
+      <div>
         <div class="label">receiver address</div>
         <div class="value" :title="params.receivers[0].address">
           {{ params.receivers[0].address }}
         </div>
       </div>
 
-      <div class="">
+      <div>
         <div class="label">amount</div>
         <div class="value">
           {{ params.receivers[0].amount }}

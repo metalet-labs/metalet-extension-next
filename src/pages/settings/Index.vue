@@ -80,28 +80,28 @@ const showResetModal = ref(false)
 
         <div class="setting-item group cursor-pointer" @click="toCurrentAccount">
           <div class="text-gray-500 group-hover:underline">Current Account</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-pointer" @click="toAddressType">
           <div class="text-gray-500 group-hover:underline">BTC Address Type</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-pointer" @click="toToolkit">
           <div class="text-gray-500 group-hover:underline">Toolkit</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-pointer" @click="openWindowMode" v-if="!IS_DEV">
           <div class="text-gray-500 group-hover:underline">Open in Window Mode</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
@@ -115,42 +115,42 @@ const showResetModal = ref(false)
       <div class="divide-y divide-gray-100">
         <div class="setting-item group cursor-pointer" @click="toBackup" v-if="hasPassword">
           <div class="text-gray-500 group-hover:underline">Backup</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-pointer" @click="setPassword" v-else>
           <div class="text-gray-500 group-hover:underline">Set Password</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-pointer" @click="showResetModal = true" v-if="hasPassword">
           <div class="text-gray-500 group-hover:underline">Reset Account</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-pointer" @click="toSecurityLab" v-if="false">
           <div class="text-gray-500 group-hover:underline">Security Lab (Upgrade to account V3 version)</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item group cursor-pointer" @click="toSecurityLab" v-if="false">
           <div class="text-gray-500 group-hover:underline">Migrate Error Logs</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
 
         <!-- <div class="setting-item group cursor-pointer" @click="toConnectedDapps">
           <div class="text-gray-500 group-hover:underline">Connected Dapps</div>
-          <div class="">
+          <div>
             <ChevronRightIcon class="link-icon" />
           </div>
         </div> -->
@@ -163,32 +163,32 @@ const showResetModal = ref(false)
       <div class="divide-y divide-gray-100">
         <div class="setting-item group cursor-pointer" @click="toTerms">
           <div class="text-gray-500 group-hover:underline">Terms of Service</div>
-          <div class="">
+          <div>
             <ArrowTopRightOnSquareIcon class="link-icon" />
           </div>
         </div>
         <div class="setting-item group cursor-pointer" @click="toPolicy">
           <div class="text-gray-500 group-hover:underline">Privacy Policy</div>
-          <div class="">
+          <div>
             <ArrowTopRightOnSquareIcon class="link-icon" />
           </div>
         </div>
         <div class="setting-item group cursor-pointer" @click="toDiscord">
           <div class="text-gray-500 group-hover:underline">Get Help at Discord</div>
-          <div class="">
+          <div>
             <ArrowTopRightOnSquareIcon class="link-icon" />
           </div>
         </div>
         <div class="setting-item group cursor-pointer" @click="toGithub">
           <div class="text-gray-500 group-hover:underline">Source Code at Github</div>
-          <div class="">
+          <div>
             <ArrowTopRightOnSquareIcon class="link-icon" />
           </div>
         </div>
 
         <div class="setting-item">
           <div class="text-gray-500">Version</div>
-          <div class="">{{ VERSION }}</div>
+          <div>{{ VERSION }}</div>
         </div>
       </div>
     </div>

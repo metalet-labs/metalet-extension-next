@@ -59,7 +59,7 @@ const toAccountList = () => {
                 <ClipboardDocumentListIcon class="h-4 w-4" />
               </button>
             </div>
-            <div class="">{{ address }}</div>
+            <div>{{ address }}</div>
           </div>
         </div>
       </MenuItem> -->

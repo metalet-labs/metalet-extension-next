@@ -25,7 +25,7 @@ const gotoWelcome = () => {
 </script>
 
 <template>
-  <div class="">
+  <div>
     <AccountItem
       v-for="account in accounts"
       :key="account.id"

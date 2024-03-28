@@ -38,11 +38,7 @@ const verify = async () => {
 
 <template>
   <div class="-mb-8 pt-4">
-<<<<<<< HEAD
     <h3 class="text-center text-lg">Check Backup</h3>
-=======
-    <h3 class="text-center text-lg ">Check Backup</h3>
->>>>>>> main
 
     <p class="pt-2 text-center text-sm text-gray-500">
       Write down your seed phrase to make sure you have backed up your wallet.

@@ -57,11 +57,7 @@ const next = async () => {
     <div class="grow">
       <template v-if="phase === 1">
         <img :src="PasswordImg" class="mx-auto h-7 w-9" />
-<<<<<<< HEAD
         <h3 class="mt-4 text-center text-lg">Password Security</h3>
-=======
-        <h3 class="mt-4 text-center text-lg ">Password Security</h3>
->>>>>>> main
         <p class="mt-2 text-center text-sm text-gray-500">Make sure no one can see your screen.</p>
 
         <div class="mt-12">
@@ -74,7 +70,7 @@ const next = async () => {
               v-model="password"
             />
             <div class="absolute right-0 top-0 flex h-full items-center pr-4">
-              <button class="" @click="isCovered = !isCovered">
+              <button @click="isCovered = !isCovered">
                 <EyeIcon v-if="isCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
                 <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
               </button>

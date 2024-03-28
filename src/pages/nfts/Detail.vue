@@ -93,8 +93,8 @@ const toCollection = () => {
 </script>
 
 <template>
-  <div class="" v-if="isLoadingNftInfo">Loading</div>
-  <div class="" v-else-if="nftInfo && nft">
+  <div v-if="isLoadingNftInfo">Loading</div>
+  <div v-else-if="nftInfo && nft">
     <!-- image -->
     <div class="mx-auto aspect-square w-11/12 overflow-hidden rounded-lg">
       <img :src="coverUrl" class="h-full w-full object-contain" v-if="coverUrl" />
@@ -154,7 +154,7 @@ const toCollection = () => {
         <div class="label">Series Genesis</div>
         <div class="value flex items-center">
           <CheckBadgeIcon class="mr-1 h-5 w-5 text-blue-500" v-if="nft && isOfficialNft(nft.genesis)" />
-          <div class="">{{ prettifyTokenGenesis(nft.genesis) }}</div>
+          <div>{{ prettifyTokenGenesis(nft.genesis) }}</div>
 
           <ClipboardDocumentCheckIcon class="ml-2 h-4 w-4 text-blue-500" v-if="isCopied" />
           <button class="ml-2 text-gray-400 hover:text-gray-500" @click.stop="copyGenesis" type="button" v-else>
@@ -167,7 +167,7 @@ const toCollection = () => {
       <div class="row">
         <div class="label">Last Activity</div>
         <div class="value flex items-center">
-          <div class="">{{ prettifyTxId(nft.txid) }}</div>
+          <div>{{ prettifyTxId(nft.txid) }}</div>
 
           <button class="ml-2 text-gray-500 hover:text-blue-500" @click.stop="toActivityTx" type="button">
             <ArrowTopRightOnSquareIcon class="h-4 w-4" />

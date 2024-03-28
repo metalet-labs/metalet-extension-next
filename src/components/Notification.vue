@@ -51,7 +51,7 @@ watch(
         <CheckCircleIcon class="h-6 w-6 text-green-500" v-if="type === 'success'" />
         <ExclamationCircleIcon class="h-6 w-6 text-red-500" v-else />
 
-        <div class="">
+        <div>
           <div class="text-sm font-semibold text-gray-900">{{ title }}</div>
           <div class="text-xs text-gray-500">{{ content }}</div>
         </div>

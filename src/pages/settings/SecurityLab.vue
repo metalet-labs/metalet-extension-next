@@ -72,7 +72,7 @@ const exportAccouts = async (jsonStr: string, version: string) => {
     <div class="divide-y divide-gray-100">
       <div class="setting-item group cursor-pointer" @click="showResetModal = true">
         <div class="text-gray-500 group-hover:underline">Migrate V3 Accounts version</div>
-        <div class="">
+        <div>
           <ChevronRightIcon class="link-icon" />
         </div>
       </div>
@@ -84,21 +84,21 @@ const exportAccouts = async (jsonStr: string, version: string) => {
     <div class="divide-y divide-gray-100">
       <div class="setting-item group cursor-pointer" @click="exportV0Accout" v-if="hasV0">
         <div class="text-gray-500 group-hover:underline">Export V0 account cache</div>
-        <div class="">
+        <div>
           <ChevronRightIcon class="link-icon" />
         </div>
       </div>
 
       <div class="setting-item group cursor-pointer" @click="exportV1Accouts" v-if="hasV1">
         <div class="text-gray-500 group-hover:underline">Export V1 accounts cache</div>
-        <div class="">
+        <div>
           <ChevronRightIcon class="link-icon" />
         </div>
       </div>
 
       <div class="setting-item group cursor-pointer" @click="exportV2Accouts" v-if="hasV2">
         <div class="text-gray-500 group-hover:underline">Export V2 accounts cache</div>
-        <div class="">
+        <div>
           <ChevronRightIcon class="link-icon" />
         </div>
       </div>
@@ -112,7 +112,7 @@ const exportAccouts = async (jsonStr: string, version: string) => {
         <div class="text-red-300 group-hover:underline group-hover:text-red-500">
           Remove V0 account cache (Force export)
         </div>
-        <div class="">
+        <div>
           <ChevronRightIcon class="link-icon-danger" />
         </div>
       </div>
@@ -121,7 +121,7 @@ const exportAccouts = async (jsonStr: string, version: string) => {
         <div class="text-red-300 group-hover:underline group-hover:text-red-500">
           Remove V1 account cache (Force export)
         </div>
-        <div class="">
+        <div>
           <ChevronRightIcon class="link-icon-danger" />
         </div>
       </div>
@@ -130,7 +130,7 @@ const exportAccouts = async (jsonStr: string, version: string) => {
         <div class="text-red-300 group-hover:underline group-hover:text-red-500">
           Remove V2 account cache (Force export)
         </div>
-        <div class="">
+        <div>
           <ChevronRightIcon class="link-icon-danger" />
         </div>
       </div>

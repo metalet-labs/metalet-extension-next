@@ -156,9 +156,9 @@ const onSubmit = async () => {
                 <FlexBox ai="center" :gap="2">
                   <div class="text-gray-primary text-ss">MVC:</div>
                   <div class="text-sm tracking-wide">
-                    <span class="">m/44'/</span>
+                    <span>m/44'/</span>
                     <input type="text" class="pit-input mx-2 w-16" v-model="mvcPath" />
-                    <span class="">'/0'</span>
+                    <span>'/0'</span>
                   </div>
                 </FlexBox>
                 <FlexBox ai="center" :gap="1">

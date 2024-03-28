@@ -84,11 +84,7 @@ watch(
         </button>
       </div>
 
-<<<<<<< HEAD
       <div class="col-span-4 text-center">PSBT Details</div>
-=======
-      <div class="col-span-4  text-center">PSBT Details</div>
->>>>>>> main
     </div>
 
     <!-- detail body -->
@@ -97,14 +93,10 @@ watch(
       <div class="label mt-4">PSBT Structure</div>
       <div class="grid grid-cols-11 items-center mt-1">
         <div class="col-span-5 bg-sky-50 border-2 border-sky-300 border-dashed py-2 px-1 rounded-lg">
-<<<<<<< HEAD
           <div class="text-center text-sm text-sky-900">Inputs</div>
-=======
-          <div class="text-center text-sm  text-sky-900">Inputs</div>
->>>>>>> main
           <div class="mt-2 space-2 text-xs">
             <div class="border-2 border-sky-300 bg-sky-300 rounded p-1" v-for="input in inputs">
-              <div class="">Address</div>
+              <div>Address</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(input.address, 4) }}
               </div>
@@ -124,7 +116,7 @@ watch(
           <div class="text-center text-sm text-teal-900">Outputs</div>
           <div class="mt-2 space-2 text-xs">
             <div class="border-2 border-teal-300 bg-teal-100 rounded p-1" v-for="output in outputs">
-              <div class="">Address</div>
+              <div>Address</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(output.address, 4) }}
               </div>

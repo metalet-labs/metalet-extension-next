@@ -43,7 +43,7 @@ const toReceive = () => {
       <div class="text-xl">{{ nftsCountDisplay }}</div>
     </div>
 
-    <div class="">
+    <div>
       <button class="secondary-btn flex w-full items-center justify-center gap-x-1 py-3" @click="toReceive">
         <ArrowDownLeftIcon class="h-4 w-4" />
         <span>Receive</span>

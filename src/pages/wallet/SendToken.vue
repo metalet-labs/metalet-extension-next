@@ -165,9 +165,9 @@ async function send() {
 
       <!-- balance -->
       <div class="flex items-center gap-x-2 text-xs text-gray-500">
-        <div class="">Your Balance:</div>
-        <div class="" v-if="isLoading">--</div>
-        <div class="" v-else-if="token">
+        <div>Your Balance:</div>
+        <div v-if="isLoading">--</div>
+        <div v-else-if="token">
           {{ prettifyTokenBalance(token.confirmed + token.unconfirmed, token.decimal) + ' ' + token.symbol }}
         </div>
       </div>
@@ -199,7 +199,7 @@ async function send() {
       </template>
 
       <template #control>
-        <div class="" v-if="operationLock">
+        <div v-if="operationLock">
           <div class="w-full py-3 text-center text-sm text-gray-500">Operating...</div>
         </div>
         <div class="grid grid-cols-2 gap-x-4" v-else>

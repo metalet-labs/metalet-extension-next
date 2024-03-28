@@ -87,22 +87,16 @@ async function find() {
           You can then use this derivation path to recover your wallet.
         </p>
         <p class="mt-1">
-          <<<<<<< HEAD
-          <span class="font-bold">Note:</span> This tool will not require you to enter your mnemonic phrase. It only
-          ======= <span class="">Note:</span> This tool will not require you to enter your mnemonic phrase. It only
-          >>>>>>> feature/MetaIdPin tries to find out your old address using existing accounts in your wallet. All
-          calculations are done locally in the extension.
+          <span>Note:</span> This tool will not require you to enter your mnemonic phrase. It only tries to
+          find out your old address using existing accounts in your wallet. All calculations are done locally in the
+          extension.
         </p>
       </DisclosurePanel>
     </Disclosure>
 
     <div class="mt-8">
-      <div class="">
-        <<<<<<< HEAD
-        <label class="label font-bold">Target Address</label>
-        =======
+      <div>
         <label class="label">Target Address</label>
-        >>>>>>> feature/MetaIdPin
         <input
           type="text"
           class="pit-input block w-full mt-1"

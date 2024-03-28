@@ -60,7 +60,7 @@ const toResultTx = async () => {
     <template #title v-if="result && result.status === 'success'">
       <div class="flex items-center gap-2">
         <span class="gradient-text">Sent Successfully</span>
-        <span class="">🚀</span>
+        <span>🚀</span>
       </div>
     </template>
 
@@ -79,12 +79,8 @@ const toResultTx = async () => {
             <img :src="result.nft.cover" class="object-cover" />
           </div>
 
-          <div class="">
-<<<<<<< HEAD
+          <div>
             <h3 class="text-sm">{{ result.nft.name }}</h3>
-=======
-            <h3 class="text-sm ">{{ result.nft.name }}</h3>
->>>>>>> main
             <div class="text-xs text-gray-500">{{ '# ' + result.nft.tokenIndex }}</div>
           </div>
         </div>
@@ -107,7 +103,7 @@ const toResultTx = async () => {
     </template>
 
     <template #control>
-      <div class="">
+      <div>
         <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100 outline-none" @click="closeModal">
           OK
         </button>
