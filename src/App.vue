@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { FEEB } from './data/config'
+import { useRoute } from 'vue-router'
 import useStorage from '@/lib/storage'
 import { gotoWelcome } from '@/lib/utils'
 import { getNetwork } from './lib/network'
-import { computed, Ref, inject } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { toast } from './components/ui/toast'
 import { useQueryClient } from '@tanstack/vue-query'
 import BgHueImg from './assets/images/bg-hue.png?url'
+import { computed, Ref, inject, onMounted } from 'vue'
 import Toaster from '@/components/ui/toast/Toaster.vue'
 import TheFooter from './components/the-footer/Index.vue'
 import TheHeader from './components/headers/TheHeader.vue'
 import { API_NET, API_TARGET, Wallet } from 'meta-contract'
 import { getCurrentAccount, getPrivateKey } from './lib/account'
 import SecondaryHeader from './components/headers/SecondaryHeader.vue'
-
 import {
   migrateV2,
   migrationSync,
@@ -23,7 +23,6 @@ import {
 } from '@/lib/migrate'
 
 const route = useRoute()
-const router = useRouter()
 const storage = useStorage()
 
 const queryClient = useQueryClient()
@@ -43,7 +42,10 @@ const secondaryHeaderTitle = computed(() => {
 
 async function checkMigrate() {
   if (!(await storage.get(ACCOUNT_Sync_Migrated_KEY))) {
-    const result = await migrationSync()
+    const { code, message } = await migrationSync()
+    if (code === -1) {
+      toast({ title: `Migrate Failed`, toastType: 'fail', description: message })
+    }
   }
   if (!(await storage.get(ACCOUNT_V2_Migrated_KEY)) && (await needMigrationV2())) {
     await migrateV2()
@@ -52,25 +54,26 @@ async function checkMigrate() {
 }
 
 const wallet: Ref<any> = inject('wallet')!
-checkMigrate().then(async () => {
-  const currentAccout = await getCurrentAccount()
-  if (currentAccout) {
-    const network = await getNetwork()
-    const wif = await getPrivateKey()
-    wallet.value = new Wallet(wif, network as API_NET, FEEB, API_TARGET.MVC)
-  } else {
-    gotoWelcome('/welcome')
-  }
+
+onMounted(() => {
+  checkMigrate().then(async () => {
+    const currentAccout = await getCurrentAccount()
+    if (currentAccout) {
+      const network = await getNetwork()
+      const wif = await getPrivateKey()
+      wallet.value = new Wallet(wif, network as API_NET, FEEB, API_TARGET.MVC)
+    } else {
+      gotoWelcome('/welcome')
+    }
+  })
 })
 </script>
 
 <template>
   <div
-    id="app"
     class="ext-app relative flex h-150 w-90 items-center justify-center overflow-y-auto xs:h-screen xs:w-screen xs:bg-gray-200/10 text-black-secondary"
   >
     <Toaster />
-
     <!-- bg -->
     <div
       class="fixed left-0 top-0 isolate z-[-1] hidden h-1/2 w-full select-none bg-cover bg-center bg-no-repeat xs:block"

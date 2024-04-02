@@ -15,6 +15,7 @@ import {
 
 export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
 export const ACCOUNT_V2_Migrated_KEY = 'accounts_v2_migrated'
+export const ACCOUNT_V3_Migrated_KEY = 'accounts_v3_migrated'
 export const ACCOUNT_V2_Encrypted_KEY = 'accounts_v2_encrypted'
 export const Error_Accounts_Migrate_Log_Key = 'error_accounts_migrate_log'
 
@@ -46,9 +47,9 @@ const addMigrateErrorAccount = async (address: string, mnemonic: string, storage
 }
 
 enum MigrateResultCode {
-  SUCCESS = 0,
-  FAILED = -1,
-  NO_fOUND = 1,
+  SUCCESS = -1,
+  UNDO = 0,
+  FAILED = 1,
 }
 
 interface MigrateResult {
@@ -102,7 +103,7 @@ export async function migrationSync(): Promise<MigrateResult> {
         if (v2Account) {
           await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
           return {
-            code: MigrateResultCode.SUCCESS,
+            code: MigrateResultCode.UNDO,
             message: `Account already exists.`,
           }
         }
@@ -152,8 +153,8 @@ export async function migrationSync(): Promise<MigrateResult> {
   }
   await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
   return {
-    code: MigrateResultCode.NO_fOUND,
-    message: 'Sync account data is not found.',
+    code: MigrateResultCode.UNDO,
+    message: 'No cache, no migration needed.',
   }
 }
 

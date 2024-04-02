@@ -8,7 +8,6 @@ import wasm from 'vite-plugin-wasm'
 import topLevelAwait from 'vite-plugin-top-level-await'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
 import VueDevTools from 'vite-plugin-vue-devtools'
-// import Inspector from 'vite-plugin-vue-inspector' // OR vite-plugin-vue-inspector
 
 const env = loadEnv('', process.cwd())
 
@@ -18,7 +17,7 @@ export default defineConfig({
   plugins: [alias(), vue(), VueDevTools(), nodePolyfills(), wasm(), topLevelAwait(), svgLoader()],
 
   server: {
-    port: 5146,
+    port: 3000,
     open: true,
   },
 })

@@ -14,13 +14,7 @@ import EditName from '@/pages/accounts/components/EditName.vue'
 import CloseIcon from '@/assets/icons-v3/close.svg'
 import BtcLogo from '@/assets/images/btc-logo.svg?url'
 import SpaceLogo from '@/assets/images/space-logo.svg?url'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer'
+import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 
 const { toast } = useToast()
 
@@ -66,12 +60,12 @@ const copy = (address: string, type: string) => {
       <EditName v-model:open="openEditNameModal" :account="account" />
     </FlexBox>
     <div class="flex items-center gap-x-4">
-      <CopyIcon class="cursor-pointer" @click="isOpen = true" />
+      <CopyIcon class="cursor-pointer hover:text-blue-primary" @click="isOpen = true" />
       <SettingMenu />
       <ServiceMenu class="cursor-pointer" />
     </div>
   </div>
-  <Drawer v-model:open="isOpen">
+  <Drawer v-model:open="isOpen" activeSnapPoint="#wallet">
     <DrawerContent>
       <DrawerHeader>
         <DrawerTitle class="text-center relative">
@@ -88,7 +82,7 @@ const copy = (address: string, type: string) => {
             <div>Bitcoin</div>
             <div class="text-xs text-gray-primary break-all w-64">{{ btcAddress }}</div>
           </div>
-          <CopyIcon class="cursor-pointer" @click="copy(btcAddress, 'Bitcoin')" />
+          <CopyIcon class="cursor-pointer hover:text-blue-primary" @click="copy(btcAddress, 'Bitcoin')" />
         </FlexBox>
         <FlexBox ai="center" :gap="2">
           <img :src="SpaceLogo" alt="Bitcoin" class="w-8" />
@@ -96,7 +90,7 @@ const copy = (address: string, type: string) => {
             <div>Microvisionchain</div>
             <div class="text-xs text-gray-primary break-all w-64">{{ btcAddress }}</div>
           </div>
-          <CopyIcon class="cursor-pointer" @click="copy(mvcAddress, 'Microvisionchain')" />
+          <CopyIcon class="cursor-pointer hover:text-blue-primary" @click="copy(mvcAddress, 'Microvisionchain')" />
         </FlexBox>
       </FlexBox>
     </DrawerContent>
