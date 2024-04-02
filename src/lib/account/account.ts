@@ -1,11 +1,11 @@
-import useStorage from './storage'
+import useStorage from '@/lib/storage'
 import { mvc } from 'meta-contract'
 import { crypto } from 'bitcoinjs-lib'
-import { signMessage } from './crypto'
-import { fetchUtxos } from '../queries/utxos'
+import { signMessage } from '@/lib/crypto'
+import { fetchUtxos } from '@/queries/utxos'
 import { notifyContent } from '@/lib/notify-content'
-import { getBtcNetwork, getNetwork } from './network'
-import { generateRandomString, raise } from './helpers'
+import { getBtcNetwork, getNetwork } from '@/lib/network'
+import { generateRandomString, raise } from '@/lib/helpers'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
 import {
   AddressType,
@@ -16,7 +16,7 @@ import {
   deriveSigner,
   deriveBtcPrivateKey,
   deriveAllAddresses,
-} from './bip32-deriver'
+} from '@/lib/bip32-deriver'
 
 const CURRENT_ACCOUNT_ID = 'currentAccountId'
 const V0_ACCOUNT_STORAGE_KEY = 'currentAccount'

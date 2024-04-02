@@ -5,7 +5,6 @@ import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
 import Wallet from './pages/wallet/Index.vue'
 import { getCurrentAccount } from './lib/account'
-import App from './App.vue'
 
 const storage = useStorage()
 
@@ -415,6 +414,10 @@ const routes = [
       { path: 'import', component: () => import('./pages/welcome/Import.vue') },
       { path: 'create', component: () => import('./pages/welcome/Create.vue') },
     ],
+  },
+  {
+    path: '/test',
+    component: () => import('./pages/tests/Index.vue'),
   },
 ]
 

@@ -299,14 +299,14 @@ export async function checkMigrate() {
   }
 }
 
-// export async function encryptV2Accounts(password: string): Promise<void> {
-//   const v2Accounts = await getV2AccountsObj()
-//   console.log('v2Accounts', v2Accounts)
+export async function encryptV2Accounts(password: string): Promise<void> {
+  const v2Accounts = await getV2AccountsObj()
+  console.log('v2Accounts', v2Accounts)
 
-//   const encryptedText = encrypt(JSON.stringify(v2Accounts), password)
-//   console.log('encryptedText', encryptedText)
+  const encryptedText = encrypt(JSON.stringify(v2Accounts), password)
+  console.log('encryptedText', encryptedText)
 
-//   const decryptedText = decrypt(encryptedText, password)
-//   console.log('decryptedText', decryptedText)
-//   console.log('JSON decryptedText', JSON.parse(decryptedText))
-// }
+  const decryptedText = decrypt(encryptedText, password)
+  console.log('decryptedText', decryptedText)
+  console.log('JSON decryptedText', JSON.parse(decryptedText))
+}
