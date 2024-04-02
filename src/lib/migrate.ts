@@ -128,7 +128,7 @@ async function migrateSyncToV2(): Promise<MigrateResult> {
         const rndNameId = generateRandomString(4)
         const account = {
           id,
-          name: alias || `Account ${rndNameId}`,
+          name: alias || `Account#${rndNameId}`,
           mnemonic: mnemonicStr,
           assetsDisplay: ['SPACE', 'BTC'],
           mvc: {
@@ -219,7 +219,7 @@ async function migrateV1ToV2(): Promise<MigrateResult> {
 
       const newAccount = {
         id: v1Account.id,
-        name: v1Account.name || `Account ${rndNameId}`,
+        name: v1Account.name || `Account#${rndNameId}`,
         mnemonic: v1Account.mnemonic,
         assetsDisplay: ['SPACE', 'BTC'],
         mvc: {
