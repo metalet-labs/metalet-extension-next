@@ -1,7 +1,21 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router';
+import { needMigrate } from '@/lib/migrate'
+import Toaster from '@/components/ui/toast/Toaster.vue'
+
+const router = useRouter()
+
+onMounted(async () => {
+  if (await needMigrate()) {
+    router.push('/migrateV2')
+  }
+})
+</script>
 
 <template>
   <div id="main" class="text-black-secondary">
+    <Toaster />
     <router-view></router-view>
   </div>
 </template>

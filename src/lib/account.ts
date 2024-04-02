@@ -54,12 +54,15 @@ export type Account = {
   mvc: DerivedAccountDetail
   btc: DerivedAccountDetail
 }
+
 type V1Account = {
   id: string
-  name: string
+  name?: string
   mnemonic: string
-  path: string
-  assetsDisplay: string[]
+  path: string // mvc coin type
+  assetsDisplay?: string[]
+  btcPath?: string // btc hd full path
+  btcType?: AddressType
 }
 
 // Account Map Serialization
@@ -83,14 +86,17 @@ function deserializeAccountMap(accounts: Record<string, Account>): Map<string, A
 interface SyncCurrentAccount {
   address: string
   mnemonicStr: string
+  alias?: string
 }
 
 export async function hasV0Account(): Promise<boolean> {
+  // TODO: get IndexDB data
   const storage = useStorage('sync')
   return !!(await storage.get<SyncCurrentAccount>(V0_ACCOUNT_STORAGE_KEY))
 }
 
 export async function getV0Account(): Promise<SyncCurrentAccount | undefined> {
+  //TODO: get IndexDB data
   const storage = useStorage('sync')
   return await storage.get<SyncCurrentAccount>(V0_ACCOUNT_STORAGE_KEY)
 }
@@ -120,9 +126,13 @@ export async function getV2AccountsObj(): Promise<Record<string, Account>> {
   })
 }
 
-export async function getV2Accounts(): Promise<Map<string, Account>> {
+export async function getV2Accounts() {
   const v2Accounts = await getV2AccountsObj()
   return deserializeAccountMap(v2Accounts)
+}
+
+export async function setV2Accounts(accountsMap: Map<string, Account>) {
+  await storage.set(V2_ACCOUNTS_STORAGE_KEY, serializeAccountMap(accountsMap))
 }
 
 export async function getAccountsVersionKey(): Promise<string> {
@@ -197,10 +207,6 @@ export async function connectAccount(accountId: string) {
   notifyContent('accountsChanged')({ mvcAddress, btcAddress })
 
   return true
-}
-
-export async function setV2Accounts(accountsMap: Map<string, Account>): Promise<void> {
-  await storage.set(V2_ACCOUNTS_STORAGE_KEY, serializeAccountMap(accountsMap))
 }
 
 export async function setAccounts(accountsMap: Map<string, Account>): Promise<void> {

@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import passwordManager from '../lib/password'
-import { encryptV2Accounts } from '@/lib/migrate'
+// import { encryptV2Accounts } from '@/lib/migrate'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
 
@@ -27,7 +27,7 @@ const migrate = async () => {
   }
 
   // await accountManager.removeCurrent()
-  await encryptV2Accounts(password.value)
+  // await encryptV2Accounts(password.value)
 
   emit('update:show', false)
 

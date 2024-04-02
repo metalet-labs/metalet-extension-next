@@ -1,55 +1,64 @@
 import useStorage from './storage'
 import { mvc } from 'meta-contract'
 import { encrypt, decrypt } from './crypto'
+import { toast } from '@/components/ui/toast'
 import { generateRandomString } from './helpers'
 import { AddressType, deriveAllAddresses } from './bip32-deriver'
 import {
-  getV0Account,
-  getLegacyAccounts,
-  getV2Accounts,
-  getV2AccountsObj,
-  setV2Accounts,
   type Account,
+  hasV0Account,
+  getV0Account,
+  getV2Accounts,
+  setV2Accounts,
+  connectAccount,
+  getV2AccountsObj,
+  getLegacyAccounts,
+  getCurrentAccountId,
   type DerivedAccountDetail,
 } from './account'
 
 export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
+export const ACCOUNT_V1_Migrated_KEY = 'accounts_v1_migrated'
 export const ACCOUNT_V2_Migrated_KEY = 'accounts_v2_migrated'
-export const ACCOUNT_V3_Migrated_KEY = 'accounts_v3_migrated'
 export const ACCOUNT_V2_Encrypted_KEY = 'accounts_v2_encrypted'
 export const Error_Accounts_Migrate_Log_Key = 'error_accounts_migrate_log'
 
 const storage = useStorage()
 
-type MigrateErrorVersion = 'Sync' | 'V1' | 'V2'
+type MigrateErrorVersion = 'V0' | 'V1' | 'V2'
 
 interface MigrateErrorAccount {
   timeStamp: number
   version: MigrateErrorVersion
   mnemonic: string
-  address: string
   storage: string
+  errorLog: string
 }
 
 const getMigrateErrorAccounts = async (): Promise<MigrateErrorAccount[]> => {
   return await storage.get<MigrateErrorAccount[]>(Error_Accounts_Migrate_Log_Key, { defaultValue: [] })
 }
 
-const addMigrateErrorAccount = async (address: string, mnemonic: string, storage: string): Promise<void> => {
+const addMigrateErrorAccount = async (
+  mnemonic: string,
+  storage: string,
+  version: MigrateErrorVersion,
+  errorLog: string
+): Promise<void> => {
   const errorAccounts = await getMigrateErrorAccounts()
   errorAccounts.push({
     timeStamp: Date.now(),
-    version: 'Sync',
+    version,
     mnemonic,
-    address,
     storage,
+    errorLog,
   })
 }
 
 enum MigrateResultCode {
-  SUCCESS = -1,
+  SUCCESS = 1,
   UNDO = 0,
-  FAILED = 1,
+  FAILED = -1,
 }
 
 interface MigrateResult {
@@ -57,31 +66,37 @@ interface MigrateResult {
   message: string
 }
 
-interface SyncCurrentAccount {
-  address: string
-  mnemonicStr: string
+async function needMigrateV0ToV2(): Promise<boolean> {
+  if (await storage.get(ACCOUNT_Sync_Migrated_KEY)) {
+    return false
+  }
+  const needed = await hasV0Account()
+  if (!needed) {
+    await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
+  }
+  return needed
 }
 
-export async function migrationSync(): Promise<MigrateResult> {
+async function migrateSyncToV2(): Promise<MigrateResult> {
   const v0Record = await getV0Account()
   if (v0Record) {
-    // First, determine whether it is possible to retrieve.
-    const address = v0Record.address
-    const mnemonicStr = v0Record.mnemonicStr
+    const { address, mnemonicStr, alias } = v0Record
     if (!mnemonicStr) {
-      await addMigrateErrorAccount(address, mnemonicStr, v0Record.toString())
+      const errorLog = 'Mnemonic is empty.'
       await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
+      await addMigrateErrorAccount(mnemonicStr, v0Record.toString(), 'V0', errorLog)
       return {
         code: MigrateResultCode.FAILED,
-        message: 'Mnemonic is empty.',
+        message: errorLog,
       }
     }
     if (!address) {
-      await addMigrateErrorAccount(address, mnemonicStr, v0Record.toString())
+      const errorLog = 'Address is empty.'
       await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
+      await addMigrateErrorAccount(mnemonicStr, v0Record.toString(), 'V0', errorLog)
       return {
         code: MigrateResultCode.FAILED,
-        message: 'Address is empty.',
+        message: errorLog,
       }
     }
     let usingPath = ''
@@ -95,11 +110,7 @@ export async function migrationSync(): Promise<MigrateResult> {
       if (address === derivedAddress) {
         usingPath = path
         const v2Records = await getV2Accounts()
-        const v2Account = Array.from(v2Records.values()).find(
-          (account) =>
-            account.mnemonic === mnemonicStr &&
-            [account.mvc.mainnetAddress, account.mvc.testnetAddress].includes(address)
-        )
+        const v2Account = Array.from(v2Records.values()).find((account) => account.mnemonic === mnemonicStr)
         if (v2Account) {
           await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
           return {
@@ -114,14 +125,14 @@ export async function migrationSync(): Promise<MigrateResult> {
           mvcPath: fullPath,
         })
         const id = generateRandomString(32)
+        const rndNameId = generateRandomString(4)
         const account = {
           id,
-          name: `Account ${v2Records.size + 1}`,
+          name: alias || `Account ${rndNameId}`,
           mnemonic: mnemonicStr,
           assetsDisplay: ['SPACE', 'BTC'],
           mvc: {
-            // V2 storage path,V3 store fullPath
-            path,
+            path: fullPath,
             addressType: 'P2PKH' as AddressType,
             mainnetAddress: allAddresses.mvcMainnetAddress,
             testnetAddress: allAddresses.mvcTestnetAddress,
@@ -133,22 +144,26 @@ export async function migrationSync(): Promise<MigrateResult> {
             testnetAddress: allAddresses.btcTestnetAddress,
           },
         } as Account
-        v2Records.set(generateRandomString(32), account)
+        v2Records.set(id, account)
         await setV2Accounts(v2Records)
+        if (!(await getCurrentAccountId)) {
+          connectAccount(id)
+        }
         await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
         return {
           code: MigrateResultCode.SUCCESS,
-          message: `Migration success.`,
+          message: `V0 account migrated successfully.`,
         }
       }
     }
-    if (!usingPath) {
-      await addMigrateErrorAccount(address, mnemonicStr, v0Record.toString())
-      await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
-      return {
-        code: MigrateResultCode.FAILED,
-        message: 'Path is not found.',
-      }
+
+    // can not find path
+    const errorLog = 'Path is not found.'
+    await addMigrateErrorAccount(mnemonicStr, v0Record.toString(), 'V0', errorLog)
+    await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
+    return {
+      code: MigrateResultCode.FAILED,
+      message: errorLog,
     }
   }
   await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
@@ -158,72 +173,140 @@ export async function migrationSync(): Promise<MigrateResult> {
   }
 }
 
-export async function needMigrationV2(): Promise<boolean> {
+async function needMigrateV1ToV2(): Promise<boolean> {
+  if (await storage.get(ACCOUNT_V1_Migrated_KEY)) {
+    return false
+  }
   const v1Records = await getLegacyAccounts()
   const v2Records = await getV2Accounts()
   const v1Mnemonics = v1Records.map((record) => record.mnemonic)
   const v2Mnemonics = Array.from(v2Records.values()).map((record) => record.mnemonic)
-  return v1Mnemonics.some((mne) => !v2Mnemonics.includes(mne))
+  const needed = v1Mnemonics.some((mne) => !v2Mnemonics.includes(mne))
+  if (!needed) {
+    await storage.set(ACCOUNT_V1_Migrated_KEY, true)
+  }
+  return needed
 }
 
-export async function migrateV2(): Promise<void> {
+async function migrateV1ToV2(): Promise<MigrateResult> {
   const v1Accounts = await getLegacyAccounts()
   const v2Accounts = await getV2Accounts()
   const v2AccountsArr = Array.from(v2Accounts.values())
-  if (!v1Accounts.length) {
-    return
-  }
+
+  let successfulMigrations = 0
+  let skippedMigrations = 0
+  let failedMigrations = 0
+  let totalAccounts = v1Accounts.length
 
   for (const v1Account of v1Accounts) {
-    const accountHasMigrated = v2AccountsArr.some((account) => account.mnemonic === v1Account.mnemonic)
+    try {
+      const accountHasMigrated = v2AccountsArr.some((account) => account.mnemonic === v1Account.mnemonic)
 
-    if (accountHasMigrated) {
+      if (accountHasMigrated) {
+        skippedMigrations++
+        continue
+      }
+
+      const deriveChainPath = v1Account.path
+      const path = `m/44'/${deriveChainPath}'/0'/0/0`
+      const rndNameId = generateRandomString(4)
+
+      const allAddresses = deriveAllAddresses({
+        mnemonic: v1Account.mnemonic,
+        btcPath: path,
+        mvcPath: path,
+      })
+
+      const newAccount = {
+        id: v1Account.id,
+        name: v1Account.name || `Account ${rndNameId}`,
+        mnemonic: v1Account.mnemonic,
+        assetsDisplay: ['SPACE', 'BTC'],
+        mvc: {
+          path,
+          addressType: 'P2PKH',
+          mainnetAddress: allAddresses.mvcMainnetAddress,
+          testnetAddress: allAddresses.mvcTestnetAddress,
+        } as DerivedAccountDetail,
+        btc: {
+          path,
+          addressType: 'P2PKH',
+          mainnetAddress: allAddresses.btcMainnetAddress,
+          testnetAddress: allAddresses.btcTestnetAddress,
+        } as DerivedAccountDetail,
+      }
+      v2Accounts.set(v1Account.id, newAccount)
+      successfulMigrations++
+    } catch (e: any) {
+      await addMigrateErrorAccount(v1Account.mnemonic, v1Account.toString(), 'V1', e)
+      failedMigrations++
       continue
     }
-
-    const deriveChainPath = v1Account.path
-    const path = `m/44'/${deriveChainPath}'/0'/0/0`
-    const rndNameId = generateRandomString(4)
-
-    const allAddresses = deriveAllAddresses({
-      mnemonic: v1Account.mnemonic,
-      btcPath: path,
-      mvcPath: path,
-    })
-
-    const newAccount = {
-      id: v1Account.id,
-      name: v1Account.name || `Account ${rndNameId}`,
-      mnemonic: v1Account.mnemonic,
-      assetsDisplay: ['SPACE', 'BTC'],
-      mvc: {
-        path,
-        addressType: 'P2PKH',
-        mainnetAddress: allAddresses.mvcMainnetAddress,
-        testnetAddress: allAddresses.mvcTestnetAddress,
-      } as DerivedAccountDetail,
-      btc: {
-        path,
-        addressType: 'P2PKH',
-        mainnetAddress: allAddresses.btcMainnetAddress,
-        testnetAddress: allAddresses.btcTestnetAddress,
-      } as DerivedAccountDetail,
-    }
-    v2Accounts.set(v1Account.id, newAccount)
   }
 
-  // set new accounts map
-  await setV2Accounts(v2Accounts)
+  if (successfulMigrations > 0) {
+    await setV2Accounts(v2Accounts)
+    if (!(await getCurrentAccountId())) {
+      const firstAccount = Array.from(v2Accounts.values()).shift()!
+      await connectAccount(firstAccount.id)
+    }
+  }
+  await storage.set(ACCOUNT_V1_Migrated_KEY, true)
+
+  let code = MigrateResultCode.UNDO
+  if (failedMigrations === totalAccounts) {
+    code = MigrateResultCode.FAILED
+  } else if (successfulMigrations > 0 && failedMigrations === 0) {
+    code = MigrateResultCode.SUCCESS
+  }
+  return {
+    code,
+    message: `
+    Migration Summary:\n
+    - Total Accounts Processed: ${totalAccounts}\n
+    - Successful Migrations: ${successfulMigrations}\n
+    - Accounts Already Exist (Skipped): ${skippedMigrations}\n
+    - Failed Migrations: ${failedMigrations}
+    `,
+  }
 }
 
-export async function encryptV2Accounts(password: string): Promise<void> {
-  const v2Accounts = await getV2AccountsObj()
-  console.log('v2Accounts', v2Accounts)
-
-  const encryptedText = encrypt(JSON.stringify(v2Accounts), password)
-  console.log('encryptedText', encryptedText)
-
-  const decryptedText = decrypt(encryptedText, password)
-  console.log('decryptedText', decryptedText)
-  console.log('JSON decryptedText', JSON.parse(decryptedText))
+export async function needMigrate() {
+  return (await needMigrateV1ToV2()) || (await needMigrateV0ToV2())
 }
+
+export async function checkMigrate() {
+  // Note: Migrate to higher versions first
+  if (await needMigrateV1ToV2()) {
+    const title = 'Migrate V1 account'
+    const { code, message: description } = await migrateV1ToV2()
+    if (code === MigrateResultCode.FAILED) {
+      toast({ title, toastType: 'fail', description })
+    } else if (code === MigrateResultCode.SUCCESS) {
+      toast({ title, toastType: 'success', description })
+    } else if (code === MigrateResultCode.UNDO) {
+      toast({ title, toastType: 'info', description })
+    }
+  }
+  if (await needMigrateV0ToV2()) {
+    const title = 'Migrate V0 account'
+    const { code, message } = await migrateSyncToV2()
+    if (code === MigrateResultCode.FAILED) {
+      toast({ title, toastType: 'fail', description: message })
+    } else if (code === MigrateResultCode.SUCCESS) {
+      toast({ title, toastType: 'success', description: message })
+    }
+  }
+}
+
+// export async function encryptV2Accounts(password: string): Promise<void> {
+//   const v2Accounts = await getV2AccountsObj()
+//   console.log('v2Accounts', v2Accounts)
+
+//   const encryptedText = encrypt(JSON.stringify(v2Accounts), password)
+//   console.log('encryptedText', encryptedText)
+
+//   const decryptedText = decrypt(encryptedText, password)
+//   console.log('decryptedText', decryptedText)
+//   console.log('JSON decryptedText', JSON.parse(decryptedText))
+// }

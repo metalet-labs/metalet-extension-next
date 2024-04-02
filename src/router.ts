@@ -1,11 +1,11 @@
-import App from './App.vue'
 import useStorage from './lib/storage'
+import { goToPage } from '@/lib/utils'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
-import { gotoWelcome } from '@/lib/utils'
 import Wallet from './pages/wallet/Index.vue'
 import { getCurrentAccount } from './lib/account'
+import App from './App.vue'
 
 const storage = useStorage()
 
@@ -13,7 +13,7 @@ const routes = [
   {
     path: '/',
     redirect: '/wallet',
-    component: App,
+    component: () => import('./App.vue'),
     children: [
       {
         path: '/wallet/init-service',
@@ -416,15 +416,6 @@ const routes = [
       { path: 'create', component: () => import('./pages/welcome/Create.vue') },
     ],
   },
-  {
-    path: '/settings/toolkit',
-    component: () => import('./pages/settings/Toolkit.vue'),
-    meta: {
-      secondaryHeader: true,
-      headerTitle: 'Toolkit',
-      noFooter: false,
-    },
-  },
 ]
 
 const historyMode = IS_DEV ? VueRouter.createWebHistory() : VueRouter.createWebHashHistory()
@@ -439,7 +430,7 @@ router.beforeEach(async (to, _, next) => {
   if (to.fullPath !== '/lock' && (await storage.get('locked'))) {
     next('/lock')
   } else if (!authPages.includes(to.path) && !(await getCurrentAccount())) {
-    gotoWelcome('/welcome')
+    goToPage('/welcome')
     next('/welcome')
   } else {
     if (['asset', 'token'].includes(to.name as string)) {

@@ -2,16 +2,15 @@ import router from '@/router'
 import { IS_DEV } from '@/data/config'
 import { twMerge } from 'tailwind-merge'
 import { type ClassValue, clsx } from 'clsx'
-import { camelize, getCurrentInstance, toHandlerKey } from 'vue'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from '@/data/config'
 
-export const gotoWelcome = (path: string) => {
+export const goToPage = (path: string) => {
   if (IS_DEV) {
-    router.push('/welcome')
+    router.push(path)
   } else {
     const browser = window.browser
     browser.windows.create({
-      url: browser.runtime.getURL('popup.html#/welcome'),
+      url: browser.runtime.getURL('popup.html#' + path),
       type: 'popup',
       width: NOTIFICATION_WIDTH,
       height: NOTIFICATION_HEIGHT,

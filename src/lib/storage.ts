@@ -22,7 +22,7 @@ function getDevStorage(storageType: StorageType) {
 
 function useStorage(storageType: StorageType = 'local'): Storage {
   let storage: {
-    get: (key: string) => Promise<string | undefined>
+    get: <T>(key: string) => Promise<T | string | undefined>
     set: (key: string, value: string) => Promise<void>
     remove: (key: string) => Promise<void>
   }
@@ -30,13 +30,13 @@ function useStorage(storageType: StorageType = 'local'): Storage {
     const _storage = getDevStorage(storageType)
     storage = {
       get: async function (key: string): Promise<string | undefined> {
-        return (await _storage.getItem(key)) ?? undefined
+        return _storage.getItem(key) ?? undefined
       },
       set: async function (key: string, value: string) {
-        await _storage.setItem(key, value)
+        _storage.setItem(key, value)
       },
       remove: async function (key: string) {
-        await _storage.removeItem(key)
+        _storage.removeItem(key)
       },
     }
   } else {
@@ -53,9 +53,9 @@ function useStorage(storageType: StorageType = 'local'): Storage {
     }
     const _storage = extension.storage[storageType]
     storage = {
-      get: async function (key: string): Promise<string | undefined> {
+      get: async function <T>(key: string): Promise<T | undefined> {
         const result = await _storage.get(key)
-        return result?.[key]
+        return result?.[key] as T
       },
       set: async function (key: string, value: string) {
         await _storage.set({ [key]: value })
@@ -68,15 +68,18 @@ function useStorage(storageType: StorageType = 'local'): Storage {
 
   return {
     async get<T>(key: string, option?: { defaultValue: T }): Promise<T | string | undefined> {
-      const value = await storage.get(key)
+      const value = await storage.get<T>(key)
       if (!value) {
         return option?.defaultValue
       }
-      try {
-        return JSON.parse(value)
-      } catch (error) {
-        return value
+      if (typeof value === 'string') {
+        try {
+          return JSON.parse(value)
+        } catch (error) {
+          return value
+        }
       }
+      return value
     },
     async set(key: string, value: object | string): Promise<void> {
       if (typeof value === 'object') {

@@ -1,22 +1,18 @@
 <script lang="ts" setup>
 import { sleep } from '@/lib/helpers'
+import { goToPage } from '@/lib/utils'
 import { useRouter } from 'vue-router'
+import { checkMigrate } from '@/lib/migrate'
 import { getCurrentAccount } from '@/lib/account'
-import { migrateV2, needMigrationV2 } from '@/lib/migrate'
 import MetaletLogoImg from '@/assets/images/metalet-logo.png?url'
-import { gotoWelcome } from '@/lib/utils'
 
 const router = useRouter()
-needMigrationV2().then(async (needsMigration: boolean) => {
-  if (!needsMigration) {
-    return
-  }
-  await migrateV2()
-  await sleep(1000)
+checkMigrate().then(async () => {
+  sleep(1000)
   if (await getCurrentAccount()) {
     router.push('/wallet')
   } else {
-    gotoWelcome('/welcome')
+    router.push('/welcome')
   }
 })
 </script>

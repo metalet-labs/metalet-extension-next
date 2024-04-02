@@ -10,8 +10,6 @@ import {
   getAddressType,
 } from '@/lib/account'
 
-import { migrateV2, needMigrationV2 } from '@/lib/migrate'
-
 export default {
   getCurrentAccount,
   updateName,
@@ -20,8 +18,6 @@ export default {
   getPrivateKey,
   getAddressType,
   updateBtcPath,
-  migrateV2,
-  needMigrationV2,
   deriveAllAddresses,
   getAssetsDisplay,
   addAssetsDisplay,
