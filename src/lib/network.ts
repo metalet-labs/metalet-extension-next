@@ -7,7 +7,6 @@ import { notifyContent } from '@/lib/notify-content'
 
 export type Service = Chain | 'all'
 
-
 export type Network = 'mainnet' | 'testnet'
 
 export const Service_Network_Key = 'service_network'

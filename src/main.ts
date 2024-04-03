@@ -11,9 +11,6 @@ import Notification from './components/Notification.vue'
 // @ts-ignore
 globalThis.Buffer = Buffer
 
-// @ts-ignore
-globalThis.Buffer = Buffer
-
 const app = createApp(Main)
 
 // 全局组件

@@ -6,6 +6,14 @@ import { generateRandomString } from './helpers'
 import { type DerivedAccountDetail } from '@/lib/types'
 import { AddressType, deriveAllAddresses } from './bip32-deriver'
 import {
+  getV3Wallets,
+  hasV3Wallets,
+  getV3WalletsStorage,
+  setV3WalletsStorage,
+  getCurrentWalletId,
+  setCurrentWalletId,
+} from '@/lib/wallet'
+import {
   type Account,
   hasV0Account,
   getV0Account,
@@ -39,6 +47,10 @@ const getMigrateErrorAccounts = async (): Promise<MigrateErrorAccount[]> => {
   return await storage.get<MigrateErrorAccount[]>(Error_Accounts_Migrate_Log_Key, { defaultValue: [] })
 }
 
+const setMigrateErrorAccounts = async (errorLogs: MigrateErrorAccount[]) => {
+  return await storage.set(Error_Accounts_Migrate_Log_Key, JSON.stringify(errorLogs))
+}
+
 const addMigrateErrorAccount = async (
   mnemonic: string,
   storage: string,
@@ -53,6 +65,7 @@ const addMigrateErrorAccount = async (
     storage,
     errorLog,
   })
+  setMigrateErrorAccounts(errorAccounts)
 }
 
 enum MigrateResultCode {
@@ -188,13 +201,6 @@ async function needMigrateV1ToV2(): Promise<boolean> {
   return needed
 }
 
-async function needMigrateV2ToV3(): Promise<boolean> {
-  if (await storage.get(ACCOUNT_V2_Migrated_KEY)) {
-    return false
-  }
-  return false
-}
-
 async function migrateV1ToV2(): Promise<MigrateResult> {
   const v1Accounts = await getLegacyAccounts()
   const v2Accounts = await getV2Accounts()
@@ -253,7 +259,9 @@ async function migrateV1ToV2(): Promise<MigrateResult> {
 
   if (successfulMigrations > 0) {
     await setV2Accounts(v2Accounts)
-    if (!(await getCurrentAccountId())) {
+    const accounts = await getV2Accounts()
+    const currentAccountId = await getCurrentAccountId()
+    if (!currentAccountId || !accounts.get(currentAccountId)) {
       const firstAccount = Array.from(v2Accounts.values()).shift()!
       await connectAccount(firstAccount.id)
     }
@@ -276,10 +284,6 @@ async function migrateV1ToV2(): Promise<MigrateResult> {
     - Failed Migrations: ${failedMigrations}
     `,
   }
-}
-
-export async function needMigrate() {
-  return (await needMigrateV1ToV2()) || (await needMigrateV0ToV2())
 }
 
 export async function migrateToV2() {
@@ -306,7 +310,120 @@ export async function migrateToV2() {
   }
 }
 
-export async function migrateToV3() {}
+async function needMigrateV2ToV3(): Promise<boolean> {
+  if (await storage.get(ACCOUNT_V2_Migrated_KEY)) {
+    return false
+  }
+  const v2Records = await getV2Accounts()
+  const v2Mnemonics = Array.from(v2Records.values()).map((record) => record.mnemonic)
+  const v3Wallets = await getV3Wallets()
+  const v3Mnemonics = v3Wallets.map((record) => record.mnemonic)
+  const needed = v2Mnemonics.some((mne) => !v3Mnemonics.includes(mne))
+
+  if (!needed) {
+    await storage.set(ACCOUNT_V2_Migrated_KEY, true)
+  }
+  return needed
+}
+
+export async function needMigrate() {
+  return (await needMigrateV1ToV2()) || (await needMigrateV0ToV2()) || (await needMigrateV2ToV3())
+}
+
+async function migrateV2ToV3(): Promise<MigrateResult> {
+  const v2Accounts = await getV2Accounts()
+  const v3WalletsStorage = await getV3WalletsStorage()
+  const v3Wallets = await getV3Wallets()
+
+  let successfulMigrations = 0
+  let skippedMigrations = 0
+  let failedMigrations = 0
+  let totalAccounts = v2Accounts.size
+
+  function getCoinTypeFromHDPath(hdPath: string): number {
+    const parts = hdPath.split('/')
+    const purposePart = parts[2]
+    const coinTypePart = purposePart.replace("'", '')
+    return Number(coinTypePart)
+  }
+
+  for (const v2Account of v2Accounts.values()) {
+    try {
+      const accountHasMigrated = v3Wallets.some((wallet) => wallet.mnemonic === v2Account.mnemonic)
+
+      if (accountHasMigrated) {
+        skippedMigrations++
+        continue
+      }
+
+      const coinType = getCoinTypeFromHDPath(v2Account.mvc.path)
+
+      const mvcTypes = coinType === 10001 ? [10001] : [10001, coinType]
+      const id = generateRandomString(32)
+
+      const wallet = {
+        id,
+        name: `Wallet#${generateRandomString(4)}`,
+        mnemonic: v2Account.mnemonic,
+        mvcTypes,
+        accounts: [
+          {
+            id: v2Account.id,
+            name: v2Account.name,
+            addressIndex: 0,
+          },
+        ],
+      }
+
+      v3WalletsStorage[id] = wallet
+      successfulMigrations++
+    } catch (e: any) {
+      await addMigrateErrorAccount(v2Account.mnemonic, JSON.stringify(v2Account), 'V2', e)
+      failedMigrations++
+      continue
+    }
+  }
+
+  if (successfulMigrations > 0) {
+    await setV3WalletsStorage(v3WalletsStorage)
+    const v3Wallets = await getV3Wallets()
+    const walletId = await getCurrentWalletId()
+    if (!walletId || v3Wallets.findIndex((wallet) => wallet.id === walletId) === -1) {
+      const firstWallet = v3Wallets.shift()!
+      await setCurrentWalletId(firstWallet.id)
+    }
+  }
+  await storage.set(ACCOUNT_V2_Migrated_KEY, true)
+
+  let code = MigrateResultCode.UNDO
+  if (failedMigrations === totalAccounts) {
+    code = MigrateResultCode.FAILED
+  } else if (successfulMigrations > 0 && failedMigrations === 0) {
+    code = MigrateResultCode.SUCCESS
+  }
+  return {
+    code,
+    message: `
+    Migration Summary:\n
+    - Total Accounts Processed: ${totalAccounts}\n
+    - Successful Migrations: ${successfulMigrations}\n
+    - Accounts Already Exist (Skipped): ${skippedMigrations}\n
+    - Failed Migrations: ${failedMigrations}
+    `,
+  }
+}
+
+export async function migrateToV3() {
+  const title = 'Migrate V2 account'
+  const { code, message: description } = await migrateV2ToV3()
+  if (code === MigrateResultCode.FAILED) {
+    toast({ title, toastType: 'fail', description })
+  } else if (code === MigrateResultCode.SUCCESS) {
+    toast({ title, toastType: 'success', description })
+  } else if (code === MigrateResultCode.UNDO) {
+    toast({ title, toastType: 'info', description })
+  }
+}
 
 export async function encryptV2Accounts(password: string): Promise<void> {
   const v2Accounts = await getV2AccountsObj()

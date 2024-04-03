@@ -404,6 +404,16 @@ const routes = [
           noFooter: true,
         },
       },
+      {
+        path: '/manage/wallets',
+        name: 'manage-wallets',
+        component: () => import('./pages/manage/Index.vue'),
+        meta: {
+          secondaryHeader: false,
+          headerTitle: '',
+          noFooter: true,
+        },
+      },
     ],
   },
   {

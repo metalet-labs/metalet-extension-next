@@ -34,8 +34,10 @@ const { account } = defineProps<{
 
 const openEditNameModal = ref(false)
 
-const toAccountList = () => {
-  router.push('/accounts')
+const toManageWallets = () => {
+  router.push({
+    name: 'manage-wallets',
+  })
 }
 
 const copy = (address: string, type: string) => {
@@ -47,7 +49,7 @@ const copy = (address: string, type: string) => {
 
 <template>
   <div class="flex items-center justify-between py-3">
-    <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toAccountList">
+    <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toManageWallets">
       <Avatar :id="account.id" />
       <div class="flex items-center gap-x-2">
         <span class="text-black-primary text-sm">{{ account.name }}</span>
