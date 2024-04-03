@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Chain } from '@/lib/account'
+import { type Chain } from '@/lib/types'
 import BTCNetworkLogo from '@/assets/icons-v3/network_btc.svg'
 import MVCNetworkLogo from '@/assets/icons-v3/network_mvc.svg'
 import IncomeLogo from '@/assets/icons-v3/income.svg'

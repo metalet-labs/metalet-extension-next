@@ -9,7 +9,7 @@ import BtcLogoIcon from '@/assets/images/btc-logo.svg?url'
 import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
 import CreatePassword from './components/CreatePassword.vue'
-import { deriveAllAddresses, type AddressType } from '@/lib/bip32-deriver'
+import { deriveAllAddresses, AddressType } from '@/lib/bip32-deriver'
 
 const step = ref(1)
 const stepLen = ref(2)
@@ -44,13 +44,13 @@ const createAccount = async () => {
       assetsDisplay: ['SPACE', 'BTC'],
       mvc: {
         path: fullPath,
-        addressType: 'P2PKH' as AddressType,
+        addressType: AddressType.P2PKH,
         mainnetAddress: allAddresses.mvcMainnetAddress,
         testnetAddress: allAddresses.mvcTestnetAddress,
       },
       btc: {
         path: btcPath,
-        addressType: 'P2PKH' as AddressType,
+        addressType: AddressType.P2PKH,
         mainnetAddress: allAddresses.btcMainnetAddress,
         testnetAddress: allAddresses.btcTestnetAddress,
       },

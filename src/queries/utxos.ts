@@ -1,4 +1,4 @@
-import { Chain } from '@/lib/account'
+import { Chain } from '@/lib/types'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { useQuery } from '@tanstack/vue-query'

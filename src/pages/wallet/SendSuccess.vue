@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { getLogo } from '@/data/logos'
-import { type Chain } from '@/lib/account'
+import { type Chain } from '@/lib/types'
 import { useRouter, useRoute } from 'vue-router'
 import { FlexBox, Divider, Button } from '@/components'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'

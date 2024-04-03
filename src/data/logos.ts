@@ -1,4 +1,4 @@
-import { type Chain } from '@/lib/account'
+import { type Chain } from '@/lib/types'
 
 import BtcLogoImg from '../assets/images/btc-logo.svg?url'
 import SpaceLogoImg from '../assets/icons-v3/space.svg?url'

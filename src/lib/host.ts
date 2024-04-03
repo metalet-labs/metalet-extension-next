@@ -7,7 +7,7 @@ import {
   MEMPOOL_HOST,
   MEMPOOL_TESTNET_HOST,
 } from '../data/hosts'
-import { Chain } from './account'
+import { type Chain } from './types'
 
 export async function getBrowserHost(chain: Chain = 'mvc') {
   const network = await getNetwork()

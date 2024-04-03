@@ -1,4 +1,4 @@
-import { Chain } from '@/lib/account'
+import { Chain } from '@/lib/types'
 import { ComputedRef, ref } from 'vue'
 import { metaletApiV3 } from './request'
 import { useQuery } from '@tanstack/vue-query'

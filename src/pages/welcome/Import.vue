@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { addAccount } from '@/lib/account'
+import { ScriptType } from 'utxo-wallet-sdk'
 import passwordManager from '@/lib/password'
 import { FlexBox, Button } from '@/components'
 import { ref, computed, Ref, watch } from 'vue'
@@ -10,7 +11,7 @@ import SuccessPNG from '@/assets/icons-v3/send-success.png'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import CreatePassword from './components/CreatePassword.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { deriveAllAddresses, scripts, type AddressType } from '@/lib/bip32-deriver'
+import { deriveAllAddresses, scripts } from '@/lib/bip32-deriver'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const step = ref(1)
@@ -86,13 +87,13 @@ const onSubmit = async () => {
       assetsDisplay: ['SPACE', 'BTC'],
       mvc: {
         path: fullPath,
-        addressType: 'P2PKH' as AddressType,
+        addressType: ScriptType.P2PKH,
         mainnetAddress: allAddresses.mvcMainnetAddress,
         testnetAddress: allAddresses.mvcTestnetAddress,
       },
       btc: {
         path: btcPath,
-        addressType: useSamePath.value ? 'P2PKH' : selectedScript.value.addressType,
+        addressType: useSamePath.value ? ScriptType.P2PKH : selectedScript.value.addressType,
         mainnetAddress: allAddresses.btcMainnetAddress,
         testnetAddress: allAddresses.btcTestnetAddress,
       },

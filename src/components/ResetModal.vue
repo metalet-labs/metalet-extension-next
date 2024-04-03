@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import * as accountManager from '@/lib/account'
+import accountManager from '@/lib/account'
 import passwordManager from '../lib/password'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'

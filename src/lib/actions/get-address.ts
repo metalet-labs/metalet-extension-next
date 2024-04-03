@@ -1,4 +1,4 @@
-import * as accountManager from '../account'
+import accountManager from '../account'
 import connector from '../connector'
 
 export async function process(params: any, host: string) {

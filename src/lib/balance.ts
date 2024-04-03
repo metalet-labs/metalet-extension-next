@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import { type Chain } from './account'
+import { type Chain } from './types'
 
 interface Asset {
   chain: Chain

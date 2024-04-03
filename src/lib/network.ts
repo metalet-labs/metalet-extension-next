@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import useStorage from './storage'
 import { networks } from 'bitcoinjs-lib'
 import { notifyBg } from '@/lib/notify-bg'
-import { type Chain } from '@/lib/account'
+import { type Chain } from '@/lib/types'
 import { notifyContent } from '@/lib/notify-content'
 
 export type Service = Chain | 'all'

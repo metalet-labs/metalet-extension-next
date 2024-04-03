@@ -2,8 +2,8 @@
 import { ref, computed, Ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
-
-import { type Chain, getAddress } from '@/lib/account'
+import { type Chain } from '@/lib/types'
+import { getAddress } from '@/lib/account'
 import { allAssets } from '@/data/assets'
 
 // init

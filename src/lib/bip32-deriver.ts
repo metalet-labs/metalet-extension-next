@@ -6,43 +6,43 @@ import { mvc } from 'meta-contract'
 import * as bitcoinjs from 'bitcoinjs-lib'
 import type { Payment, Network as btcNetwork } from 'bitcoinjs-lib'
 import ECPairFactory from 'ecpair'
+import { ScriptType } from 'utxo-wallet-sdk'
 
 import { raise } from './helpers'
 import { type Network, getBtcNetwork } from './network'
 import { getPublicKey } from './account'
 import { Buffer } from 'buffer'
 
-// TODO: get from utxo-wallet-service
-export type AddressType = 'P2WPKH' | 'P2SH-P2WPKH' | 'P2TR' | 'P2PKH'
+export { ScriptType as AddressType }
 
 export const scripts: {
   name: string
   path: string
-  addressType: AddressType
+  addressType: ScriptType
 }[] = [
   {
     name: 'Native Segwit',
-    addressType: 'P2WPKH',
+    addressType: ScriptType.P2WPKH,
     path: "m/84'/0'/0'/0/0",
   },
   {
     name: 'Nested Segwit',
-    addressType: 'P2SH-P2WPKH',
+    addressType: ScriptType.P2SH_P2WPKH,
     path: "m/49'/0'/0'/0/0",
   },
   {
     name: 'Taproot',
-    addressType: 'P2TR',
+    addressType: ScriptType.P2TR,
     path: "m/86'/0'/0'/0/0",
   },
   {
     name: 'Legacy',
-    addressType: 'P2PKH',
+    addressType: ScriptType.P2PKH,
     path: "m/44'/0'/0'/0/0",
   },
   {
     name: 'Same as MVC',
-    addressType: 'P2PKH',
+    addressType: ScriptType.P2PKH,
     path: "m/44'/0'/0'/0/0",
   },
 ]
@@ -187,13 +187,13 @@ function deriveBtcAddress(mnemonic: string, path: string, network: Network): str
   const addressType = inferAddressType(path)
 
   switch (addressType) {
-    case 'P2PKH':
+    case ScriptType.P2PKH:
       return payments.p2pkh({ pubkey: publicKey, network: btcNetwork }).address ?? raise('Invalid address')
-    case 'P2SH-P2WPKH':
+    case ScriptType.P2SH_P2WPKH:
       return payments.p2sh({ redeem: payments.p2wpkh({ pubkey: publicKey }) }).address ?? raise('Invalid address')
-    case 'P2WPKH':
+    case ScriptType.P2WPKH:
       return payments.p2wpkh({ pubkey: publicKey, network: btcNetwork }).address ?? raise('Invalid address')
-    case 'P2TR':
+    case ScriptType.P2TR:
       return (
         payments.p2tr({ internalPubkey: publicKey.subarray(1), network: btcNetwork }).address ??
         raise('Invalid address')
@@ -223,24 +223,24 @@ export async function createPayment(addressType: string): Promise<Payment> {
   }
 }
 
-export function inferAddressType(path: string): AddressType {
+export function inferAddressType(path: string): ScriptType {
   const pathProtocolNumber = parseInt(path.split('/')[1].replace("'", ''), 10)
-  let addressType: 'P2PKH' | 'P2SH-P2WPKH' | 'P2WPKH' | 'P2TR'
+  let addressType: ScriptType
   switch (pathProtocolNumber) {
     case 44:
-      addressType = 'P2PKH'
+      addressType = ScriptType.P2PKH
       break
     case 49:
-      addressType = 'P2SH-P2WPKH'
+      addressType = ScriptType.P2SH_P2WPKH
       break
     case 84:
-      addressType = 'P2WPKH'
+      addressType = ScriptType.P2WPKH
       break
     case 86:
-      addressType = 'P2TR'
+      addressType = ScriptType.P2TR
       break
     default:
-      addressType = 'P2PKH'
+      addressType = ScriptType.P2PKH
   }
 
   return addressType

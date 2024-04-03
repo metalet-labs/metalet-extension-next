@@ -3,6 +3,7 @@ import { mvc } from 'meta-contract'
 import { encrypt, decrypt } from './crypto'
 import { toast } from '@/components/ui/toast'
 import { generateRandomString } from './helpers'
+import { type DerivedAccountDetail } from '@/lib/types'
 import { AddressType, deriveAllAddresses } from './bip32-deriver'
 import {
   type Account,
@@ -14,7 +15,6 @@ import {
   getV2AccountsObj,
   getLegacyAccounts,
   getCurrentAccountId,
-  type DerivedAccountDetail,
 } from './account'
 
 export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
@@ -188,6 +188,13 @@ async function needMigrateV1ToV2(): Promise<boolean> {
   return needed
 }
 
+async function needMigrateV2ToV3(): Promise<boolean> {
+  if (await storage.get(ACCOUNT_V2_Migrated_KEY)) {
+    return false
+  }
+  return false
+}
+
 async function migrateV1ToV2(): Promise<MigrateResult> {
   const v1Accounts = await getLegacyAccounts()
   const v2Accounts = await getV2Accounts()
@@ -275,7 +282,7 @@ export async function needMigrate() {
   return (await needMigrateV1ToV2()) || (await needMigrateV0ToV2())
 }
 
-export async function checkMigrate() {
+export async function migrateToV2() {
   // Note: Migrate to higher versions first
   if (await needMigrateV1ToV2()) {
     const title = 'Migrate V1 account'
@@ -298,6 +305,8 @@ export async function checkMigrate() {
     }
   }
 }
+
+export async function migrateToV3() {}
 
 export async function encryptV2Accounts(password: string): Promise<void> {
   const v2Accounts = await getV2AccountsObj()

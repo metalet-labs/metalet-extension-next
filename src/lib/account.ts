@@ -1,22 +1,23 @@
-import useStorage from '@/lib/storage'
 import { mvc } from 'meta-contract'
+import useStorage from '@/lib/storage'
 import { crypto } from 'bitcoinjs-lib'
 import { signMessage } from '@/lib/crypto'
 import { fetchUtxos } from '@/queries/utxos'
 import { notifyContent } from '@/lib/notify-content'
 import { getBtcNetwork, getNetwork } from '@/lib/network'
 import { generateRandomString, raise } from '@/lib/helpers'
+import type { V1Account, V2Account, Chain, ChainDetail } from './types'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
 import {
-  AddressType,
+  deriveSigner,
   deriveAddress,
-  derivePrivateKey,
   derivePublicKey,
   inferAddressType,
-  deriveSigner,
+  derivePrivateKey,
   deriveBtcPrivateKey,
-  deriveAllAddresses,
 } from '@/lib/bip32-deriver'
+
+export { V2Account as Account }
 
 const CURRENT_ACCOUNT_ID = 'currentAccountId'
 const V0_ACCOUNT_STORAGE_KEY = 'currentAccount'
@@ -27,47 +28,9 @@ const V2_ACCOUNTS_STORAGE_KEY = 'accounts_v2'
 
 const storage = useStorage()
 
-// TODO put in types.ts
-export type Chain = 'btc' | 'mvc'
-
-export type DerivedAccountDetail = {
-  path: string
-  addressType: AddressType
-  mainnetAddress: string
-  testnetAddress: string
-  credential?: {
-    address: string
-    publicKey: string
-    signature: string
-  }
-}
-
-type ChainDetail = {
-  [chain in Chain]: Omit<DerivedAccountDetail, 'credential'>
-}
-
-export type Account = {
-  id: string
-  name: string
-  mnemonic: string
-  assetsDisplay: string[]
-  mvc: DerivedAccountDetail
-  btc: DerivedAccountDetail
-}
-
-type V1Account = {
-  id: string
-  name?: string
-  mnemonic: string
-  path: string // mvc coin type
-  assetsDisplay?: string[]
-  btcPath?: string // btc hd full path
-  btcType?: AddressType
-}
-
 // Account Map Serialization
-function serializeAccountMap(map: Map<string, Account>): string {
-  const obj: { [key: string]: Account } = {}
+function serializeAccountMap(map: Map<string, V2Account>): string {
+  const obj: { [key: string]: V2Account } = {}
   for (const [key, value] of map.entries()) {
     obj[key] = value
   }
@@ -75,7 +38,7 @@ function serializeAccountMap(map: Map<string, Account>): string {
 }
 
 // Account Map Deserialization
-function deserializeAccountMap(accounts: Record<string, Account>): Map<string, Account> {
+function deserializeAccountMap(accounts: Record<string, V2Account>): Map<string, V2Account> {
   const map = new Map()
   for (const key in accounts) {
     map.set(key, accounts[key])
@@ -117,11 +80,11 @@ export async function getLegacyAccounts(): Promise<V1Account[]> {
 }
 
 export async function hasV2Accounts(): Promise<boolean> {
-  return !!(await storage.get<Record<string, Account>>(V2_ACCOUNTS_STORAGE_KEY))
+  return !!(await storage.get<Record<string, V2Account>>(V2_ACCOUNTS_STORAGE_KEY))
 }
 
-export async function getV2AccountsObj(): Promise<Record<string, Account>> {
-  return await storage.get<Record<string, Account>>(V2_ACCOUNTS_STORAGE_KEY, {
+export async function getV2AccountsObj(): Promise<Record<string, V2Account>> {
+  return await storage.get<Record<string, V2Account>>(V2_ACCOUNTS_STORAGE_KEY, {
     defaultValue: {},
   })
 }
@@ -131,7 +94,7 @@ export async function getV2Accounts() {
   return deserializeAccountMap(v2Accounts)
 }
 
-export async function setV2Accounts(accountsMap: Map<string, Account>) {
+export async function setV2Accounts(accountsMap: Map<string, V2Account>) {
   await storage.set(V2_ACCOUNTS_STORAGE_KEY, serializeAccountMap(accountsMap))
 }
 
@@ -139,15 +102,15 @@ export async function getAccountsVersionKey(): Promise<string> {
   return V2_ACCOUNTS_STORAGE_KEY
 }
 
-export async function getAccounts(): Promise<Map<string, Account>> {
+export async function getAccounts(): Promise<Map<string, V2Account>> {
   const currentKey = await getAccountsVersionKey()
-  const accounts = await storage.get<Record<string, Account>>(currentKey, {
+  const accounts = await storage.get<Record<string, V2Account>>(currentKey, {
     defaultValue: {},
   })
   return deserializeAccountMap(accounts)
 }
 
-export async function getAccount(accountId: string): Promise<Account | undefined> {
+export async function getAccount(accountId: string): Promise<V2Account | undefined> {
   const accounts = await getAccounts()
   if (accounts.size === 0) {
     return
@@ -209,18 +172,18 @@ export async function connectAccount(accountId: string) {
   return true
 }
 
-export async function setAccounts(accountsMap: Map<string, Account>): Promise<void> {
+export async function setAccounts(accountsMap: Map<string, V2Account>): Promise<void> {
   const currentKey = await getAccountsVersionKey()
   await storage.set(currentKey, serializeAccountMap(accountsMap))
 }
 
-export async function setAccount(account: Account) {
+export async function setAccount(account: V2Account) {
   const accounts = await getAccounts()
   accounts.set(account.id, account)
   setAccounts(accounts)
 }
 
-export async function addAccount(newAccount: Omit<Account, 'id' | 'name'>) {
+export async function addAccount(newAccount: Omit<V2Account, 'id' | 'name'>) {
   const accounts = await getAccounts()
 
   const { mnemonic } = newAccount
@@ -449,72 +412,12 @@ export async function needsMigrationV2(): Promise<boolean> {
   return v1Mnemonics.some((mne) => !v2Mnemonics.includes(mne))
 }
 
-export async function migrateV2(): Promise<void> {
-  const v1Accounts = await getLegacyAccounts()
-  const v2Accounts = await getAccounts()
-  const v2AccountsArr = Array.from(v2Accounts.values())
-  if (!v1Accounts) {
-    return
-  }
-  const v1AccountsIds = v1Accounts.map((account) => account.id)
-
-  // loop through v1 accounts, see if there are any accounts that are not in v2
-  for (let i = 0; i < v1AccountsIds.length; i++) {
-    const v1AccountId = v1AccountsIds[i]
-    const v1Account = v1Accounts.find((account) => account.id === v1AccountId)
-
-    if (!v1Account) {
-      continue
-    }
-
-    // check if account already exists in v2
-    const accountHasMigrated = v2AccountsArr.some((account) => account.mnemonic === v1Account.mnemonic)
-
-    if (accountHasMigrated) {
-      continue
-    }
-
-    const deriveChainPath = v1Account.path
-    const path = `m/44'/${deriveChainPath}'/0'/0/0`
-    const rndNameId = generateRandomString(4)
-
-    const allAddresses = deriveAllAddresses({
-      mnemonic: v1Account.mnemonic,
-      btcPath: path,
-      mvcPath: path,
-    })
-
-    const newAccount = {
-      id: v1AccountId,
-      name: v1Account.name || `Account ${rndNameId}`,
-      mnemonic: v1Account.mnemonic,
-      assetsDisplay: ['SPACE', 'BTC'],
-      mvc: {
-        path,
-        addressType: 'P2PKH',
-        mainnetAddress: allAddresses.mvcMainnetAddress,
-        testnetAddress: allAddresses.mvcTestnetAddress,
-      } as DerivedAccountDetail,
-      btc: {
-        path,
-        addressType: 'P2PKH',
-        mainnetAddress: allAddresses.btcMainnetAddress,
-        testnetAddress: allAddresses.btcTestnetAddress,
-      } as DerivedAccountDetail,
-    }
-    v2Accounts.set(v1AccountId, newAccount)
-  }
-
-  // set new accounts map
-  await setAccounts(v2Accounts)
-}
-
 type AccountManager = {
-  all: () => Promise<Map<string, Account>>
-  getCurrent: () => Promise<Account | undefined>
+  all: () => Promise<Map<string, V2Account>>
+  getCurrent: () => Promise<V2Account | undefined>
   removeCurrent: () => Promise<boolean>
-  set: (account: Account) => Promise<void>
-  add: (account: Omit<Account, 'id' | 'name'>) => Promise<void>
+  set: (account: V2Account) => Promise<void>
+  add: (account: Omit<V2Account, 'id' | 'name'>) => Promise<void>
   connect: (accountId: string) => Promise<boolean>
   getPublicKey: (chain: Chain, path?: string) => Promise<string>
   getBalance: (chain: Chain, address?: string) => Promise<Awaited<ReturnType<typeof fetchSpaceBalance>> | null>

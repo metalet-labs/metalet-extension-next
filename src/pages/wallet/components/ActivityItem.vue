@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { FlexBox } from '@/components'
-import { type Chain } from '@/lib/account'
+import { type Chain } from '@/lib/types'
 import { type Asset } from '@/data/assets'
 import { getBrowserHost } from '@/lib/host'
 import AssetLogo from '@/components/AssetLogo.vue'

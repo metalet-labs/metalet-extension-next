@@ -1,4 +1,4 @@
-import { type Chain } from './lib/account'
+import { type Chain } from './lib/types'
 
 type SuccessResult = {
   chain: Chain
@@ -20,4 +20,5 @@ type WarningResult = {
   status: 'warning'
   message: string
 }
+
 export type TransactionResult = SuccessResult | FailedResult | WarningResult

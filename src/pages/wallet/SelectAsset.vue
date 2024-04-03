@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Chain } from '@/lib/account'
+import { Chain } from '@/lib/types'
 import { ref, computed, Ref } from 'vue'
 import { allAssets } from '@/data/assets'
 import { getAddress } from '@/lib/account'
