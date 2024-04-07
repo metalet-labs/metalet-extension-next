@@ -4,7 +4,8 @@ import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
 import Wallet from './pages/wallet/Index.vue'
-import { getCurrentAccount } from './lib/account'
+import { getCurrentAccount, getCurrentAccountId } from './lib/account'
+import { getCurrentWalletId, getV3Wallets } from './lib/wallet'
 
 const storage = useStorage()
 
@@ -437,14 +438,28 @@ const router = VueRouter.createRouter({
   routes,
 })
 
-const authPages = ['/welcome', '/welcome/import', '/welcome/create', '/lock', '/accounts', '/migrateV2']
+const authPages = [
+  '/welcome',
+  '/welcome/import',
+  '/welcome/create',
+  '/lock',
+  '/accounts',
+  '/migrateV2',
+  '/manage/wallets',
+]
 
 router.beforeEach(async (to, _, next) => {
   if (to.fullPath !== '/lock' && (await storage.get('locked'))) {
     next('/lock')
-  } else if (!authPages.includes(to.path) && !(await getCurrentAccount())) {
-    goToPage('/welcome')
-    next('/welcome')
+  } else if (!authPages.includes(to.path) && (!(await getCurrentAccountId()) || !(await getCurrentWalletId()))) {
+    const wallets = await getV3Wallets()
+    if (wallets.length) {
+      goToPage('/manage/wallets')
+      next('/manage/wallets')
+    } else {
+      goToPage('/welcome', true)
+      next('/welcome')
+    }
   } else {
     if (['asset', 'token'].includes(to.name as string)) {
       to.meta.headerTitle = to.params.symbol

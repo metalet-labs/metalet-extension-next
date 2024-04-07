@@ -128,6 +128,10 @@ export async function getCurrentAccountId() {
   return await storage.get(CURRENT_ACCOUNT_ID)
 }
 
+export async function setCurrentAccountId(accountId: string) {
+  return await storage.set(CURRENT_ACCOUNT_ID, accountId)
+}
+
 export async function getCurrentAccount() {
   const currentAccountId = await getCurrentAccountId()
   if (!currentAccountId) {

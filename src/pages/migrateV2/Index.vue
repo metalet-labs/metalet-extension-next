@@ -10,7 +10,8 @@ const router = useRouter()
 migrateToV2().then(async () => {
   await sleep(1500)
   await migrateToV3()
-  await WalletsStore.initWalletManager()
+  await WalletsStore.getWalletManager()
+  WalletsStore.loadOtherAccounts()
   if (await getCurrentAccount()) {
     router.push('/wallet')
   } else {

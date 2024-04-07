@@ -386,13 +386,21 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
 
   if (successfulMigrations > 0) {
     await setV3WalletsStorage(v3WalletsStorage)
-    const v3Wallets = await getV3Wallets()
-    const walletId = await getCurrentWalletId()
-    if (!walletId || v3Wallets.findIndex((wallet) => wallet.id === walletId) === -1) {
-      const firstWallet = v3Wallets.shift()!
-      await setCurrentWalletId(firstWallet.id)
+  }
+  const newV3Wallets = await getV3Wallets()
+  let walletId = ''
+  const accountId = await getCurrentAccountId()
+  for (let v3Wallet of newV3Wallets) {
+    if (v3Wallet.accounts.findIndex((account) => account.id === accountId) >= 0) {
+      walletId = v3Wallet.id
+      break
     }
   }
+  if (!walletId) {
+    const firstWallet = newV3Wallets.shift()!
+    walletId = firstWallet.id
+  }
+  await setCurrentWalletId(walletId)
   await storage.set(ACCOUNT_V2_Migrated_KEY, true)
 
   let code = MigrateResultCode.UNDO

@@ -38,14 +38,16 @@ export type ChainDetail = {
   [chain in Chain]: Omit<DerivedAccountDetail, 'credential'>
 }
 
+export interface V3Account {
+  id: string
+  name: string
+  addressIndex: number
+}
+
 export interface V3Wallet {
   id: string
   name: string
   mnemonic: string
   mvcTypes: mvcCoinType[]
-  accounts: {
-    id: string
-    name: string
-    addressIndex: number
-  }[]
+  accounts: V3Account[]
 }

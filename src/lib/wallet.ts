@@ -1,5 +1,7 @@
+import { goToPage } from './utils'
 import { V3Wallet } from './types'
 import useStorage from '@/lib/storage'
+import { getCurrentAccountId } from './account'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
 const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
@@ -30,4 +32,67 @@ export async function getCurrentWalletId() {
 
 export async function setCurrentWalletId(walletId: string) {
   return await storage.set(CURRENT_WALLET_ID, walletId)
+}
+
+export async function getV3CurrentWallet() {
+  const walletId = await getCurrentWalletId()
+  const wallets = await getV3Wallets()
+  if (!walletId || !wallets.length) {
+    goToPage('/manage/wallets')
+    throw new Error('current wallet id not found')
+  }
+  const wallet = wallets.find((wallet) => wallet.id === walletId)
+  if (!wallet) {
+    goToPage('/manage/wallets')
+    throw new Error('wallet not found')
+  }
+
+  const { accounts } = wallet
+  if (!accounts || !accounts.length) {
+    goToPage('/manage/wallets')
+    throw new Error('wallet does not have any accounts')
+  }
+  const currentAccountId = await getCurrentAccountId()
+  if (!currentAccountId) {
+    goToPage('/manage/wallets')
+    throw new Error('current account id not found')
+  }
+  const account = accounts.find((account) => account.id === currentAccountId)
+  if (!account) {
+    goToPage('/manage/wallets')
+    throw new Error('current account not found')
+  }
+  wallet.accounts = [account]
+  return wallet
+}
+
+export async function getV3CurrentAccount() {
+  const walletId = await getCurrentWalletId()
+  const wallets = await getV3Wallets()
+  if (!walletId || !wallets.length) {
+    goToPage('/manage/wallets')
+    throw new Error('current wallet id not found')
+  }
+  const wallet = wallets.find((wallet) => wallet.id === walletId)
+  if (!wallet) {
+    goToPage('/manage/wallets')
+    throw new Error('wallet not found')
+  }
+
+  const { accounts } = wallet
+  if (!accounts || !accounts.length) {
+    goToPage('/manage/wallets')
+    throw new Error('wallet does not have any accounts')
+  }
+  const currentAccountId = await getCurrentAccountId()
+  if (!currentAccountId) {
+    goToPage('/manage/wallets')
+    throw new Error('current account id not found')
+  }
+  const account = accounts.find((account) => account.id === currentAccountId)
+  if (!account) {
+    goToPage('/manage/wallets')
+    throw new Error('current account not found')
+  }
+  return account
 }

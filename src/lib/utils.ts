@@ -4,8 +4,8 @@ import { twMerge } from 'tailwind-merge'
 import { type ClassValue, clsx } from 'clsx'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from '@/data/config'
 
-export const goToPage = (path: string) => {
-  if (IS_DEV) {
+export const goToPage = (path: string, created = false) => {
+  if (IS_DEV || !created) {
     router.push(path)
   } else {
     const browser = window.browser

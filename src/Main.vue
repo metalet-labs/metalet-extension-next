@@ -11,7 +11,8 @@ onMounted(async () => {
   if (await needMigrate()) {
     router.push('/migrateV2')
   } else {
-    await WalletsStore.initWalletManager()
+    await WalletsStore.getWalletManager()
+    WalletsStore.loadOtherAccounts()
   }
 })
 </script>

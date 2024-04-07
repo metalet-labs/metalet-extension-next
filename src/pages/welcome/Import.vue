@@ -136,7 +136,74 @@ const onSubmit = async () => {
           </TabsList>
           <TabsContent value="phrase">
             <FlexBox d="col" :gap="4">
-              <FlexBox d="col">
+              <FlexBox ai="center" :gap="1">
+                <span>My seed phrase has</span>
+                <Select v-model:modelValue="selectedWordsLength">
+                  <SelectTrigger class="w-24 text-base">
+                    <SelectValue placeholder="Select a number of words" />
+                  </SelectTrigger>
+                  <SelectContent align="end">
+                    <SelectGroup>
+                      <SelectItem :value="length.toString()" v-for="length of wordsLengths">
+                        {{ length }} words
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </FlexBox>
+
+              <!-- input phrase -->
+              <div class="grid grid-cols-2 gap-2 pr-3 -mr-3 overflow-y-auto max-h-[304px]">
+                <FlexBox class="h-11 border-gray-soft border rounded-lg" v-for="(_, index) in words" ai="center">
+                  <FlexBox
+                    ai="center"
+                    jc="center"
+                    class="w-7.5 h-full text-gray-primary bg-gray-secondary rounded-l-lg"
+                    >{{ index + 1 }}</FlexBox
+                  >
+                  <input
+                    :key="index"
+                    type="text"
+                    v-model="words[index]"
+                    @paste.prevent="onPasteWords"
+                    class="h-full font-medium focus:outline-none w-full p-3 rounded-lg"
+                  />
+                </FlexBox>
+              </div>
+
+              <Button type="primary" class="w-61.5 mt-15 mx-auto" @click="onSubmit">Next</Button>
+
+              <!-- error -->
+              <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>
+            </FlexBox>
+          </TabsContent>
+          <TabsContent value="privateKey">
+            <div class="h-[450px]">
+              <textarea
+                disabled
+                placeholder="Enter your private key here"
+                class="w-full h-45 focus:outline-none border border-gray-soft rounded-lg px-4 py-3.5"
+              />
+            </div>
+            <Button type="primary" class="w-61.5 mt-15 mx-auto cursor-not-allowed opacity-50" @click="onSubmit" disabled
+              >Coming soon...</Button
+            >
+          </TabsContent>
+        </Tabs>
+      </FlexBox>
+      <FlexBox d="col" class="w-82" v-if="step === 2">
+        <FlexBox ai="center" :gap="3">
+          <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer" />
+          <div class="text-2xl font-medium">Import Wallet</div>
+        </FlexBox>
+        <Tabs default-value="phrase" class="w-full mt-6">
+          <TabsList class="grid grid-cols-2 bg-gray-secondary rounded-lg text-gray-primary">
+            <TabsTrigger value="phrase" class="text-xs">Import from Phrase</TabsTrigger>
+            <TabsTrigger value="privateKey" class="text-xs">Import from PrivateKey</TabsTrigger>
+          </TabsList>
+          <TabsContent value="phrase">
+            <FlexBox d="col" :gap="4">
+              <FlexBox d="col" :gap="2">
                 <FlexBox ai="center" :gap="2">
                   <div class="text-gray-primary text-ss">BTC:</div>
                   <Select defaultValue="86">
@@ -165,7 +232,7 @@ const onSubmit = async () => {
                 <FlexBox ai="center" :gap="1">
                   <span>My seed phrase has</span>
                   <Select v-model:modelValue="selectedWordsLength">
-                    <SelectTrigger class="w-24 text-base">
+                    <SelectTrigger class="w-30 text-base">
                       <SelectValue placeholder="Select a number of words" />
                     </SelectTrigger>
                     <SelectContent align="end">
@@ -207,6 +274,7 @@ const onSubmit = async () => {
           <TabsContent value="privateKey">
             <div class="h-[450px]">
               <textarea
+                disabled
                 placeholder="Enter your private key here"
                 class="w-full h-45 focus:outline-none border border-gray-soft rounded-lg px-4 py-3.5"
               />
@@ -246,23 +314,23 @@ const onSubmit = async () => {
 </template>
 
 <style scoped>
-.step-circle {
+:deep(.step-circle) {
   @apply w-6 h-6 bg-gray-secondary text-gray-primary rounded-full text-ss cursor-pointer;
 }
 
-.step-circle.active {
+:deep(.step-circle.active) {
   @apply bg-blue-primary text-white;
 }
 
-button[aria-selected='true'] {
+:deep(button[aria-selected='true']) {
   @apply bg-white text-blue-primary rounded-md;
 }
 
-div[role='tabpanel'][data-state='active'] {
+:deep(div[role='tabpanel'][data-state='active']) {
   @apply mt-4;
 }
 
-button[role='combobox'] {
+:deep(button[role='combobox']) {
   @apply border-none focus:ring-0 p-0;
 }
 </style>
