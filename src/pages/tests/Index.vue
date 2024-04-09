@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { migrateToV3 } from '@/lib/migrate'
-import { WalletManager } from 'utxo-wallet-service'
+import { WalletManager } from '@metalet/utxo-wallet-service'
 
 const test = () => {}
 </script>

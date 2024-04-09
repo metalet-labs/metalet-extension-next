@@ -1,4 +1,5 @@
 import hash from 'object-hash'
+import CryptoJS from 'crypto-js'
 import useStorage from './storage'
 import { notifyBg } from './notify-bg'
 
@@ -17,11 +18,12 @@ export async function hasPassword() {
 
 export async function checkPassword(credential: string) {
   const password = await getPassword()
-  return hash(credential) === password
+  return hash(credential) === password || CryptoJS.SHA256(credential).toString() === password
 }
 
 export async function setPassword(password: string) {
-  const hashed = hash(password)
+  // const hashed = hash(password)
+  const hashed = CryptoJS.SHA256(password).toString()
   await storage.set(Password_Key, hashed)
 }
 

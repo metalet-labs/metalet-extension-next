@@ -4,7 +4,7 @@ import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
 import Wallet from './pages/wallet/Index.vue'
-import { getCurrentAccount, getCurrentAccountId } from './lib/account'
+import { getCurrentAccountId } from './lib/account'
 import { getCurrentWalletId, getV3Wallets } from './lib/wallet'
 
 const storage = useStorage()
@@ -192,6 +192,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Select Asset',
+          noFooter: true,
         },
       },
       {

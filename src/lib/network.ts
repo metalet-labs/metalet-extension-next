@@ -1,9 +1,10 @@
 import { ref } from 'vue'
 import useStorage from './storage'
 import { networks } from 'bitcoinjs-lib'
-import { notifyBg } from '@/lib/notify-bg'
 import { type Chain } from '@/lib/types'
+import { notifyBg } from '@/lib/notify-bg'
 import { notifyContent } from '@/lib/notify-content'
+import { type Net } from '@metalet/utxo-wallet-service'
 
 export type Service = Chain | 'all'
 
@@ -41,6 +42,6 @@ export function getBtcNetwork() {
   return network.value === 'mainnet' ? networks.bitcoin : networks.testnet
 }
 
-export function getNet(): string {
+export function getNet(): Net {
   return network.value === 'mainnet' ? 'livenet' : network.value
 }

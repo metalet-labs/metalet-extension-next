@@ -16,7 +16,15 @@ import { PencilSquareIcon } from '@heroicons/vue/24/solid'
 import ServiceMenu from '@/components/headers/ServiceMenu.vue'
 import SettingMenu from '@/components/headers/SettingMenu.vue'
 import EditName from '@/pages/accounts/components/EditName.vue'
-import { Drawer, DrawerClose, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
+import { Chain, BaseWallet } from '@metalet/utxo-wallet-service'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer'
 
 const { toast } = useToast()
 
@@ -33,7 +41,18 @@ getV3CurrentAccount().then((_currentAccountStorage) => {
 })
 
 WalletsStore.getAccountChainWallets().then((_chainWallets) => {
-  chainWallets.value = _chainWallets
+  chainWallets.value = Object.fromEntries(
+    Object.entries(_chainWallets)
+      .filter(([key]) => Object.values(Chain).includes(key as Chain))
+      .map(([chain, baseWallets]) => [
+        chain,
+        (baseWallets as BaseWallet[]).map((baseWallet) => ({
+          path: baseWallet.getPath(),
+          address: baseWallet.getAddress(),
+          addressType: baseWallet.getAddressType(),
+        })),
+      ])
+  )
 })
 
 const openEditNameModal = ref(false)
@@ -80,34 +99,35 @@ const copy = (address: string, addressType: string, type: string) => {
             <CloseIcon class="absolute right-0 top-0" />
           </DrawerClose>
         </DrawerTitle>
+        <DrawerDescription></DrawerDescription>
       </DrawerHeader>
       <FlexBox d="col" ai="center" :gap="2" class="py-4">
-        <FlexBox ai="center" :gap="2" v-if="chainWallets.btc" v-for="btcAccount in chainWallets.btc">
+        <FlexBox ai="center" :gap="2" v-if="chainWallets.btc" v-for="btcWallet in chainWallets.btc">
           <img :src="BtcLogo" alt="Bitcoin" class="w-8" />
           <div>
             <div class="space-x-2">
               <span>Bitcoin</span>
-              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ btcAccount.addressType }}</span>
+              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ btcWallet.addressType }}</span>
             </div>
-            <div class="text-xs text-gray-primary break-all w-64">{{ btcAccount.address }}</div>
+            <div class="text-xs text-gray-primary break-all w-64">{{ btcWallet.address }}</div>
           </div>
           <CopyIcon
             class="cursor-pointer hover:text-blue-primary"
-            @click="copy(btcAccount.address, btcAccount.addressType, 'Bitcoin')"
+            @click="copy(btcWallet.address, btcWallet.addressType, 'Bitcoin')"
           />
         </FlexBox>
-        <FlexBox ai="center" :gap="2" v-if="chainWallets.mvc" v-for="mvcAccount in chainWallets.mvc">
+        <FlexBox ai="center" :gap="2" v-if="chainWallets.mvc" v-for="mvcWallet in chainWallets.mvc">
           <img :src="SpaceLogo" alt="Bitcoin" class="w-8" />
           <div>
             <div class="space-x-2">
               <span>Microvisionchain</span>
-              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ mvcAccount.addressType }}</span>
+              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ mvcWallet.addressType }}</span>
             </div>
-            <div class="text-xs text-gray-primary break-all w-64">{{ mvcAccount.address }}</div>
+            <div class="text-xs text-gray-primary break-all w-64">{{ mvcWallet.address }}</div>
           </div>
           <CopyIcon
             class="cursor-pointer hover:text-blue-primary"
-            @click="copy(mvcAccount.address, mvcAccount.addressType, 'Microvisionchain')"
+            @click="copy(mvcWallet.address, mvcWallet.addressType, 'Microvisionchain')"
           />
         </FlexBox>
       </FlexBox>

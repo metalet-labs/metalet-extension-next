@@ -1,17 +1,13 @@
 <script lang="ts" setup>
-const props = defineProps<{
-  class?: string
-}>()
-
-console.log(props)
+import { twMerge } from 'tailwind-merge'
 </script>
 
 <template>
   <svg
+    :class="twMerge('animate-spin h-5 w-5 text-gray-primary', $attrs.class as string)"
+    xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-    :class="['animate-spin h-5 w-5 text-white', props.class]"
   >
     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
     <path

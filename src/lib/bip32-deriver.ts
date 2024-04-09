@@ -6,7 +6,7 @@ import { mvc } from 'meta-contract'
 import * as bitcoinjs from 'bitcoinjs-lib'
 import type { Payment, Network as btcNetwork } from 'bitcoinjs-lib'
 import ECPairFactory from 'ecpair'
-import { ScriptType } from 'utxo-wallet-sdk'
+import { ScriptType } from '@metalet/utxo-wallet-service'
 
 import { raise } from './helpers'
 import { type Network, getBtcNetwork } from './network'

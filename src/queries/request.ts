@@ -32,11 +32,11 @@ async function request<T = any>(url: string, options: RequestOption): Promise<T>
   if (!options?.headers) {
     options.headers = new Headers()
   }
-  if (options?.withCredential) {
-    const { publicKey, signature } = await getCredential()
-    options.headers.set('X-Signature', signature)
-    options.headers.set('X-Public-Key', publicKey)
-  }
+  // if (options?.withCredential) {
+  //   const { publicKey, signature } = await getCredential()
+  //   options.headers.set('X-Signature', signature)
+  //   options.headers.set('X-Public-Key', publicKey)
+  // }
   if (options?.params) {
     let cleanedParams = Object.entries(options.params ?? {})
       .filter(([, value]) => value !== undefined)

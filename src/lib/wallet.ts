@@ -22,6 +22,12 @@ export async function getV3Wallets() {
   return Object.values(await getV3WalletsStorage())
 }
 
+export async function addV3Wallet(wallet: V3Wallet) {
+  const wallets = await getV3WalletsStorage()
+  wallets[wallet.id] = wallet
+  await setV3WalletsStorage(wallets)
+}
+
 export async function setV3WalletsStorage(wallets: Record<string, V3Wallet>) {
   await storage.set(V3_WALLETS_STORAGE_KEY, JSON.stringify(wallets))
 }

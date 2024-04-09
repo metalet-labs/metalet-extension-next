@@ -4,7 +4,9 @@ import { getAddress } from '@/lib/account'
 import { ref, computed, onMounted } from 'vue'
 import { getAssetsDisplay } from '@/lib/assets'
 import { useBRC20AssetQuery } from '@/queries/btc'
+import { AddressTypeSelector } from '@/components'
 import { useMVCAssetsQuery } from '@/queries/tokens'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { type Asset, BTCAsset, MVCAsset } from '@/data/assets'
 import { getServiceNetwork, type Service } from '@/lib/network'
 
@@ -61,6 +63,7 @@ function toToken(token: Asset, address: string) {
 <template>
   <div class="mt-2 space-y-5 text-black">
     <template v-if="!!serviceNetwork && ['all', 'btc'].includes(serviceNetwork)">
+      <AddressTypeSelector :chain="Chain.BTC" />
       <div class="space-y-2" v-if="btcAddress">
         <AssetItem :asset="BTCAsset" :address="btcAddress" @click="toNative(BTCAsset, btcAddress)" />
         <AssetItem
@@ -75,6 +78,7 @@ function toToken(token: Asset, address: string) {
     </template>
 
     <template v-if="!!serviceNetwork && ['all', 'mvc'].includes(serviceNetwork)">
+      <AddressTypeSelector :chain="Chain.MVC" />
       <div class="space-y-2" v-if="mvcAddress">
         <AssetItem :asset="MVCAsset" :address="mvcAddress" @click="toNative(MVCAsset, mvcAddress)" />
         <AssetItem

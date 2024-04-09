@@ -29,23 +29,27 @@ export const doNothing = async (symbol: SymbolTicker): Promise<RawRates> => ({
   [symbol.toLowerCase()]: 0,
 })
 
-type CoinType = 'Native' | 'BRC-20' | 'MetaContract' | undefined
+export enum CoinCategory {
+  Native = 'Native',
+  BRC20 = 'BRC-20',
+  MetaContract = 'MetaContract',
+}
 
-export const getExchangeCoinType = (symbol: SymbolTicker, contract?: string): CoinType => {
+export const getExchangeCoinType = (symbol: SymbolTicker, contract?: string): CoinCategory => {
   if (DEFAULT_SYMBOLS.includes(symbol)) {
-    return 'Native'
+    return CoinCategory.Native
   } else if (contract === 'BRC-20') {
-    return 'BRC-20'
+    return CoinCategory.BRC20
   } else if (contract === 'MetaContract') {
-    return 'MetaContract'
+    return CoinCategory.MetaContract
   } else {
-    throw Error('Unknown coin type')
+    throw Error('Unknown coin category')
   }
 }
 
 export const useExchangeRatesQuery = (
   symbol: Ref<SymbolTicker>,
-  coinType: ComputedRef<CoinType>,
+  coinType: Ref<CoinCategory> | ComputedRef<CoinCategory>,
   options?: { enabled: ComputedRef<boolean> }
 ) => {
   return useQuery({
@@ -67,6 +71,30 @@ export const useExchangeRatesQuery = (
     select: (rates: RawRates) => {
       const rate = rates[coinType.value === 'MetaContract' ? symbol.value : symbol.value.toLowerCase()]
       return { symbol: symbol.value, price: rate }
+    },
+    ...options,
+  })
+}
+
+export const useAllExchangeRatesQuery = (
+  coinType: Ref<CoinCategory> | ComputedRef<CoinCategory>,
+  options?: { enabled: ComputedRef<boolean> }
+) => {
+  return useQuery({
+    queryKey: ['exchangeRates', { coinType }],
+    queryFn: async () => {
+      const net = getNet()
+      if (net === 'testnet') {
+        return {}
+      }
+      if (coinType.value === 'BRC-20') {
+        return fetchTickExchangeRates()
+      } else if (coinType.value === 'MetaContract') {
+        return fetchFTExchangeRates()
+      } else if (coinType.value === 'Native') {
+        return fetchExchangeRates()
+      }
+      return {}
     },
     ...options,
   })

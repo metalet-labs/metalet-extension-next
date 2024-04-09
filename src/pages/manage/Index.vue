@@ -95,7 +95,7 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
                 <SuccessIcon v-show="account.id === currentAccountId" />
               </FlexBox>
               <FlexBox ai="center" :gap="3" class="h-15 cursor-pointer" @click="addAccount(wallet)">
-                <AddIcon />
+                <AddIcon class="w-[38px] h-[38px]"/>
                 <span>Add account</span>
               </FlexBox>
             </AccordionContent>

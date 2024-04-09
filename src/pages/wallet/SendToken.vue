@@ -10,7 +10,6 @@ import { prettifyTokenBalance } from '@/lib/formatters'
 import { getAddress, getCurrentAccount, getPrivateKey } from '@/lib/account'
 import type { TransactionResult } from '@/global-types'
 import { useMVCTokenQuery } from '@/queries/tokens'
-import { type Asset } from '@/data/assets'
 
 import Modal from '@/components/Modal.vue'
 import TransactionResultModal from './components/TransactionResultModal.vue'
@@ -31,7 +30,7 @@ const amount = ref('')
 const amountInSats = computed(() => {
   const _amount = Number(amount.value)
   if (Number.isNaN(amount)) return 0
-  return _amount * 10 ** token.value!.decimal
+  return _amount * 10 ** asset.value!.decimal
 })
 const recipient = ref('')
 
@@ -44,22 +43,8 @@ const transactionResult: Ref<undefined | TransactionResult> = ref()
 
 const enabled = computed(() => !!address.value)
 // 用户拥有的代币资产
-const { isLoading, data: token } = useMVCTokenQuery(address, genesis, { enabled })
+const { isLoading, data: asset } = useMVCTokenQuery(address, ref(genesis), { enabled })
 
-const asset = computed(() => {
-  if (token.value) {
-    return {
-      symbol: token.value.symbol,
-      tokenName: token.value.name,
-      isNative: false,
-      chain: 'mvc',
-      queryable: true,
-      decimal: token.value.decimal,
-      contract: 'MetaContract',
-      codeHash: token.value.codeHash,
-    } as Asset
-  }
-})
 const operationLock = ref(false)
 async function send() {
   if (operationLock.value) return
@@ -94,8 +79,8 @@ async function send() {
 
   const transferRes = await ftManager
     .transfer({
-      codehash: token.value?.codeHash!,
-      genesis: token.value?.genesis!,
+      codehash: asset.value?.codeHash!,
+      genesis: asset.value?.genesis!,
       senderWif: privateKey,
       receivers: [
         {
@@ -124,8 +109,8 @@ async function send() {
       toAdddress: recipient.value,
       amount: amountInSats.value,
       token: {
-        symbol: token.value!.symbol,
-        decimal: token.value!.decimal,
+        symbol: asset.value!.symbol,
+        decimal: asset.value!.decimal,
       },
     }
 
@@ -157,9 +142,9 @@ async function send() {
         <!-- unit -->
         <div
           class="absolute right-0 top-0 flex h-full items-center justify-center text-right text-xs text-gray-500"
-          v-if="token?.symbol"
+          v-if="asset?.symbol"
         >
-          <div class="border-l border-solid border-gray-500 px-4 py-1">{{ token.symbol }}</div>
+          <div class="border-l border-solid border-gray-500 px-4 py-1">{{ asset.symbol }}</div>
         </div>
       </div>
 
@@ -167,8 +152,8 @@ async function send() {
       <div class="flex items-center gap-x-2 text-xs text-gray-500">
         <div>Your Balance:</div>
         <div v-if="isLoading">--</div>
-        <div v-else-if="token">
-          {{ prettifyTokenBalance(token.confirmed + token.unconfirmed, token.decimal) + ' ' + token.symbol }}
+        <div v-else-if="asset">
+          {{ prettifyTokenBalance(asset.balance?.total || 0, asset.decimal) + ' ' + asset.symbol }}
         </div>
       </div>
     </div>
@@ -185,7 +170,7 @@ async function send() {
         <div class="mt-4 space-y-4">
           <div class="space-y-1">
             <div class="label">Amount</div>
-            <div class="value">{{ amount }} {{ token?.symbol }}</div>
+            <div class="value">{{ amount }} {{ asset?.symbol }}</div>
           </div>
           <div class="space-y-1">
             <div class="label">Recipient Address</div>

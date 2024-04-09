@@ -4,15 +4,9 @@ import password from '@/lib/password'
 import { useRouter } from 'vue-router'
 import ResetModal from '../ResetModal.vue'
 import SettingIcon from '@/assets/icons/setting-v3.svg'
-import { type Account, getCurrentAccount } from '@/lib/account'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 const router = useRouter()
-
-const account = ref<Account | undefined>()
-getCurrentAccount().then((acc) => {
-  account.value = acc
-})
 
 const hasPassword = ref(false)
 password.has().then((has) => {
@@ -39,8 +33,8 @@ const toSetting = () => {
 </script>
 
 <template>
-  <Menu as="div" class="relative z-[1] transition-all duration-200" v-if="account">
-    <MenuButton class="relative flex items-center gap-x-0.5 py-1 hover:text-blue-700">
+  <Menu as="div" class="relative z-[1] transition-all duration-200">
+    <MenuButton class="relative flex items-center gap-x-0.5 py-1 hover:text-blue-primary">
       <SettingIcon class="cursor-pointer" />
     </MenuButton>
 

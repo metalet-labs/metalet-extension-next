@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { type } = defineProps<{ type: 'primary' | 'light' }>()
+const { type } = withDefaults(defineProps<{ type?: 'primary' | 'light' }>(), {
+  type: 'primary',
+})
 </script>
 
 <template>

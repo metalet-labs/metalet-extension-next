@@ -2,8 +2,6 @@
 import Decimal from 'decimal.js'
 import { computed, ref } from 'vue'
 import { getTags } from '@/data/assets'
-import { getFTLogo } from '@/data/logos'
-import { type Asset } from '@/data/assets'
 import CopyIcon from '@/assets/icons/copy.svg'
 import { useRoute, useRouter } from 'vue-router'
 import AssetLogo from '@/components/AssetLogo.vue'
@@ -14,7 +12,7 @@ import { toast } from '@/components/ui/toast/use-toast'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import ReceivePNG from '@/assets/icons-v3/receive_detail.png'
 import { calcBalance, prettifyTokenGenesis } from '@/lib/formatters'
-import { useExchangeRatesQuery, getExchangeCoinType } from '@/queries/exchange-rates'
+import { useExchangeRatesQuery, getExchangeCoinType, CoinCategory } from '@/queries/exchange-rates'
 
 const route = useRoute()
 const router = useRouter()
@@ -30,28 +28,7 @@ const tags = computed(() => {
   }
 })
 
-const { data: token } = useMVCTokenQuery(ref(address), genesis, { enabled })
-const asset = computed(() => {
-  if (token.value) {
-    return {
-      symbol: token.value.symbol,
-      tokenName: token.value.name,
-      isNative: false,
-      chain: 'mvc',
-      queryable: true,
-      decimal: token.value.decimal,
-      contract: 'MetaContract',
-      codeHash: token.value.codeHash,
-      genesis: token.value.genesis,
-      logo: getFTLogo(token.value.name),
-      balance: {
-        total: token.value.confirmed + token.value.unconfirmed,
-        confirmed: token.value.confirmed,
-        unconfirmed: token.value.unconfirmed,
-      },
-    } as Asset
-  }
-})
+const { data: asset } = useMVCTokenQuery(ref(address), ref(genesis), { enabled })
 
 const rateEnabled = computed(() => {
   if (asset.value) {
@@ -60,15 +37,13 @@ const rateEnabled = computed(() => {
   return false
 })
 
-const coinType = computed(() => {
-  if (asset.value) {
-    return getExchangeCoinType(asset.value.symbol, asset.value.contract)
+const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRatesQuery(
+  ref(symbol),
+  ref(CoinCategory.MetaContract),
+  {
+    enabled: rateEnabled,
   }
-})
-
-const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRatesQuery(ref(symbol), coinType, {
-  enabled: rateEnabled,
-})
+)
 
 const assetUSD = computed(() => {
   if (isExchangeRateLoading.value) {
@@ -94,8 +69,8 @@ const toReceive = () => {
 }
 
 const copyGenesis = () => {
-  navigator.clipboard.writeText(token.value!.genesis)
-  toast({ title: `Token Contract ID Copied`, toastType: 'success', description: token.value!.genesis })
+  navigator.clipboard.writeText(genesis)
+  toast({ title: `Token Contract ID Copied`, toastType: 'success', description: genesis })
 }
 </script>
 

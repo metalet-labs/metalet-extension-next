@@ -24,5 +24,5 @@ const computedGradientColor = computed(() => {
 
 <!-- Avatar.vue -->
 <template>
-  <div :class="['h-9 w-9 rounded-full bg-gradient-to-br', computedGradientColor]"></div>
+  <div :class="['h-9 w-9 shrink-0 rounded-full bg-gradient-to-br', computedGradientColor]"></div>
 </template>

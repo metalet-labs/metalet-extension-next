@@ -54,14 +54,35 @@ export const useMVCAssetsQuery = (address: Ref<string>, options: { enabled: Comp
 }
 
 export const useMVCTokenQuery = (
-  addressRef: Ref<string>,
-  genesis: string,
+  address: Ref<string>,
+  genesis: Ref<string>,
   options: { enabled: ComputedRef<boolean> }
 ) => {
   return useQuery({
-    queryKey: ['MVCTokens', { address: addressRef.value, genesis }],
-    queryFn: () => fetchMVCTokens(addressRef.value),
-    select: (tokens: Token[]) => tokens.find((token) => token.genesis === genesis),
+    queryKey: ['MVCTokens', { address }],
+    queryFn: () => fetchMVCTokens(address.value),
+    select: (tokens: Token[]) => {
+      const token = tokens.find((token) => token.genesis === genesis.value)
+      if (token) {
+        return {
+          symbol: token.symbol,
+          tokenName: token.name,
+          isNative: false,
+          chain: 'mvc',
+          queryable: true,
+          decimal: token.decimal,
+          contract: 'MetaContract',
+          codeHash: token.codeHash,
+          genesis: token.genesis,
+          logo: getFTLogo(token.name),
+          balance: {
+            confirmed: token.confirmed,
+            unconfirmed: token.unconfirmed,
+            total: token.confirmed + token.unconfirmed,
+          },
+        } as Asset
+      }
+    },
     ...options,
   })
 }

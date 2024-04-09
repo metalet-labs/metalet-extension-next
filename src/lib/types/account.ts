@@ -1,5 +1,5 @@
-import { ScriptType } from 'utxo-wallet-sdk'
-import { mvcCoinType } from 'utxo-wallet-service'
+import { ScriptType } from '@metalet/utxo-wallet-service'
+import { mvcCoinType } from '@metalet/utxo-wallet-service'
 
 export interface V1Account {
   id: string
