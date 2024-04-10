@@ -1,30 +1,35 @@
 <script lang="ts" setup>
-import { Chain } from '@/lib/types'
-import { ref, computed, Ref } from 'vue'
-import { allAssets } from '@/data/assets'
-import { getAddress } from '@/lib/account'
-import { getAssetsDisplay } from '@/lib/assets'
+import { ref, computed } from 'vue'
+import { Receive } from '@/components'
+import { Asset, allAssets } from '@/data/assets'
+import { Chain as ChainType } from '@/lib/types'
 import { useRouter, useRoute } from 'vue-router'
 import AssetItem from './components/AssetItem.vue'
+import { Chain } from '@metalet/utxo-wallet-service'
 import SearchInput from '@/components/SearchInput.vue'
+import { useQRCode } from '@vueuse/integrations/useQRCode'
+import { getServiceNetwork, type Service } from '@/lib/network'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
-const assetSearch = ref()
-
+const qrcode = ref()
 const route = useRoute()
+const isOpen = ref(false)
+const assetSearch = ref()
+const copyAddress = ref()
 const router = useRouter()
+const receiveAsset = ref()
 const { purpose } = route.params
+const serviceNetwork = ref<Service>()
 
-const mvcAddress = ref<string>('')
-const btcAddress = ref<string>('')
+const { getAddress } = useChainWalletsStore()
+const btcAddress = getAddress(Chain.BTC)
+const mvcAddress = getAddress(Chain.MVC)
 
-getAddress('mvc').then((addr) => {
-  mvcAddress.value = addr
+getServiceNetwork().then((_serviceNetwork) => {
+  serviceNetwork.value = _serviceNetwork
 })
-getAddress('btc').then((addr) => {
-  btcAddress.value = addr
-})
 
-const selectAddress = (chain: Chain) => {
+const selectAddress = (chain: ChainType) => {
   switch (chain) {
     case 'btc':
       return btcAddress.value
@@ -35,25 +40,28 @@ const selectAddress = (chain: Chain) => {
   }
 }
 
-const assets = ref(allAssets)
-const assetsDisplay: Ref<string[]> = ref([])
-getAssetsDisplay().then((display) => {
-  assetsDisplay.value = display
-})
-const displayingAssets = computed(() => {
-  return assets.value.filter(
+const assets = computed(() => {
+  return allAssets.filter(
     (asset) =>
-      assetsDisplay.value.includes(asset.symbol) &&
+      (asset.chain === serviceNetwork.value || serviceNetwork.value === 'all') &&
       (!assetSearch.value ||
         asset.symbol.toLocaleLowerCase().includes(assetSearch.value) ||
         asset.tokenName.toLocaleLowerCase().includes(assetSearch.value))
   )
 })
 
-function selectAsset(asset: any) {
+function selectAsset(asset: Asset) {
   switch (purpose) {
     case 'receive':
-      router.push(`/wallet/receive?chain=${asset.chain}`)
+      isOpen.value = true
+      receiveAsset.value = asset
+      if (asset.chain === 'btc') {
+        copyAddress.value = btcAddress.value
+        qrcode.value = useQRCode(btcAddress.value)
+      } else if (asset.chain === 'mvc') {
+        copyAddress.value = mvcAddress.value
+        qrcode.value = useQRCode(mvcAddress.value)
+      }
       break
     case 'send':
       router.push({
@@ -71,15 +79,20 @@ function selectAsset(asset: any) {
 <template>
   <div class="pt-2 space-y-2">
     <SearchInput v-model:assetSearch="assetSearch" />
-    {{ btcAddress }}
-    {{ mvcAddress }}
     <AssetItem
       :asset="asset"
       :key="asset.symbol"
+      v-for="asset in assets"
       @click="selectAsset(asset)"
       v-if="btcAddress && mvcAddress"
-      v-for="asset in displayingAssets"
       :address="selectAddress(asset.chain)"
+    />
+    <Receive
+      v-model:open="isOpen"
+      :qrcode="qrcode.value"
+      :address="copyAddress"
+      :asset="receiveAsset"
+      v-if="receiveAsset"
     />
   </div>
 </template>

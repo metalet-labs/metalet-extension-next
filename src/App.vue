@@ -51,7 +51,7 @@ getCurrentAccount().then(async (account) => {
       <img class="z-[-1] h-full w-full select-none opacity-100" :src="BgHueImg" alt="bg-hue" />
     </div>
 
-    <div
+    <main
       class="ext-app flex h-full w-full flex-col xs:relative xs:aspect-[1/2] xs:h-3/4 xs:w-auto xs:min-w-[25rem] xs:rounded-lg xs:border xs:border-gray-100 xs:bg-white xs:shadow-lg"
     >
       <!-- Header -->
@@ -69,7 +69,7 @@ getCurrentAccount().then(async (account) => {
 
       <!-- footer -->
       <TheFooter v-if="!noFooter" />
-    </div>
+    </main>
   </div>
 </template>
 

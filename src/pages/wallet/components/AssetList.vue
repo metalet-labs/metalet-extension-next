@@ -1,7 +1,7 @@
 <script lang="ts" setup>
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getAddress } from '@/lib/account'
-import { ref, computed, onMounted } from 'vue'
+import AssetItem from './AssetItem.vue'
 import { getAssetsDisplay } from '@/lib/assets'
 import { useBRC20AssetQuery } from '@/queries/btc'
 import { AddressTypeSelector } from '@/components'
@@ -9,22 +9,17 @@ import { useMVCAssetsQuery } from '@/queries/tokens'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { type Asset, BTCAsset, MVCAsset } from '@/data/assets'
 import { getServiceNetwork, type Service } from '@/lib/network'
-
-import AssetItem from './AssetItem.vue'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const router = useRouter()
+const { getAddress } = useChainWalletsStore()
 
-const mvcAddress = ref<string>('')
-const btcAddress = ref<string>('')
 const serviceNetwork = ref<Service>()
+const btcAddress = getAddress(Chain.BTC)
+const mvcAddress = getAddress(Chain.BTC)
 
-onMounted(async () => {
-  mvcAddress.value = await getAddress('mvc')
-  btcAddress.value = await getAddress('btc')
-
-  getServiceNetwork().then((_serviceNetwork) => {
-    serviceNetwork.value = _serviceNetwork
-  })
+getServiceNetwork().then((_serviceNetwork) => {
+  serviceNetwork.value = _serviceNetwork
 })
 
 const assetsDisplay = ref<string[]>([])
@@ -55,7 +50,6 @@ function toToken(token: Asset, address: string) {
   router.push({
     name: 'token',
     params: { genesis: token.genesis, symbol: token.symbol, address },
-    // query: { genesis: token.genesis, symbol: token.symbol, address },
   })
 }
 </script>
@@ -63,8 +57,8 @@ function toToken(token: Asset, address: string) {
 <template>
   <div class="mt-2 space-y-5 text-black">
     <template v-if="!!serviceNetwork && ['all', 'btc'].includes(serviceNetwork)">
-      <AddressTypeSelector :chain="Chain.BTC" />
       <div class="space-y-2" v-if="btcAddress">
+        <AddressTypeSelector :chain="Chain.BTC" />
         <AssetItem :asset="BTCAsset" :address="btcAddress" @click="toNative(BTCAsset, btcAddress)" />
         <AssetItem
           :asset="asset"

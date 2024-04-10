@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import FlexBox from './FlexBox.vue'
 import { type Chain } from '@/lib/types'
-import BTCNetworkLogo from '@/assets/icons-v3/network_btc.svg'
-import MVCNetworkLogo from '@/assets/icons-v3/network_mvc.svg'
 import IncomeLogo from '@/assets/icons-v3/income.svg'
 import ExpenseLogo from '@/assets/icons-v3/expense.svg'
-import FlexBox from './FlexBox.vue'
+import BTCNetworkLogo from '@/assets/icons-v3/network_btc.svg'
+import MVCNetworkLogo from '@/assets/icons-v3/network_mvc.svg'
 
 const { logo, chain, symbol } = defineProps<{
   logo?: string
@@ -23,8 +23,8 @@ const { logo, chain, symbol } = defineProps<{
     </FlexBox>
 
     <template v-if="type === 'network'">
-      <BTCNetworkLogo v-if="chain === 'btc'" class="absolute bottom-0 right-0" />
-      <MVCNetworkLogo v-else-if="chain === 'mvc'" class="absolute bottom-0 right-0" />
+      <BTCNetworkLogo v-if="chain === 'btc'" class="absolute bottom-0 right-0 w-6 h-6" />
+      <MVCNetworkLogo v-else-if="chain === 'mvc'" class="absolute bottom-0 right-0 w-6 h-6" />
     </template>
     <template v-else-if="type === 'activity'">
       <IncomeLogo v-if="flow === 'Send'" class="absolute bottom-0 right-0" />
