@@ -16,7 +16,7 @@ const { getAddress } = useChainWalletsStore()
 
 const serviceNetwork = ref<Service>()
 const btcAddress = getAddress(Chain.BTC)
-const mvcAddress = getAddress(Chain.BTC)
+const mvcAddress = getAddress(Chain.MVC)
 
 getServiceNetwork().then((_serviceNetwork) => {
   serviceNetwork.value = _serviceNetwork
@@ -46,6 +46,13 @@ function toNative(asset: Asset, address: string) {
   })
 }
 
+function toBRC20(asset: Asset, address: string) {
+  router.push({
+    name: 'brc20',
+    params: { symbol: asset.symbol, address },
+  })
+}
+
 function toToken(token: Asset, address: string) {
   router.push({
     name: 'token',
@@ -65,7 +72,7 @@ function toToken(token: Asset, address: string) {
           :key="asset.symbol"
           :address="btcAddress"
           v-for="asset in btcAssets"
-          @click="toNative(asset, btcAddress)"
+          @click="toBRC20(asset, btcAddress)"
         />
       </div>
       <div v-else class="text-center text-gray-500 text-sm">BTC Asset Loading...</div>

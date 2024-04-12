@@ -27,8 +27,8 @@ const { logo, chain, symbol } = defineProps<{
       <MVCNetworkLogo v-else-if="chain === 'mvc'" class="absolute bottom-0 right-0 w-6 h-6" />
     </template>
     <template v-else-if="type === 'activity'">
-      <IncomeLogo v-if="flow === 'Send'" class="absolute bottom-0 right-0" />
-      <ExpenseLogo v-else-if="flow === 'Receive'" class="absolute bottom-0 right-0" />
+      <IncomeLogo v-if="flow === 'Receive'" class="absolute bottom-0 right-0" />
+      <ExpenseLogo v-else-if="flow === 'Send'" class="absolute bottom-0 right-0" />
     </template>
   </div>
 </template>

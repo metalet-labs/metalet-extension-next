@@ -37,7 +37,7 @@ function toWallet() {
       <div class="break-all text-center mb-1">{{ receiver }}</div>
       <div class="label">Receiver</div>
     </FlexBox>
-    <Button type="primary" @click="toWallet" class="mt-16 w-61.5 h-12"> Done </Button>
+    <Button type="primary" @click="$router.replace('/wallet')" class="mt-16 w-61.5 h-12">Done</Button>
   </FlexBox>
 </template>
 

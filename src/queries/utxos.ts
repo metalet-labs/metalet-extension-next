@@ -2,6 +2,7 @@ import { Chain } from '@/lib/types'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
+import { fetchBtcTxHex } from '@/queries/transaction'
 import { mvcApi, mempoolApi, metaletApiV3 } from './request'
 
 export interface UTXO {
@@ -9,6 +10,7 @@ export interface UTXO {
   outputIndex: number
   satoshis: number
   confirmed: boolean
+  rawTx?: string
   inscriptions:
     | {
         id: string
@@ -70,10 +72,15 @@ export interface UnisatUTXO {
   }[]
 }
 
-export async function getBtcUtxos(address: string): Promise<UTXO[]> {
+export async function getBtcUtxos(address: string, needRawTx = false): Promise<UTXO[]> {
   const net = getNet()
   const utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
-
+  if (needRawTx) {
+    for (let utxo of utxos) {
+      utxo.rawTx = await fetchBtcTxHex(utxo.txId)
+      utxo.rawTx
+    }
+  }
   return utxos.sort((a, b) => {
     if (a.confirmed !== b.confirmed) {
       return b.confirmed ? 1 : -1

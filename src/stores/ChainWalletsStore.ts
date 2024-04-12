@@ -33,8 +33,8 @@ export const useChainWalletsStore = createGlobalState(() => {
   })
 
   return {
-    currentBTCWallet,
-    currentMVCWallet,
+    currentBTCWallet: computed(() => toRaw(currentBTCWallet.value)),
+    currentMVCWallet: computed(() => currentMVCWallet.value),
     getAddress,
     updataWallet,
   }

@@ -119,7 +119,7 @@ const routes = [
       },
       {
         path: '/wallet/sendBRC20/:symbol/:amount/:address/:inscriptionId',
-        component: () => import('./pages/wallet/SendBRC.vue'),
+        component: () => import('./pages/wallet/SendBRC20.vue'),
         name: 'sendBRC20',
         meta: {
           secondaryHeader: true,
@@ -231,6 +231,17 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Asset',
+          noFooter: true,
+        },
+      },
+      {
+        path: '/wallet/brc20/:symbol/:address',
+        component: () => import('./pages/wallet/BRC20.vue'),
+        name: 'brc20',
+        props: true,
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'BRC20',
           noFooter: true,
         },
       },

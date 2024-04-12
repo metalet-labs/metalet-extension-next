@@ -25,10 +25,11 @@ const { isLoading, data: activities } = useActivitiesQuery(address, props.asset,
     :asset="asset"
     :activity="activity"
     :key="activity.txid"
-    v-else-if="activities"
+    v-else-if="activities?.length"
     v-for="activity in activities"
   />
 
+  
   <div v-else class="flex flex-col items-center justify-center gap-y-2 pb-4 pt-8 text-center">
     <InboxIcon class="h-8 w-8 text-gray-300" />
     <div class="text-gray-500">No activities</div>

@@ -3,7 +3,7 @@ import Decimal from 'decimal.js'
 import { Psbt } from 'bitcoinjs-lib'
 import { Wallet } from 'meta-contract'
 import { allAssets } from '@/data/assets'
-import { BtcWallet } from '@/lib/wallets/btc'
+import { UTXO, getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { useBalanceQuery } from '@/queries/balance'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -11,7 +11,10 @@ import { type SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import LoadingIcon from '@/assets/icons-v3/loading.svg'
 import type { TransactionResult } from '@/global-types'
+import { ScriptType } from '@metalet/utxo-wallet-service'
 import { ref, computed, Ref, inject, toRaw, watch } from 'vue'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { broadcastBTCTx, fetchBtcTxHex } from '@/queries/transaction'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, Loading } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
@@ -29,6 +32,8 @@ const transactionResult = ref<TransactionResult>()
 const address = ref(route.params.address as string)
 const symbol = ref(route.params.symbol as SymbolTicker)
 const asset = computed(() => allAssets.find((asset) => asset.symbol === symbol.value)!)
+
+const { currentBTCWallet } = useChainWalletsStore()
 
 // amount
 const amount = ref<number>()
@@ -68,6 +73,22 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
+  if (!amount.value) {
+    transactionResult.value = {
+      status: 'warning',
+      message: 'Please input amount.',
+    }
+    isOpenResultModal.value = true
+    return
+  }
+  if (!currentRateFee.value) {
+    transactionResult.value = {
+      status: 'warning',
+      message: 'Please input current rate fee.',
+    }
+    isOpenResultModal.value = true
+    return
+  }
   if (!amountInSats.value) {
     transactionResult.value = {
       status: 'warning',
@@ -86,23 +107,36 @@ const popConfirm = async () => {
   }
   if (symbol.value === 'BTC') {
     operationLock.value = true
-    const wallet = await BtcWallet.create()
-    const result = await wallet
-      .getFeeAndPsbt(recipient.value, amountInSats.value, currentRateFee.value)
-      .catch((err: Error) => {
-        isOpenConfirmModal.value = false
-        transactionResult.value = {
-          status: 'failed',
-          message: err.message,
-        }
-        isOpenResultModal.value = true
-      })
-    operationLock.value = false
-    if (result) {
-      const { fee, psbt } = result
+    if (address.value !== currentBTCWallet.value!.getAddress()) {
+      transactionResult.value = {
+        status: 'warning',
+        message: 'You are not the owner of this address.',
+      }
+      isOpenResultModal.value = true
+      operationLock.value = false
+      return
+    }
+    try {
+      const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+      const utxos = await getBtcUtxos(address.value, needRawTx)
+      const { fee, psbt } = currentBTCWallet.value!.send(
+        recipient.value,
+        amount.value.toString(),
+        currentRateFee.value,
+        utxos
+      )
       txPsbt.value = psbt
       totalFee.value = fee
       isOpenConfirmModal.value = true
+    } catch (error) {
+      console.error('Error in BTC transaction:', error)
+      transactionResult.value = {
+        status: 'failed',
+        message: error as string,
+      }
+      isOpenResultModal.value = true
+    } finally {
+      operationLock.value = false
     }
   } else {
     isOpenConfirmModal.value = true
@@ -138,9 +172,8 @@ async function sendSpace() {
 }
 
 async function sendBTC() {
-  const wallet = await BtcWallet.create()
   if (txPsbt.value) {
-    return await wallet.broadcast(txPsbt.value).catch((err: Error) => {
+    await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
       isOpenConfirmModal.value = false
       transactionResult.value = {
         status: 'failed',
@@ -189,7 +222,7 @@ async function send() {
 
     <div class="space-y-4 w-full">
       <FlexBox d="col" ai="center" :gap="3">
-        <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15"/>
+        <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
 
         <div class="text-base">{{ symbol }}</div>
       </FlexBox>
@@ -198,7 +231,7 @@ async function send() {
     </div>
 
     <div class="space-y-2 w-full">
-      <FlexBox ai="center" jc="between">Receiver</FlexBox>
+      <div>Receiver</div>
       <textarea
         v-model="recipient"
         class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
@@ -209,7 +242,7 @@ async function send() {
       <FlexBox ai="center" jc="between">
         <span>Amount</span>
         <span class="text-gray-primary text-xs">
-          <span>Balance: </span>
+          <span>Balance:</span>
           <span v-if="balance">{{ balance }} {{ symbol }}</span>
           <span v-else>--</span>
         </span>
@@ -244,7 +277,7 @@ async function send() {
       <DrawerContent class="bg-white">
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
-            <AssetLogo :logo="asset.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15"/>
+            <AssetLogo :logo="asset.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
             <div class="text-base">{{ amount }} {{ symbol }}</div>
           </FlexBox>
         </DrawerHeader>
@@ -270,9 +303,16 @@ async function send() {
         <DrawerFooter>
           <FlexBox ai="center" jc="center" :gap="2">
             <DrawerClose>
-              <Button type="light" class="w-[119px] h-12">Cancel</Button>
+              <Button type="light" class="w-[119px] h-12" @click="operationLock = false">Cancel</Button>
             </DrawerClose>
-            <Button type="primary" class="w-[119px] h-12" @click="send">Confirm</Button>
+            <Button
+              type="primary"
+              :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed': btnDisabled }]"
+              @click="send"
+            >
+              <LoadingIcon v-if="operationLock" />
+              <span>Confirm</span>
+            </Button>
           </FlexBox>
         </DrawerFooter>
       </DrawerContent>
