@@ -2,15 +2,17 @@
 import { ref, computed } from 'vue'
 import { getTags } from '@/data/assets'
 import type { Psbt } from 'bitcoinjs-lib'
-import { BtcWallet } from '@/lib/wallets/btc'
-import CopyIcon from '@/assets/icons/copy.svg'
+import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { useBRC20AssetQuery } from '@/queries/btc'
 import { useQueryClient } from '@tanstack/vue-query'
 import { getInscriptionUtxo } from '@/queries/utxos'
-import LoadingIcon from '@/assets/icons-v3/loading.svg'
+import { broadcastBTCTx } from '@/queries/transaction'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import { prettifyBalanceFixed } from '@/lib/formatters'
+import { ScriptType } from '@metalet/utxo-wallet-service'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
@@ -26,6 +28,8 @@ const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 const inscriptionId = ref<string>(route.params.inscriptionId as string)
 
 const { data: btcAssets } = useBRC20AssetQuery(address, { enabled: computed(() => !!address.value) })
+
+const { currentBTCWallet } = useChainWalletsStore()
 
 const asset = computed(() => {
   if (btcAssets.value) {
@@ -68,24 +72,23 @@ async function next() {
 
   operationLock.value = true
 
-  const utxo = await getInscriptionUtxo(inscriptionId.value)
-
-  const wallet = await BtcWallet.create()
-  const info = await wallet.getBRCFeeAndPsbt(recipient.value, utxo, currentRateFee.value).catch((err: Error) => {
+  try {
+    const utxo = await getInscriptionUtxo(inscriptionId.value)
+    const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const { fee, psbt } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
+    txPsbt.value = psbt
+    calcFee.value = fee
+    isShowComfirm.value = true
+  } catch (error) {
+    console.error('Error in BTC transaction:', error)
     transactionResult.value = {
       status: 'failed',
-      message: err.message,
+      message: error as string,
     }
     isOpenResultModal.value = true
+  } finally {
     operationLock.value = false
-  })
-
-  if (info) {
-    const { fee, psbt } = info
-    calcFee.value = fee
-    txPsbt.value = psbt
-    operationLock.value = false
-    isShowComfirm.value = true
   }
 }
 
@@ -99,14 +102,21 @@ async function send() {
     return
   }
 
-  const wallet = await BtcWallet.create()
-  await wallet.broadcast(txPsbt.value).catch((err: Error) => {
+  const txId = await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
+    isShowComfirm.value = false
     transactionResult.value = {
       status: 'failed',
       message: err.message,
     }
     isOpenResultModal.value = true
   })
+  if (!txId) {
+    transactionResult.value = {
+      status: 'failed',
+      message: 'Send failed',
+    }
+    return
+  }
 
   isShowComfirm.value = false
   operationLock.value = false
@@ -114,9 +124,10 @@ async function send() {
     queryKey: ['balance', { address: address.value, symbol: symbol.value }],
   })
 
-  router.push({
+  router.replace({
     name: 'SendSuccess',
     params: {
+      txId,
       chain: 'btc',
       symbol: symbol.value,
       amount: amount.value,

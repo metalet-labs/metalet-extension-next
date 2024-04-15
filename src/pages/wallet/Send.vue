@@ -3,18 +3,18 @@ import Decimal from 'decimal.js'
 import { Psbt } from 'bitcoinjs-lib'
 import { Wallet } from 'meta-contract'
 import { allAssets } from '@/data/assets'
-import { UTXO, getBtcUtxos } from '@/queries/utxos'
+import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { useBalanceQuery } from '@/queries/balance'
 import { useQueryClient } from '@tanstack/vue-query'
+import LoadingIcon from '@/components/LoadingIcon.vue'
+import { broadcastBTCTx } from '@/queries/transaction'
 import { type SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyBalanceFixed } from '@/lib/formatters'
-import LoadingIcon from '@/assets/icons-v3/loading.svg'
 import type { TransactionResult } from '@/global-types'
+import { ref, computed, Ref, inject, watch } from 'vue'
 import { ScriptType } from '@metalet/utxo-wallet-service'
-import { ref, computed, Ref, inject, toRaw, watch } from 'vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { broadcastBTCTx, fetchBtcTxHex } from '@/queries/transaction'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, Loading } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
@@ -33,7 +33,7 @@ const address = ref(route.params.address as string)
 const symbol = ref(route.params.symbol as SymbolTicker)
 const asset = computed(() => allAssets.find((asset) => asset.symbol === symbol.value)!)
 
-const { currentBTCWallet } = useChainWalletsStore()
+const { currentBTCWallet, initMvcWallet } = useChainWalletsStore()
 
 // amount
 const amount = ref<number>()
@@ -81,7 +81,7 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
-  if (!currentRateFee.value) {
+  if (asset.value.chain === 'btc' && !currentRateFee.value) {
     transactionResult.value = {
       status: 'warning',
       message: 'Please input current rate fee.',
@@ -122,7 +122,7 @@ const popConfirm = async () => {
       const { fee, psbt } = currentBTCWallet.value!.send(
         recipient.value,
         amount.value.toString(),
-        currentRateFee.value,
+        currentRateFee.value!,
         utxos
       )
       txPsbt.value = psbt
@@ -153,12 +153,12 @@ watch(amountInSats, (newAmountInSats) => {
 
 const isOpenResultModal = ref(false)
 
-const wallet = inject<Ref<Wallet>>('wallet')!
-
 const operationLock = ref(false)
 
 async function sendSpace() {
-  const walletInstance = toRaw(wallet.value)
+  // const walletInstance = toRaw(wallet.value)
+
+  const walletInstance = initMvcWallet()
   const sentRes = await walletInstance.send(recipient.value, amountInSats.value.toNumber()).catch((err) => {
     isOpenConfirmModal.value = false
     transactionResult.value = {
@@ -173,7 +173,7 @@ async function sendSpace() {
 
 async function sendBTC() {
   if (txPsbt.value) {
-    await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
+    const txId = await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
       isOpenConfirmModal.value = false
       transactionResult.value = {
         status: 'failed',
@@ -181,6 +181,7 @@ async function sendBTC() {
       }
       isOpenResultModal.value = true
     })
+    return { txId }
   } else {
     isOpenConfirmModal.value = false
     transactionResult.value = {
@@ -197,16 +198,24 @@ async function send() {
   operationLock.value = true
 
   const sendProcessor = asset.value.symbol === 'SPACE' ? sendSpace : sendBTC
-  await sendProcessor()
+  const sendRes = await sendProcessor()
+  if (!sendRes || !sendRes.txId) {
+    transactionResult.value = {
+      status: 'failed',
+      message: 'Send failed',
+    }
+    return
+  }
 
   isOpenConfirmModal.value = false
   operationLock.value = false
   queryClient.invalidateQueries({
     queryKey: ['balance', { address: address.value, symbol: symbol.value }],
   })
-  router.push({
+  router.replace({
     name: 'SendSuccess',
     params: {
+      txId: sendRes.txId,
       chain: asset.value.chain,
       symbol: symbol.value,
       amount: amount.value,
@@ -262,14 +271,16 @@ async function send() {
     <Button
       type="primary"
       @click="popConfirm"
-      :disabled="!currentRateFee || !recipient"
-      class="absolute bottom-4 left-1/2 -translate-x-1/2 w-61.5 h-12"
-      :class="btnDisabled ? 'opacity-50 cursor-not-allowed' : undefined"
+      :disabled="btnDisabled"
+      :class="[
+        { 'opacity-50 cursor-not-allowed': btnDisabled },
+        'absolute bottom-4 left-1/2 -translate-x-1/2 w-61.5 h-12',
+      ]"
     >
-      <FlexBox ai="center" :gap="1" v-if="operationLock">
+      <div class="flex items-center gap-2" v-if="operationLock">
         <LoadingIcon />
         <span>Loading...</span>
-      </FlexBox>
+      </div>
       <span v-else>Next</span>
     </Button>
 
@@ -295,7 +306,7 @@ async function send() {
             <div class="text-gray-primary">Amount</div>
             <div class="break-all">{{ prettifyBalanceFixed(amount, symbol) }}</div>
           </FlexBox>
-          <FlexBox ai="center" jc="between">
+          <FlexBox ai="center" jc="between" v-if="asset.chain === 'btc'">
             <div class="text-gray-primary">Fees (Estimated)</div>
             <div>{{ prettifyBalanceFixed(totalFee, symbol, asset.decimal) }}</div>
           </FlexBox>
@@ -306,9 +317,9 @@ async function send() {
               <Button type="light" class="w-[119px] h-12" @click="operationLock = false">Cancel</Button>
             </DrawerClose>
             <Button
-              type="primary"
-              :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed': btnDisabled }]"
               @click="send"
+              type="primary"
+              :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': btnDisabled }]"
             >
               <LoadingIcon v-if="operationLock" />
               <span>Confirm</span>

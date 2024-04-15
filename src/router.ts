@@ -128,12 +128,12 @@ const routes = [
         },
       },
       {
-        path: '/wallet/sendSuccess/:chain/:symbol/:amount/:address',
+        path: '/wallet/sendSuccess/:chain/:symbol/:amount/:address/:txId',
         component: () => import('./pages/wallet/SendSuccess.vue'),
         name: 'SendSuccess',
         meta: {
           secondaryHeader: false,
-          noFooter: false,
+          noFooter: true,
         },
       },
       {

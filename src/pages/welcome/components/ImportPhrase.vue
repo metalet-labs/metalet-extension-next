@@ -61,7 +61,7 @@ watch(
           <FlexBox ai="center" :gap="1">
             <span>My seed phrase has</span>
             <Select v-model:modelValue="wordsLen">
-              <SelectTrigger class="w-24 text-base">
+              <SelectTrigger class="w-30 text-base">
                 <SelectValue placeholder="Select a number of words" />
               </SelectTrigger>
               <SelectContent align="end">
@@ -84,7 +84,7 @@ watch(
                 type="text"
                 v-model="props.words[index]"
                 @paste.prevent="onPasteWords"
-                class="h-full font-medium focus:outline-none w-full p-3 rounded-lg"
+                class="h-full font-medium w-full p-3 rounded-lg focus:outline-none focus:ring-0"
               />
             </FlexBox>
           </div>

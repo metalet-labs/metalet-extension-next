@@ -7,7 +7,7 @@ import { type Asset } from '@/data/assets'
 import { getBrowserHost } from '@/lib/host'
 import AssetLogo from '@/components/AssetLogo.vue'
 import type { Activity } from '@/queries/activities'
-import LoadingIcon from '@/assets/icons-v3/loading.svg'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
 
 const props = defineProps<{
@@ -70,16 +70,16 @@ const toActivityTx = async () => {
         :flow="flow"
       />
       <div>
-        <div :class="['text-sm space-x-2', !isConfirmed ? 'text-orange-primary' : undefined]">
-          <LoadingIcon v-if="!isConfirmed" />
+        <div :class="['flex items-center gap-x-2 text-sm', !isConfirmed ? 'text-orange-primary' : undefined]">
           <span>{{ flow }}</span>
+          <LoadingIcon v-if="!isConfirmed" class="text-orange-primary w-4 h-4" />
         </div>
         <div class="text-gray-primary text-xs">{{ prettifyTimestamp(activity.time) }}</div>
       </div>
     </FlexBox>
     <FlexBox d="col" ai="end">
       <div class="text-sm">{{ difference.display }}</div>
-      <div class="text-xs text-gray-primary"> {{ prettifyTxId(activity.txid) }}</div>
+      <div class="text-xs text-gray-primary">{{ prettifyTxId(activity.txid) }}</div>
     </FlexBox>
   </FlexBox>
   <!-- <div class="w-full py-3">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import LoadingIcon from '@/assets/icons-v3/loading.svg'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 const { ticker, amount, inscriptionNumber } = defineProps<{
   text?: string
   ticker?: string

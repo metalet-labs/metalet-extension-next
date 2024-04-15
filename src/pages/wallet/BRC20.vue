@@ -21,6 +21,7 @@ import { useBRCTickerAseetQuery, useBRC20AssetQuery } from '@/queries/btc'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -69,7 +70,6 @@ const { isLoading: tickersLoading, data: tickersData } = useBRCTickerAseetQuery(
   enabled: tickerEnabled,
 })
 
-// TODO: 修复tickersData请求得到结果后transferableList初次不加载数据
 const transferableList = computed(() => tickersData.value?.transferableList)
 
 const transferableBalance = computed(() => {
@@ -174,11 +174,13 @@ watch(assetUSD, (_assetUSD) => {
       <Tabs default-value="Transferable">
         <TabsList class="grid grid-cols-2">
           <TabsTrigger value="Transferable">
-            <span class="text-lg">{{ transferableBalance }}</span>
+            <LoadingIcon class="mb-1" v-if="tickersLoading" />
+            <span class="text-lg" v-else>{{ transferableBalance }}</span>
             <span class="text-sm text-gray-primary">Transferable</span>
           </TabsTrigger>
           <TabsTrigger value="Available">
-            <div class="text-lg">
+            <LoadingIcon class="mb-1" v-if="tickersLoading" />
+            <div class="text-lg" v-else>
               <span>{{ availableBalanceSafe }}</span>
               <span v-if="availableBalanceUnSafe" class="text-gray-primary">+ {{ availableBalanceUnSafe }}</span>
             </div>

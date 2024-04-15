@@ -6,7 +6,7 @@ import { type TokenTransfer } from '@/queries/btc'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import ArrowDwonIcon from '@/assets/icons-v3/arrow_down.svg'
 
-const { loading, list } = defineProps<{
+const props = defineProps<{
   loading: boolean
   list?: TokenTransfer[]
   clickEvent?: Function
@@ -15,11 +15,11 @@ const { loading, list } = defineProps<{
 const showAll = ref(false)
 
 const tickerList = computed(() => {
-  if (list) {
+  if (props.list) {
     if (showAll.value) {
-      return list
+      return props.list
     } else {
-      return list.slice(0, 3)
+      return props.list.slice(0, 3)
     }
   }
 })
@@ -27,16 +27,16 @@ const tickerList = computed(() => {
 
 <template>
   <div>
-    <Loading v-if="loading" text="Transferable Token Loading..." />
+    <Loading v-if="props.loading" text="Transferable Token Loading..." />
     <template v-else-if="tickerList?.length">
-      <div :class="['grid grid-cols-3 gap-x-2 gap-y-4', clickEvent ? 'cursor-pointer' : undefined]">
+      <div :class="['grid grid-cols-3 gap-x-2 gap-y-4', props.clickEvent ? 'cursor-pointer' : undefined]">
         <Ticker
           :ticker="ticker.ticker"
           :amount="ticker.amount"
           :key="ticker.inscriptionId"
           v-for="ticker in tickerList"
           :inscriptionNumber="ticker.inscriptionNumber"
-          @click="clickEvent ? clickEvent(ticker.inscriptionId, ticker.amount) : undefined"
+          @click="props.clickEvent ? props.clickEvent(ticker.inscriptionId, ticker.amount) : undefined"
         />
       </div>
       <template v-if="!showAll">
