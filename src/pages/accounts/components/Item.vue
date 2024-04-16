@@ -76,7 +76,7 @@ const openEditNameModal = ref(false)
 <template>
   <div class="flex items-center justify-between border-b border-gray-100">
     <!-- edit name modal -->
-    <EditName v-model:open="openEditNameModal" :account="props.account" />
+    <EditName v-model:open="openEditNameModal" :account="props.account" type="Account" />
 
     <div class="flex items-center justify-start gap-x-2 py-4" :key="props.account.id">
       <!-- avatar -->
@@ -97,8 +97,9 @@ const openEditNameModal = ref(false)
           <span
             class="rounded-sm bg-gray-100 px-2 py-0.5 text-xs text-gray-500"
             v-if="showNetwork && network === 'testnet'"
-            >{{ network }}</span
           >
+            {{ network }}
+          </span>
         </div>
 
         <div class="mt-1 flex items-center gap-x-1">

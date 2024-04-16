@@ -1,14 +1,17 @@
 <script lang="ts" setup>
-import Decimal from 'decimal.js'
 import { ref, computed, Ref } from 'vue'
 import { type Psbt } from 'bitcoinjs-lib'
 import Ticker from './components/Ticker.vue'
 import { BtcWallet } from '@/lib/wallets/btc'
+import { getBtcUtxos } from '@/queries/utxos'
 import Loading from '@/components/Loading.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
+import { commitInscribe } from '@/queries/inscribe'
 import LoadingIcon from '@/components/LoadingIcon.vue'
+import { ScriptType } from '@metalet/utxo-wallet-service'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import InscribeSuccessPNG from '@/assets/icons-v3/inscribe-success.png'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
 import { useBRCTickerAseetQuery, useBRC20AssetQuery } from '@/queries/btc'
@@ -30,6 +33,9 @@ const router = useRouter()
 
 const orderId = ref()
 const open = ref(false)
+const rawTx = ref<string>()
+
+const { currentBTCWallet } = useChainWalletsStore()
 
 if (!route.params.address || !route.params.symbol) {
   router.go(-1)
@@ -45,7 +51,7 @@ const asset = computed(() => {
   }
 })
 
-const currentRateFee = ref<number | undefined>()
+const currentRateFee = ref<number>()
 
 const { data: tokenData } = useBRCTickerAseetQuery(address, symbol, {
   enabled: computed(() => !!address.value),
@@ -59,19 +65,18 @@ const availableBalance = computed(() => {
 })
 
 const nextStep = ref(0)
-
+const operationLock = ref(false)
 const isOpenResultModal = ref(false)
 
-const operationLock = ref(false)
-
-const inscribeAmount = ref<number | undefined>()
-const inscribePsbt = ref<Psbt | undefined>()
-const total = ref<number | undefined>()
-const paymentNetworkFee = ref<number | undefined>()
-const transactionResult: Ref<undefined | TransactionResult> = ref()
-const inscribeOrder = ref<PreInscribe | undefined>()
 const psbtHex = ref('')
 const copied = ref(false)
+const total = ref<number>()
+const inscribePsbt = ref<Psbt>()
+const inscribeAmount = ref<number>()
+const paymentNetworkFee = ref<number>()
+const inscribeOrder = ref<PreInscribe>()
+const transactionResult = ref<TransactionResult>()
+
 interface SimpleUTXO {
   address: string
   value: number
@@ -99,6 +104,15 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
+  if (address.value !== currentBTCWallet.value?.getAddress()) {
+    transactionResult.value = {
+      status: 'warning',
+      message: 'Address mismatch. Double-check the address.',
+    }
+    isOpenResultModal.value = true
+    return
+  }
+
   if (inscribeAmount.value > Number(tokenData.value?.tokenBalance.availableBalance || 0)) {
     transactionResult.value = {
       status: 'warning',
@@ -121,42 +135,44 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   })
-  // console.log({ order })
   if (!order) {
     operationLock.value = false
     return
   }
-  const wallet = await BtcWallet.create()
-  const data = await wallet
-    .getFeeAndPsbt(order.payAddress, new Decimal(order.needAmount), currentRateFee.value)
-    .catch((err) => {
-      transactionResult.value = {
-        status: 'failed',
-        message: err.message,
-      }
-      isOpenResultModal.value = true
-      return
-    })
-  if (!data) {
+  try {
+    const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const {
+      fee,
+      psbt,
+      txInputs,
+      txOutputs,
+      rawTx: _rawTx,
+    } = currentBTCWallet.value!.send(
+      order.payAddress,
+      (order.needAmount / 1e8).toString(),
+      currentRateFee.value!,
+      utxos
+    )
+    rawTx.value = _rawTx
+    inputUTXOs.value = txInputs
+    outputUTXOs.value = txOutputs
+    psbtHex.value = psbt.extractTransaction().toHex()
+    paymentNetworkFee.value = fee
+    inscribePsbt.value = psbt
+    // console.log('paymentNetworkFee', paymentNetworkFee.value, order.minerFee)
+    inscribeOrder.value = order
+    orderId.value = order.orderId
+    total.value = paymentNetworkFee.value + order.needAmount
     operationLock.value = false
-    return
+    nextStep.value = 1
+  } catch (error) {
+    transactionResult.value = {
+      status: 'failed',
+      message: (error as Error).message,
+    }
+    isOpenResultModal.value = true
   }
-  const { fee, psbt, selecedtUTXOs } = data
-  inputUTXOs.value = selecedtUTXOs.map((utxo) => ({ address: address.value, value: utxo.satoshis }))
-  const tx = psbt.extractTransaction()
-  outputUTXOs.value = psbt.txOutputs.map((out) => ({
-    address: out.address || '',
-    value: out.value,
-  }))
-  psbtHex.value = psbt.extractTransaction().toHex()
-  paymentNetworkFee.value = fee
-  inscribePsbt.value = psbt
-  // console.log('paymentNetworkFee', paymentNetworkFee.value, order.minerFee)
-  inscribeOrder.value = order
-  orderId.value = order.orderId
-  total.value = paymentNetworkFee.value + order.needAmount
-  operationLock.value = false
-  nextStep.value = 1
 }
 
 function toConfirm() {
@@ -166,24 +182,25 @@ function toConfirm() {
 async function send() {
   if (operationLock.value) return
   operationLock.value = true
-  const wallet = await BtcWallet.create()
-  let resStatus = await wallet.commitInscribe(inscribeOrder.value!.orderId, inscribePsbt.value!).catch((err) => {
+  try {
+    let resStatus = await commitInscribe(address.value, inscribeOrder.value!.orderId, rawTx.value!)
+    if (resStatus) {
+      const timerId = setInterval(async () => {
+        if (resStatus!.inscriptionState === 4) {
+          clearInterval(timerId)
+          operationLock.value = false
+          open.value = true
+          return
+        }
+        resStatus = await getInscribeInfo(inscribeOrder.value!.orderId)
+      }, 1000)
+    }
+  } catch (error) {
     transactionResult.value = {
       status: 'failed',
-      message: err.message,
+      message: (error as Error).message,
     }
     isOpenResultModal.value = true
-  })
-  if (resStatus) {
-    const timerId = setInterval(async () => {
-      if (resStatus!.inscriptionState === 4) {
-        clearInterval(timerId)
-        operationLock.value = false
-        open.value = true
-        return
-      }
-      resStatus = await getInscribeInfo(inscribeOrder.value!.orderId)
-    }, 1000)
   }
 }
 
@@ -194,7 +211,7 @@ function cancel() {
 function toOrder() {
   router.push({
     name: 'inscribe-query',
-    params: { orderId: orderId.value, symbol: symbol.value },
+    params: { orderId: orderId.value, symbol: symbol.value, amt: inscribeAmount.value },
   })
 }
 
@@ -202,7 +219,6 @@ const tabIdx = ref<number>(0)
 const changeTabIdx = (idx: number) => {
   tabIdx.value = idx
 }
-
 </script>
 
 <template>
@@ -212,10 +228,10 @@ const changeTabIdx = (idx: number) => {
       <Ticker :ticker="asset.symbol" :amount="inscribeAmount || 0" :block="true" class="w-[104px] mx-auto" />
       <Divider />
       <div>
-        <FlexBox ai="center" jc="between">
+        <div class="flex items-center justify-between">
           <span class="text-sm">Available</span>
-          <span class="text-xs text-gray-primary"> {{ availableBalance }} {{ asset.symbol }} </span>
-        </FlexBox>
+          <span class="text-xs text-gray-primary">{{ availableBalance }} {{ asset.symbol }}</span>
+        </div>
         <input
           min="0"
           type="number"
@@ -295,14 +311,16 @@ const changeTabIdx = (idx: number) => {
             @click="changeTabIdx(0)"
             class="inline-block pb-2 border-b-2 cursor-pointer"
             :class="tabIdx === 0 ? 'border-blue-primary text-blue-primary' : 'border-white text-black-primary'"
-            >Data</span
           >
+            Data
+          </span>
           <span
             @click="changeTabIdx(1)"
             class="inline-block pb-2 border-b-2 cursor-pointer"
             :class="tabIdx === 1 ? 'border-blue-primary text-blue-primary' : 'border-white text-black-primary'"
-            >Hex</span
           >
+            Hex
+          </span>
         </div>
         <div class="space-y-4 text-sm" v-show="tabIdx === 0">
           <div class="space-y-2 rounded-md">
@@ -313,8 +331,8 @@ const changeTabIdx = (idx: number) => {
               v-for="utxo in inputUTXOs"
               class="w-full px-3 py-3.5 bg-gray-secondary rounded-lg"
             >
-              <span>{{ shortestAddress(utxo.address) }}</span
-              ><span>{{ prettifyBalanceFixed(utxo.value, 'BTC', 8) }}</span>
+              <span>{{ shortestAddress(utxo.address) }}</span>
+              <span>{{ prettifyBalanceFixed(utxo.value, 'BTC', 8) }}</span>
             </FlexBox>
           </div>
           <div class="space-y-2 rounded-md">
@@ -331,9 +349,9 @@ const changeTabIdx = (idx: number) => {
           </div>
           <div class="space-y-2 rounded-md">
             <div class="label">Network Fee</div>
-            <FlexBox class="w-full px-3 py-3.5 bg-gray-secondary rounded-lg">{{
-              prettifyBalanceFixed(paymentNetworkFee || 0, 'BTC', 8)
-            }}</FlexBox>
+            <FlexBox class="w-full px-3 py-3.5 bg-gray-secondary rounded-lg">
+              {{ prettifyBalanceFixed(paymentNetworkFee || 0, 'BTC', 8) }}
+            </FlexBox>
           </div>
         </div>
         <div class="space-y-[18px]" v-show="tabIdx === 1">
@@ -365,19 +383,17 @@ const changeTabIdx = (idx: number) => {
           <AlertDialogHeader>
             <FlexBox d="col" ai="center">
               <img :src="InscribeSuccessPNG" alt="Inscribe Success" class="w-22.5 mx-auto" />
-              <AlertDialogTitle class="pt-3"> Payment Sent </AlertDialogTitle>
+              <AlertDialogTitle class="pt-3">Payment Sent</AlertDialogTitle>
               <AlertDialogDescription class="pt-1 text-center text-gray-primary">
-                Your Transaction Has Been <br />Succesfully Sent
+                Your Transaction Has Been
+                <br />
+                Succesfully Sent
               </AlertDialogDescription>
             </FlexBox>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogAction>
-              <Button
-                type="primary"
-                @click="toOrder"
-                class="absolute bottom-6 left-1/2 -translate-x-1/2 w-61.5 h-12"
-              >
+              <Button type="primary" @click="toOrder" class="absolute bottom-6 left-1/2 -translate-x-1/2 w-61.5 h-12">
                 Confirm
               </Button>
             </AlertDialogAction>

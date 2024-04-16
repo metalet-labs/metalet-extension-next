@@ -9,10 +9,10 @@ import CopyIcon from '@/assets/icons-v3/copy.svg'
 import { getV3CurrentAccount } from '@/lib/wallet'
 import CloseIcon from '@/assets/icons-v3/close.svg'
 import { WalletsStore } from '@/stores/WalletStore'
+import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import BtcLogo from '@/assets/images/btc-logo.svg?url'
 import SpaceLogo from '@/assets/images/space-logo.svg?url'
 import { useToast } from '@/components/ui/toast/use-toast'
-import { PencilSquareIcon } from '@heroicons/vue/24/solid'
 import ServiceMenu from '@/components/headers/ServiceMenu.vue'
 import SettingMenu from '@/components/headers/SettingMenu.vue'
 import EditName from '@/pages/accounts/components/EditName.vue'
@@ -74,15 +74,11 @@ const copy = (address: string, addressType: string, type: string) => {
   <div class="flex items-center justify-between py-3">
     <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toManageWallets" v-if="account">
       <Avatar :id="account.id" />
-      <div class="flex items-center gap-x-2">
-        <span class="text-black-primary text-sm">{{ account.name }}</span>
-        <PencilSquareIcon
-          @click.stop
-          @click="openEditNameModal = true"
-          class="h-4 w-4 cursor-pointer text-gray-400 hover:text-gray-500 group-hover:inline"
-        />
+      <div class="flex items-center gap-x-2 text-gray-black">
+        <span class="text-sm">{{ account.name }}</span>
+        <PencilIcon @click.stop="openEditNameModal = true" class="h-3.5 w-3.5 cursor-pointer hover:text-blue-primary" />
       </div>
-      <EditName v-model:open="openEditNameModal" :account="account" />
+      <EditName v-model:open="openEditNameModal" :account="account" type="Account" />
     </FlexBox>
     <div class="flex items-center gap-x-4">
       <CopyIcon class="cursor-pointer hover:text-blue-primary" @click="isOpen = true" />

@@ -23,7 +23,7 @@ const router = useRouter()
 if (!route.params.address) {
   router.go(-1)
 }
-const refresh = computed(() => route.query.refresh)
+
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 

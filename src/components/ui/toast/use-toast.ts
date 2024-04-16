@@ -127,6 +127,7 @@ function useToast() {
 
 type Toast = Omit<ToasterToast, 'id'>
 
+// TODO: toast utils update
 function toast(props: Toast) {
   const id = genId()
 

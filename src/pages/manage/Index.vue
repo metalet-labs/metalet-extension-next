@@ -2,18 +2,26 @@
 import { ref } from 'vue'
 import { sleep } from '@/lib/helpers'
 import { goToPage } from '@/lib/utils'
+import { EditName } from '@/components'
 import { type V3Wallet } from '@/lib/types'
 import Avatar from '@/components/Avatar.vue'
 import { totalBalance } from '@/lib/balance'
 import { toast } from '@/components/ui/toast'
 import AddIcon from '@/assets/icons-v3/add.svg'
 import { WalletsStore } from '@/stores/WalletStore'
+import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { FlexBox, Divider, Button } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { getCurrentWalletId, setV3WalletsStorage, getV3WalletsStorage, setCurrentWalletId } from '@/lib/wallet'
+
+const editName = ref()
+const editWalletId = ref()
+const editAccountId = ref()
+const editNameOpen = ref(false)
+const editNameType = ref<'Wallet' | 'Account'>('Wallet')
 
 const walletObj = ref<Record<string, V3Wallet>>({})
 const currentWalletId = ref<string>()
@@ -45,8 +53,6 @@ const addAccount = async (wallet: V3Wallet) => {
 }
 
 const relaodAccout = async (_walletId: string, _accountId: string) => {
-  // console.log(_walletId, _accountId)
-
   currentWalletId.value = _walletId
   currentAccountId.value = _accountId
   await setCurrentWalletId(_walletId)
@@ -54,10 +60,32 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
   await sleep(200)
   window.location.replace('/wallet')
 }
+
+const updataWalletName = (walletId: string, walletName: string) => {
+  editName.value = walletName
+  editNameOpen.value = true
+  editNameType.value = 'Wallet'
+  editWalletId.value = walletId
+}
+
+const updataAccountName = (walletId: string, accountId: string, accountName: string) => {
+  editName.value = accountName
+  editNameOpen.value = true
+  editNameType.value = 'Account'
+  editWalletId.value = walletId
+  editAccountId.value = accountId
+}
 </script>
 
 <template>
-  <FlexBox class="w-full -my-3 pb-24 relative h-full" d="col">
+  <div class="flex flex-col w-full -my-3 pb-24 relative h-full">
+    <EditName
+      v-model:open="editNameOpen"
+      :type="editNameType"
+      :name="editName"
+      :walletId="editWalletId"
+      :accountId="editAccountId"
+    />
     <FlexBox class="w-full h-15" ai="center" jc="between">
       <ArrowLeftIcon @click="$router.push('/wallet')" class="cursor-pointer" />
       <RouterLink to="/" class="text-sm">Edit wallt</RouterLink>
@@ -65,7 +93,7 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
     <FlexBox class="flex-1 overflow-y-auto pr-4 -mr-4" d="col">
       <FlexBox class="w-full py-6" d="col" :gap="2" ai="center" jc="center">
         <div>Current Account Asset</div>
-        <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }} USD</div>
+        <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }}</div>
       </FlexBox>
       <Divider />
       <FlexBox class="w-full py-[49px]" d="col">
@@ -78,7 +106,15 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
           v-for="wallet in Object.values(walletObj)"
         >
           <AccordionItem :value="wallet.id">
-            <AccordionTrigger class="">{{ wallet.name }}</AccordionTrigger>
+            <AccordionTrigger class="">
+              <div class="flex items-center gap-2">
+                <span>{{ wallet.name }}</span>
+                <PencilIcon
+                  class="w-3.5 hover:text-blue-primary"
+                  @click.stop="updataWalletName(wallet.id, wallet.name)"
+                />
+              </div>
+            </AccordionTrigger>
             <AccordionContent>
               <FlexBox
                 ai="center"
@@ -91,11 +127,15 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
                 <FlexBox ai="center" :gap="3">
                   <Avatar :id="account.id" />
                   <span>{{ account.name }}</span>
+                  <PencilIcon
+                    class="w-3.5 hover:text-blue-primary"
+                    @click.stop="updataAccountName(wallet.id, account.id, account.name)"
+                  />
                 </FlexBox>
                 <SuccessIcon v-show="account.id === currentAccountId" />
               </FlexBox>
               <FlexBox ai="center" :gap="3" class="h-15 cursor-pointer" @click="addAccount(wallet)">
-                <AddIcon class="w-[38px] h-[38px]"/>
+                <AddIcon class="w-[38px] h-[38px]" />
                 <span>Add account</span>
               </FlexBox>
             </AccordionContent>
@@ -106,10 +146,11 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
         type="primary"
         @click="goToPage('/welcome', true)"
         class="py-6 absolute bottom-6 w-61.5 left-1/2 -translate-x-1/2"
-        >Add Wallet</Button
       >
+        Add Wallet
+      </Button>
     </FlexBox>
-  </FlexBox>
+  </div>
 </template>
 
 <style scoped lang="css"></style>

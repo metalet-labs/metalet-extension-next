@@ -1,31 +1,49 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
-
-import { getCurrentAccount, type Account, updateName } from '@/lib/account'
-
+import { computed, ref, watch } from 'vue'
 import Modal from '@/components/Modal.vue'
+import { toast } from '@/components/ui/toast'
+import { updateWalletName, updateAccountName } from '@/lib/wallet'
 
-defineProps<{
+const props = defineProps<{
   open: boolean
   type: 'Wallet' | 'Account'
+  name?: string
+  walletId?: string
+  accountId?: string
 }>()
 
-// const emit = defineEmits(['update:open'])
+const name = ref()
+const walletId = computed(() => props.walletId)
+const accountId = computed(() => props.accountId)
 
-const currentAccount = ref<Account>()
-getCurrentAccount().then((acc) => {
-  currentAccount.value = acc
-})
-const name = ref(currentAccount.value?.name)
+watch(
+  () => props.name,
+  (_name) => {
+    name.value = _name
+  }
+)
+
 async function onUpdateName() {
-  console.log(name.value)
+  if (!walletId.value) {
+    toast({ title: 'Please select a wallet', toastType: 'warning' })
+    return
+  }
+  if (!name.value) {
+    toast({ title: 'Please enter a name', toastType: 'warning' })
+    return
+  }
+  if (props.type === 'Wallet') {
+    await updateWalletName(walletId.value, name.value)
+  } else if (props.type === 'Account') {
+    if (!accountId.value) {
+      toast({ title: 'Please select an account', toastType: 'warning' })
+      return
+    }
+    await updateAccountName(walletId.value, accountId.value, name.value)
+  }
 
-  // if (currentAccount.value && name.value) {
-  //   await updateName(name.value)
-  // }
-
-  // // Refresh
-  // window.location.reload()
+  // TODO: No sense of refresh
+  window.location.reload()
 }
 </script>
 

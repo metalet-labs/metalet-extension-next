@@ -2,8 +2,8 @@
 import Decimal from 'decimal.js'
 import { computed, ref } from 'vue'
 import { getTags } from '@/data/assets'
-import CopyIcon from '@/assets/icons/copy.svg'
 import { useRoute, useRouter } from 'vue-router'
+import CopyIcon from '@/assets/icons-v3/copy.svg'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useMVCTokenQuery } from '@/queries/tokens'
 import Activities from './components/Activities.vue'
@@ -80,7 +80,7 @@ const copyGenesis = () => {
       <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
-        <span v-if="asset.balance"> {{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
+        <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
         <span v-else>-- {{ asset.symbol }}</span>
       </div>
 
@@ -109,10 +109,9 @@ const copyGenesis = () => {
 
     <div class="mt-8 self-stretch">
       <div class="text-xs text-gray-500">Token Contract ID</div>
-      <div class="flex items-center">
+      <div class="flex items-center hover:text-blue-primary">
         <CheckBadgeIcon class="mr-1 h-5 w-5 text-blue-500" />
-        <div class="text-base text-gray-900">{{ prettifyTokenGenesis(asset.genesis!) }}</div>
-
+        <div class="text-base">{{ prettifyTokenGenesis(asset.genesis!) }}</div>
         <CopyIcon class="ml-2 cursor-pointer" @click.stop="copyGenesis" />
       </div>
     </div>

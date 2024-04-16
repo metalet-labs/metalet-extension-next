@@ -1,6 +1,10 @@
 <script lang="ts" setup>
-import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
 import { useRouter } from 'vue-router'
+import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
+
+const { backRouter } = defineProps<{
+  backRouter?: string
+}>()
 
 const router = useRouter()
 </script>
@@ -9,7 +13,7 @@ const router = useRouter()
   <div class="grid grid-cols-5 items-center text-gray-900 p-4">
     <!-- back arrow -->
     <div class="col-span-1 flex items-center">
-      <button @click="router.back()">
+      <button @click="backRouter ? router.push(backRouter) : router.back()">
         <ChevronLeftIcon class="w-6 h-6" />
       </button>
     </div>

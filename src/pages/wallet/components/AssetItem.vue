@@ -115,8 +115,11 @@ watch(
         >
           <div class="text-black-primary text-sm">{{ assetPrice }}</div>
           <div :class="['text-xs font-normal text-gray-primary']">
-            <span v-if="assetUSD">{{ `$${assetUSD.toDecimalPlaces(2, Decimal.ROUND_HALF_UP).toNumber()} USD` }}</span>
-            <span v-else>$-- USD</span>
+            <span v-if="assetUSD">
+              <!-- TODO： put into utils -->
+              {{ `$${assetUSD.toDecimalPlaces(2, Decimal.ROUND_FLOOR).toNumber().toFixed(2)}` }}
+            </span>
+            <span v-else>$--</span>
           </div>
         </div>
 

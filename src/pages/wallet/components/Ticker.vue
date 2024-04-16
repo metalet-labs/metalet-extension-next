@@ -18,9 +18,11 @@ const { ticker, amount, inscriptionNumber } = defineProps<{
     </template>
     <div class="text-white text-xs absolute bottom-0 w-full text-center h-[25px] leading-[25px]">
       <div v-if="block" class="bg-blue-primary rounded-b-md">Block</div>
-      <div v-else-if="inscriptionNumber === undefined || inscriptionNumber === -1"
-        class="flex items-center justify-center gap-x-1 bg-orange-primary rounded-b-md">
-        <LoadingIcon />
+      <div
+        v-else-if="inscriptionNumber === undefined || inscriptionNumber === -1"
+        class="flex items-center justify-center gap-x-1 bg-orange-primary rounded-b-md"
+      >
+        <LoadingIcon class="text-white w-4 h-4" />
         <span>Confirmed</span>
       </div>
       <div class="bg-blue-primary rounded-b-md" v-else>#{{ inscriptionNumber }}</div>

@@ -2,6 +2,7 @@ import { goToPage } from './utils'
 import { V3Wallet } from './types'
 import useStorage from '@/lib/storage'
 import { getCurrentAccountId } from './account'
+import { toast } from '@/components/ui/toast'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
 const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
@@ -101,4 +102,48 @@ export async function getV3CurrentAccount() {
     throw new Error('current account not found')
   }
   return account
+}
+
+export async function updateWalletName(walletId: string, name: string) {
+  try {
+    const walletsMap = await getV3WalletsStorage()
+    if (!walletsMap) {
+      throw new Error('V3 wallets storage not found.')
+    }
+    const wallet = walletsMap[walletId]
+    if (!wallet) {
+      throw new Error(`Wallet not found with id ${walletId}.`)
+    }
+    wallet.name = name
+    await setV3WalletsStorage(walletsMap)
+  } catch (error) {
+    toast({ title: (error as Error).message, toastType: 'warning' })
+    goToPage('/manage/wallets')
+  }
+}
+
+export async function updateAccountName(walletId: string, accountId: string, name: string) {
+  try {
+    const walletsMap = await getV3WalletsStorage()
+    if (!walletsMap) {
+      throw new Error('V3 wallets storage not found.')
+    }
+    const wallet = walletsMap[walletId]
+    if (!wallet) {
+      throw new Error(`Wallet not found with id ${walletId}.`)
+    }
+    const accounts = wallet.accounts
+    if (!accounts) {
+      throw new Error(`Wallet acounts not found with id ${walletId}.`)
+    }
+    const account = accounts.find((account) => account.id === accountId)
+    if (!account) {
+      throw new Error(`Account not found with id ${accountId}.`)
+    }
+    account.name = name
+    await setV3WalletsStorage(walletsMap)
+  } catch (error) {
+    toast({ title: (error as Error).message, toastType: 'warning' })
+    goToPage('/manage/wallets')
+  }
 }

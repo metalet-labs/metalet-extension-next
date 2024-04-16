@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { FEEB } from './data/config'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { getNetwork } from './lib/network'
-import { computed, Ref, inject } from 'vue'
 import { useQueryClient } from '@tanstack/vue-query'
 import BgHueImg from './assets/images/bg-hue.png?url'
 import TheFooter from './components/the-footer/Index.vue'
 import TheHeader from './components/headers/TheHeader.vue'
-import { API_NET, API_TARGET, Wallet } from 'meta-contract'
-import { getCurrentAccount, getPrivateKey } from './lib/account'
 import SecondaryHeader from './components/headers/SecondaryHeader.vue'
 
 const route = useRoute()
@@ -28,15 +24,8 @@ const secondaryHeaderTitle = computed(() => {
   return route.meta.headerTitle
 })
 
-const wallet: Ref<any> = inject('wallet')!
-
-getCurrentAccount().then(async (account) => {
-  if (account) {
-    const network = await getNetwork()
-    const wif = await getPrivateKey()
-
-    wallet.value = new Wallet(wif, network as API_NET, FEEB, API_TARGET.MVC)
-  }
+const backRouter = computed(() => {
+  return route.meta.backRouter as string | undefined
 })
 </script>
 
@@ -55,7 +44,7 @@ getCurrentAccount().then(async (account) => {
       class="ext-app flex h-full w-full flex-col xs:relative xs:aspect-[1/2] xs:h-3/4 xs:w-auto xs:min-w-[25rem] xs:rounded-lg xs:border xs:border-gray-100 xs:bg-white xs:shadow-lg"
     >
       <!-- Header -->
-      <SecondaryHeader v-if="route.meta.secondaryHeader">
+      <SecondaryHeader v-if="route.meta.secondaryHeader" :backRouter="backRouter">
         <template #title>
           {{ secondaryHeaderTitle }}
         </template>

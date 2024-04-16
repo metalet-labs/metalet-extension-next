@@ -29,7 +29,7 @@ const router = useRouter()
 if (!route.params.address) {
   router.go(-1)
 }
-const refresh = computed(() => route.query.refresh)
+
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
@@ -58,17 +58,20 @@ const { isLoading, data: balance } = useBalanceQuery(address, symbol, {
   enabled: balaceEnabled,
 })
 
-const tickerEnabled = computed(() => {
-  if (refresh.value) {
-    return true
-  }
-  return !!address.value && !!symbol.value
-})
+const tickerEnabled = computed(() => !!address.value && !!symbol.value)
 
 // TODO：修复useBRCTickerAseetQuery重新请求刷新
-const { isLoading: tickersLoading, data: tickersData } = useBRCTickerAseetQuery(address, symbol, {
+const {
+  isLoading: tickersLoading,
+  data: tickersData,
+  refetch,
+} = useBRCTickerAseetQuery(address, symbol, {
   enabled: tickerEnabled,
 })
+
+if (route.query.refresh) {
+  refetch()
+}
 
 const transferableList = computed(() => tickersData.value?.transferableList)
 

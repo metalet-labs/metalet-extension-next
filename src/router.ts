@@ -167,7 +167,7 @@ const routes = [
         },
       },
       {
-        path: '/wallet/inscribe-query/:symbol/:orderId',
+        path: '/wallet/inscribe-query/:symbol/:amt/:orderId',
         component: () => import('./pages/wallet/InscribeQuery.vue'),
         name: 'inscribe-query',
         meta: {
@@ -232,6 +232,7 @@ const routes = [
           secondaryHeader: true,
           headerTitle: 'Asset',
           noFooter: true,
+          backRouter: '/wallet',
         },
       },
       {
@@ -243,6 +244,7 @@ const routes = [
           secondaryHeader: true,
           headerTitle: 'BRC20',
           noFooter: true,
+          backRouter: '/wallet',
         },
       },
       {
@@ -253,6 +255,7 @@ const routes = [
           secondaryHeader: true,
           headerTitle: 'ASSET',
           noFooter: true,
+          backRouter: '/wallet',
         },
       },
       {
