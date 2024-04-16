@@ -58,7 +58,7 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
   await setCurrentWalletId(_walletId)
   await setCurrentAccountId(_accountId)
   await sleep(200)
-  window.location.replace('/wallet')
+  goToPage('/wallet')
 }
 
 const updataWalletName = (walletId: string, walletName: string) => {

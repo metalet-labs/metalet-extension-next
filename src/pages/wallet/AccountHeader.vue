@@ -4,9 +4,9 @@ import { FlexBox } from '@/components'
 import { useRouter } from 'vue-router'
 import { getNetwork } from '@/lib/network'
 import Avatar from '@/components/Avatar.vue'
-import { type V3Account } from '@/lib/types'
+import { V3Wallet, type V3Account } from '@/lib/types'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
-import { getV3CurrentAccount } from '@/lib/wallet'
+import { getV3CurrentAccount, getV3CurrentWallet } from '@/lib/wallet'
 import CloseIcon from '@/assets/icons-v3/close.svg'
 import { WalletsStore } from '@/stores/WalletStore'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
@@ -32,12 +32,17 @@ const network = ref()
 const chainWallets = ref()
 const isOpen = ref(false)
 const router = useRouter()
+const wallet = ref<V3Wallet>()
 const account = ref<V3Account>()
 
 getNetwork().then((_network) => (network.value = _network))
 
-getV3CurrentAccount().then((_currentAccountStorage) => {
-  account.value = _currentAccountStorage
+getV3CurrentWallet().then((_wallet) => {
+  wallet.value = _wallet
+})
+
+getV3CurrentAccount().then((_account) => {
+  account.value = _account
 })
 
 WalletsStore.getAccountChainWallets().then((_chainWallets) => {
@@ -74,9 +79,21 @@ const copy = (address: string, addressType: string, type: string) => {
   <div class="flex items-center justify-between py-3">
     <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toManageWallets" v-if="account">
       <Avatar :id="account.id" />
-      <div class="flex items-center gap-x-2 text-gray-black">
-        <span class="text-sm">{{ account.name }}</span>
-        <PencilIcon @click.stop="openEditNameModal = true" class="h-3.5 w-3.5 cursor-pointer hover:text-blue-primary" />
+      <div class="flex flex-col" v-if="wallet">
+        <div class="flex items-center gap-x-2 text-gray-black">
+          <span class="text-sm">{{ wallet.name }}</span>
+          <PencilIcon
+            @click.stop="openEditNameModal = true"
+            class="h-3.5 w-3.5 cursor-pointer hover:text-blue-primary"
+          />
+        </div>
+        <div class="flex items-center gap-x-2 text-gray-black">
+          <span class="text-sm">{{ account.name }}</span>
+          <PencilIcon
+            @click.stop="openEditNameModal = true"
+            class="h-3.5 w-3.5 cursor-pointer hover:text-blue-primary"
+          />
+        </div>
       </div>
       <EditName v-model:open="openEditNameModal" :account="account" type="Account" />
     </FlexBox>

@@ -80,8 +80,9 @@ const loadOtherAccounts = async () => {
       mnemonic: wallet.mnemonic,
       mvcTypes: wallet.mvcTypes,
       accountsOptions: wallet.accounts.map((account) => ({
-        addressIndex: account.addressIndex,
+        id: account.id,
         name: account.name,
+        addressIndex: account.addressIndex,
       })),
     })
   }

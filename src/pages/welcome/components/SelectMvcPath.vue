@@ -168,7 +168,7 @@ watch(debouncedMvcPath, (newPath, prePath) => {
       addressType: AddressType.LegacyMvcCustom,
     })
     customAddress.value = customWallet.getAddress()
-  } catch (e: Error) {
+  } catch (e) {
     error.value = 'Please enter a valid path.'
   }
 })
