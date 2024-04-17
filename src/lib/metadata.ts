@@ -36,10 +36,10 @@ export async function parseCollectionInfo(
 } | null> {
   const nftMetaData = await parseMetaData(txid, outputIndex)
 
-  const genesisTxid = nftMetaData.genesisTxid
+  const genesisTxid = nftMetaData.genesisTxid 
   if (!genesisTxid) return null
 
-  const genesisOutputIndex = 1
+  const genesisOutputIndex = 0
   const genesisMetaData = await parseMetaData(genesisTxid, genesisOutputIndex)
 
   return {

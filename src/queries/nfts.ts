@@ -218,6 +218,9 @@ interface MetaContract {
   sensibleId: string
   height: number
   metaTxId: string
+  metaOutputIndex: number
+  issuerAddress: string
+  issueTime: number
   tokenSupply: number
   tokenIndex: number
   satoshi: number
@@ -284,9 +287,24 @@ export const useMetacontractsQuery = (
   options?: { enabled: ComputedRef<boolean> }
 ) => {
   return useQuery({
-    queryKey: ['Metacontracts', { address, codehash, genesis, size, flag }],
+    queryKey: ['Metacontracts', { address, size, flag }],
     queryFn: () => fetchMetacontracts(address.value, codehash?.value, genesis?.value, size?.value || '10', flag?.value),
-    select: (data) => data.list,
+    select: (data) =>
+      data.list.map((metaContract) => ({
+        id: metaContract.txId,
+        name: metaContract.name,
+        issuerAddress: metaContract.issuerAddress,
+        issueTime: metaContract.issueTime,
+        seriesName: metaContract.seriesName,
+        codehash: metaContract.codeHash,
+        genesis: metaContract.genesis,
+        tokenIndex: metaContract.tokenIndex,
+        metaTxId: metaContract.metaTxId,
+        metaOutputIndex: metaContract.metaOutputIndex,
+        imgUrl:
+          'https://metalet.space/metafile/compress/' +
+          metaContract.icon.substring(metaContract.icon.lastIndexOf('://') + 3, metaContract.icon.lastIndexOf('.')),
+      })),
     ...options,
   })
 }

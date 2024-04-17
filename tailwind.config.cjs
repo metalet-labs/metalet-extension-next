@@ -41,6 +41,7 @@ module.exports = {
         'tab-selected': 'linear-gradient(270deg, #171AFF -1%, #72F5F6 99%)',
       },
       width: {
+        4.5: '1.125rem',
         7.5: '1.875rem',
         15: '3.75rem',
         22.5: '5.625rem',

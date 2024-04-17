@@ -115,6 +115,8 @@ export async function fetchCInscriptions(
   cursor: number,
   size: number
 ): Promise<{ list: Inscription[]; nextCursor: number | null }> {
+  console.log(11111)
+
   const net = getNet()
   const { list, total } = await metaletApiV3<{ list: Inscription[]; total: number }>('/address/inscriptions').get({
     net,

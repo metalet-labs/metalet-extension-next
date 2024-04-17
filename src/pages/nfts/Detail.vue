@@ -1,193 +1,94 @@
 <script lang="ts" setup>
-import { toTx } from '@/lib/helpers'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { isOfficialNft } from '@/lib/nft'
-import { getBrowserHost } from '@/lib/host'
-import { parseMetaFile } from '@/lib/metadata'
-import { useOneNftQuery, useMetacontractsQuery } from '@/queries/nfts'
-import { useRoute, useRouter } from 'vue-router'
-import { ComputedRef, computed, ref } from 'vue'
-import { useOneActivityQuery } from '@/queries/activities'
-import { useCollectionInfoQuery, useNftInfoQuery } from '@/queries/metadata'
-import NftDetailAboutCollection from './components/NftDetailAboutCollection.vue'
-import { prettifyTimestamp, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
-import {
-  CheckBadgeIcon,
-  ClipboardDocumentCheckIcon,
-  ClipboardDocumentListIcon,
-  ArrowTopRightOnSquareIcon,
-} from '@heroicons/vue/24/solid'
-import { getAddress } from '@/lib/account'
+import { LoadingText } from '@/components'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { useMetacontractsQuery } from '@/queries/nfts'
+import MvcIcon from '@/assets/icons-v3/network_mvc.svg'
+import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { prettifyTimestamp, prettifyTokenGenesis } from '@/lib/formatters'
 
-const route = useRoute()
 const router = useRouter()
-
-const { codehash, genesis, tokenIndex } = defineProps<{
+const props = defineProps<{
   codehash: string
   genesis: string
   tokenIndex: number
 }>()
 
-const address = ref()
+const { getAddress } = useChainWalletsStore()
+const address = getAddress(Chain.MVC)
+const codehash = computed(() => props.codehash)
+const genesis = computed(() => props.genesis)
+const tokenIndex = computed(() => props.tokenIndex)
 
-getAddress('mvc').then((_address) => {
-  address.value = _address
-})
-
-const { data } = useMetacontractsQuery({ address, codehash: ref(codehash), genesis: ref(genesis) })
+const { isLoading, data: metaContracts } = useMetacontractsQuery(
+  { address, codehash, genesis },
+  { enabled: computed(() => !!address.value) }
+)
 
 const infoDetail = computed(() => {
-  if (data.value?.length) {
-    return data.value[0]
+  if (metaContracts.value?.length) {
+    return metaContracts.value[0]
   }
 })
 
-const { meta_txid: txid, meta_output_index: outputIndex } = route.query as {
-  meta_txid: string
-  meta_output_index: string
-}
-
-const { isLoading: isLoadingNft, data: nft } = useOneNftQuery({
-  codehash,
-  genesis,
-  tokenIndex,
-})
-
-const { isLoading: isLoadingCollectionInfo, data: collectionInfo } = useCollectionInfoQuery(txid, Number(outputIndex))
-
-const enabled = computed(() => !!nft.value?.metaTxid)
-
-const metaTxid = computed(() => nft.value?.metaTxid) as ComputedRef<string>
-const metaOutputIndex = computed(() => nft.value?.metaOutputIndex) as ComputedRef<number>
-const { isLoading: isLoadingNftInfo, data: nftInfo } = useNftInfoQuery(metaTxid, metaOutputIndex, {
-  enabled,
-})
-
-const coverUrl = computed(() => {
-  if (!nftInfo.value || !nftInfo.value.icon) return null
-
-  return parseMetaFile(nftInfo.value.icon)
-})
-
-const isCopied = ref(false)
-const copyGenesis = () => {
-  navigator.clipboard.writeText(nft.value!.genesis)
-  isCopied.value = true
-}
-const toActivityTx = async () => {
-  const host = await getBrowserHost()
-  toTx(nft.value!.txid, host)
-}
-
-const activityId = computed(() => nft.value?.txid) as ComputedRef<string>
-const { data: activity, isLoading: isLoadingActivity } = useOneActivityQuery(activityId, {
-  enabled: computed(() => !!nft.value?.txid),
-})
-
 const toTransferNft = () => {
-  router.push(`/nfts/transfer-nft/${codehash}/${genesis}/${tokenIndex}`)
-}
-
-const toCollection = () => {
-  router.push(`/collections/${codehash}/${genesis}?meta_txid=${txid}&meta_output_index=${outputIndex}`)
+  router.push(`/nfts/transfer-nft/${codehash.value}/${genesis.value}/${tokenIndex.value}`)
 }
 </script>
 
 <template>
-  <div v-if="isLoadingNftInfo">Loading</div>
-  <div v-else-if="nftInfo && nft">
-    <!-- image -->
-    <div class="mx-auto aspect-square w-11/12 overflow-hidden rounded-lg">
-      <img :src="coverUrl" class="h-full w-full object-contain" v-if="coverUrl" />
+  <LoadingText v-if="isLoading" text="MetaContract Detail Loading..." />
+  <div v-else-if="infoDetail" class="space-y-4">
+    <div class="mx-auto aspect-square w-[220px] overflow-hidden rounded-lg">
+      <img :src="infoDetail.imgUrl" class="h-full w-full object-contain" />
     </div>
 
-    <!-- info -->
-    <div class="mt-8">
-      <button
-        class="flex cursor-pointer items-center gap-1 text-sm text-blue-600 hover:underline"
-        v-if="infoDetail"
-        @click="toCollection"
-      >
-        {{ infoDetail.seriesName }}
-        <CheckBadgeIcon class="h-5 w-5 text-blue-500" v-if="isOfficialNft(nft.genesis)" />
-      </button>
+    <div>
+      <div class="flex items-center justify-center gap-2 text-xs text-blue-primary">
+        {{ infoDetail.name }}
+        <CheckBadgeIcon class="h-5 w-5 text-blue-primary" v-if="isOfficialNft(infoDetail.genesis)" />
+      </div>
 
-      <button
-        class="flex cursor-pointer items-center gap-1 text-sm text-blue-600 hover:underline"
-        v-if="collectionInfo"
-        @click="toCollection"
-      >
-        {{ collectionInfo.name }}
-        <CheckBadgeIcon class="h-5 w-5 text-blue-500" v-if="isOfficialNft(nft.genesis)" />
-      </button>
-
-      <div class="mt-1 flex items-center gap-2">
-        <div class="text-lg">{{ nftInfo.name }}</div>
-        <div class="text-sm text-gray-500">{{ '# ' + nft.tokenIndex }}</div>
+      <div class="flex items-center justify-center text-lg">
+        {{ infoDetail.seriesName }} #{{ infoDetail.tokenIndex }}
       </div>
     </div>
-    <div class="mt-2 flex items-center gap-1.5">
-      <div class="rounded bg-indigo-500 px-2 py-1 text-xs text-indigo-50">MVC</div>
-      <div class="rounded bg-indigo-100 px-2 py-1 text-xs text-indigo-500">MetaContract</div>
-    </div>
 
-    <!-- control -->
-    <div class="my-4">
-      <button class="main-btn-bg w-full rounded-md py-3 text-center text-base text-white" @click="toTransferNft">
+    <div class="flex justify-center">
+      <button
+        @click="toTransferNft"
+        class="w-30 rounded-3xl py-4 text-center text-ss text-blue-primary bg-blue-light mx-auto"
+      >
         Transfer
       </button>
     </div>
 
-    <div class="space-y-3 border-t border-gray-100 pt-4">
+    <div class="space-y-4 border-t border-gray-secondary pt-4">
+      <div class="row">
+        <div class="label">Network</div>
+        <div class="flex items-center gap-1">
+          <MvcIcon class="w-4.5" />
+          <span class="text-sm">Microvisionchain</span>
+        </div>
+      </div>
+
       <div class="row">
         <div class="label">Creator</div>
-        <div class="value">{{ nftInfo.creator || '-' }}</div>
+        <div class="value">{{ infoDetail.issuerAddress }}</div>
       </div>
 
-      <!-- ID -->
       <div class="row">
-        <div class="label">Token Index</div>
-        <div class="value">{{ nft.tokenIndex }}</div>
+        <div class="label">Create Time</div>
+        <div class="value">{{ prettifyTimestamp(infoDetail.issueTime) }}</div>
       </div>
 
-      <!-- series -->
       <div class="row">
-        <div class="label">Series Genesis</div>
-        <div class="value flex items-center">
-          <CheckBadgeIcon class="mr-1 h-5 w-5 text-blue-500" v-if="nft && isOfficialNft(nft.genesis)" />
-          <div>{{ prettifyTokenGenesis(nft.genesis) }}</div>
-
-          <ClipboardDocumentCheckIcon class="ml-2 h-4 w-4 text-blue-500" v-if="isCopied" />
-          <button class="ml-2 text-gray-400 hover:text-gray-500" @click.stop="copyGenesis" type="button" v-else>
-            <ClipboardDocumentListIcon class="h-4 w-4" />
-          </button>
-        </div>
+        <div class="label">Genesis ID</div>
+        <div class="value">{{ prettifyTokenGenesis(genesis) }}</div>
       </div>
-
-      <!-- last activity txid -->
-      <div class="row">
-        <div class="label">Last Activity</div>
-        <div class="value flex items-center">
-          <div>{{ prettifyTxId(nft.txid) }}</div>
-
-          <button class="ml-2 text-gray-500 hover:text-blue-500" @click.stop="toActivityTx" type="button">
-            <ArrowTopRightOnSquareIcon class="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      <!-- last activity at -->
-      <div class="row">
-        <div class="label">Last Activity At</div>
-        <div class="value" v-if="isLoadingActivity">
-          <div class="text-gray-500">...</div>
-        </div>
-        <div class="value" v-else-if="activity">{{ prettifyTimestamp(activity.time) }}</div>
-      </div>
-    </div>
-
-    <!-- about collection -->
-    <div class="mt-8">
-      <NftDetailAboutCollection :collection-info="collectionInfo" v-if="collectionInfo" />
     </div>
   </div>
 </template>

@@ -318,6 +318,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Transfer NFT',
+          noFooter: true,
         },
       },
       {
@@ -331,7 +332,8 @@ const routes = [
         }),
         meta: {
           secondaryHeader: true,
-          headerTitle: 'NFT',
+          noFooter: true,
+          headerTitle: 'MetaContract',
         },
       },
 

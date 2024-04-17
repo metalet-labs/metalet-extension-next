@@ -15,7 +15,7 @@ import type { TransactionResult } from '@/global-types'
 import { ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal from './components/TransactionResultModal.vue'
-import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, Loading } from '@/components'
+import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
 const route = useRoute()
@@ -328,7 +328,7 @@ async function send() {
       </DrawerContent>
     </Drawer>
   </FlexBox>
-  <Loading text="Asset Loading..." v-else />
+  <LoadingText text="Asset Loading..." v-else />
 </template>
 
 <style lang="css" scoped>

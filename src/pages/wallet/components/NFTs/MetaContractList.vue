@@ -1,60 +1,52 @@
 <script setup lang="ts">
-import NFTItem from './NFTItem.vue'
 import { useRouter } from 'vue-router'
-import { getAddress } from '@/lib/account'
 import { ref, computed, watch } from 'vue'
-import { useMetacontractCountQuery, useMetacontractsQuery } from '@/queries/nfts'
+import { LoadingText } from '@/components'
+import { Chain } from '@metalet/utxo-wallet-service'
+import MetaContractItem from './MetaContractItem.vue'
+import { useMetacontractsQuery } from '@/queries/nfts'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
+// TODO: refresh
 const flag = ref('')
-const address = ref()
 const cursorRef = ref(0)
 const router = useRouter()
 
-getAddress('mvc').then((_address) => {
-  address.value = _address
-})
+const { getAddress } = useChainWalletsStore()
+const address = getAddress(Chain.MVC)
 
-const { isLoading, data: metaContracts } = useMetacontractsQuery({address}, {
-  enabled: computed(() => !!address.value),
-})
-
-const nftItems = computed(() => {
-  if (!metaContracts.value) {
-    return
-  }
-  return metaContracts.value.map((metaContract) => {
-    return {
-      id: metaContract.txId,
-      metaTxId: metaContract.metaTxId,
-      tokenIndex: metaContract.tokenIndex,
-      title: metaContract.name,
-      desc: metaContract.seriesName,
-      codehash: metaContract.codeHash,
-      genesis: metaContract.genesis,
-      metaOutputIndex: 0,
-      imgUrl:
-        'https://metalet.space/metafile/compress/' +
-        metaContract.icon.substring(metaContract.icon.lastIndexOf('://') + 3, metaContract.icon.lastIndexOf('.')),
-    }
-  })
-})
+const { isLoading, data: metaContracts } = useMetacontractsQuery(
+  { address },
+  { enabled: computed(() => !!address.value) }
+)
 
 const loadBRCInscriptions = () => {
   cursorRef.value = cursorRef.value + 1
 }
 
-const toNftDetail = (nft: any) => {
+const toNftDetail = (metaContract: {
+  codehash: string
+  genesis: string
+  tokenIndex: number
+  metaTxId: string
+  metaOutputIndex: number
+}) => {
   router.push(
-    `/nfts/${nft.codehash}/${nft.genesis}/${nft.tokenIndex}?meta_txid=${nft.metaTxId}&meta_output_index=${nft.metaOutputIndex}`
+    `/nfts/${metaContract.codehash}/${metaContract.genesis}/${metaContract.tokenIndex}?meta_txid=${metaContract.metaTxId}&meta_output_index=${metaContract.metaOutputIndex}`
   )
 }
 </script>
 
 <template>
-  <div v-if="isLoading" class="w-full py-24 text-center text-sm font-bold text-gray-500">Metacontracts loading...</div>
-  <div v-else-if="nftItems?.length">
-    <div class="py-4 grid grid-cols-3 gap-x-1 gap-y-4">
-      <NFTItem v-for="nftItem in nftItems" :key="nftItem.id" :nftItem="nftItem" @click="toNftDetail(nftItem)" />
+  <LoadingText v-if="isLoading" text="Metacontracts loading..." />
+  <div v-else-if="metaContracts?.length">
+    <div class="py-4 grid grid-cols-3 gap-x-3 gap-y-7">
+      <MetaContractItem
+        :key="metaContractItem.id"
+        :metaContractItem="metaContractItem"
+        @click="toNftDetail(metaContractItem)"
+        v-for="metaContractItem in metaContracts"
+      />
     </div>
     <div
       v-if="false"

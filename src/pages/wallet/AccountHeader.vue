@@ -4,19 +4,18 @@ import { FlexBox } from '@/components'
 import { useRouter } from 'vue-router'
 import { getNetwork } from '@/lib/network'
 import Avatar from '@/components/Avatar.vue'
-import { V3Wallet, type V3Account } from '@/lib/types'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
-import { getV3CurrentAccount, getV3CurrentWallet } from '@/lib/wallet'
 import CloseIcon from '@/assets/icons-v3/close.svg'
 import { WalletsStore } from '@/stores/WalletStore'
-import PencilIcon from '@/assets/icons-v3/pencil.svg'
+import { V3Wallet, type V3Account } from '@/lib/types'
 import BtcLogo from '@/assets/images/btc-logo.svg?url'
 import SpaceLogo from '@/assets/images/space-logo.svg?url'
 import { useToast } from '@/components/ui/toast/use-toast'
 import ServiceMenu from '@/components/headers/ServiceMenu.vue'
 import SettingMenu from '@/components/headers/SettingMenu.vue'
-import EditName from '@/pages/accounts/components/EditName.vue'
 import { Chain, BaseWallet } from '@metalet/utxo-wallet-service'
+import TriangleDownIcon from '@/assets/icons-v3/triangle-down.svg'
+import { getV3CurrentAccount, getV3CurrentWallet } from '@/lib/wallet'
 import {
   Drawer,
   DrawerClose,
@@ -60,8 +59,6 @@ WalletsStore.getAccountChainWallets().then((_chainWallets) => {
   )
 })
 
-const openEditNameModal = ref(false)
-
 const toManageWallets = () => {
   router.push({
     name: 'manage-wallets',
@@ -81,21 +78,13 @@ const copy = (address: string, addressType: string, type: string) => {
       <Avatar :id="account.id" />
       <div class="flex flex-col" v-if="wallet">
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-sm">{{ wallet.name }}</span>
-          <PencilIcon
-            @click.stop="openEditNameModal = true"
-            class="h-3.5 w-3.5 cursor-pointer hover:text-blue-primary"
-          />
+          <span class="text-xs text-gray-primary">{{ wallet.name }}</span>
         </div>
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-sm">{{ account.name }}</span>
-          <PencilIcon
-            @click.stop="openEditNameModal = true"
-            class="h-3.5 w-3.5 cursor-pointer hover:text-blue-primary"
-          />
+          <span class="text-ss">{{ account.name }}</span>
+          <TriangleDownIcon class="w-2" />
         </div>
       </div>
-      <EditName v-model:open="openEditNameModal" :account="account" type="Account" />
     </FlexBox>
     <div class="flex items-center gap-x-4">
       <CopyIcon class="cursor-pointer hover:text-blue-primary" @click="isOpen = true" />

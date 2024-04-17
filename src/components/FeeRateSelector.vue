@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue'
 import CloseIcon from '@/assets/icons-v3/close.svg'
 import { useBTCRateQuery } from '@/queries/transaction'
-import { FlexBox, Button, Loading } from '@/components'
+import { FlexBox, Button, LoadingText } from '@/components'
 import SelectIcon from '@/assets/icons-v3/select_active.svg'
 import ArrowRightIcon from '@/assets/icons-v3/arrow_right.svg'
 import {
@@ -72,7 +72,7 @@ const selectCustom = () => {
             </DrawerClose>
           </DrawerTitle>
         </DrawerHeader>
-        <Loading v-if="isLoading" text="Fee Rate Loading..." />
+        <LoadingText v-if="isLoading" text="Fee Rate Loading..." />
         <div class="p-4" v-else>
           <div class="grid grid-cols-3 gap-2 text-xs">
             <FlexBox

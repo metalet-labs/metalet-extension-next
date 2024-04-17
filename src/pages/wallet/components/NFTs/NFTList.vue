@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import BRC20List from './BRC20List.vue'
 import NO_NFT_DATA from './NoNFTData.vue'
+import MetaIDPinList from './MetaIDPinList.vue'
+import InscriptionList from './InscriptionList.vue'
 import MetaContractList from './MetaContractList.vue'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { type NFTType, getNftType, setNftType } from '@/lib/nft'
@@ -30,12 +31,13 @@ const nftTypeOnchange = (_nftType: NFTType) => {
         <DropdownMenuContent align="start" class="bg-white">
           <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')">BTC Oridinals</DropdownMenuItem>
           <DropdownMenuItem @select="nftTypeOnchange('MetaContract')">MetaContract</DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaPin')" v-if="false">MetaPin</DropdownMenuItem>
+          <DropdownMenuItem @select="nftTypeOnchange('MetaPin')">MetaPin</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    <BRC20List v-if="nftType === 'BTC Oridinals'" />
+    <InscriptionList v-if="nftType === 'BTC Oridinals'" />
     <MetaContractList v-else-if="nftType === 'MetaContract'" />
+    <MetaIDPinList v-else-if="nftType === 'MetaPin'" />
     <NO_NFT_DATA v-else />
   </div>
 </template>

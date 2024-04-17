@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
-import Loading from '@/components/Loading.vue'
 import { calcBalance } from '@/lib/formatters'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
@@ -163,7 +163,7 @@ const toReceive = () => {
       <Activities class="mt-8 self-stretch" :asset="asset" :exchangeRate="Number(exchangeRate)" :address="address" />
     </div>
   </div>
-  <Loading v-else text="Asset Loading..." />
+  <LoadingText v-else text="Asset Loading..." />
 </template>
 
 <style scoped lang="css">

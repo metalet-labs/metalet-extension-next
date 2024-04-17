@@ -1,49 +1,40 @@
 <script lang="ts" setup>
-import { ComputedRef, computed, ref, Ref } from 'vue'
-import { useQueryClient } from '@tanstack/vue-query'
-import { API_NET, API_TARGET, NftManager } from 'meta-contract'
-
-import { getAddress, getCurrentAccount, getPrivateKey } from '@/lib/account'
-import { parseMetaFile, getResizeQuery } from '@/lib/metadata'
-import { useOneNftQuery } from '@/queries/nfts'
-import { useNftInfoQuery } from '@/queries/metadata'
 import { network } from '@/lib/network'
-
+import { computed, ref, Ref } from 'vue'
+import { isOfficialNft } from '@/lib/nft'
 import Modal from '@/components/Modal.vue'
+import { useQueryClient } from '@tanstack/vue-query'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { useMetacontractsQuery } from '@/queries/nfts'
+import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
+import { API_NET, API_TARGET, NftManager } from 'meta-contract'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
+import { Divider } from '@/components'
 
 const queryClient = useQueryClient()
 
-const { codehash, genesis, tokenIndex } = defineProps<{
+const props = defineProps<{
   codehash: string
   genesis: string
   tokenIndex: number
 }>()
 
-const address = ref('')
-getCurrentAccount()
-getAddress().then((addr) => {
-  address.value = addr!
-})
+const { getAddress, currentMVCWallet } = useChainWalletsStore()
+const address = getAddress(Chain.MVC)
+const codehash = computed(() => props.codehash)
+const genesis = computed(() => props.genesis)
+const tokenIndex = computed(() => props.tokenIndex)
 
-const { isLoading: isLoadingNft, data: nft } = useOneNftQuery({
-  codehash,
-  genesis,
-  tokenIndex,
-})
+const { isLoading, data: metaContracts } = useMetacontractsQuery(
+  { address, codehash, genesis },
+  { enabled: computed(() => !!address.value) }
+)
 
-const enabled = computed(() => !!nft.value?.metaTxid)
-
-const metaTxid = computed(() => nft.value?.metaTxid) as ComputedRef<string>
-const metaOutputIndex = computed(() => nft.value?.metaOutputIndex) as ComputedRef<number>
-const { isLoading: isLoadingNftInfo, data: nftInfo } = useNftInfoQuery(metaTxid, metaOutputIndex, {
-  enabled,
-})
-
-const coverUrl = computed(() => {
-  if (!nftInfo.value || !nftInfo.value.icon) return null
-
-  return parseMetaFile(nftInfo.value.icon) + getResizeQuery(500)
+const infoDetail = computed(() => {
+  if (metaContracts.value?.length) {
+    return metaContracts.value[0]
+  }
 })
 
 const recipient = ref('')
@@ -58,7 +49,7 @@ async function transfer() {
 
   operationLock.value = true
 
-  const privateKey = await getPrivateKey('mvc')
+  const privateKey = currentMVCWallet.value!.getPrivateKey()
 
   const nftManager = new NftManager({
     network: network.value as API_NET,
@@ -85,8 +76,8 @@ async function transfer() {
 
   const transferRes = await nftManager
     .transfer({
-      codehash,
-      genesis,
+      codehash: codehash.value,
+      genesis: genesis.value,
       tokenIndex: tokenIndex.toString(),
       senderWif: privateKey,
       receiverAddress: recipient.value,
@@ -108,9 +99,9 @@ async function transfer() {
       txId: transferRes.txid,
       recipient: recipient.value,
       nft: {
-        name: nftInfo.value?.name!,
-        tokenIndex: tokenIndex,
-        cover: coverUrl.value!,
+        name: infoDetail.value!.name!,
+        tokenIndex: tokenIndex.value,
+        cover: infoDetail.value!.imgUrl!,
       },
     }
 
@@ -128,36 +119,43 @@ async function transfer() {
 
 <template>
   <div class="flex h-full flex-col">
-    <div class="grow">
-      <div>
-        <div class="flex items-center gap-4 rounded-md bg-gray-100 p-4" v-if="nft && nftInfo">
-          <div class="h-12 w-12 overflow-hidden rounded">
-            <img :src="coverUrl" class="object-cover" v-if="coverUrl" />
+    <div class="grow space-y-4">
+      <div class="flex items-center gap-3 rounded-md py-4" v-if="infoDetail">
+        <div class="h-[68px] w-[68px] overflow-hidden rounded-lg">
+          <img :src="infoDetail.imgUrl" class="object-cover" />
+        </div>
+
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-1 text-xs text-blue-primary">
+            {{ infoDetail.name }}
+            <CheckBadgeIcon class="h-4 w-4 text-blue-primary" v-if="isOfficialNft(infoDetail.genesis)" />
           </div>
 
-          <div>
-            <h3 class="text-sm">{{ nftInfo.name }}</h3>
-            <div class="text-xs text-gray-500">{{ '# ' + nft.tokenIndex }}</div>
+          <div class="flex items-center justify-center text-lg">
+            {{ infoDetail.seriesName }} #{{ infoDetail.tokenIndex }}
           </div>
         </div>
       </div>
 
-      <div class="mt-4">
-        <input
-          class="main-input w-full !rounded-xl !p-4 !text-xs"
-          placeholder="Recipient's address"
+      <Divider />
+
+      <div class="space-y-2">
+        <div class="texg-sm font-medium">Receive Address</div>
+        <textarea
           v-model="recipient"
+          placeholder="Recipient's address"
+          class="border border-blue-primary w-full rounded-lg p-3 text-sm h-16 text-blue-primary focus:outline-none focus:ring-0"
         />
       </div>
     </div>
 
-    <div class="mt-4">
+    <div class="pt-6 pb-2 flex justify-center">
       <button
-        class="main-btn-bg w-full rounded-md py-3 text-center text-base text-white disabled:opacity-50"
-        :disabled="!recipient || !recipient.length"
         @click="isOpenConfirmModal = true"
+        :disabled="!recipient || !recipient.length"
+        class="w-61.5 rounded-3xl py-3 bg-blue-primary text-center text-base text-white disabled:opacity-50"
       >
-        Confirm
+        Transfer
       </button>
     </div>
 
@@ -167,14 +165,14 @@ async function transfer() {
       <template #body>
         <div class="mt-4 space-y-4">
           <div>
-            <div class="flex items-center gap-4 rounded-md bg-gray-100 p-4" v-if="nft && nftInfo">
+            <div class="flex items-center gap-4 rounded-md bg-gray-100 p-4" v-if="infoDetail">
               <div class="h-12 w-12 overflow-hidden rounded">
-                <img :src="coverUrl" class="object-cover" v-if="coverUrl" />
+                <img :src="infoDetail.imgUrl" class="object-cover" v-if="infoDetail.imgUrl" />
               </div>
 
               <div>
-                <h3 class="text-sm">{{ nftInfo.name }}</h3>
-                <div class="text-xs text-gray-500">{{ '# ' + nft.tokenIndex }}</div>
+                <h3 class="text-sm">{{ infoDetail.name }}</h3>
+                <div class="text-xs text-gray-500">{{ '# ' + tokenIndex }}</div>
               </div>
             </div>
           </div>
@@ -197,7 +195,7 @@ async function transfer() {
           >
             Cancel
           </button>
-          <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="transfer"> Confirm </button>
+          <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="transfer">Confirm</button>
         </div>
       </template>
     </Modal>
