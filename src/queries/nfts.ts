@@ -289,8 +289,8 @@ export const useMetacontractsQuery = (
   return useQuery({
     queryKey: ['Metacontracts', { address, size, flag }],
     queryFn: () => fetchMetacontracts(address.value, codehash?.value, genesis?.value, size?.value || '10', flag?.value),
-    select: (data) =>
-      data.list.map((metaContract) => ({
+    select: (data) => {
+      return data.list.map((metaContract) => ({
         id: metaContract.txId,
         name: metaContract.name,
         issuerAddress: metaContract.issuerAddress,
@@ -301,10 +301,11 @@ export const useMetacontractsQuery = (
         tokenIndex: metaContract.tokenIndex,
         metaTxId: metaContract.metaTxId,
         metaOutputIndex: metaContract.metaOutputIndex,
-        imgUrl:
-          'https://metalet.space/metafile/compress/' +
-          metaContract.icon.substring(metaContract.icon.lastIndexOf('://') + 3, metaContract.icon.lastIndexOf('.')),
-      })),
+        imgUrl: metaContract.icon
+          ? `https://metalet.space/metafile/compress/${metaContract.icon.match(/metafile:\/\/(.*?)(?:\..*)?$/)?.[1] || ''}`
+          : '',
+      }))
+    },
     ...options,
   })
 }

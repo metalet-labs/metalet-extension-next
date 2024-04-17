@@ -10,6 +10,7 @@ import SwapJPG from '@/assets/icons-v3/swap.jpg'
 import SwapHoverJPG from '@/assets/icons-v3/swap_hover.jpg'
 import BridgeJPG from '@/assets/icons-v3/bridge.jpg'
 import BridgeHoverJPG from '@/assets/icons-v3/bridge_hover.jpg'
+import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 
 const router = useRouter()
 
@@ -39,7 +40,11 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         @mouseleave="handleMouseLeave()"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
       >
-        <img :src="hoverIcon === 'send' ? SendHoverJPG : SendJPG" alt="Send" />
+        <div
+          class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
+        >
+          <ArrowUpIcon />
+        </div>
         <span>Send</span>
       </div>
       <div

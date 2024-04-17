@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 import { ref, computed, Ref } from 'vue'
 import { type Psbt } from 'bitcoinjs-lib'
+import { LoadingText } from '@/components'
 import Ticker from './components/Ticker.vue'
-import { BtcWallet } from '@/lib/wallets/btc'
 import { getBtcUtxos } from '@/queries/utxos'
-import Loading from '@/components/Loading.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
@@ -402,7 +401,7 @@ const changeTabIdx = (idx: number) => {
       </AlertDialog>
     </div>
   </div>
-  <Loading v-else text="Asset Loading..." />
+  <LoadingText v-else text="Asset Loading..." />
 </template>
 
 <style lang="css" scoped>

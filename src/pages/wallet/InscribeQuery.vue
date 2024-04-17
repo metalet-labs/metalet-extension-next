@@ -3,8 +3,8 @@ import { computed, ref } from 'vue'
 import Ticker from './components/Ticker.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { Chain } from '@metalet/utxo-wallet-service'
-import { Loading, FlexBox, Button } from '@/components'
 import { useInscribeInfoQuery } from '@/queries/inscribe'
+import { LoadingText, FlexBox, Button } from '@/components'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const route = useRoute()
@@ -34,7 +34,7 @@ function confirm() {
 
 <template>
   <div class="pt-22.5 relative w-full h-full gap-y-4">
-    <Loading v-if="isLoading" text="Order Info Loading..." />
+    <LoadingText v-if="isLoading" text="Order Info Loading..." />
     <template v-else-if="data">
       <FlexBox d="col" ai="center" class="gap-y-6">
         <Ticker

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { sleep } from '@/lib/helpers'
 import { goToPage } from '@/lib/utils'
 import { EditName } from '@/components'
 import { type V3Wallet } from '@/lib/types'
@@ -13,9 +12,13 @@ import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { FlexBox, Divider, Button } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { getCurrentWalletId, setV3WalletsStorage, getV3WalletsStorage, setCurrentWalletId } from '@/lib/wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
+
+const { updateAllWallets } = useChainWalletsStore()
 
 const editName = ref()
 const editWalletId = ref()
@@ -43,7 +46,6 @@ const addAccount = async (wallet: V3Wallet) => {
   const addressIndices = wallet.accounts.map((account) => account.addressIndex)
   const maxAddressIndex = Math.max(...addressIndices)
   const walletManager = await WalletsStore.getWalletManager()
-  // console.log(wallet.accounts, wallet.accounts.length)
   const account = walletManager!.addAccount(wallet.id, {
     addressIndex: maxAddressIndex + 1,
   })
@@ -57,7 +59,7 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
   currentAccountId.value = _accountId
   await setCurrentWalletId(_walletId)
   await setCurrentAccountId(_accountId)
-  await sleep(200)
+  updateAllWallets()
   goToPage('/wallet')
 }
 

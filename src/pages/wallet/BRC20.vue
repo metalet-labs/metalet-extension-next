@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
 import Ticker from './components/Ticker.vue'
-import Loading from '@/components/Loading.vue'
 import { calcBalance } from '@/lib/formatters'
 import MintPNG from '@/assets/icons-v3/mint.png'
 import { useRoute, useRouter } from 'vue-router'
@@ -223,7 +223,7 @@ watch(assetUSD, (_assetUSD) => {
       <Activities class="mt-8 self-stretch" :asset="asset" :exchangeRate="Number(exchangeRate)" :address="address" />
     </div>
   </div>
-  <Loading v-else text="Asset Loading..." />
+  <LoadingText v-else text="Asset Loading..." />
 </template>
 
 <style scoped lang="css">

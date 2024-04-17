@@ -33,7 +33,7 @@ const toMetaPinDetail = (metaPinId: string) => {
   <div class="space-y-4">
     <LoadingText v-if="isLoading" text="MetaID Pins loading..." />
     <div v-else-if="metaPins?.length">
-      <div class="mt-12 px-3 py-4 grid grid-cols-3 gap-x-3 gap-y-7">
+      <div class="px-3 py-4 grid grid-cols-3 gap-x-3 gap-y-7">
         <div
           v-for="metaPin in metaPins"
           @click="toMetaPinDetail(metaPin.id)"

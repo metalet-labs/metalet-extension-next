@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import Loading from '@/components/Loading.vue'
+import { LoadingText } from '@/components'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import TickerList from './components/TickerList.vue'
@@ -34,7 +34,7 @@ const toInscribe = () => {
 </script>
 
 <template>
-  <Loading :text="`${symbol} Transfer info Loading...`" v-if="isLoading" />
+  <LoadingText :text="`${symbol} Transfer info Loading...`" v-if="isLoading" />
   <FlexBox d="col" class="pt-1" :gap="4" v-else-if="tickersData">
     <div class="flex flex-col gap-3">
       <div class="text-sm">Transfer Amount</div>
@@ -46,9 +46,9 @@ const toInscribe = () => {
         </FlexBox>
         <Divider class="border-gray-soft my-4" />
         <FlexBox d="col" :gap="4">
-          <span class="text-sm text-slate-light"
-            >Transfer Inscriptions ({{ tickersData.transferableList.length }})</span
-          >
+          <span class="text-sm text-slate-light">
+            Transfer Inscriptions ({{ tickersData.transferableList.length }})
+          </span>
           <!-- TODO: select multiple-->
           <TickerList :loading="isLoading" :list="tickersData.transferableList" :clickEvent="toSendBRC20" />
         </FlexBox>
