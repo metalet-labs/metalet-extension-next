@@ -18,6 +18,7 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
+const cost = ref()
 const route = useRoute()
 const recipient = ref('')
 const error = ref<Error>()
@@ -118,12 +119,12 @@ const popConfirm = async () => {
     try {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
       const utxos = await getBtcUtxos(address.value, needRawTx)
-      const { fee, psbt } = currentBTCWallet.value!.send(
-        recipient.value,
-        amount.value.toString(),
-        currentRateFee.value!,
-        utxos
-      )
+      const {
+        fee,
+        psbt,
+        cost: _cost,
+      } = currentBTCWallet.value!.send(recipient.value, amount.value.toString(), currentRateFee.value!, utxos)
+      cost.value = _cost
       txPsbt.value = psbt
       totalFee.value = fee
       isOpenConfirmModal.value = true
@@ -308,6 +309,11 @@ async function send() {
           <FlexBox ai="center" jc="between" v-if="asset.chain === 'btc'">
             <div class="text-gray-primary">Fees (Estimated)</div>
             <div>{{ prettifyBalanceFixed(totalFee, symbol, asset.decimal) }}</div>
+          </FlexBox>
+          <Divider />
+          <FlexBox ai="center" jc="between">
+            <div class="text-gray-primary">Total</div>
+            <div>{{ prettifyBalanceFixed(cost || 0, symbol, asset.decimal) }}</div>
           </FlexBox>
         </div>
         <DrawerFooter>

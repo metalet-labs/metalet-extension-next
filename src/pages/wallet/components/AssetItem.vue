@@ -107,12 +107,7 @@ watch(
       </div>
 
       <div class="flex grow overflow-hidden flex-col items-end text-xs gap-y-1">
-        <div
-          :class="[
-            'w-full text-right',
-            asset?.contract === 'BRC-20' ? 'border-b border-[#D8D8D8] border-dashed pb-3' : '',
-          ]"
-        >
+        <div :class="['w-full text-right']">
           <div class="text-black-primary text-sm">{{ assetPrice }}</div>
           <div :class="['text-xs font-normal text-gray-primary']">
             <span v-if="assetUSD">
@@ -122,21 +117,26 @@ watch(
             <span v-else>$--</span>
           </div>
         </div>
-
-        <div v-if="asset?.contract === 'BRC-20'" class="w-full mt-2.5 space-y-2">
-          <div class="text-xs flex items-center justify-between w-full">
-            <span class="text-[#909399]">Transferable:</span>
-            <span class="text-black-primary truncate">{{ asset.balance?.transferBalance }}</span>
-          </div>
-          <div class="text-xs flex items-center justify-between w-full">
-            <span class="text-[#909399]">Available:</span>
-            <span class="text-black-primary truncate">{{ asset.balance?.availableBalanceSafe }}</span>
-          </div>
-          <div class="text-xs flex items-center justify-between w-full" v-if="asset.balance?.availableBalanceUnSafe">
-            <span class="text-[#909399]">Available(pending):</span>
-            <span class="text-black-primary truncate">{{ asset.balance?.availableBalanceUnSafe }}</span>
-          </div>
-        </div>
+      </div>
+    </div>
+    <div
+      v-if="asset?.contract === 'BRC-20'"
+      class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
+    >
+      <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
+        <span class="text-black-primary truncate">{{ asset.balance?.transferBalance }}</span>
+        <span class="text-[#909399]">Transferable</span>
+      </div>
+      <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
+        <span class="text-black-primary truncate">{{ asset.balance?.availableBalanceSafe }}</span>
+        <span class="text-[#909399]">Available</span>
+      </div>
+      <div
+        v-if="asset.balance?.availableBalanceUnSafe"
+        class="text-xs flex flex-col gap-1 items-center justify-between w-full"
+      >
+        <span class="text-black-primary truncate">{{ asset.balance?.availableBalanceUnSafe }}</span>
+        <span class="text-[#909399]">Available(pending)</span>
       </div>
     </div>
   </div>

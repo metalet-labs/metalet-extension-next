@@ -87,10 +87,11 @@ async function transfer() {
       isOpenConfirmModal.value = false
       transactionResult.value = {
         status: 'failed',
-        message: err.message,
+        message: err,
       }
 
       isOpenResultModal.value = true
+      throw err
     })
   if (transferRes && transferRes.txid) {
     isOpenConfirmModal.value = false
@@ -144,7 +145,7 @@ async function transfer() {
         <textarea
           v-model="recipient"
           placeholder="Recipient's address"
-          class="border border-blue-primary w-full rounded-lg p-3 text-sm h-16 text-blue-primary focus:outline-none focus:ring-0"
+          class="border border-blue-primary w-full rounded-lg p-3 text-sm h-16 focus:outline-none focus:ring-0"
         />
       </div>
     </div>

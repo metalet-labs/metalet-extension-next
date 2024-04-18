@@ -112,7 +112,7 @@ const copyGenesis = () => {
       <div class="flex items-center hover:text-blue-primary">
         <CheckBadgeIcon class="mr-1 h-5 w-5 text-blue-500" />
         <div class="text-base">{{ prettifyTokenGenesis(asset.genesis!) }}</div>
-        <CopyIcon class="ml-2 cursor-pointer" @click.stop="copyGenesis" />
+        <CopyIcon class="ml-2 cursor-pointer w-[22px]" @click.stop="copyGenesis" />
       </div>
     </div>
 

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import BRCToken from './Inscription.vue'
+import NO_NFT_DATA from './NoNFTData.vue'
 import { LoadingText } from '@/components'
 import { formatTimestamp } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -67,7 +68,7 @@ const toBRC20Detail = (inscriptionId: string) => {
         <LoadingIcon v-if="isFetchingNextPage" class="!text-gray-primary" />
       </div>
     </div>
-    <div v-else class="w-full py-3 text-center text-sm text-gray-500">No Ordinals yet.</div>
+    <NO_NFT_DATA v-else />
   </div>
 </template>
 

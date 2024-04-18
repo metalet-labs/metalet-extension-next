@@ -81,13 +81,13 @@ const copy = (address: string, addressType: string, type: string) => {
           <span class="text-xs text-gray-primary">{{ wallet.name }}</span>
         </div>
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-ss">{{ account.name }}</span>
+          <span class="text-sm">{{ account.name }}</span>
           <TriangleDownIcon class="w-2" />
         </div>
       </div>
     </FlexBox>
     <div class="flex items-center gap-x-4">
-      <CopyIcon class="cursor-pointer hover:text-blue-primary" @click="isOpen = true" />
+      <CopyIcon class="cursor-pointer hover:text-blue-primary w-[22px]" @click="isOpen = true" />
       <SettingMenu />
       <ServiceMenu class="cursor-pointer" />
     </div>
@@ -114,7 +114,7 @@ const copy = (address: string, addressType: string, type: string) => {
             <div class="text-xs text-gray-primary break-all w-64">{{ btcWallet.address }}</div>
           </div>
           <CopyIcon
-            class="cursor-pointer hover:text-blue-primary"
+            class="cursor-pointer hover:text-blue-primary w-4.5"
             @click="copy(btcWallet.address, btcWallet.addressType, 'Bitcoin')"
           />
         </FlexBox>
@@ -128,7 +128,7 @@ const copy = (address: string, addressType: string, type: string) => {
             <div class="text-xs text-gray-primary break-all w-64">{{ mvcWallet.address }}</div>
           </div>
           <CopyIcon
-            class="cursor-pointer hover:text-blue-primary"
+            class="cursor-pointer hover:text-blue-primary w-4.5"
             @click="copy(mvcWallet.address, mvcWallet.addressType, 'Microvisionchain')"
           />
         </FlexBox>

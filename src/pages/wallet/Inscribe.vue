@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed, Ref } from 'vue'
+import { ref, computed } from 'vue'
 import { type Psbt } from 'bitcoinjs-lib'
 import { LoadingText } from '@/components'
 import Ticker from './components/Ticker.vue'
@@ -270,7 +270,7 @@ const changeTabIdx = (idx: number) => {
       <Divider />
       <div class="mt-8 space-y-4 text-ss">
         <FlexBox ai="center" jc="between">
-          <span class="label">Payment Network Fee</span>
+          <span class="label">Network Fee</span>
           <span>{{ prettifyBalanceFixed(paymentNetworkFee || 0, 'BTC', 8) }}</span>
         </FlexBox>
         <FlexBox ai="center" jc="between">
@@ -362,7 +362,7 @@ const changeTabIdx = (idx: number) => {
           </div>
           <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer hover:text-blue-primary">
             <span class="text-sm" @click="copyHex">Copy psbt transaction data</span>
-            <CopyIcon />
+            <CopyIcon class="w-[22px]" />
           </FlexBox>
         </div>
       </div>

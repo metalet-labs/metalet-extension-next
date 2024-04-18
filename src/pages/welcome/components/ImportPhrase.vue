@@ -48,7 +48,7 @@ watch(
 <template>
   <FlexBox d="col" class="w-82" :gap="6">
     <FlexBox ai="center" :gap="3">
-      <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer" />
+      <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer w-3.5" />
       <div class="text-2xl font-medium">Import Wallet</div>
     </FlexBox>
     <Tabs default-value="phrase" class="w-full">

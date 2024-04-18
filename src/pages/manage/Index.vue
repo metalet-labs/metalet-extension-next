@@ -88,12 +88,12 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       :accountId="editAccountId"
     />
     <FlexBox class="w-full h-15" ai="center" jc="between">
-      <ArrowLeftIcon @click="$router.push('/wallet')" class="cursor-pointer" />
-      <RouterLink to="/" class="text-sm">Edit wallt</RouterLink>
+      <ArrowLeftIcon @click="$router.push('/wallet')" class="w-3.5 cursor-pointer" />
+      <RouterLink to="/" class="text-sm">Edit wallet</RouterLink>
     </FlexBox>
     <FlexBox class="flex-1 overflow-y-auto pr-4 -mr-4" d="col">
       <FlexBox class="w-full py-6" d="col" :gap="2" ai="center" jc="center">
-        <div>Current Account Asset</div>
+        <div class="text-gray-primary">Current Account Asset</div>
         <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }}</div>
       </FlexBox>
       <Divider />

@@ -1,18 +1,18 @@
 <script lang="ts" setup>
-import { Ref, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
-
+import { Ref, computed, ref } from 'vue'
 import passwordManager from '@/lib/password'
-import { type Account, getCurrentAccount } from '@/lib/account'
-
+import { getV3CurrentWallet } from '@/lib/wallet'
 import PasswordImg from '@/assets/images/password.svg?url'
+import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
+const mnemonic = ref()
 const router = useRouter()
+const { currentMVCWallet } = useChainWalletsStore()
 
-const account = ref<Account>()
-getCurrentAccount().then((acc) => {
-  account.value = acc
+getV3CurrentWallet().then((_wallet) => {
+  mnemonic.value = _wallet.mnemonic
 })
 
 const phase: Ref<1 | 2> = ref(1)
@@ -22,10 +22,7 @@ const password = ref('')
 const failed = ref(false)
 
 const isCoveredMne = ref(true)
-// const mne = computed(() => decrypt(account.value?.mnemonic))
-const mne = computed(() => account.value?.mnemonic)
 
-// 按钮
 const back = () => {
   if (phase.value === 1) {
     router.back()
@@ -38,15 +35,12 @@ const next = async () => {
   if (phase.value === 1) {
     const isCorrect = await passwordManager.check(password.value)
     if (isCorrect) {
-      // 如果正确，进入下一步
       phase.value = 2
     } else {
-      // 如果不正确，提示密码错误
       failed.value = true
       return
     }
   } else {
-    // 如果是第二步，进入首页
     router.push('/wallet')
   }
 }
@@ -96,7 +90,7 @@ const next = async () => {
           <!-- seed phrase -->
           <div class="relative mt-2">
             <div class="rounded-lg bg-gray-100 px-3 py-4 text-lg leading-loose">
-              {{ mne }}
+              {{ mnemonic }}
             </div>
 
             <div
@@ -115,10 +109,10 @@ const next = async () => {
         </div>
 
         <!-- path -->
-        <div class="mt-8" v-if="account">
+        <div class="mt-8">
           <h4>Derivation Path</h4>
           <div class="mt-2">
-            <div class="rounded-lg bg-gray-100 px-3 py-2 text-sm leading-loose">{{ account.mvc.path }}</div>
+            <div class="rounded-lg bg-gray-100 px-3 py-2 text-sm leading-loose">{{ currentMVCWallet?.getPath() }}</div>
           </div>
         </div>
       </template>

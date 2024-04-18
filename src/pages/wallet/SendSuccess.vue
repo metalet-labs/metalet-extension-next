@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getLogo } from '@/data/logos'
-import { type Chain } from '@/lib/types'
 import { getScanUrl } from '@/lib/host'
+import { type Chain } from '@/lib/types'
 import { useRouter, useRoute } from 'vue-router'
 import LinkIcon from '@/assets/icons-v3/link.svg'
 import { FlexBox, Divider, Button } from '@/components'
@@ -42,7 +42,7 @@ function toWallet() {
       <div class="break-all text-center mb-1">{{ receiver }}</div>
       <div class="label">Receiver</div>
     </div>
-    <a :href="scanUrl + '/' + txId" target="_blank" class="flex items-center gap-1 hover:text-blue-primary text-xs">
+    <a :href="scanUrl + '/tx/' + txId" target="_blank" class="flex items-center gap-1 hover:text-blue-primary text-xs">
       <span>View on Block Explorer</span>
       <LinkIcon class="w-3.5 h-3.5" />
     </a>

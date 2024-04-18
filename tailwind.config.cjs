@@ -37,9 +37,6 @@ module.exports = {
         90: '22.5rem',
         150: '37.5rem',
       },
-      backgroundImage: {
-        'tab-selected': 'linear-gradient(270deg, #171AFF -1%, #72F5F6 99%)',
-      },
       width: {
         4.5: '1.125rem',
         7.5: '1.875rem',

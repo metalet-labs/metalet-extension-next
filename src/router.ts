@@ -230,7 +230,7 @@ const routes = [
         name: 'asset',
         props: true,
         meta: {
-          secondaryHeader: true,
+          secondaryHeader: false,
           headerTitle: 'Asset',
           noFooter: true,
           backRouter: '/wallet',

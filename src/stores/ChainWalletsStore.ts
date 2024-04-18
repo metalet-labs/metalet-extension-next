@@ -22,25 +22,13 @@ export const useChainWalletsStore = createGlobalState(() => {
 
   const updateAllWallets = async () => {
     try {
-      const btcWallet = await WalletsStore.getCurrentChainWallet(Chain.BTC);
-      currentBTCWallet.value = btcWallet;
-  
-      const mvcWallet = await WalletsStore.getCurrentChainWallet(Chain.MVC);
-      currentMVCWallet.value = mvcWallet;
-  
-      // Add more chains as needed
-    } catch (error) {
-      console.error('Error updating wallets:', error);
-    }
-  };
+      const btcWallet = await WalletsStore.getCurrentChainWallet(Chain.BTC)
+      currentBTCWallet.value = btcWallet
 
-  const updataAllWallet = async (chain: Chain) => {
-    if (chain === Chain.BTC) {
-      currentBTCWallet.value = await WalletsStore.getCurrentChainWallet(Chain.BTC)
-    } else if (chain === Chain.MVC) {
-      currentMVCWallet.value = await WalletsStore.getCurrentChainWallet(Chain.MVC)
-    } else {
-      throw new Error('Invalid chain')
+      const mvcWallet = await WalletsStore.getCurrentChainWallet(Chain.MVC)
+      currentMVCWallet.value = mvcWallet
+    } catch (error) {
+      console.error('Error updating wallets:', error)
     }
   }
 

@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import MetaPin from './MetaPin.vue'
 import { useRouter } from 'vue-router'
+import NO_NFT_DATA from './NoNFTData.vue'
 import { formatTimestamp } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
@@ -62,7 +63,7 @@ const toMetaPinDetail = (metaPinId: string) => {
         <LoadingIcon v-if="isFetchingNextPage" class="!text-gray-primary" />
       </div>
     </div>
-    <div v-else class="w-full py-3 text-center text-sm text-gray-500">No MetaID Pins yet</div>
+    <NO_NFT_DATA v-else />
   </div>
 </template>
 

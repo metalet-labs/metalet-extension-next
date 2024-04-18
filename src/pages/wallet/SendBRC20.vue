@@ -17,6 +17,7 @@ import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button } from '@/componen
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
 
+const cost = ref()
 const route = useRoute()
 const router = useRouter()
 const isShowComfirm = ref(false)
@@ -76,7 +77,13 @@ async function next() {
     const utxo = await getInscriptionUtxo(inscriptionId.value)
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxos = await getBtcUtxos(address.value, needRawTx)
-    const { fee, psbt } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
+    const {
+      fee,
+      psbt,
+      cost: _cost,
+    } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
+
+    cost.value = _cost
     txPsbt.value = psbt
     calcFee.value = fee
     isShowComfirm.value = true
@@ -109,6 +116,7 @@ async function send() {
       message: err.message,
     }
     isOpenResultModal.value = true
+    throw err
   })
   if (!txId) {
     transactionResult.value = {
@@ -206,11 +214,16 @@ async function send() {
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Amount</div>
-            <div class="break-all">{{ amount }}</div>
+            <div class="break-all">{{ amount }} {{ symbol }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Fees (Estimated)</div>
             <div>{{ prettifyBalanceFixed(calcFee || 0, 'BTC', 8) }}</div>
+          </FlexBox>
+          <Divider />
+          <FlexBox ai="center" jc="between">
+            <div class="text-gray-primary">Total</div>
+            <div>{{ prettifyBalanceFixed(cost || 0, 'BTC', 8) }}</div>
           </FlexBox>
         </div>
         <DrawerFooter>

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { getLogo } from '@/data/logos'
 import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
@@ -8,22 +9,36 @@ import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useBalanceQuery } from '@/queries/balance'
+import { WalletsStore } from '@/stores/WalletStore'
+import CloseIcon from '@/assets/icons-v3/close.svg'
 import Activities from './components/Activities.vue'
 import FilterIcon from '@/assets/icons-v3/filter.svg'
+import ToggleIcon from '@/assets/icons-v3/toggle.svg'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { getTags, BTCAsset, MVCAsset } from '@/data/assets'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
+import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
+import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from '@/components/ui/drawer'
+import { setV3AddressTypeStorage } from '@/lib/addressType'
+import { AddressType, Chain } from '@metalet/utxo-wallet-service'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
+const isOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-if (!route.params.address) {
-  router.go(-1)
-}
-
+const { updataWallet } = useChainWalletsStore()
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
@@ -105,6 +120,24 @@ const toSend = () => {
   })
 }
 
+const setAddressType = async (addressType: AddressType, _address: string) => {
+  console.log(addressType)
+
+  const chain = asset.value!.chain as Chain
+  await setV3AddressTypeStorage(chain, addressType)
+  await updataWallet(chain)
+  address.value = _address
+  isOpen.value = false
+}
+
+const chainWallets = ref()
+WalletsStore.getAccountChainWallets().then((_chainWallets) => {
+  chainWallets.value = _chainWallets[asset.value!.chain]!.map((wallet) => ({
+    address: wallet.getAddress(),
+    addressType: wallet.getAddressType(),
+  }))
+})
+
 const toReceive = () => {
   router.push(`/wallet/receive?chain=${asset.value!.chain}`)
 }
@@ -112,6 +145,44 @@ const toReceive = () => {
 
 <template>
   <div class="flex flex-col items-center space-y-6 w-full" v-if="asset">
+    <div class="w-full h-15 -my-3 flex items-center justify-between">
+      <ArrowLeftIcon class="w-3.5 cursor-pointer" @click="router.push('/wallet')" />
+      <span>{{ symbol }}</span>
+      <div class="w-3.5 cursor-pointer" @click="isOpen = true" title="Set Default Address">
+        <ToggleIcon />
+      </div>
+      <Drawer v-model:open="isOpen" activeSnapPoint="#chainWallets">
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle class="text-center relative">
+              <span>Set Default Address</span>
+              <DrawerClose>
+                <CloseIcon class="absolute right-0 top-0" />
+              </DrawerClose>
+            </DrawerTitle>
+            <DrawerDescription></DrawerDescription>
+          </DrawerHeader>
+          <div class="flex flex-col items-center">
+            <div
+              v-for="wallet in chainWallets"
+              class="h-15 w-full px-4 py-3 flex items-center justify-between cursor-pointer"
+            >
+              <div class="flex items-center gap-3 w-full" @click="setAddressType(wallet.addressType, wallet.address)">
+                <img :src="getLogo(symbol, asset.chain)" alt="" class="w-9" />
+                <div class="space-y-1">
+                  <div class="text-sm max-w-64 truncate" :title="wallet.address">{{ wallet.address }}</div>
+                  <div class="text-xs text-gray-primary">{{ wallet.addressType }}</div>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-1.5">
+                <SuccessCheckedIcon v-show="wallet.address === address" />
+                <!-- <span class="text-xs text-gray-primary">$0.00</span> -->
+              </div>
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+    </div>
     <div class="flex flex-col items-center">
       <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
@@ -121,7 +192,7 @@ const toReceive = () => {
         <span v-else>-- {{ asset.symbol }}</span>
       </div>
 
-      <div class="mt-0.5 text-sm text-gray-primary">$ {{ assetUSD?.toNumber() }} USD</div>
+      <div class="mt-0.5 text-sm text-gray-primary">$ {{ assetUSD?.toNumber().toFixed(2) }}</div>
 
       <div
         :key="tag.name"

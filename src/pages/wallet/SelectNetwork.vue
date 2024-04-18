@@ -4,9 +4,10 @@ import { useRouter } from 'vue-router'
 import BtcLogoImg from '@/assets/images/btc-logo.svg?url'
 import CheckIcon from '@/assets/icons/check.svg?component'
 import SpaceLogoImg from '@/assets/images/space-logo.svg?url'
+import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 import NetworkTypeImg from '@/assets/icons/all-network-type.svg?url'
+import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
 import { type Service, getServiceNetwork, setServiceNetwork } from '@/lib/network'
-import { TabGroup, TabList, Tab, TabPanels, TabPanel, RadioGroup, RadioGroupOption } from '@headlessui/vue'
 
 const router = useRouter()
 
@@ -17,7 +18,7 @@ getServiceNetwork().then((_service) => {
 
 const updateServiceNetwork = async (_service: Service) => {
   await setServiceNetwork(_service)
-  router.replace("/wallet")
+  router.replace('/wallet')
 }
 </script>
 
@@ -28,24 +29,21 @@ const updateServiceNetwork = async (_service: Service) => {
         <img :src="NetworkTypeImg" alt="All Networks" class="inline-block w-8 h-8" />
         <span class="text-[#141416]">All Networks</span>
       </div>
-      <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-      <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
+      <SuccessCheckedIcon v-if="checked" class="rounded-full w-5 h-5" />
     </RadioGroupOption>
     <RadioGroupOption v-slot="{ checked }" value="btc" class="flex items-center justify-between cursor-pointer">
       <div class="flex items-center gap-x-1.5">
         <img :src="BtcLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
         <span class="text-[#141416]">Bitcoin</span>
       </div>
-      <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-      <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
+      <SuccessCheckedIcon v-if="checked" class="rounded-full w-5 h-5" />
     </RadioGroupOption>
     <RadioGroupOption v-slot="{ checked }" value="mvc" class="flex items-center justify-between cursor-pointer">
       <div class="flex items-center gap-x-1.5">
         <img :src="SpaceLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
         <span class="text-[#141416]">Microvisionchain</span>
       </div>
-      <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-      <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
+      <SuccessCheckedIcon v-if="checked" class="rounded-full w-5 h-5" />
     </RadioGroupOption>
   </RadioGroup>
   <!-- <TabGroup>

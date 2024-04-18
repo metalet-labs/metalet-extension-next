@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
     <Tabs default-value="Cypto" class="w-full">
       <TabsList class="p-0 gap-6">
         <TabsTrigger value="Cypto">Cypto</TabsTrigger>
-        <TabsTrigger value="NFTs"> NFTs</TabsTrigger>
+        <TabsTrigger value="NFTs">NFTs</TabsTrigger>
         <!-- <TabsTrigger value="Activity">Activity</TabsTrigger> -->
       </TabsList>
       <TabsContent value="Cypto">
@@ -25,10 +25,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 <style scoped lang="css">
 :deep(button[role='tab']) {
-  @apply text-gray-primary p-0;
+  @apply p-0;
 }
 
 :deep(button[role='tab'][aria-selected='true']) {
-  @apply bg-tab-selected text-transparent bg-clip-text shadow-none;
+  @apply text-blue-primary shadow-none;
 }
 </style>

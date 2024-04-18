@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ref, computed, watch } from 'vue'
+import NO_NFT_DATA from './NoNFTData.vue'
 import { LoadingText } from '@/components'
 import { Chain } from '@metalet/utxo-wallet-service'
 import MetaContractItem from './MetaContractItem.vue'
@@ -56,7 +57,7 @@ const toNftDetail = (metaContract: {
       Load more MetaContracts
     </div>
   </div>
-  <div v-else class="w-full py-24 text-center text-sm font-bold text-gray-500">No Metacontracts yet.</div>
+  <NO_NFT_DATA url="https://www.show3.io/nft/index" v-else />
 </template>
 
 <style lang="less" scoped></style>

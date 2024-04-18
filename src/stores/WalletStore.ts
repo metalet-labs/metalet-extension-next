@@ -1,12 +1,12 @@
 import { reactive } from 'vue'
 import { getNet } from '@/lib/network'
 import { goToPage } from '@/lib/utils'
+import { toast } from '@/components/ui/toast'
 import { getCurrentAccountId } from '@/lib/account'
 import { getV3AddressTypeStorage } from '@/lib/addressType'
 import { WalletManager } from '@metalet/utxo-wallet-service'
 import { Chain, type Net } from '@metalet/utxo-wallet-service'
 import { getV3Wallets, getActiveWalletAccount, getCurrentWalletId, hasV3Wallets } from '@/lib/wallet'
-import { toast } from '@/components/ui/toast'
 
 let walletManager: WalletManager | null = null
 

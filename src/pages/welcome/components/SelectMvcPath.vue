@@ -195,7 +195,7 @@ watch(
 <template>
   <div class="flex flex-col gap-6 w-82">
     <div class="flex items-center gap-3">
-      <ArrowLeftIcon @click="emit('preStep')" class="cursor-pointer" />
+      <ArrowLeftIcon @click="emit('preStep')" class="cursor-pointer w-3.5" />
       <div class="text-2xl font-medium">MVC Management</div>
     </div>
     <div class="flex flex-col gap-4">
