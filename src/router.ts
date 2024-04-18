@@ -100,7 +100,7 @@ const routes = [
         },
       },
       {
-        path: '/wallet/receive',
+        path: '/wallet/receive/:address',
         component: () => import('./pages/wallet/Receive.vue'),
         meta: {
           secondaryHeader: true,

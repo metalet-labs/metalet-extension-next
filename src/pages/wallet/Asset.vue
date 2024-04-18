@@ -139,7 +139,7 @@ WalletsStore.getAccountChainWallets().then((_chainWallets) => {
 })
 
 const toReceive = () => {
-  router.push(`/wallet/receive?chain=${asset.value!.chain}`)
+  router.push(`/wallet/receive/${address.value}?chain=${asset.value!.chain}`)
 }
 </script>
 

@@ -1,30 +1,18 @@
 <script lang="ts" setup>
-import { ref, computed, Ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { type Chain } from '@/lib/types'
-import { getAddress } from '@/lib/account'
 import { allAssets } from '@/data/assets'
+import { toast } from '@/components/ui/toast'
+import { prettifyTxId } from '@/lib/formatters'
+import CopyIcon from '@/assets/icons-v3/copy.svg'
+import { useQRCode } from '@vueuse/integrations/useQRCode'
 
-// init
 const route = useRoute()
-const chain: Ref<Chain> = ref(route.query.chain as Chain)
+const chain = ref(route.query.chain as Chain)
+const address = ref(route.params.address as string)
+const qrcode = useQRCode(address.value)
 const asset = computed(() => allAssets.find((asset) => asset.chain === chain.value))
-
-const address = ref<string>('')
-getAddress(chain.value).then((add) => {
-  address.value = add!
-})
-
-// copy
-const isCopied = ref(false)
-function copyAddress() {
-  navigator.clipboard.writeText(address.value)
-  isCopied.value = true
-}
-
-// QRCode
-const qrcode = useQRCode(address)
 </script>
 
 <template>
@@ -36,20 +24,15 @@ const qrcode = useQRCode(address)
       <img :src="qrcode" alt="Address QR Code" class="h-full w-full rounded-inherit" />
     </div>
 
-    <div class="mt-4 text-sm text-gray-500">
-      Your <span class="uppercase">{{ chain }}</span> Address
-    </div>
-    <div class="main-input flex w-full items-center gap-x-4">
-      <div class="truncate pl-2 text-sm">{{ address }}</div>
-      <!-- copy button -->
-      <button
-        class="w-20 shrink-0 rounded-lg bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 py-3 text-xs text-sky-100 transition-all hover:saturate-150"
-        :class="{ 'opacity-50 hover:!saturate-100': isCopied }"
-        @click="copyAddress"
-        :disabled="isCopied"
-      >
-        {{ isCopied ? 'Copied' : 'Copy' }}
-      </button>
+    <div class="mt-3 flex px-3 py-3.5 items-center justify-between w-[232px] gap-4 border border-gray-soft rounded-lg">
+      <div class="truncate flex-1">{{ prettifyTxId(address) }}</div>
+      <CopyIcon
+        :text="address"
+        class="cursor-pointer hover:text-blue-primary w-[22px]"
+        @click="
+          toast({ title: `${chain.toLocaleUpperCase()}  Address Copied`, toastType: 'success', description: address })
+        "
+      />
     </div>
   </div>
 </template>

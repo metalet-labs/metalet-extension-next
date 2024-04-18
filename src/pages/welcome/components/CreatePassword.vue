@@ -39,7 +39,7 @@ const submit = async () => {
 <template>
   <FlexBox d="col" class="w-82">
     <FlexBox ai="center" :gap="3">
-      <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer" />
+      <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer w-3.5" />
       <div class="text-2xl font-medium">Create Password</div>
     </FlexBox>
     <p class="mt-2 text-sm text-gray-primary">
