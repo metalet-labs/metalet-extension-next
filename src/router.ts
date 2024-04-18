@@ -5,7 +5,8 @@ import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
 import Wallet from './pages/wallet/Index.vue'
 import { getCurrentAccountId } from './lib/account'
-import { getCurrentWalletId, getV3Wallets } from './lib/wallet'
+import { getCurrentWalletId, getV3Wallets, hasWallets } from './lib/wallet'
+import { needMigrate } from './lib/migrate'
 
 const storage = useStorage()
 
@@ -466,12 +467,12 @@ const authPages = [
 ]
 
 router.beforeEach(async (to, _, next) => {
-  if (to.fullPath !== '/lock' && (await storage.get('locked'))) {
+  if (await needMigrate()) {
+    next('/migrateV2')
+  } else if (to.fullPath !== '/lock' && (await storage.get('locked'))) {
     next('/lock')
   } else if (!authPages.includes(to.path) && (!(await getCurrentAccountId()) || !(await getCurrentWalletId()))) {
-    const wallets = await getV3Wallets()
-    if (wallets.length) {
-      goToPage('/manage/wallets')
+    if (await hasWallets()) {
       next('/manage/wallets')
     } else {
       goToPage('/welcome', true)
@@ -489,7 +490,6 @@ router.beforeEach(async (to, _, next) => {
     if (to.path === '/wallet') {
       assetList.value = []
     }
-
     next()
   }
 })

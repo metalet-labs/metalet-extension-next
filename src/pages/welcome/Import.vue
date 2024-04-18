@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { FlexBox } from '@/components'
 import passwordManager from '@/lib/password'
 import { CreatePassword, SelectMvcPath, ImportPhrase, Activate } from './components'
 
@@ -33,18 +32,18 @@ passwordManager.has().then((_hasPassword) => {
 </script>
 
 <template>
-  <FlexBox d="col" class="w-full gap-20">
-    <FlexBox ai="center" jc="center" class="w-full h-[70px]" :gap="2">
-      <FlexBox
+  <div class="flex flex-col w-full gap-20">
+    <div class="flex items-center justify-center gap-2 w-full h-[70px]">
+      <div
         ai="center"
         jc="center"
-        :class="['step-circle', step === _step ? 'active' : undefined]"
         v-for="_step in Array.from({ length: stepLen }, (_, i) => i + 1)"
+        :class="['flex items-center justify-center step-circle', { active: step === _step }]"
       >
         {{ _step }}
-      </FlexBox>
-    </FlexBox>
-    <FlexBox jc="center" class="w-full">
+      </div>
+    </div>
+    <div class="flex justify-center w-full">
       <ImportPhrase @nextStep="nextStep" v-model:words="words" v-if="step === 1" />
       <SelectMvcPath
         :words="words"
@@ -63,8 +62,8 @@ passwordManager.has().then((_hasPassword) => {
         "
       />
       <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="mvcTypes" />
-    </FlexBox>
-  </FlexBox>
+    </div>
+  </div>
 </template>
 
 <style scoped>

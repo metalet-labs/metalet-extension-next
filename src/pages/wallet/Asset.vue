@@ -10,10 +10,10 @@ import AssetLogo from '@/components/AssetLogo.vue'
 import { useBalanceQuery } from '@/queries/balance'
 import Activities from './components/Activities.vue'
 import FilterIcon from '@/assets/icons-v3/filter.svg'
-import SendPNG from '@/assets/icons-v3/send_detail.png'
+import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { getTags, BTCAsset, MVCAsset } from '@/data/assets'
-import ReceivePNG from '@/assets/icons-v3/receive_detail.png'
+import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
@@ -135,11 +135,11 @@ const toReceive = () => {
 
     <div class="flex items-center justify-center gap-x-2">
       <button @click="toSend" class="btn-blue-light">
-        <img :src="SendPNG" alt="Send" />
+        <ArrowUpIcon class="w-3" />
         <span>Send</span>
       </button>
       <button @click="toReceive" class="btn-blue-primary">
-        <img :src="ReceivePNG" alt="Receive" />
+        <ArrowDownIcon class="w-3" />
         <span>Receive</span>
       </button>
     </div>

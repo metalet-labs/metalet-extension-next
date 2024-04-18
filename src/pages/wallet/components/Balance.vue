@@ -2,15 +2,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
-import SendJPG from '@/assets/icons-v3/send.jpg'
-import SendHoverJPG from '@/assets/icons-v3/send_hover.jpg'
-import ReceiveJPG from '@/assets/icons-v3/receive.jpg'
-import ReceiveHoverJPG from '@/assets/icons-v3/receive_hover.jpg'
-import SwapJPG from '@/assets/icons-v3/swap.jpg'
-import SwapHoverJPG from '@/assets/icons-v3/swap_hover.jpg'
-import BridgeJPG from '@/assets/icons-v3/bridge.jpg'
-import BridgeHoverJPG from '@/assets/icons-v3/bridge_hover.jpg'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
+import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
+import SwapIcon from '@/assets/icons-v3/swap.svg'
+import BridgeIcon from '@/assets/icons-v3/bridge.svg'
 
 const router = useRouter()
 
@@ -43,7 +38,7 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         <div
           class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
         >
-          <ArrowUpIcon />
+          <ArrowUpIcon class="w-4" />
         </div>
         <span>Send</span>
       </div>
@@ -53,7 +48,11 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         @mouseover="handleMouseOver('receive')"
         @mouseleave="handleMouseLeave()"
       >
-        <img :src="hoverIcon === 'receive' ? ReceiveHoverJPG : ReceiveJPG" alt="Send" />
+        <div
+          class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
+        >
+          <ArrowDownIcon class="w-4" />
+        </div>
         <span>Receive</span>
       </div>
       <div
@@ -61,7 +60,11 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         @mouseover="handleMouseOver('swap')"
         @mouseleave="handleMouseLeave()"
       >
-        <img :src="hoverIcon === 'swap' ? SwapHoverJPG : SwapJPG" alt="Swap" />
+        <div
+          class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
+        >
+          <SwapIcon />
+        </div>
         <span>Swap</span>
       </div>
       <div
@@ -69,7 +72,11 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         @mouseover="handleMouseOver('bridge')"
         @mouseleave="handleMouseLeave()"
       >
-        <img :src="hoverIcon === 'bridge' ? BridgeHoverJPG : BridgeJPG" alt="Bridge" />
+        <div
+          class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
+        >
+          <BridgeIcon />
+        </div>
         <span>Bridge</span>
       </div>
     </div>

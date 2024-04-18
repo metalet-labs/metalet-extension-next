@@ -7,10 +7,10 @@ import CopyIcon from '@/assets/icons-v3/copy.svg'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useMVCTokenQuery } from '@/queries/tokens'
 import Activities from './components/Activities.vue'
-import SendPNG from '@/assets/icons-v3/send_detail.png'
+import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import { toast } from '@/components/ui/toast/use-toast'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
-import ReceivePNG from '@/assets/icons-v3/receive_detail.png'
+import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { calcBalance, prettifyTokenGenesis } from '@/lib/formatters'
 import { useExchangeRatesQuery, getExchangeCoinType, CoinCategory } from '@/queries/exchange-rates'
 
@@ -98,11 +98,11 @@ const copyGenesis = () => {
 
     <div class="flex items-center justify-center gap-x-2">
       <button @click="toSend" class="btn-blue-light">
-        <img :src="SendPNG" alt="Send" />
+        <ArrowUpIcon class="w-3" />
         <span>Send</span>
       </button>
       <button @click="toReceive" class="btn-blue-primary">
-        <img :src="ReceivePNG" alt="Receive" />
+        <ArrowDownIcon class="w-3" />
         <span>Receive</span>
       </button>
     </div>

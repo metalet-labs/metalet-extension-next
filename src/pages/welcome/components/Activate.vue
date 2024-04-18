@@ -10,7 +10,8 @@ import MoreIcon from '@/assets/icons-v3/more-crytos.svg'
 import BtcLogoIcon from '@/assets/images/btc-logo.svg?url'
 import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
-import { addV3Wallet, setCurrentWalletId } from '@/lib/wallet'
+import { genUID, formatIndex } from '@metalet/utxo-wallet-service'
+import { addV3Wallet, getV3Wallets, setCurrentWalletId } from '@/lib/wallet'
 
 const loading = ref(true)
 const error = ref<string>()
@@ -32,35 +33,29 @@ if (!mnemonic) {
   router.go(0)
 }
 
-const walletsOptions = {
-  mnemonic,
-  mvcTypes,
-  accountsOptions: [
-    {
-      addressIndex: 0,
-    },
-  ],
-}
-
 onMounted(async () => {
-  try {
-    if (WalletsStore.hasWalletManager()) {
-      const walletManager = await WalletsStore.getWalletManager()
-      const wallet = walletManager.addWallet(walletsOptions)
-      addV3Wallet(wallet)
-      setCurrentAccountId(wallet.accounts[0].id)
-      setCurrentWalletId(wallet.id)
-    } else {
-      const walletManager = WalletsStore.initWalletManager([walletsOptions])
-      const wallet = walletManager.findWallet(mnemonic)
-      addV3Wallet(wallet)
-      setCurrentAccountId(wallet.accounts[0].id)
-      setCurrentWalletId(wallet.id)
-    }
-  } catch (_error) {
-    error.value = _error as string
-  }
-
+  const wallets = await getV3Wallets()
+  const walletId = genUID()
+  const accountId = genUID()
+  await addV3Wallet({
+    id: walletId,
+    name: `Wallet ${formatIndex(wallets.length + 1)}`,
+    mnemonic,
+    mvcTypes,
+    accounts: [
+      {
+        id: accountId,
+        name: 'Account 01',
+        addressIndex: 0,
+      },
+    ],
+  }).catch((err) => {
+    error.value = err.message
+    return
+  })
+  await setCurrentWalletId(walletId)
+  await setCurrentAccountId(accountId)
+  await WalletsStore.initWalletManager()
   loading.value = false
 })
 </script>
@@ -94,9 +89,9 @@ onMounted(async () => {
       <Button
         v-if="!error"
         type="primary"
+        :disabled="!!error || loading"
+        @click="$router.push('/wallet')"
         :class="['mt-26 w-61.5', { 'cursor-not-allowed opacity-50': loading || error }]"
-        @click="() => $router.push('/wallet')"
-        :disabled="!!error"
       >
         Activate Metalet
       </Button>

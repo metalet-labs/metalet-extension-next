@@ -1,9 +1,9 @@
 <script lang="ts" setup>
+import { Button } from '@/components'
 import { getNet } from '@/lib/network'
 import { ref, watch, computed } from 'vue'
 import { useDebounce } from '@vueuse/core'
 import Avatar from '@/components/Avatar.vue'
-import { FlexBox, Button } from '@/components'
 import AddIcon from '@/assets/icons-v3/add.svg'
 import Loading from '@/components/LoadingIcon.vue'
 import { useBalanceQuery } from '@/queries/balance'
@@ -193,12 +193,12 @@ watch(
 </script>
 
 <template>
-  <FlexBox d="col" :gap="6" class="w-82">
-    <FlexBox ai="center" :gap="3">
+  <div class="flex flex-col gap-6 w-82">
+    <div class="flex items-center gap-3">
       <ArrowLeftIcon @click="emit('preStep')" class="cursor-pointer" />
       <div class="text-2xl font-medium">MVC Management</div>
-    </FlexBox>
-    <FlexBox d="col" :gap="4">
+    </div>
+    <div class="flex flex-col gap-4">
       <div class="flex flex-col gap-6 h-[416px]">
         <div class="flex flex-col gap-3">
           <div class="text-xs font-semibold">MVC Default</div>
@@ -237,8 +237,9 @@ watch(
       </div>
 
       <Button
-        type="primary"
         @click="next"
+        type="primary"
+        :disabled="!mvcPath || !!error"
         :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': !mvcPath || !!error }]"
       >
         Next
@@ -246,6 +247,6 @@ watch(
 
       <!-- error -->
       <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>
-    </FlexBox>
-  </FlexBox>
+    </div>
+  </div>
 </template>

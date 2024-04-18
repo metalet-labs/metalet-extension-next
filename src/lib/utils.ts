@@ -17,6 +17,7 @@ export const goToPage = (path: string, created = false) => {
       top: 0,
       left: 0,
     })
+    window.close()
   }
 }
 

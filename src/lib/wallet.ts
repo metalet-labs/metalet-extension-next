@@ -24,6 +24,10 @@ export async function getV3Wallets() {
 }
 
 export async function addV3Wallet(wallet: V3Wallet) {
+  const v3Wallet = await getV3Wallets()
+  if (v3Wallet.find((w) => w.mnemonic === wallet.mnemonic)) {
+    throw new Error('Wallet already exists')
+  }
   const wallets = await getV3WalletsStorage()
   wallets[wallet.id] = wallet
   await setV3WalletsStorage(wallets)
@@ -43,30 +47,44 @@ export async function setCurrentWalletId(walletId: string) {
 
 export async function getV3CurrentWallet() {
   const walletId = await getCurrentWalletId()
-  const wallets = await getV3Wallets()
-  if (!walletId || !wallets.length) {
-    goToPage('/manage/wallets')
+  if (!walletId) {
     throw new Error('current wallet id not found')
+  }
+  const wallets = await getV3Wallets()
+  if (!wallets.length) {
+    throw new Error('wallets not found')
   }
   const wallet = wallets.find((wallet) => wallet.id === walletId)
   if (!wallet) {
-    goToPage('/manage/wallets')
+    throw new Error('wallet not found')
+  }
+  return wallet
+}
+
+export async function getActiveWalletAccount() {
+  const walletId = await getCurrentWalletId()
+  if (!walletId) {
+    throw new Error('current wallet id not found')
+  }
+  const wallets = await getV3Wallets()
+  if (!wallets.length) {
+    throw new Error('wallets not found')
+  }
+  const wallet = wallets.find((wallet) => wallet.id === walletId)
+  if (!wallet) {
     throw new Error('wallet not found')
   }
 
   const { accounts } = wallet
   if (!accounts || !accounts.length) {
-    goToPage('/manage/wallets')
     throw new Error('wallet does not have any accounts')
   }
   const currentAccountId = await getCurrentAccountId()
   if (!currentAccountId) {
-    goToPage('/manage/wallets')
     throw new Error('current account id not found')
   }
   const account = accounts.find((account) => account.id === currentAccountId)
   if (!account) {
-    goToPage('/manage/wallets')
     throw new Error('current account not found')
   }
   wallet.accounts = [account]
@@ -146,4 +164,9 @@ export async function updateAccountName(walletId: string, accountId: string, nam
     toast({ title: (error as Error).message, toastType: 'warning' })
     goToPage('/manage/wallets')
   }
+}
+
+export async function hasWallets() {
+  const wallets = await getV3Wallets()
+  return !!wallets.length
 }
