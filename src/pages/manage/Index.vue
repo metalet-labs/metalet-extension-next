@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { goToPage } from '@/lib/utils'
 import { EditName } from '@/components'
 import { type V3Wallet } from '@/lib/types'
 import Avatar from '@/components/Avatar.vue'
 import { totalBalance } from '@/lib/balance'
 import { toast } from '@/components/ui/toast'
 import AddIcon from '@/assets/icons-v3/add.svg'
+import { goToTab, goToPage } from '@/lib/utils'
 import { WalletsStore } from '@/stores/WalletStore'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { FlexBox, Divider, Button } from '@/components'
@@ -145,7 +145,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       </FlexBox>
       <Button
         type="primary"
-        @click="goToPage('/welcome', true)"
+        @click="goToTab('/welcome', true)"
         class="py-6 absolute bottom-6 w-61.5 left-1/2 -translate-x-1/2"
       >
         Add Wallet

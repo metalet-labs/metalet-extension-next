@@ -1,12 +1,12 @@
 import useStorage from './lib/storage'
-import { goToPage } from '@/lib/utils'
+import { goToPage, goToTab } from '@/lib/utils'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
+import { needMigrate } from './lib/migrate'
 import Wallet from './pages/wallet/Index.vue'
 import { getCurrentAccountId } from './lib/account'
-import { getCurrentWalletId, getV3Wallets, hasWallets } from './lib/wallet'
-import { needMigrate } from './lib/migrate'
+import { getCurrentWalletId, hasWallets } from './lib/wallet'
 
 const storage = useStorage()
 
@@ -475,7 +475,7 @@ router.beforeEach(async (to, _, next) => {
     if (await hasWallets()) {
       next('/manage/wallets')
     } else {
-      goToPage('/welcome', true)
+      goToTab('/welcome', true)
       next('/welcome')
     }
   } else {

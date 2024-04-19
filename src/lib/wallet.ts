@@ -1,8 +1,8 @@
 import { goToPage } from './utils'
-import { V3Wallet } from './types'
 import useStorage from '@/lib/storage'
-import { getCurrentAccountId } from './account'
+import { type V3Wallet } from './types'
 import { toast } from '@/components/ui/toast'
+import { getCurrentAccountId } from './account'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
 const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
@@ -61,7 +61,7 @@ export async function getV3CurrentWallet() {
   return wallet
 }
 
-export async function getActiveWalletAccount() {
+export async function getActiveWalletOnlyAccount() {
   const walletId = await getCurrentWalletId()
   if (!walletId) {
     throw new Error('current wallet id not found')
@@ -88,6 +88,44 @@ export async function getActiveWalletAccount() {
     throw new Error('current account not found')
   }
   wallet.accounts = [account]
+  return wallet
+}
+
+export async function getInactiveWallets() {
+  const currentWalletId = await getCurrentWalletId()
+  if (!currentWalletId) {
+    throw new Error('Current wallet id not found.')
+  }
+  const wallets = await getV3Wallets()
+  if (!wallets.length) {
+    throw new Error('No wallets found. Please create a wallet first.')
+  }
+  return wallets.filter((wallet) => wallet.id !== currentWalletId)
+}
+
+export async function getActiveWalletOtherAccounts() {
+  const walletId = await getCurrentWalletId()
+  if (!walletId) {
+    throw new Error('current wallet id not found')
+  }
+  const wallets = await getV3Wallets()
+  if (!wallets.length) {
+    throw new Error('wallets not found')
+  }
+  const wallet = wallets.find((wallet) => wallet.id === walletId)
+  if (!wallet) {
+    throw new Error('wallet not found')
+  }
+
+  const { accounts } = wallet
+  if (!accounts || !accounts.length) {
+    throw new Error('wallet does not have any accounts')
+  }
+  const currentAccountId = await getCurrentAccountId()
+  if (!currentAccountId) {
+    throw new Error('current account id not found')
+  }
+  wallet.accounts = accounts.filter((account) => account.id !== currentAccountId)
   return wallet
 }
 

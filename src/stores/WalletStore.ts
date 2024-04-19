@@ -1,29 +1,31 @@
 import { reactive } from 'vue'
 import { getNet } from '@/lib/network'
-import { goToPage } from '@/lib/utils'
 import { toast } from '@/components/ui/toast'
+import { goToPage, goToTab } from '@/lib/utils'
 import { getCurrentAccountId } from '@/lib/account'
 import { getV3AddressTypeStorage } from '@/lib/addressType'
 import { WalletManager } from '@metalet/utxo-wallet-service'
 import { Chain, type Net } from '@metalet/utxo-wallet-service'
-import { getV3Wallets, getActiveWalletAccount, getCurrentWalletId, hasV3Wallets } from '@/lib/wallet'
+import {
+  hasV3Wallets,
+  getCurrentWalletId,
+  getInactiveWallets,
+  getActiveWalletOnlyAccount,
+  getActiveWalletOtherAccounts,
+} from '@/lib/wallet'
 
 let walletManager: WalletManager | null = null
 
 const initWalletManager = async (): Promise<WalletManager> => {
   try {
-    const activeWallet = await getActiveWalletAccount()
+    const activeWallet = await getActiveWalletOnlyAccount()
     const walletsOptions = [
       {
         id: activeWallet.id,
         mnemonic: activeWallet.mnemonic,
         name: activeWallet.name,
         mvcTypes: activeWallet.mvcTypes,
-        accountsOptions: activeWallet.accounts.map(({ id, name, addressIndex }) => ({
-          id,
-          name,
-          addressIndex,
-        })),
+        accountsOptions: activeWallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),
       },
     ]
     const network = getNet() as Net
@@ -35,7 +37,7 @@ const initWalletManager = async (): Promise<WalletManager> => {
     if (await hasV3Wallets()) {
       goToPage('/manage/wallets')
     } else {
-      goToPage('/welcome', true)
+      goToTab('/welcome', true)
     }
     throw err
   }
@@ -54,38 +56,30 @@ const getWalletManager = async (): Promise<WalletManager> => {
 
 const loadOtherAccounts = async () => {
   const manager = await getWalletManager()
-  const wallets = await getV3Wallets()
-  const activeWallet = await getActiveWalletAccount()
-  const currentAccountId = await getCurrentAccountId()
-  if (!activeWallet || !currentAccountId) {
-    const wallets = await getV3Wallets()
-    if (wallets.length) {
+  const activeWallet = await getActiveWalletOtherAccounts()
+  if (!activeWallet) {
+    if (await hasV3Wallets()) {
       goToPage('/manage/wallets')
     } else {
-      goToPage('/welcome', true)
+      goToTab('/welcome', true)
     }
     return
   }
-  const accounts = activeWallet.accounts.filter((account) => account.id !== currentAccountId)
-  for (let account of accounts) {
+  for (let account of activeWallet.accounts) {
     manager.addAccount(activeWallet.id, {
       id: account.id,
       name: account.name,
       addressIndex: account.addressIndex,
     })
   }
-  const otherWallets = wallets.filter((wallet) => wallet.id !== activeWallet.id)
-  for (let wallet of otherWallets) {
+  const inactiveWallets = await getInactiveWallets()
+  for (let wallet of inactiveWallets) {
     manager.addWallet({
       id: wallet.id,
       name: wallet.name,
       mnemonic: wallet.mnemonic,
       mvcTypes: wallet.mvcTypes,
-      accountsOptions: wallet.accounts.map((account) => ({
-        id: account.id,
-        name: account.name,
-        addressIndex: account.addressIndex,
-      })),
+      accountsOptions: wallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),
     })
   }
 }

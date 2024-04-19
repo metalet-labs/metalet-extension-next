@@ -16,9 +16,12 @@ import FilterIcon from '@/assets/icons-v3/filter.svg'
 import ToggleIcon from '@/assets/icons-v3/toggle.svg'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
+import { setV3AddressTypeStorage } from '@/lib/addressType'
 import { getTags, BTCAsset, MVCAsset } from '@/data/assets'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
+import { AddressType, Chain } from '@metalet/utxo-wallet-service'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -30,9 +33,6 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer'
-import { setV3AddressTypeStorage } from '@/lib/addressType'
-import { AddressType, Chain } from '@metalet/utxo-wallet-service'
-import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const isOpen = ref(false)
 const route = useRoute()

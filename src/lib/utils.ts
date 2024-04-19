@@ -21,6 +21,14 @@ export const goToPage = (path: string, created = false) => {
   }
 }
 
+export const goToTab = (path: string, created = false) => {
+  if (IS_DEV || !created) {
+    router.push(path)
+  } else {
+    window.open(`${window.location.href.split('#')[0]}#${path}`, '_blank')
+  }
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
