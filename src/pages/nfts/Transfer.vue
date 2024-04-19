@@ -78,7 +78,7 @@ async function transfer() {
     .transfer({
       codehash: codehash.value,
       genesis: genesis.value,
-      tokenIndex: tokenIndex.toString(),
+      tokenIndex: tokenIndex.value.toString(),
       senderWif: privateKey,
       receiverAddress: recipient.value,
       utxos: [largestUtxo],

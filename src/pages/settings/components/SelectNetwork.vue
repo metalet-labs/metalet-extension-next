@@ -3,6 +3,7 @@ import { ref, Ref } from 'vue'
 import { sleep } from '@/lib/helpers'
 import { getNetwork, setNetwork } from '@/lib/network'
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
+import ArrowRightIcon from '@/assets/icons-v3/arrow_right.svg?url'
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
 
 type Network = {
@@ -41,11 +42,11 @@ const select = async (network: Network) => {
   >
     <div class="relative transition-all duration-200">
       <ListboxButton class="relative flex items-center gap-x-0.5 py-1 hover:text-blue-700">
-        <span class="capitalize" v-if="initialed">{{ selectedNetwork.type }}</span>
-        <ChevronRightIcon :class="['h-4 w-4 transition-all', open && 'rotate-90']" />
+        <span class="capitalize text-sm text-gray-primary" v-if="initialed">{{ selectedNetwork.type }}</span>
+        <img :src="ArrowRightIcon" alt="" />
       </ListboxButton>
 
-      <ListboxOptions class="absolute right-0 mt-1 divide-y divide-gray-100 rounded-md bg-white shadow-md">
+      <ListboxOptions class="absolute right-0 mt-1 divide-y divide-gray-100 rounded-md bg-white shadow-md z-10">
         <ListboxOption
           v-for="network in networks"
           :key="network.id"

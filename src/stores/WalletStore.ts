@@ -116,7 +116,7 @@ const getCurrentChainWallet = async (chain: Chain) => {
   const addressType = await getV3AddressTypeStorage(chain)
   const chainWallet = chainWallets.find((wallet) => wallet.getAddressType() === addressType)
   if (!chainWallet) {
-    throw new Error('No chain wallet found.')
+    throw new Error(`No ${addressType} wallet found.`)
   }
   return chainWallet
 }

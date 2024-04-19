@@ -1,5 +1,5 @@
+import { goToTab } from '@/lib/utils'
 import useStorage from './lib/storage'
-import { goToPage, goToTab } from '@/lib/utils'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'

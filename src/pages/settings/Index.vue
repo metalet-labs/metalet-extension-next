@@ -4,8 +4,17 @@ import { useRouter } from 'vue-router'
 import passwordManager from '@/lib/password'
 import { IS_DEV, VERSION } from '@/data/config'
 import ResetModal from '@/components/ResetModal.vue'
+import LinkIcon from '@/assets/icons-v3/link.svg?url'
 import SelectNetwork from './components/SelectNetwork.vue'
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
+import ManageIcon from '@/assets/icons-v3/setting/manage.svg'
+import BackupIcon from '@/assets/icons-v3/setting/backup.svg'
+import NetworkIcon from '@/assets/icons-v3/setting/network.svg'
+import MetaletIcon from '@/assets/icons-v3/setting/metalet.svg'
+import SupportIcon from '@/assets/icons-v3/setting/support.svg'
+import ToolkitIcon from '@/assets/icons-v3/setting/toolkit.svg'
+import SecurityIcon from '@/assets/icons-v3/setting/security.svg'
+import ArrowRightIcon from '@/assets/icons-v3/arrow_right.svg?url'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
 
 function openWindowMode() {
@@ -68,7 +77,76 @@ const showResetModal = ref(false)
 </script>
 
 <template>
-  <div class="space-y-8 pt-4 text-sm">
+  <div class="-mx-4">
+    <router-link
+      to="/wallet/backup"
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+    >
+      <div class="flex items-center gap-3">
+        <BackupIcon />
+        <span>Backup</span>
+      </div>
+      <img :src="ArrowRightIcon" alt="" />
+    </router-link>
+    <router-link
+      to="/wallet/backup"
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+    >
+      <div class="flex items-center gap-3">
+        <SecurityIcon />
+        <span>Wallet Security</span>
+      </div>
+      <img :src="ArrowRightIcon" alt="" />
+    </router-link>
+    <router-link
+      to="/manage/wallets"
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+    >
+      <div class="flex items-center gap-3">
+        <ManageIcon />
+        <span>Management</span>
+      </div>
+      <img :src="ArrowRightIcon" alt="" />
+    </router-link>
+    <div class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4">
+      <div class="flex items-center gap-3">
+        <NetworkIcon />
+        <span>Network</span>
+      </div>
+      <SelectNetwork />
+    </div>
+    <div class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4">
+      <div class="flex items-center gap-3">
+        <MetaletIcon />
+        <span>About Metalet</span>
+      </div>
+      <div class="flex items-center gap-1">
+        <span class="text-sm text-gray-primary">{{ VERSION }}</span>
+        <img :src="ArrowRightIcon" alt="" />
+      </div>
+    </div>
+    <router-link
+      to="/settings/toolkit"
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+    >
+      <div class="flex items-center gap-3">
+        <ToolkitIcon />
+        <span>Toolkit</span>
+      </div>
+      <img :src="ArrowRightIcon" alt="" />
+    </router-link>
+    <div
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+      v-if="false"
+    >
+      <div class="flex items-center gap-3">
+        <SupportIcon />
+        <span>Technical Support</span>
+      </div>
+      <img :src="LinkIcon" alt="" class="w-4.5" />
+    </div>
+  </div>
+  <div class="space-y-8 pt-4 text-sm" v-if="false">
     <!-- general -->
     <div class="space-y-2">
       <div class="text-base">General</div>

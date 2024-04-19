@@ -3,11 +3,13 @@ import { useRouter } from 'vue-router'
 import { Ref, computed, ref } from 'vue'
 import passwordManager from '@/lib/password'
 import { getV3CurrentWallet } from '@/lib/wallet'
+import ResetModal from '@/components/ResetModal.vue'
 import PasswordImg from '@/assets/images/password.svg?url'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const mnemonic = ref()
+const showResetModal = ref(false)
 const router = useRouter()
 const { currentMVCWallet } = useChainWalletsStore()
 
@@ -22,14 +24,6 @@ const password = ref('')
 const failed = ref(false)
 
 const isCoveredMne = ref(true)
-
-const back = () => {
-  if (phase.value === 1) {
-    router.back()
-  } else {
-    phase.value = 1
-  }
-}
 
 const next = async () => {
   if (phase.value === 1) {
@@ -119,16 +113,19 @@ const next = async () => {
     </div>
 
     <!-- buttons -->
-    <div class="grid grid-cols-2 gap-x-2">
-      <button class="rounded-md border border-blue-primary py-4 text-base leading-none" @click="back">Back</button>
+    <div class="flex flex-col items-center justify-center mb-20">
       <button
-        class="gradient-bg rounded-md py-4 text-base leading-none text-white"
-        :class="!password && 'opacity-50 saturate-50'"
+        class="bg-blue-primary w-61.5 h-12 rounded-3xl py-4 text-ss leading-none text-white"
+        :class="!password && 'opacity-50 saturate-50 cursor-not-allowed'"
         :disabled="!password"
         @click="next"
       >
         Next
       </button>
+      <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary" v-if="phase === 1">
+        Forget password?
+      </button>
     </div>
+    <ResetModal v-model:show="showResetModal" />
   </div>
 </template>

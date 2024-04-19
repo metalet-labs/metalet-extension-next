@@ -10,17 +10,16 @@ import { useBalanceQuery } from '@/queries/balance'
 import { useMVCAssetsQuery } from '@/queries/tokens'
 import DeleteIcon from '@/assets/icons-v3/delete.svg'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
+import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
 import { MvcWallet, AddressType, CoinType } from '@metalet/utxo-wallet-service'
 import { useExchangeRatesQuery, useAllExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
-const mvcPath = ref('236')
+const mvcPath = ref(10001)
 const error = ref<string>()
-const isCustom = ref(false)
-const mvcAddress = ref('')
 const customAddress = ref('')
-const emit = defineEmits(['preStep', 'nextStep'])
+const selectedMvcPath = ref(false)
 
-const { words, mvcTypes } = defineProps({
+const { words } = defineProps({
   words: {
     type: Array<string>,
     required: true,
@@ -31,6 +30,8 @@ const { words, mvcTypes } = defineProps({
   },
 })
 
+const emit = defineEmits(['preStep', 'nextStep', 'update:mvcTypes'])
+
 const network = getNet()
 const mnemonic = words.join(' ')
 if (!mnemonic) {
@@ -38,69 +39,22 @@ if (!mnemonic) {
 }
 
 const { isLoading: ftRatesLoading, data: ftRates } = useAllExchangeRatesQuery(ref(CoinCategory.MetaContract), {
-  enabled: computed(() => !!mvcAddress.value),
+  enabled: computed(() => !!customAddress.value),
 })
 
 const { isLoading: spaceRateLoading, data: spaceRate } = useExchangeRatesQuery(ref('SPACE'), ref(CoinCategory.Native), {
-  enabled: computed(() => !!mvcAddress.value),
+  enabled: computed(() => !!customAddress.value),
 })
 
-const mvcWallet = new MvcWallet({
+const customWallet = new MvcWallet({
   network,
   mnemonic,
   addressIndex: 0,
   coinType: CoinType.MVC,
-  addressType: AddressType.LegacyMvc,
+  addressType: AddressType.Legacy,
 })
 
-mvcAddress.value = mvcWallet.getAddress()
-
-const { isLoading: mvcBalanceLoading, data: mvcBalance } = useBalanceQuery(mvcAddress, ref('SPACE'), {
-  enabled: computed(() => !!mvcAddress.value),
-})
-
-const { isLoading: mvcAssetsLoading, data: mvcAssets } = useMVCAssetsQuery(mvcAddress, {
-  enabled: computed(() => !!mvcAddress.value),
-})
-
-const mvcLoading = computed(() => {
-  return mvcBalanceLoading.value || spaceRateLoading.value || mvcAssetsLoading.value || ftRatesLoading.value
-})
-
-//TODO: USD Aggregation Hook
-const mvcSpaceUSD = computed(() => {
-  if (mvcBalance.value && spaceRate.value?.price !== undefined) {
-    return (mvcBalance.value.total / 1e8) * spaceRate.value.price
-  }
-  return 0
-})
-
-const mvcftUSD = computed(() => {
-  let total = 0
-  if (ftRates.value && mvcAssets.value) {
-    Object.entries(ftRates.value).forEach(([symbol, rate = 0]) => {
-      const asset = mvcAssets.value.find((a) => a.symbol === symbol)
-      if (asset && asset.balance) {
-        total += rate * (asset.balance.total / 10 ** asset.decimal)
-      }
-    })
-  }
-  return total
-})
-
-const mvcUSD = computed(() => {
-  return `$${(mvcSpaceUSD.value + mvcftUSD.value).toFixed(2)}`
-})
-
-const bsvWallet = new MvcWallet({
-  network,
-  mnemonic,
-  addressIndex: 0,
-  coinType: CoinType.BSV,
-  addressType: AddressType.LegacyMvcCustom,
-})
-
-customAddress.value = bsvWallet.getAddress()
+customAddress.value = customWallet.getAddress()
 
 // TODO: balance query optimization
 const { isLoading: customBalanceLoading, data: customBalance } = useBalanceQuery(customAddress, ref('SPACE'), {
@@ -122,9 +76,6 @@ const customSpaceUSD = computed(() => {
   if (customBalance.value && spaceRate.value?.price !== undefined) {
     total = (customBalance.value.total / 1e8) * spaceRate.value.price
   }
-  if (total > 0) {
-    isCustom.value = true
-  }
   return total
 })
 
@@ -138,9 +89,6 @@ const customftUSD = computed(() => {
       }
     })
   }
-  if (total > 0) {
-    isCustom.value = true
-  }
   return total
 })
 
@@ -151,7 +99,7 @@ const customUSD = computed(() => {
 const debouncedMvcPath = useDebounce(mvcPath, 300)
 
 watch(debouncedMvcPath, (newPath, prePath) => {
-  if (newPath === '10001' || newPath === prePath) {
+  if (newPath === prePath) {
     return
   }
   if (!newPath) {
@@ -159,13 +107,12 @@ watch(debouncedMvcPath, (newPath, prePath) => {
     return
   }
   try {
-    const coinType = Number(newPath)
     const customWallet = new MvcWallet({
       network,
       mnemonic,
       addressIndex: 0,
-      coinType,
-      addressType: AddressType.LegacyMvcCustom,
+      coinType: newPath,
+      addressType: AddressType.LegacyMvc,
     })
     customAddress.value = customWallet.getAddress()
   } catch (e) {
@@ -174,52 +121,74 @@ watch(debouncedMvcPath, (newPath, prePath) => {
 })
 
 const next = () => {
-  if (isCustom.value) {
-    mvcTypes.push(Number(mvcPath.value))
-  }
+  emit('update:mvcTypes', [mvcPath.value])
   emit('nextStep')
 }
-
-watch(
-  () => mvcPath.value,
-  (newPath) => {
-    if (newPath && mvcTypes.includes(Number(newPath))) {
-      error.value = 'MVC path already exists. Please enter a other path.'
-    } else {
-      error.value = undefined
-    }
-  }
-)
 </script>
 
 <template>
   <div class="flex flex-col gap-6 w-82">
     <div class="flex items-center gap-3">
-      <ArrowLeftIcon @click="emit('preStep')" class="cursor-pointer w-3.5" />
+      <ArrowLeftIcon
+        @click="!selectedMvcPath ? emit('preStep') : (selectedMvcPath = false)"
+        class="cursor-pointer w-3.5"
+      />
       <div class="text-2xl font-medium">MVC Management</div>
     </div>
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-6 h-[416px]">
-        <div class="flex flex-col gap-3">
-          <div class="text-xs font-semibold">MVC Default</div>
-          <div class="flex items-center gap-2 bg-gray-secondary p-3 rounded-lg text-xs">
-            <Avatar :id="mvcAddress" />
-            <div class="flex flex-col gap-1 grow overflow-hidden">
-              <div class="truncate">{{ mvcAddress }}</div>
-              <div class="text-gray-primary" v-if="!mvcLoading">{{ mvcUSD }}</div>
-              <Loading v-else />
+    <div v-if="!selectedMvcPath">
+      <div class="h-[416px] space-y-4">
+        <div class="text-xs font-semibold">Select MVC Address Type</div>
+        <div
+          class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer"
+          @click="mvcPath = 10001"
+        >
+          <div class="flex flex-col gap-y-1.5 w-64">
+            <div class="text-sm font-semibold">Default</div>
+            <div class="text-xs">
+              Use default address generation strategy for Metalet wallet. The derivation path will be `m/44'/10001'/0'`.
             </div>
           </div>
+          <SuccessIcon v-if="mvcPath === 10001" />
+          <div v-else class="w-4 h-4 border border-[#C5C5C5] rounded-full"></div>
         </div>
-        <div class="flex flex-col gap-3" v-if="isCustom">
-          <div class="flex items-center justify-between gap-5">
-            <div class="text-xs font-semibold">MVC Custom</div>
-            <div class="text-sm tracking-wide">
-              <span>m/44'/</span>
-              <input type="text" class="pit-input mx-2 w-16" v-model="mvcPath" />
-              <span>'/0'</span>
+        <div
+          class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer"
+          @click="mvcPath = 236"
+        >
+          <div class="flex flex-col gap-y-1.5 w-64">
+            <div class="text-sm font-semibold">MVC Custom</div>
+            <div class="text-xs">
+              Use a custom derivation path for Metalet wallet. Mostly used for backward compatibility. Carefully choose
+              this when you're importing an older account and make sure you know the derivation path.
             </div>
-            <DeleteIcon class="cursor-pointer" @click="isCustom = false" />
+          </div>
+          <SuccessIcon v-if="mvcPath !== 10001" />
+          <div v-else class="w-4 h-4 border border-[#C5C5C5] rounded-full"></div>
+        </div>
+      </div>
+      <Button
+        type="primary"
+        @click="selectedMvcPath = true"
+        :disabled="!mvcPath || !!error"
+        :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': !mvcPath || !!error }]"
+      >
+        Next
+      </Button>
+    </div>
+    <div class="flex flex-col gap-4" v-else>
+      <div class="flex flex-col gap-6 h-[416px]">
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center justify-between gap-5">
+            <template v-if="mvcPath !== 10001">
+              <div class="text-xs font-semibold">MVC Custom</div>
+              <div class="text-sm tracking-wide">
+                <span>m/44'/</span>
+                <input type="text" class="pit-input mx-2 w-16" v-model="mvcPath" />
+                <span>'/0'</span>
+              </div>
+              <DeleteIcon class="cursor-pointer" v-if="false" />
+            </template>
+            <div v-else class="text-xs font-semibold">Default</div>
           </div>
           <div class="flex items-center gap-2 bg-gray-secondary p-3 rounded-lg text-xs">
             <Avatar :id="customAddress" />
@@ -230,7 +199,7 @@ watch(
             </div>
           </div>
         </div>
-        <div class="flex gap-2 items-center justify-center cursor-pointer" v-else @click="isCustom = true">
+        <div class="flex gap-2 items-center justify-center cursor-pointer" v-if="false">
           <AddIcon class="w-6 h-6" />
           <span class="text-xs font-medium">Add Custom Path</span>
         </div>

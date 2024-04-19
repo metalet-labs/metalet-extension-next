@@ -47,10 +47,10 @@ passwordManager.has().then((_hasPassword) => {
       <ImportPhrase @nextStep="nextStep" v-model:words="words" v-if="step === 1" />
       <SelectMvcPath
         :words="words"
-        :mvcTypes="mvcTypes"
         @preStep="preStep"
         @nextStep="nextStep"
         v-else-if="step === 2"
+        v-model:mvcTypes="mvcTypes"
       />
       <CreatePassword
         v-else-if="!hasPassword && step === 3"

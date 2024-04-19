@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { FlexBox, Button } from '@/components'
 import BrushIcon from '@/assets/icons-v3/brush.svg'
+import { ref, computed, watch, defineProps } from 'vue'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
-import { ref, computed, watch, defineEmits, defineProps } from 'vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 

@@ -1,10 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import password from '@/lib/password'
+import { goToTab } from '@/lib/utils'
 import { useRouter } from 'vue-router'
+import { IS_DEV } from '@/data/config'
 import LockIcon from '@/assets/icons-v3/lock.svg'
 import ResetModal from '@/components/ResetModal.vue'
 import SettingIcon from '@/assets/icons-v3/setting.svg'
+import BrowserIcon from '@/assets/icons-v3/browser.svg'
+import CollectionIcon from '@/assets/icons-v3/collection.svg'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 const router = useRouter()
@@ -27,12 +31,26 @@ const toAccountList = () => {
       <SettingIcon class="cursor-pointer w-[22px]" />
     </MenuButton>
 
-    <MenuItems class="absolute right-0 rounded-md border border-gray-100 bg-white text-xs shadow-md">
+    <MenuItems
+      class="absolute transform -translate-x-1/2 left-1/2 rounded-md border border-gray-100 bg-white text-xs shadow-md w-[170px]"
+    >
       <MenuItem>
         <router-link to="/settings" class="menu-item">
           <SettingIcon class="w-4.5" />
           <span>Setting</span>
         </router-link>
+      </MenuItem>
+      <MenuItem>
+        <div class="menu-item">
+          <CollectionIcon />
+          <span>Dapp connection</span>
+        </div>
+      </MenuItem>
+      <MenuItem v-if="!IS_DEV">
+        <button @click="goToTab('/wallet')" class="menu-item">
+          <BrowserIcon />
+          <span>Open in Window</span>
+        </button>
       </MenuItem>
 
       <MenuItem>
