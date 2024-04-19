@@ -4,12 +4,12 @@ import useStorage from './storage'
 import { notifyBg } from './notify-bg'
 
 const Locked_Key = 'locked'
-const Password_Key = 'password'
+export const PASSWORD_KEY = 'password'
 
 const storage = useStorage()
 
 export async function getPassword() {
-  return await storage.get(Password_Key)
+  return await storage.get(PASSWORD_KEY)
 }
 
 export async function hasPassword() {
@@ -24,7 +24,7 @@ export async function checkPassword(credential: string) {
 export async function setPassword(password: string) {
   // const hashed = hash(password)
   const hashed = CryptoJS.SHA256(password).toString()
-  await storage.set(Password_Key, hashed)
+  await storage.set(PASSWORD_KEY, hashed)
 }
 
 export async function lock() {

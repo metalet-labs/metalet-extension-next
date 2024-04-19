@@ -12,7 +12,7 @@ import { toast } from '@/components/ui/toast/use-toast'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { calcBalance, prettifyTokenGenesis } from '@/lib/formatters'
-import { useExchangeRatesQuery, getExchangeCoinType, CoinCategory } from '@/queries/exchange-rates'
+import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
 const route = useRoute()
 const router = useRouter()
@@ -65,7 +65,7 @@ const toSend = () => {
   })
 }
 const toReceive = () => {
-  router.push(`/wallet/receive?chain=mvc`)
+  router.push(`/wallet/receive/${address}?chain=mvc`)
 }
 
 const copyGenesis = () => {

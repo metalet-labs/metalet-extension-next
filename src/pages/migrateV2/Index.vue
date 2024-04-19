@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { getCurrentAccount } from '@/lib/account'
 import { WalletsStore } from '@/stores/WalletStore'
 import { migrateToV2, migrateToV3 } from '@/lib/migrate'
-import MetaletLogoImg from '@/assets/images/metalet-logo.png?url'
+import MetaletLogoImg from '@/assets/images/metalet-logo-v3.svg?url'
 
 const router = useRouter()
 migrateToV2().then(async () => {

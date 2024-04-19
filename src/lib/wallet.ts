@@ -5,7 +5,7 @@ import { toast } from '@/components/ui/toast'
 import { getCurrentAccountId } from './account'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
-const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
+export const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
 
 const storage = useStorage()
 

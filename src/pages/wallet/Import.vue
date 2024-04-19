@@ -21,7 +21,7 @@ import { TrashIcon, CheckIcon, ChevronUpDownIcon, ChevronRightIcon } from '@hero
 import { addAccount } from '@/lib/account'
 import { deriveAllAddresses, scripts, AddressType } from '@/lib/bip32-deriver'
 
-import MetaletLogoImg from '@/assets/images/metalet-logo.png?url'
+import MetaletLogoImg from '@/assets/images/metalet-logo-v3.svg?url'
 
 // Remove the last one
 const selectableScripts = scripts.slice(0, -1)

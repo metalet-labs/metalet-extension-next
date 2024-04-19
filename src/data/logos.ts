@@ -3,7 +3,7 @@ import { type Chain } from '@/lib/types'
 import BtcLogoImg from '../assets/images/btc-logo.svg?url'
 import SpaceLogoImg from '../assets/icons-v3/space.svg?url'
 
-import MetaletLogo from '../assets/images/metalet-logo.png?url'
+import MetaletLogo from '../assets/images/metalet-logo-v3.svg?url'
 import MvcSwapLogo from '../assets/images/mvcswap-logo.png?url'
 import MVCUSDTLogo from '../assets/images/usdt-logo.jpg?url'
 import ShowCoinLogo from '../assets/images/sc-logo.svg?url'

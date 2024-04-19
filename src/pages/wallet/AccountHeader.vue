@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { getNetwork } from '@/lib/network'
 import Avatar from '@/components/Avatar.vue'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
+import { prettifyAddress } from '@/lib/formatters'
 import CloseIcon from '@/assets/icons-v3/close.svg'
 import { WalletsStore } from '@/stores/WalletStore'
 import { V3Wallet, type V3Account } from '@/lib/types'
@@ -111,7 +112,7 @@ const copy = (address: string, addressType: string, type: string) => {
               <span>Bitcoin</span>
               <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ btcWallet.addressType }}</span>
             </div>
-            <div class="text-xs text-gray-primary break-all w-64">{{ btcWallet.address }}</div>
+            <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(btcWallet.address) }}</div>
           </div>
           <CopyIcon
             class="cursor-pointer hover:text-blue-primary w-4.5"
@@ -125,7 +126,7 @@ const copy = (address: string, addressType: string, type: string) => {
               <span>Microvisionchain</span>
               <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ mvcWallet.addressType }}</span>
             </div>
-            <div class="text-xs text-gray-primary break-all w-64">{{ mvcWallet.address }}</div>
+            <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(mvcWallet.address) }}</div>
           </div>
           <CopyIcon
             class="cursor-pointer hover:text-blue-primary w-4.5"

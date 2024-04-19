@@ -2,8 +2,9 @@
 import { ref } from 'vue'
 import password from '@/lib/password'
 import { useRouter } from 'vue-router'
-import ResetModal from '../ResetModal.vue'
-import SettingIcon from '@/assets/icons/setting-v3.svg'
+import LockIcon from '@/assets/icons-v3/lock.svg'
+import ResetModal from '@/components/ResetModal.vue'
+import SettingIcon from '@/assets/icons-v3/setting.svg'
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 
 const router = useRouter()
@@ -12,48 +13,41 @@ const hasPassword = ref(false)
 password.has().then((has) => {
   hasPassword.value = has
 })
-const lock = async () => {
-  await password.lock()
-  router.push('/lock')
-}
-
-const setPassword = () => {
-  router.push('/wallet/set-password')
-}
 
 const showResetModal = ref(false)
 
 const toAccountList = () => {
   router.push('/accounts')
 }
-
-const toSetting = () => {
-  router.push('/settings')
-}
 </script>
 
 <template>
   <Menu as="div" class="relative z-[1] transition-all duration-200">
     <MenuButton class="relative flex items-center gap-x-0.5 py-1 hover:text-blue-primary">
-      <SettingIcon class="cursor-pointer" />
+      <SettingIcon class="cursor-pointer w-[22px]" />
     </MenuButton>
 
     <MenuItems class="absolute right-0 rounded-md border border-gray-100 bg-white text-xs shadow-md">
       <MenuItem>
-        <button class="menu-item" @click="toSetting">Setting</button>
+        <router-link to="/settings" class="menu-item">
+          <SettingIcon class="w-4.5" />
+          <span>Setting</span>
+        </router-link>
       </MenuItem>
 
       <MenuItem>
-        <button class="menu-item" @click="lock" v-if="hasPassword">Lock</button>
-        <button class="menu-item" @click="setPassword" v-else>Set Password</button>
+        <router-link to="/lock" class="menu-item" v-if="hasPassword">
+          <LockIcon class="w-4.5" />
+          <span>Lock</span>
+        </router-link>
+        <router-link to="/wallet/set-password" class="menu-item" v-else>Set Password</router-link>
       </MenuItem>
 
-      <MenuItem>
+      <MenuItem v-if="false">
         <button class="menu-item" @click="toAccountList">Add / Switch Account</button>
       </MenuItem>
 
-      <!-- disconnect button -->
-      <MenuItem v-if="hasPassword">
+      <MenuItem v-if="hasPassword && false">
         <button class="menu-item" @click="showResetModal = true">Reset Account</button>
       </MenuItem>
     </MenuItems>
@@ -64,7 +58,7 @@ const toSetting = () => {
 
 <style scoped lang="css">
 .menu-item {
-  @apply w-full whitespace-nowrap rounded-inherit p-4 text-left capitalize hover:bg-gray-50 hover:text-blue-500;
+  @apply flex items-center gap-x-3 w-full whitespace-nowrap rounded-inherit p-4 text-left capitalize hover:bg-gray-50 hover:text-blue-500;
 }
 
 .reset-button {

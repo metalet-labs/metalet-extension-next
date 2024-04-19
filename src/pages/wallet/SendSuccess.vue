@@ -46,7 +46,7 @@ function toWallet() {
       <span>View on Block Explorer</span>
       <LinkIcon class="w-3.5 h-3.5" />
     </a>
-    <Button type="primary" @click="$router.replace('/wallet')" class="mt-16 w-61.5 h-12">Done</Button>
+    <Button type="primary" @click="$router.replace('/wallet')" class="w-61.5 h-12">Done</Button>
   </FlexBox>
 </template>
 

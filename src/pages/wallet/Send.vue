@@ -180,6 +180,8 @@ async function sendBTC() {
         message: err.message,
       }
       isOpenResultModal.value = true
+      operationLock.value = false
+      throw err
     })
     return { txId }
   } else {
@@ -204,6 +206,7 @@ async function send() {
       status: 'failed',
       message: 'Send failed',
     }
+    operationLock.value = false
     return
   }
 

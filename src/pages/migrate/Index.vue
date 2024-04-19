@@ -4,7 +4,7 @@ import { mvc } from 'meta-contract'
 import { useRouter } from 'vue-router'
 
 import { setNetwork } from '@/lib/network'
-import MetaletLogoImg from '@/assets/images/metalet-logo.png?url'
+import MetaletLogoImg from '@/assets/images/metalet-logo-v3.svg?url'
 import { deriveAllAddresses, type AddressType } from '@/lib/bip32-deriver'
 import { addAccount, getAccounts, getLegacyAccounts } from '@/lib/account'
 
