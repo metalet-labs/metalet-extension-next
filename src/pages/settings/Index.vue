@@ -89,7 +89,7 @@ const showResetModal = ref(false)
       <img :src="ArrowRightIcon" alt="" />
     </router-link>
     <router-link
-      to="/wallet/backup"
+      to="/settings/security"
       class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
     >
       <div class="flex items-center gap-3">
@@ -115,7 +115,10 @@ const showResetModal = ref(false)
       </div>
       <SelectNetwork />
     </div>
-    <div class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4">
+    <router-link
+      to="/settings/about"
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+    >
       <div class="flex items-center gap-3">
         <MetaletIcon />
         <span>About Metalet</span>
@@ -124,7 +127,7 @@ const showResetModal = ref(false)
         <span class="text-sm text-gray-primary">{{ VERSION }}</span>
         <img :src="ArrowRightIcon" alt="" />
       </div>
-    </div>
+    </router-link>
     <router-link
       to="/settings/toolkit"
       class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"

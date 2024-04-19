@@ -392,7 +392,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Toolkit',
-          noFooter: false,
+          noFooter: true,
         },
       },
       {
@@ -401,7 +401,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'BTC Merge',
-          noFooter: false,
+          noFooter: true,
         },
       },
       {
@@ -410,10 +410,26 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Space Merge',
-          noFooter: false,
+          noFooter: true,
         },
       },
-
+      {
+        path: '/settings/about',
+        component: () => import('./pages/settings/About.vue'),
+        meta: {
+          secondaryHeader: true,
+          noFooter: true,
+        },
+      },
+      {
+        path: '/settings/security',
+        component: () => import('./pages/settings/Security.vue'),
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Wallet Security',
+          noFooter: true,
+        },
+      },
       {
         path: '/tools/path-finder',
         component: () => import('./pages/tools/PathFinder.vue'),

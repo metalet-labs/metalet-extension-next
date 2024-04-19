@@ -1,0 +1,43 @@
+<script lang="ts" setup>
+import { Divider } from '@/components'
+import { VERSION } from '@/data/config'
+import LinkIcon from '@/assets/icons-v3/link.svg'
+import MetaletLogo from '@/assets/images/metalet-logo-v3.svg?url'
+</script>
+
+<template>
+  <div class="pt-20 flex flex-col items-center h-full">
+    <img class="mx-auto w-[130px]" :src="MetaletLogo" alt="metalet-logo" />
+
+    <div class="mt-5 text-center">
+      <h1 class="text-3xl font-extrabold">Metalet</h1>
+      <p class="mt-2 text-sm text-gray-primary">v{{ VERSION }}</p>
+    </div>
+
+    <div class="w-64 mt-6 grow">
+      <Divider />
+      <a
+        target="_blank"
+        class="flex items-center justify-between py-4"
+        href="https://docs.google.com/document/d/1JFUS6f3Vs3Jh2CA4xpTixOUaMto4pANxmM_7b3suut8/edit"
+      >
+        <span class="text-sm font-medium">Terms of Service</span>
+        <LinkIcon class="w-4.5" />
+      </a>
+      <Divider />
+      <a
+        target="_blank"
+        class="flex items-center justify-between py-4"
+        href="https://docs.google.com/document/d/1MyCcA9E6sVd6ThvQaocBeN07umYUJB4zhbhT3E4LxWw/edit"
+      >
+        <span class="text-sm font-medium">Privacy policy</span>
+        <LinkIcon class="w-4.5" />
+      </a>
+      <Divider />
+    </div>
+
+    <a href="https://metalet.space/" target="_blank" class="text-center text-xs text-blue-primary py-12">
+      Go to the official website to learn more.
+    </a>
+  </div>
+</template>
