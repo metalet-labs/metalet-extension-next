@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import FlexBox from './FlexBox.vue'
 import { type Chain } from '@/lib/types'
+import { UseImage } from '@vueuse/components'
 import IncomeLogo from '@/assets/icons-v3/income.svg'
 import ExpenseLogo from '@/assets/icons-v3/expense.svg'
 import BTCNetworkLogo from '@/assets/icons-v3/network_btc.svg'
@@ -17,10 +18,13 @@ const { logo, chain, symbol } = defineProps<{
 
 <template>
   <div class="relative text-3xl">
-    <img v-if="logo" :src="logo" :alt="symbol" class="w-full aspect-square" />
-    <FlexBox ai="center" jc="center" v-else class="rounded-full aspect-square text-white bg-blue-primary">
-      {{ symbol[0].toLocaleUpperCase() }}
-    </FlexBox>
+    <UseImage :src="logo!" class="w-full aspect-square">
+      <template #error>
+        <div class="aspect-square flex items-center justify-center rounded-full text-white bg-blue-primary">
+          {{ symbol[0].toLocaleUpperCase() }}
+        </div>
+      </template>
+    </UseImage>
 
     <template v-if="type === 'network'">
       <BTCNetworkLogo v-if="chain === 'btc'" class="absolute bottom-0 right-0 w-6 h-6" />

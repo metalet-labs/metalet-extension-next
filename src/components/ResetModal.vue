@@ -76,14 +76,17 @@ const disconnect = async () => {
             />
           </div>
 
-          <div class="grid grid-cols-2 gap-x-4">
-            <button class="reset-button border-gray-700 text-gray-700" @click="$emit('update:show', false)">
+          <div class="flex items-center justify-center gap-2">
+            <button
+              class="w-30 h-12 bg-blue-light text-blue-primary rounded-3xl text-ss"
+              @click="$emit('update:show', false)"
+            >
               Cancel
             </button>
             <button
               @click="disconnect"
               :disabled="!checkedAll"
-              class="reset-button border-red-600 bg-red-600 text-red-50"
+              class="w-30 h-12 bg-red-600 text-white rounded-3xl text-ss"
               :class="[checkedAll ? 'cursor-pointer' : 'cursor-not-allowed opacity-50 saturate-50']"
             >
               Reset

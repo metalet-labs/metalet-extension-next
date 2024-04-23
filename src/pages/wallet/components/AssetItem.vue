@@ -75,7 +75,7 @@ watch(
 
 <template>
   <div class="group relative transition hover:z-10">
-    <div class="flex gap-2 cursor-pointer items-center justify-between rounded-md bg-gray-100 px-4 py-4">
+    <div class="flex gap-2 cursor-pointer items-center justify-between rounded-md py-3">
       <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
         <UseImage :src="asset.logo" v-if="asset.logo && asset.codeHash" class="h-10 w-10 rounded-md">

@@ -82,15 +82,14 @@ const copyGenesis = () => {
       <div class="mt-3 text-2xl">
         <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
         <span v-else>-- {{ asset.symbol }}</span>
+        <span class="text-gray-primary ml-2">≈ ${{ assetUSD?.toNumber().toFixed(2) }}</span>
       </div>
 
-      <div class="mt-0.5 text-sm text-gray-primary">$ {{ assetUSD?.toNumber() }} USD</div>
-
       <div
-        v-for="tag in tags"
         :key="tag.name"
+        v-for="tag in tags"
         :style="`background-color:${tag.bg};color:${tag.color};`"
-        :class="['px-1.5', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'scale-75']"
+        :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
       >
         {{ tag.name }}
       </div>

@@ -57,7 +57,7 @@ const next = async () => {
 </script>
 
 <template>
-  <div class="flex h-full flex-col">
+  <div class="flex min-h-full flex-col">
     <!-- TODO: put into secondary-header -->
     <div class="grid grid-cols-5 items-center h-15">
       <div class="col-span-1 flex items-center">
@@ -119,7 +119,7 @@ const next = async () => {
     </div>
 
     <!-- buttons -->
-    <div class="flex flex-col items-center justify-center mb-20 relative">
+    <div class="flex flex-col items-center justify-center py-10 relative">
       <button
         @click="next"
         :disabled="!password"

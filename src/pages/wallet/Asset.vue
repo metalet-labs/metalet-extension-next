@@ -122,8 +122,6 @@ const toSend = () => {
 }
 
 const setAddressType = async (addressType: AddressType, _address: string) => {
-  console.log(addressType)
-
   const chain = asset.value!.chain as Chain
   await setV3AddressTypeStorage(chain, addressType)
   await updataWallet(chain)
@@ -190,18 +188,16 @@ const toReceive = () => {
       <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
-        <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
-        <span v-else-if="balance">{{ calcBalance(balance.total, asset.decimal, asset.symbol) }}</span>
+        <span v-if="balance">{{ calcBalance(balance.total, asset.decimal, asset.symbol) }}</span>
         <span v-else>-- {{ asset.symbol }}</span>
+        <span class="text-gray-primary ml-2">≈ ${{ assetUSD?.toNumber().toFixed(2) }}</span>
       </div>
-
-      <div class="mt-0.5 text-sm text-gray-primary">$ {{ assetUSD?.toNumber().toFixed(2) }}</div>
 
       <div
         :key="tag.name"
         v-for="tag in tags"
         :style="`background-color:${tag.bg};color:${tag.color};`"
-        :class="['px-1.5', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'scale-75']"
+        :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
       >
         {{ tag.name }}
       </div>
