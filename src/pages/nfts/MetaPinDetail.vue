@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { formatTimestamp } from '@/lib/formatters'
 import { shortestAddress } from '@/lib/formatters'
 import { useMetaPinQuery } from '@/queries/metaPin'
 
@@ -20,10 +20,7 @@ const toSendNFT = (id: string) => {
     query: {
       satoshis: metaPin.value?.outputValue,
       content: metaPin.value?.contentSummary,
-      imgUrl:
-        metaPin.value?.contentType === 'image/jpeg'
-          ? `https://man-test.metaid.io${metaPin.value?.contentSummary}`
-          : undefined,
+      imgUrl: metaPin.value?.contentType === 'image/jpeg' ? metaPin.value?.content : undefined,
     },
   })
 }
@@ -55,9 +52,7 @@ const toSendNFT = (id: string) => {
     </div>
     <div class="flex flex-col p-4 gap-y-4">
       <h4 class="text-xl text-[#303133]"># {{ metaPin.number }}</h4>
-      <div class="text-xs text-[#999999]">
-        {{ dayjs(metaPin.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}
-      </div>
+      <div class="text-xs text-[#999999]">{{ formatTimestamp(metaPin.timestamp) }}</div>
       <hr />
       <div class="flex items-center justify-between">
         <span class="title">ID:</span>
@@ -101,7 +96,7 @@ const toSendNFT = (id: string) => {
       </div>
       <div class="flex items-start justify-between">
         <span class="title">Timestamp:</span>
-        <div>{{ dayjs(Number(metaPin!.timestamp)).format('YYYY/MM/DD HH:mm:ss') }}</div>
+        <div>{{ formatTimestamp(metaPin.timestamp) }}</div>
       </div>
       <div class="flex items-start justify-between">
         <div class="title">Genesis Transaction:</div>
@@ -109,7 +104,7 @@ const toSendNFT = (id: string) => {
       </div>
     </div>
 
-    <button @click="toSendNFT(metaPin.id)" class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100">
+    <button @click="toSendNFT(metaPin!.id)" class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100">
       Transfers
     </button>
   </div>

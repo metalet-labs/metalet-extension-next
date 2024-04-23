@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { ref, computed, Ref } from 'vue'
+import Decimal from 'decimal.js'
+import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { API_NET, FtManager } from 'meta-contract'
 import { CircleStackIcon } from '@heroicons/vue/24/solid'
@@ -15,14 +16,17 @@ import Modal from '@/components/Modal.vue'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 
 const route = useRoute()
-const genesis = route.params.genesis as string
+const symbol = ref(route.params.symbol as string)
+const genesis = ref(route.params.genesis as string)
+const address = ref(route.params.address as string)
 
 const queryClient = useQueryClient()
 
-const address = ref('')
-getCurrentAccount()
-getAddress().then((addr) => {
-  address.value = addr!
+const error = ref<Error>()
+
+// 用户拥有的代币资产
+const { isLoading, data: asset } = useMVCTokenQuery(address, genesis, {
+  enabled: computed(() => !!address.value && !genesis.value),
 })
 
 // form
@@ -39,11 +43,7 @@ const popConfirm = () => {
   isOpenConfirmModal.value = true
 }
 const isOpenResultModal = ref(false)
-const transactionResult: Ref<undefined | TransactionResult> = ref()
-
-const enabled = computed(() => !!address.value)
-// 用户拥有的代币资产
-const { isLoading, data: asset } = useMVCTokenQuery(address, ref(genesis), { enabled })
+const transactionResult = ref<TransactionResult>()
 
 const operationLock = ref(false)
 async function send() {
@@ -92,9 +92,21 @@ async function send() {
     })
     .catch((err) => {
       isOpenConfirmModal.value = false
-      transactionResult.value = {
-        status: 'failed',
-        message: err.message,
+      error.value = err.message
+      if (err instanceof Error) {
+        if (err.message === 'Too many token-utxos, should merge them to continue.') {
+          transactionResult.value = {
+            router: 'ft-merge',
+            status: 'failed',
+            message: err.message,
+            confirmText: 'Merge',
+          }
+        }
+      } else {
+        transactionResult.value = {
+          status: 'failed',
+          message: err.message,
+        }
       }
 
       isOpenResultModal.value = true
@@ -127,7 +139,7 @@ async function send() {
 </script>
 
 <template>
-  <div class="mt-8 flex flex-col items-center gap-y-8">
+  <div class="mt-8 flex flex-col items-center gap-y-8" v-if="asset && genesis">
     <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
     <img :src="asset?.logo" alt="" class="h-16 w-16 rounded-xl" v-if="asset?.logo" />
     <CircleStackIcon class="h-10 w-10 text-gray-300 transition-all group-hover:text-blue-500" v-else />
@@ -194,11 +206,12 @@ async function send() {
           >
             Cancel
           </button>
-          <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="send"> Confirm </button>
+          <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="send">Confirm</button>
         </div>
       </template>
     </Modal>
   </div>
+  <div v-else class="text-center text-gray-primary w-full py-3 text-base">Token can not found.</div>
 </template>
 
 <style lang="css" scoped>

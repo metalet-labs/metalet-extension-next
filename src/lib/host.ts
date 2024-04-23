@@ -1,4 +1,4 @@
-import { getNetwork, network } from './network'
+import { getNetwork } from './network'
 import {
   TX_BROWSER_TESTNET_HOST,
   TX_BROWSER_HOST,

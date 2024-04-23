@@ -2,6 +2,7 @@
 import Decimal from 'decimal.js'
 import { ref, computed, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
+import { UseImage } from '@vueuse/components'
 import { isOfficialToken } from '@/lib/assets'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
@@ -13,14 +14,8 @@ const props = defineProps<{
   address: string
 }>()
 
-const address = ref(props.address)
-
-watch(
-  () => props.address,
-  (_addr) => {
-    address.value = _addr
-  }
-)
+const asset = computed(() => props.asset)
+const address = computed(() => props.address)
 
 const tag = ref<Tag>()
 
@@ -28,16 +23,16 @@ if (props.asset?.contract) {
   tag.value = getTagInfo(props.asset.contract)
 }
 
-const balaceEnabled = computed(() => !!props.address && !!props.asset.symbol && !props.asset.balance)
-const { data: balance } = useBalanceQuery(address, ref(props.asset.symbol), { enabled: balaceEnabled })
+const balaceEnabled = computed(() => !!address && !!asset.value.symbol && !asset.value.balance)
+const { data: balance } = useBalanceQuery(ref(address), ref(asset.value.symbol), { enabled: balaceEnabled })
 
 const coinType = computed(() => {
-  return getExchangeCoinType(props.asset.symbol, props.asset.contract)
+  return getExchangeCoinType(asset.value.symbol, asset.value.contract)
 })
 
-const rateEnabled = computed(() => !!props.address && !!props.asset.symbol)
+const rateEnabled = computed(() => !!address && !!asset.value.symbol)
 const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRatesQuery(
-  ref(props.asset.symbol),
+  ref(asset.value.symbol),
   coinType,
   {
     enabled: rateEnabled,
@@ -45,12 +40,12 @@ const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRate
 )
 
 const assetPrice = computed(() => {
-  if (props.asset?.balance) {
-    return `${new Decimal(props.asset.balance.total).dividedBy(10 ** props.asset.decimal).toNumber()} ${props.asset.symbol}`
+  if (asset.value?.balance) {
+    return `${new Decimal(asset.value.balance.total).dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
   } else if (balance.value) {
-    return `${new Decimal(balance.value.total).dividedBy(10 ** props.asset.decimal).toNumber()} ${props.asset.symbol}`
+    return `${new Decimal(balance.value.total).dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
   }
-  return `-- ${props.asset.symbol}`
+  return `-- ${asset.value.symbol}`
 })
 
 const assetUSD = computed(() => {
@@ -58,11 +53,11 @@ const assetUSD = computed(() => {
     return
   }
   const usdRate = new Decimal(exchangeRate.value?.price || 0)
-  if (props.asset?.balance) {
-    const balanceInStandardUnit = new Decimal(props.asset.balance?.total || 0).dividedBy(10 ** props.asset.decimal)
+  if (asset.value?.balance) {
+    const balanceInStandardUnit = new Decimal(asset.value.balance?.total || 0).dividedBy(10 ** asset.value.decimal)
     return usdRate.mul(balanceInStandardUnit)
   } else if (balance.value && exchangeRate.value) {
-    const balanceInStandardUnit = new Decimal(balance.value.total).dividedBy(10 ** props.asset.decimal)
+    const balanceInStandardUnit = new Decimal(balance.value.total).dividedBy(10 ** asset.value.decimal)
     return usdRate.mul(balanceInStandardUnit)
   }
 })
@@ -71,7 +66,7 @@ watch(
   assetUSD,
   (_assetUSD) => {
     if (_assetUSD) {
-      updateAsset({ chain: props.asset.chain, name: props.asset.symbol, value: _assetUSD.toNumber() })
+      updateAsset({ chain: asset.value.chain, name: asset.value.symbol, value: _assetUSD.toNumber() })
     }
   },
   { immediate: true }
@@ -80,10 +75,17 @@ watch(
 
 <template>
   <div class="group relative transition hover:z-10">
-    <div class="flex gap-2 cursor-pointer items-center justify-between rounded-md py-3">
+    <div class="flex gap-2 cursor-pointer items-center justify-between rounded-md bg-gray-100 px-4 py-4">
       <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
-        <img class="h-10 w-10 rounded-full" :src="asset.logo" v-if="asset.logo" />
+        <UseImage :src="asset.logo" v-if="asset.logo && asset.codeHash" class="h-10 w-10 rounded-md">
+          <template #error>
+            <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-[#1E2BFF]">
+              {{ asset.symbol[0].toLocaleUpperCase() }}
+            </div>
+          </template>
+        </UseImage>
+        <img class="h-10 w-10 rounded-full" :src="asset.logo" v-else-if="asset.logo" />
         <div v-else class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-[#1E2BFF]">
           {{ asset.symbol[0].toLocaleUpperCase() }}
         </div>

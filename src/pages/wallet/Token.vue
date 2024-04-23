@@ -61,7 +61,7 @@ const assetUSD = computed(() => {
 const toSend = () => {
   router.push({
     name: 'send-token',
-    params: { symbol, genesis },
+    params: { symbol, genesis, address },
   })
 }
 const toReceive = () => {

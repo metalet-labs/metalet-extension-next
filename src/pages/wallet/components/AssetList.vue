@@ -32,6 +32,7 @@ const { isLoading: btcAssetsLoading, data: btcAssets } = useBRC20AssetQuery(btcA
 
 const { isFetching: mvcAssetsLoading, data: mvcAssets } = useMVCAssetsQuery(mvcAddress, {
   enabled: computed(() => !!mvcAddress.value),
+  autoRefresh: true,
 })
 
 function toManageAssets() {

@@ -464,6 +464,52 @@ const routes = [
     path: '/test',
     component: () => import('./pages/tests/Index.vue'),
   },
+  {
+    path: '/settings/toolkit',
+    component: () => import('./pages/settings/Toolkit.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'Toolkit',
+      noFooter: false,
+    },
+  },
+  {
+    path: '/settings/toolkit/btc-merge',
+    component: () => import('./pages/settings/components/BTCMerge.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'BTC Merge',
+      noFooter: false,
+    },
+  },
+  {
+    path: '/settings/toolkit/space-merge',
+    component: () => import('./pages/settings/components/SpaceMerge.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'Space Merge',
+      noFooter: false,
+    },
+  },
+  {
+    path: '/settings/toolkit/ft-merge',
+    name: 'ft-merge',
+    component: () => import('./pages/settings/components/FTMerge.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: '',
+      noFooter: true,
+    },
+  },
+  {
+    path: '/tools/path-finder',
+    component: () => import('./pages/tools/PathFinder.vue'),
+    meta: {
+      secondaryHeader: true,
+      headerTitle: 'Path Finder',
+      noFooter: true,
+    },
+  },
 ]
 
 const historyMode = IS_DEV ? VueRouter.createWebHistory() : VueRouter.createWebHashHistory()

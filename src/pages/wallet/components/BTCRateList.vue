@@ -63,7 +63,7 @@ watch(
       v-if="isCustom"
       placeholder="sat/vB"
       class="main-input w-full rounded-xl p-4 text-xs mt-4"
-      @input="(e) => emit('update:currentRateFee', (e.currentTarget as HTMLInputElement).value)"
+      @input="(e) => emit('update:currentRateFee', Number((e.currentTarget as HTMLInputElement).value))"
     />
   </div>
 </template>

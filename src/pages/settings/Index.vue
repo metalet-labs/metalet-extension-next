@@ -29,10 +29,6 @@ passwordManager.has().then((has) => {
   hasPassword.value = has
 })
 
-const toDiscord = () => {
-  window.open('https://discord.gg/4FDEq8cJHj', '_blank')
-}
-
 const toGithub = () => {
   window.open('https://github.com/mvc-labs/metalet-extension', '_blank')
 }
@@ -250,12 +246,6 @@ const showResetModal = ref(false)
         </div>
         <div class="setting-item group cursor-pointer" @click="toPolicy">
           <div class="text-gray-500 group-hover:underline">Privacy Policy</div>
-          <div>
-            <ArrowTopRightOnSquareIcon class="link-icon" />
-          </div>
-        </div>
-        <div class="setting-item group cursor-pointer" @click="toDiscord">
-          <div class="text-gray-500 group-hover:underline">Get Help at Discord</div>
           <div>
             <ArrowTopRightOnSquareIcon class="link-icon" />
           </div>

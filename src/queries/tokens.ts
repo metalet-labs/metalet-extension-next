@@ -1,10 +1,10 @@
 import { mvcApi } from './request'
 import { Balance } from './balance'
 import { ComputedRef, Ref } from 'vue'
-import { getFTLogo } from '@/data/logos'
 import { type Asset } from '@/data/assets'
 import { useQuery } from '@tanstack/vue-query'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { Balance_QUERY_INTERVAL } from './constants'
 
 export type Token = {
   codeHash: string
@@ -24,7 +24,10 @@ export const fetchMVCTokens = async (address: string): Promise<Token[]> => {
   return await mvcApi<Token[]>(`/contract/ft/address/${address}/balance`).get()
 }
 
-export const useMVCAssetsQuery = (address: Ref<string>, options: { enabled: ComputedRef<boolean> }) => {
+export const useMVCAssetsQuery = (
+  address: Ref<string>,
+  options: { enabled: ComputedRef<boolean>; autoRefresh?: boolean }
+) => {
   return useQuery({
     queryKey: ['MVCTokens', { address }],
     queryFn: () => fetchMVCTokens(address.value),
@@ -41,7 +44,7 @@ export const useMVCAssetsQuery = (address: Ref<string>, options: { enabled: Comp
             contract: 'MetaContract',
             codeHash: token.codeHash,
             genesis: token.genesis,
-            logo: getFTLogo(token.name),
+            logo: `https://y8u3ysgqmvgb0tsg.public.blob.vercel-storage.com/wrapt-coins/${token.symbol.toLowerCase()}.png`,
             balance: {
               total: token.confirmed + token.unconfirmed,
               confirmed: token.confirmed,
@@ -49,6 +52,7 @@ export const useMVCAssetsQuery = (address: Ref<string>, options: { enabled: Comp
             },
           }) as Asset
       ),
+    refetchInterval: options.autoRefresh ? Balance_QUERY_INTERVAL : undefined,
     ...options,
   })
 }
@@ -74,7 +78,7 @@ export const useMVCTokenQuery = (
           contract: 'MetaContract',
           codeHash: token.codeHash,
           genesis: token.genesis,
-          logo: getFTLogo(token.name),
+          logo: `https://y8u3ysgqmvgb0tsg.public.blob.vercel-storage.com/wrapt-coins/${token.symbol.toLowerCase()}.png`,
           balance: {
             confirmed: token.confirmed,
             unconfirmed: token.unconfirmed,
@@ -83,6 +87,7 @@ export const useMVCTokenQuery = (
         } as Asset
       }
     },
+    refetchInterval: Balance_QUERY_INTERVAL,
     ...options,
   })
 }
