@@ -7,6 +7,7 @@ import { updateAsset } from '@/lib/balance'
 import { calcBalance } from '@/lib/formatters'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { prettifyAddress } from '@/lib/formatters'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useBalanceQuery } from '@/queries/balance'
 import { WalletsStore } from '@/stores/WalletStore'
@@ -170,7 +171,9 @@ const toReceive = () => {
               <div class="flex items-center gap-3 w-full" @click="setAddressType(wallet.addressType, wallet.address)">
                 <img :src="getLogo(symbol, asset.chain)" alt="" class="w-9" />
                 <div class="space-y-1">
-                  <div class="text-sm max-w-64 truncate" :title="wallet.address">{{ wallet.address }}</div>
+                  <div class="text-sm" :title="wallet.address">
+                    {{ prettifyAddress(wallet.address) }}
+                  </div>
                   <div class="text-xs text-gray-primary">{{ wallet.addressType }}</div>
                 </div>
               </div>

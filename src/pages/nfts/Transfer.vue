@@ -189,14 +189,14 @@ async function transfer() {
         <div v-if="operationLock">
           <div class="w-full py-3 text-center text-sm text-gray-500">Operating...</div>
         </div>
-        <div class="grid grid-cols-2 gap-x-4" v-else>
+        <div class="flex items-center justify-center gap-2" v-else>
           <button
-            class="w-full rounded-lg border border-primary-blue bg-white py-3 text-sm text-gray-700"
+            class="bg-blue-light w-30 rounded-3xl py-3 text-ss text-blue-primary"
             @click="isOpenConfirmModal = false"
           >
             Cancel
           </button>
-          <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="transfer">Confirm</button>
+          <button class="bg-blue-primary w-30 rounded-3xl py-3 text-ss text-white" @click="transfer">Confirm</button>
         </div>
       </template>
     </Modal>

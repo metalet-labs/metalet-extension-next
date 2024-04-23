@@ -1,19 +1,17 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import passwordManager from '@/lib/password'
+import { PasswordInput } from '@/components'
 import { setLastLockTime } from '@/lib/lock'
 import ResetModal from '@/components/ResetModal.vue'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
 import MetaletLogo from '@/assets/images/metalet-logo-v3.svg?url'
 
+const error = ref('')
 const password = ref('')
 const router = useRouter()
-const isCovered = ref(true)
 const showResetModal = ref(false)
-const passwordInputType = computed(() => (isCovered.value ? 'password' : 'text'))
 
-const failed = ref(false)
 const tryUnlock = async () => {
   const isCorrect = await passwordManager.check(password.value)
   if (isCorrect) {
@@ -21,7 +19,7 @@ const tryUnlock = async () => {
     await setLastLockTime()
     router.push('/wallet')
   } else {
-    failed.value = true
+    error.value = 'Incorrect password. Try again.'
   }
 }
 </script>
@@ -35,26 +33,7 @@ const tryUnlock = async () => {
       <p class="mt-2 text-sm text-gray-primary">Welcome Back</p>
     </div>
 
-    <div class="mt-12">
-      <h4 class="mb-2 text-sm">Password</h4>
-      <div class="relative">
-        <input
-          v-model="password"
-          :type="passwordInputType"
-          :class="[
-            'block w-full rounded-md border border-gray-soft outline-blue-primary p-4 pr-12',
-            { 'border-red-500': failed },
-          ]"
-        />
-        <div class="absolute right-0 top-0 flex h-full items-center pr-4">
-          <button @click="isCovered = !isCovered">
-            <EyeIcon v-if="isCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
-            <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
-          </button>
-        </div>
-        <p v-if="failed" class="absolute -bottom-8 left-0 text-sm text-red-500">Incorrect password. Try again.</p>
-      </div>
-    </div>
+    <PasswordInput v-model:password="password" v-model:error="error" class="mt-12" />
 
     <div class="mt-14 flex flex-col items-center justify-center">
       <button

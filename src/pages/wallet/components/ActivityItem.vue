@@ -79,7 +79,13 @@ const toActivityTx = async () => {
     </FlexBox>
     <FlexBox d="col" ai="end">
       <div class="text-sm">{{ difference.display }}</div>
-      <div class="text-xs text-gray-primary">{{ prettifyTxId(activity.txid) }}</div>
+      <div
+        @click="toActivityTx"
+        :title="activity.txid"
+        class="text-xs text-gray-primary cursor-pointer hover:underline hover:text-blue-primary"
+      >
+        {{ prettifyTxId(activity.txid) }}
+      </div>
     </FlexBox>
   </FlexBox>
   <!-- <div class="w-full py-3">

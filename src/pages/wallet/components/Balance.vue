@@ -5,8 +5,8 @@ import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
 import BridgeIcon from '@/assets/icons-v3/bridge.svg'
-import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import NetworkIcon from '@/assets/icons-v3/network.svg'
+import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 
 const router = useRouter()
@@ -30,7 +30,10 @@ function toSelectAsset(purpose: 'receive' | 'send') {
   <div>
     <div class="mt-2 flex items-center justify-between">
       <div class="text-[40px] leading-10 font-bold">$ {{ totalBalance.toFixed(2) }}</div>
-      <div v-if="getNet() === 'testnet'" class="bg-[#CCD0FF] bg-opacity-20 py-2 px-3 rounded-lg text-[#1D28FE] flex items-center gap-1">
+      <div
+        v-if="getNet() === 'testnet'"
+        class="bg-[#CCD0FF] bg-opacity-20 py-2 px-3 rounded-lg text-[#1D28FE] flex items-center gap-1"
+      >
         <NetworkIcon class="w-2.5" />
         <span class="text-xs">Testnet</span>
       </div>

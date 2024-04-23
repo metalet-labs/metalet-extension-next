@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { FlexBox, Button } from '@/components'
 import BrushIcon from '@/assets/icons-v3/brush.svg'
 import { ref, computed, watch, defineProps } from 'vue'
+import { FlexBox, Button, SeedPhrase } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -73,21 +73,7 @@ watch(
             <BrushIcon class="ml-auto text-black-secondary cursor-pointer" @click="clearWords" />
           </FlexBox>
 
-          <!-- input phrase -->
-          <div class="grid grid-cols-2 gap-2 pr-3 -mr-3 overflow-y-auto max-h-[304px]">
-            <FlexBox class="h-11 border-gray-soft border rounded-lg" v-for="(_, index) in props.words" ai="center">
-              <FlexBox ai="center" jc="center" class="w-7.5 h-full text-gray-primary bg-gray-secondary rounded-l-lg">
-                {{ index + 1 }}
-              </FlexBox>
-              <input
-                :key="index"
-                type="text"
-                v-model="props.words[index]"
-                @paste.prevent="onPasteWords"
-                class="h-full font-medium w-full p-3 rounded-lg focus:outline-none focus:ring-0"
-              />
-            </FlexBox>
-          </div>
+          <SeedPhrase :onPasteWords="onPasteWords" :words="words" />
 
           <Button
             type="primary"

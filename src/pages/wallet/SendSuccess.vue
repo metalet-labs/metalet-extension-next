@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { toTx } from '@/lib/helpers'
 import { getLogo } from '@/data/logos'
-import { getScanUrl } from '@/lib/host'
 import { type Chain } from '@/lib/types'
+import { getBrowserHost } from '@/lib/host'
 import { useRouter, useRoute } from 'vue-router'
 import LinkIcon from '@/assets/icons-v3/link.svg'
 import { FlexBox, Divider, Button } from '@/components'
@@ -18,10 +19,11 @@ const txId = route.params.txId as string
 
 const logo = getLogo(symbol, chain)
 
-const scanUrl = getScanUrl('btc')
 
-function toWallet() {
-  router.push('/wallet')
+// TODO: make it into utils
+const toScanUrl = async (txId: string) => {
+  const host = await getBrowserHost(chain)
+  toTx(txId, host as string)
 }
 </script>
 
@@ -42,10 +44,10 @@ function toWallet() {
       <div class="break-all text-center mb-1">{{ receiver }}</div>
       <div class="label">Receiver</div>
     </div>
-    <a :href="scanUrl + '/tx/' + txId" target="_blank" class="flex items-center gap-1 hover:text-blue-primary text-xs">
+    <div class="flex items-center gap-1 hover:text-blue-primary text-xs hover:underline" @click="toScanUrl(txId)">
       <span>View on Block Explorer</span>
       <LinkIcon class="w-3.5 h-3.5" />
-    </a>
+    </div>
     <Button type="primary" @click="$router.replace('/wallet')" class="w-61.5 h-12">Done</Button>
   </FlexBox>
 </template>

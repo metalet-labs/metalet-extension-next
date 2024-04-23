@@ -5,8 +5,11 @@ import Receive from './Receive.vue'
 import Divider from './Divider.vue'
 import EditName from './EditName.vue'
 import AssetLogo from './AssetLogo.vue'
+import SeedPhrase from './SeedPhrase.vue'
 import LoadingText from './LoadingText.vue'
+import PasswordInput from './PasswordInput.vue'
 import FeeRateSelector from './FeeRateSelector.vue'
+import VerifySeedPhrase from './VerifySeedPhrase.vue'
 import AddressTypeSelector from './AddressTypeSelector.vue'
 
 export {
@@ -20,4 +23,7 @@ export {
   Copy,
   Receive,
   EditName,
+  PasswordInput,
+  SeedPhrase,
+  VerifySeedPhrase,
 }

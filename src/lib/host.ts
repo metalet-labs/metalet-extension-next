@@ -19,14 +19,6 @@ export async function getBrowserHost(chain: Chain = 'mvc') {
   return network === 'testnet' ? TX_BROWSER_TESTNET_HOST : TX_BROWSER_HOST
 }
 
-export function getScanUrl(chain: Chain = 'mvc') {
-  if (chain === 'btc') {
-    return network.value === 'testnet' ? MEMPOOL_TESTNET_HOST : MEMPOOL_HOST
-  }
-
-  return network.value === 'testnet' ? TX_BROWSER_TESTNET_HOST : TX_BROWSER_HOST
-}
-
 export async function getApiHost() {
   const network = await getNetwork()
 

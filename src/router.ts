@@ -72,7 +72,7 @@ const routes = [
         component: () => import('./pages/wallet/Backup.vue'),
         meta: {
           noFooter: true,
-          secondaryHeader: true,
+          secondaryHeader: false,
           headerTitle: 'Backup',
         },
       },
