@@ -2,6 +2,7 @@
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { type Account, getCurrentAccount } from '@/lib/account'
 import password from '@/lib/password'
+import { lock } from '@/lib/lock'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MoreIcon from '@/assets/icons/more.svg?component'
@@ -25,9 +26,10 @@ const hasPassword = ref(false)
 password.has().then((has) => {
   hasPassword.value = has
 })
-const lock = async () => {
-  await password.lock()
-  router.push('/lock')
+
+const lockWallet = async () => {
+  await lock()
+  router.replace('/lock')
 }
 
 const setPassword = () => {
@@ -65,7 +67,7 @@ const toAccountList = () => {
       </MenuItem> -->
 
       <MenuItem>
-        <button class="menu-item" @click="lock" v-if="hasPassword">Lock</button>
+        <button class="menu-item" @click="lockWallet" v-if="hasPassword">Lock</button>
         <button class="menu-item" @click="setPassword" v-else>Set Password</button>
       </MenuItem>
 

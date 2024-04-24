@@ -1,11 +1,12 @@
+import { isLocked } from './lib/lock'
 import connector from './lib/connector'
 import { network } from '@/lib/network'
-import { isLocked } from './lib/password'
 import actions from './data/query-actions'
 import browser from 'webextension-polyfill'
 import exActions from './data/extension-actions'
 import { getAddress, getCurrentAccount } from './lib/account'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
+import { goToPage } from './lib/utils'
 
 // const browser = window.browser as typeof chrome
 browser.runtime.onMessage.addListener(async (msg, sender) => {

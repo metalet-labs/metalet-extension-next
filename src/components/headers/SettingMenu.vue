@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
+import { lock } from '@/lib/lock'
 import password from '@/lib/password'
 import { goToTab } from '@/lib/utils'
 import { useRouter } from 'vue-router'
@@ -22,6 +23,11 @@ const showResetModal = ref(false)
 
 const toAccountList = () => {
   router.push('/accounts')
+}
+
+const lockWallet = async () => {
+  await lock()
+  router.replace('/lock')
 }
 </script>
 
@@ -54,10 +60,10 @@ const toAccountList = () => {
       </MenuItem>
 
       <MenuItem>
-        <router-link to="/lock" class="menu-item" v-if="hasPassword">
+        <button class="menu-item" v-if="hasPassword" @click="lockWallet">
           <LockIcon class="w-4.5" />
           <span>Lock</span>
-        </router-link>
+        </button>
         <router-link to="/wallet/set-password" class="menu-item" v-else>Set Password</router-link>
       </MenuItem>
 

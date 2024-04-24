@@ -1,9 +1,7 @@
 import hash from 'object-hash'
 import CryptoJS from 'crypto-js'
 import useStorage from './storage'
-import { notifyBg } from './notify-bg'
 
-const Locked_Key = 'locked'
 export const PASSWORD_KEY = 'password'
 
 const storage = useStorage()
@@ -27,40 +25,16 @@ export async function setPassword(password: string) {
   await storage.set(PASSWORD_KEY, hashed)
 }
 
-export async function lock() {
-  await storage.set(Locked_Key, true)
-  await notifyBg('lock')()
-}
-
-export async function isLocked() {
-  return await !!storage.get(Locked_Key)
-}
-
-export async function unlock(password: string) {
-  const isCorrect = await checkPassword(password)
-  if (!isCorrect) {
-    throw new Error('Password incorrect')
-  }
-  await storage.set(Locked_Key, false)
-  await notifyBg('unlock')()
-}
-
 type PasswordManager = {
   has: () => Promise<boolean>
   get: () => Promise<string | undefined>
   set: (password: string) => Promise<void>
-  lock: () => Promise<void>
-  unlock: (password: string) => Promise<void>
-  isLocked: () => Promise<boolean>
   check: (credential: string) => Promise<boolean>
 }
 const passwordManager = {} as PasswordManager
 passwordManager.has = hasPassword
 passwordManager.get = getPassword
 passwordManager.set = setPassword
-passwordManager.lock = lock
-passwordManager.unlock = unlock
-passwordManager.isLocked = isLocked
 passwordManager.check = checkPassword
 
 export default passwordManager

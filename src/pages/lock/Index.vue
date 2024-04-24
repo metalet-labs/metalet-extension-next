@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import passwordManager from '@/lib/password'
 import { PasswordInput } from '@/components'
-import { setLastLockTime } from '@/lib/lock'
+import { setLastLockTime, unlock } from '@/lib/lock'
 import ResetModal from '@/components/ResetModal.vue'
 import MetaletLogo from '@/assets/images/metalet-logo-v3.svg?url'
 
@@ -15,9 +15,9 @@ const showResetModal = ref(false)
 const tryUnlock = async () => {
   const isCorrect = await passwordManager.check(password.value)
   if (isCorrect) {
-    await passwordManager.unlock(password.value)
+    await unlock(password.value)
     await setLastLockTime()
-    router.push('/wallet')
+    router.replace('/wallet')
   } else {
     error.value = 'Incorrect password. Try again.'
   }

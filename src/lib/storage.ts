@@ -69,7 +69,7 @@ function useStorage(storageType: StorageType = 'local'): Storage {
   return {
     async get<T>(key: string, option?: { defaultValue: T }): Promise<T | string | undefined> {
       const value = await storage.get<T>(key)
-      if (!value) {
+      if (value === undefined) {
         return option?.defaultValue
       }
       if (typeof value === 'string') {
