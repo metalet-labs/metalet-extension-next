@@ -1,6 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig, loadEnv } from 'vite'
 import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 import baseConfig from './vite.base.config'
 

@@ -1,8 +1,7 @@
-import { Psbt, networks } from 'bitcoinjs-lib'
-import { getNetwork } from '@/lib/network'
+import { Psbt } from 'bitcoinjs-lib'
+import { getBtcNetwork } from '@/lib/network'
 
 export async function process(psbtHex: string): Promise<string> {
-  const networkType = await getNetwork()
-  const psbtNetwork = networkType === 'mainnet' ? networks.bitcoin : networks.testnet
-  return Psbt.fromHex(psbtHex, { network: psbtNetwork }).extractTransaction().getId()
+  const network = await getBtcNetwork()
+  return Psbt.fromHex(psbtHex, { network }).extractTransaction().getId()
 }

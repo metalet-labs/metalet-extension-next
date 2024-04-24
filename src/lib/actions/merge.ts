@@ -1,12 +1,14 @@
-import { API_NET, API_TARGET, Wallet } from 'meta-contract'
-import { getNetwork } from '../network'
-import { getPrivateKey } from '../account'
 import { FEEB } from '@/data/config'
 import { getApiHost } from '../host'
+import { getNetwork } from '../network'
+import { getCurrentWallet } from '../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { API_NET, API_TARGET, Wallet } from 'meta-contract'
 
 export async function process() {
   const network: API_NET = (await getNetwork()) as API_NET
-  const purse = await getPrivateKey('mvc')
+  const chainWallet = await getCurrentWallet(Chain.MVC)
+  const purse = chainWallet.getPrivateKey()
   const apiHost = await getApiHost()
 
   const wallet = new Wallet(purse, network, FEEB, API_TARGET.MVC, apiHost)

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
+import { unlock } from '@/lib/lock'
 import passwordManager from '@/lib/password'
 import { FlexBox, Button } from '@/components'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -32,6 +33,7 @@ const submit = async () => {
   }
 
   await passwordManager.set(password.value)
+  await unlock(password.value)
   callback && callback()
 }
 </script>
@@ -84,8 +86,14 @@ const submit = async () => {
       <FlexBox ai="center" :gap="1.5">
         <Checkbox id="terms" v-model:checked="checked" />
         <span class="text-slate-light">
-          I agree to Metlet's
-          <a href="javascript:void(0)" class="text-blue-primary">Terms of use</a>
+          I agree to Metalet's
+          <a
+            target="_blank"
+            class="text-blue-primary"
+            href="https://docs.google.com/document/d/1JFUS6f3Vs3Jh2CA4xpTixOUaMto4pANxmM_7b3suut8/edit"
+          >
+            Terms of Service
+          </a>
         </span>
       </FlexBox>
       <Button type="primary" @click="submit" :disabled="btnDisabled" :class="['w-61.5', btnDisabled && 'opacity-50']">

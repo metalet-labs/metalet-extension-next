@@ -1,12 +1,14 @@
 import randomBytes from 'randombytes'
 import { sleep } from '@/lib/helpers'
+import { getSigner } from '@/lib/account'
 import * as bitcoin from './bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getBtcNetwork } from '@/lib/network'
+import { getCurrentWallet } from '../../wallet'
 import * as bcrypto from './bitcoinjs-lib/crypto'
 import { base, signUtil } from '@okxweb3/crypto-lib'
 import BIP32Factory, { BIP32Interface } from 'bip32'
-import { getAddress, getSigner } from '@/lib/account'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { broadcastBTCTx } from '@/queries/transaction'
 import * as ecc from '@bitcoin-js/tiny-secp256k1-asmjs'
 import { vectorSize } from './bitcoinjs-lib/transaction'
@@ -447,7 +449,8 @@ export async function process({
   options?: { noBroadcast: boolean }
 }): Promise<InscribeHexResult | InscribeTxIdResult> {
   const network = await getBtcNetwork()
-  const address = await getAddress('btc')
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const address = wallet.getAddress()
   const utxos = await getBtcUtxos(address)
   const commitTxPrevOutputList = utxos.map((utxo) => ({
     txId: utxo.txId,
@@ -455,7 +458,7 @@ export async function process({
     amount: utxo.satoshis,
     address,
   }))
-  const signer = (await getSigner('btc')) as BIP32Interface
+  const signer = (await getSigner(Chain.BTC)) as BIP32Interface
 
   try {
     const { commitTx, revealTxs, commitCost, revealCost } = inscribe(

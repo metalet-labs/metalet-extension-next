@@ -1,6 +1,6 @@
 import useStorage from './storage'
 
-const Connections_Key = 'connections'
+const CONNECTIONS_KEY = 'connections'
 
 const storage = useStorage()
 
@@ -25,7 +25,7 @@ type Connector = {
 const connector = {} as Connector
 
 async function getConnections() {
-  return await storage.get<Connections>(Connections_Key, { defaultValue: {} })
+  return await storage.get<Connections>(CONNECTIONS_KEY, { defaultValue: {} })
 }
 
 connector.connect = async function (accountId, host) {
@@ -36,7 +36,7 @@ connector.connect = async function (accountId, host) {
     autoApprove: true,
   }
   connections[accountId] = accountConnections
-  await storage.set(Connections_Key, connections)
+  await storage.set(CONNECTIONS_KEY, connections)
 }
 
 connector.isConnected = async function (accountId, host) {
@@ -50,7 +50,7 @@ connector.disconnect = async function (accountId, host) {
   const accountConnections = connections[accountId] || {}
   delete accountConnections[host]
   connections[accountId] = accountConnections
-  await storage.set(Connections_Key, connections)
+  await storage.set(CONNECTIONS_KEY, connections)
 }
 
 connector.registerListen = async function (accountId, host) {

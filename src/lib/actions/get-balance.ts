@@ -1,7 +1,6 @@
-import accountManager from '../account'
+import { getBalance } from '../account'
+import { Chain } from '@metalet/utxo-wallet-service'
 
-export async function process(params: any, host: string) {
-  const balance = await accountManager.getBalance('mvc')
-
-  return balance
+export async function process() {
+  return await getBalance(Chain.MVC)
 }

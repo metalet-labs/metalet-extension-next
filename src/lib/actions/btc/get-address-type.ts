@@ -1,4 +1,5 @@
-import { getAddressType } from '@/lib/account'
+import { getCurrentWallet } from '../../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { type AddressType, scripts } from '@/lib/bip32-deriver'
 
 export async function process(): Promise<
@@ -9,6 +10,7 @@ export async function process(): Promise<
     }
   | undefined
 > {
-  const addressType = await getAddressType('btc')
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const addressType = wallet.getScriptType()
   return scripts.find((script) => script.addressType === addressType)
 }

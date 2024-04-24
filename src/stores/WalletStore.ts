@@ -16,7 +16,10 @@ import {
 
 let walletManager: WalletManager | null = null
 
+// TODO: Execute it only once.
 const initWalletManager = async (): Promise<WalletManager> => {
+  console.log("initWalletManager");
+  
   try {
     const activeWallet = await getActiveWalletOnlyAccount()
     const walletsOptions = [
@@ -54,7 +57,9 @@ const getWalletManager = async (): Promise<WalletManager> => {
   return walletManager
 }
 
+// TODO: Execute it only once.
 const loadOtherAccounts = async () => {
+  console.log("loadOtherAccounts");
   const manager = await getWalletManager()
   const activeWallet = await getActiveWalletOtherAccounts()
   if (!activeWallet) {
@@ -82,6 +87,8 @@ const loadOtherAccounts = async () => {
       accountsOptions: wallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),
     })
   }
+  console.log("loadOtherAccounts",manager.getWallets());
+  
 }
 
 const getAccountChainWallets = async () => {

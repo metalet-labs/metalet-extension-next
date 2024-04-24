@@ -1,5 +1,7 @@
-import { getPublicKey } from '@/lib/account'
+import { getCurrentWallet } from '../../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 export async function process(): Promise<string> {
-  return await getPublicKey('btc')
+  const wallet = await getCurrentWallet(Chain.BTC)
+  return wallet.getPublicKeyHex()
 }

@@ -1,18 +1,21 @@
 import connector from '../../connector'
-import { getPublicKey, getAddress, getCurrentAccount } from '@/lib/account'
+import { getCurrentWallet } from '../../wallet'
+import { getCurrentAccountId } from '../../account'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 interface AccountInfo {
-  address: string;
-  pubKey: string;
+  address: string
+  pubKey: string
 }
 
-export async function process(params: any, host: string): Promise<AccountInfo> {
-  const account = await getCurrentAccount()
-  if (!account) {
+export async function process(_: unknown, host: string): Promise<AccountInfo> {
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const currentAccountId = await getCurrentAccountId()
+  if (!wallet || !currentAccountId) {
     return { address: '', pubKey: '' }
   }
-  await connector.connect(account.id, host)
-  const address = await getAddress('btc')
-  const pubKey = await getPublicKey('btc')
+  await connector.connect(currentAccountId, host)
+  const address = wallet.getAddress()
+  const pubKey = wallet.getPublicKeyHex()
   return { address, pubKey }
 }

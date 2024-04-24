@@ -1,22 +1,18 @@
 import { getNetwork } from '@/lib/network'
 import { getPrivateKey, getPublicKey } from '@/lib/account'
 import { Message, PrivateKey, Networks } from 'bitcore-lib'
+import { getCurrentWallet } from '@/lib/wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 interface verifyMessageParams {
   text: string
   sig: string
   publicKey: string
+  encoding?: BufferEncoding
 }
 
 export async function process(params: verifyMessageParams) {
-  const { text, sig, publicKey } = params
-  const pubKey = await getPublicKey('btc')
-  if (publicKey !== pubKey) {
-    return false
-  }
-  const privateKey = await getPrivateKey('btc')
-  const signMessage = new Message(text)
-  const network = (await getNetwork()) === 'mainnet' ? Networks.livenet : Networks.testnet
-  const address = new PrivateKey(privateKey, network).toAddress()
-  return signMessage.verify(address, sig)
+  const { text, sig: signature, publicKey, encoding } = params
+  const wallet = await getCurrentWallet(Chain.BTC)
+  return wallet.verifyMessage({ text, signature, publicKey, encoding })
 }

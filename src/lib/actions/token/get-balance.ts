@@ -1,7 +1,5 @@
 import assetsManager from '../../assets'
 
-export async function process(params: any, host: string) {
-  const balance = await assetsManager.getTokenBalance()
-
-  return balance
+export async function process() {
+  return await assetsManager.getTokenBalance()
 }

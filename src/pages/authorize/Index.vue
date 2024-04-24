@@ -68,6 +68,7 @@ const runAction = async () => {
 
   try {
     processRes = await process(params, host as string)
+    console.log({ processRes })
 
     if (processRes.txids && processRes.broadcasted) {
       processTxids.value = processRes.txids
@@ -167,7 +168,7 @@ const cancelAction = async () => {
 
     <!-- logo -->
     <div class="mt-4 flex h-24 w-24 items-center justify-center rounded-xl bg-gray-50 shadow-inner shadow-gray-300">
-      <img class="object-contain rounded-xl" :src="logo" alt="logo" v-if="logo" />
+      <img class="w-full object-contain rounded-xl" :src="logo" alt="logo" v-if="logo" />
       <LinkIcon class="h-16 w-16 text-gray-300" v-else />
     </div>
 
@@ -195,14 +196,11 @@ const cancelAction = async () => {
     </div>
 
     <!-- buttons -->
-    <div class="mt-4 grid grid-cols-2 gap-x-4 self-stretch">
-      <button
-        class="w-full rounded-lg border border-primary-blue bg-white py-3 text-sm text-gray-500"
-        @click="cancelAction"
-      >
+    <div class="flex items-center justify-center gap-2">
+      <button class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary" @click="cancelAction">
         Cancel
       </button>
-      <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="runAction"> Confirm </button>
+      <button class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white" @click="runAction">Confirm</button>
     </div>
   </div>
 </template>

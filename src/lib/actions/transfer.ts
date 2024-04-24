@@ -1,9 +1,9 @@
-import { API_NET, API_TARGET, FtManager, Wallet, mvc } from 'meta-contract'
-
-import { getNetwork } from '../network'
-import { getAddress, getPrivateKey } from '../account'
 import { FEEB } from '@/data/config'
 import { getApiHost } from '../host'
+import { getNetwork } from '../network'
+import { getCurrentWallet } from '../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { API_NET, API_TARGET, FtManager, Wallet, mvc } from 'meta-contract'
 
 export type Receiver = {
   address: string
@@ -16,8 +16,9 @@ export type TransferTask = {
 }
 export async function process({ tasks, broadcast = true }: { tasks: TransferTask[]; broadcast?: boolean }) {
   const network: API_NET = (await getNetwork()) as API_NET
-  const purse = await getPrivateKey('mvc')
-  const address = (await getAddress())!
+  const chianWallet = await getCurrentWallet(Chain.MVC)
+  const purse = chianWallet.getPrivateKey()
+  const address = chianWallet.getAddress()
   const apiHost = await getApiHost()
 
   const wallet = new Wallet(purse, network, FEEB, API_TARGET.MVC, apiHost)

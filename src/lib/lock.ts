@@ -1,6 +1,6 @@
 import useStorage from './storage'
 import { notifyBg } from './notify-bg'
-import { checkPassword } from './password'
+import { checkPassword, hasPassword } from './password'
 
 const storage = useStorage()
 
@@ -13,6 +13,9 @@ export async function lock() {
 }
 
 export async function isLocked() {
+  if (!(await hasPassword())) {
+    return false
+  }
   return await storage.get(LOCK_KEY, { defaultValue: true })
 }
 

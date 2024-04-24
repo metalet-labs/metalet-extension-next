@@ -1,16 +1,17 @@
 import connector from '../connector'
-import { getAddress, getCurrentAccount } from '../account'
+import { getCurrentWallet } from '../wallet'
+import { getCurrentAccountId } from '../account'
+import { Chain } from '@metalet/utxo-wallet-service'
 
-export async function process(params: any, host: string) {
-  const account = await getCurrentAccount()
+export async function process(_: unknown, host: string) {
+  const wallet = await getCurrentWallet(Chain.MVC)
+  const currentAccountId = await getCurrentAccountId()
 
-  if (!account) {
-    return { address: '', txid: '' }
+  if (!wallet || !currentAccountId) {
+    return { address: '' }
   }
 
-  await connector.connect(account.id, host)
+  await connector.connect(currentAccountId, host)
 
-  const address = await getAddress()
-
-  return { address }
+  return { address: wallet.getAddress() }
 }

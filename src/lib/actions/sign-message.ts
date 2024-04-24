@@ -1,12 +1,8 @@
-import { mvc } from 'meta-contract'
-
-import { getPrivateKey } from '../account'
-import { signMessage } from '../crypto'
+import { getCurrentWallet } from '../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 export async function process(params: any, host: string) {
-  const wif = await getPrivateKey()
-  const privateKeyObj = mvc.PrivateKey.fromWIF(wif)
-  const signature = signMessage(params.message, privateKeyObj, params.encoding)
-
+  const wallet = await getCurrentWallet(Chain.MVC)
+  const signature = wallet.signMessage(params.message)
   return { signature }
 }

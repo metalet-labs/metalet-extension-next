@@ -1,7 +1,6 @@
-import { getBalance, getAddress } from '@/lib/account'
+import { getBalance } from '@/lib/account'
+import { Chain } from '@metalet/utxo-wallet-service'
 
-export async function process(params: any, host: string) {
-  const address = await getAddress('btc')
-
-  return await getBalance('btc', address)
+export async function process() {
+  return await getBalance(Chain.BTC)
 }

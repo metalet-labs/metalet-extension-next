@@ -17,7 +17,11 @@ getAccounts().then((accounts) => {
   <FlexBox ai="center" jc="center" :gap="12" class="w-full h-full">
     <FlexBox d="col" class="gap-y-15">
       <FlexBox d="col" :gap="3">
-        <div class="text-2xl font-semibold">Metalet —— <br />The portal to exploring the Web3 blockchain world.</div>
+        <div class="text-2xl font-semibold">
+          Metalet ——
+          <br />
+          The portal to exploring the Web3 blockchain world.
+        </div>
         <p class="text-gray-primary">Unravel blockchain's infinite possibilities, unlock the digital future.</p>
       </FlexBox>
       <FlexBox d="col" :gap="4">
@@ -27,21 +31,30 @@ getAccounts().then((accounts) => {
             :disabled="!checked"
             @click="$router.push('/welcome/import')"
             :class="['w-32.5', !checked ? 'opacity-50' : undefined]"
-            >Import wallet</Button
           >
+            Import wallet
+          </Button>
           <Button
             type="primary"
             :disabled="!checked"
             @click="$router.push('/welcome/create')"
             :class="['w-32.5', !checked ? 'opacity-50' : undefined]"
-            >Create wallet</Button
           >
+            Create wallet
+          </Button>
         </FlexBox>
         <FlexBox :gap="1.5" ai="center">
           <Checkbox id="terms" v-model:checked="checked" />
-          <span class="text-slate-light"
-            >I agree to Metlet's <a href="javascript:void(0)" class="text-blue-primary">Terms of use</a></span
-          >
+          <span class="text-slate-light">
+            I agree to Metalet's
+            <a
+              target="_blank"
+              class="text-blue-primary"
+              href="https://docs.google.com/document/d/1JFUS6f3Vs3Jh2CA4xpTixOUaMto4pANxmM_7b3suut8/edit"
+            >
+              Terms of Service
+            </a>
+          </span>
         </FlexBox>
       </FlexBox>
     </FlexBox>

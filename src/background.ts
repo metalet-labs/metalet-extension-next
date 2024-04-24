@@ -4,11 +4,11 @@ import { network } from '@/lib/network'
 import actions from './data/query-actions'
 import browser from 'webextension-polyfill'
 import exActions from './data/extension-actions'
-import { getAddress, getCurrentAccount } from './lib/account'
+import { getCurrentWalletId, hasWallets } from './lib/wallet'
+import { getAddress, getCurrentAccountId } from './lib/account'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
-import { goToPage } from './lib/utils'
 
-// const browser = window.browser as typeof chrome
+// const browser = window.browser as typeof chromex
 browser.runtime.onMessage.addListener(async (msg, sender) => {
   try {
     if (msg.channel === 'to-bg') {
@@ -44,17 +44,19 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       return response
     }
 
-    const account = await getCurrentAccount()
-    const walletLocked = await isLocked()
+    const currentWalletId = await getCurrentWalletId()
+    const currentAccountId = await getCurrentAccountId()
 
     // 如果连接状态为未连接，且请求的 action 不是connect或者IsConnected，则返回错误
     let failedStatus: string = ''
-    if (walletLocked) {
+    if (await isLocked()) {
       failedStatus = 'locked'
-    } else if (!account || !account.id) {
+    } else if (!(await hasWallets())) {
+      failedStatus = 'no-wallets'
+    } else if (!currentWalletId || !currentAccountId) {
       failedStatus = 'not-logged-in'
     } else if (
-      !(await connector.isConnected(account.id, msg.host)) &&
+      !(await connector.isConnected(currentAccountId, msg.host)) &&
       !['Connect', 'IsConnected', 'ConnectBTC'].includes(actionName)
     ) {
       failedStatus = 'not-connected'

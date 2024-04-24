@@ -1,4 +1,3 @@
-import { Psbt } from 'bitcoinjs-lib'
 import * as SignPsbt from './sign-psbt'
 
 export interface ToSignInput {

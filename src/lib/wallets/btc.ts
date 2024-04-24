@@ -8,6 +8,7 @@ import { getBtcUtxos, type UTXO } from '@/queries/utxos'
 import { Payment, Psbt, Transaction } from 'bitcoinjs-lib'
 import { fetchBtcTxHex, broadcastBTCTx } from '@/queries/transaction'
 import { Account, getCurrentAccount, getAddressType, getAddress, getSigner } from '@/lib/account'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 export class BtcWallet {
   private account?: Account = undefined
@@ -67,7 +68,7 @@ export class BtcWallet {
         const payInput = await createPayInput({ utxo, payment, addressType })
         psbt.addInput(payInput)
       }
-      const signer = await getSigner('btc')
+      const signer = await getSigner(Chain.BTC)
       psbt.signAllInputs(signer).finalizeAllInputs()
       return psbt
     }
@@ -114,7 +115,7 @@ export class BtcWallet {
         }
       }
 
-      const signer = await getSigner('btc')
+      const signer = await getSigner(Chain.BTC)
       psbt.signAllInputs(signer).finalizeAllInputs()
       return psbt
     }
@@ -173,7 +174,7 @@ export class BtcWallet {
         const payInput = await createPayInput({ utxo, payment, addressType })
         psbt.addInput(payInput)
       }
-      const signer = await getSigner('btc')
+      const signer = await getSigner(Chain.BTC)
       psbt.signAllInputs(signer).finalizeAllInputs()
       return psbt
     }
@@ -261,7 +262,7 @@ async function getPsbtAndSelectUtxos(recipient: string, amount: Decimal, feeRate
       }
     }
 
-    const signer = await getSigner('btc')
+    const signer = await getSigner(Chain.BTC)
     psbt.signAllInputs(signer).finalizeAllInputs()
     return psbt
   }

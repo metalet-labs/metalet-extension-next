@@ -1,7 +1,8 @@
-import { API_NET, API_TARGET, FtManager } from 'meta-contract'
-import { getNetwork } from '../network'
-import { getAddress, getPrivateKey } from '../account'
 import { FEEB } from '@/data/config'
+import { getNetwork } from '../network'
+import { getCurrentWallet } from '../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { API_NET, API_TARGET, FtManager } from 'meta-contract'
 import { METASV_HOST, METASV_TESTNET_HOST } from '@/data/hosts'
 
 export async function process({
@@ -17,7 +18,8 @@ export async function process({
   }[]
 }) {
   const network: API_NET = (await getNetwork()) as API_NET
-  const purse = await getPrivateKey()
+  const wallet = await getCurrentWallet(Chain.MVC)
+  const purse = wallet.getPrivateKey()
   const apiHost = network === API_NET.MAIN ? METASV_HOST : METASV_TESTNET_HOST
 
   const ftManager = new FtManager({
@@ -28,7 +30,7 @@ export async function process({
     apiHost,
   })
   // Pick the largest utxo from wallet to pay the transaction
-  const selfAddress = await getAddress()
+  const selfAddress = wallet.getAddress()
   const largestUtxo = await ftManager.api
     .getUnspents(selfAddress)
     .then((utxos) => {
@@ -69,7 +71,8 @@ export async function estimate({
   }[]
 }) {
   const network: API_NET = (await getNetwork()) as API_NET
-  const purse = await getPrivateKey()
+  const wallet = await getCurrentWallet(Chain.MVC)
+  const purse = wallet.getPrivateKey()
   const apiHost = network === API_NET.MAIN ? METASV_HOST : METASV_TESTNET_HOST
 
   const ftManager = new FtManager({

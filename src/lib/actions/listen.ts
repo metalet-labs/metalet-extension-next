@@ -1,9 +1,9 @@
-import { getCurrentAccount, getAddress } from '../account'
 import connector from '../connector'
+import { getCurrentAccountId } from '../account'
 
-export async function process(params: any, host: string) {
-  const account = await getCurrentAccount()
-  if (!account) return false
+export async function process(_: unknown, host: string) {
+  const currentAccountId = await getCurrentAccountId()
+  if (!currentAccountId) return false
 
-  return connector.registerListen(account.id, host)
+  return connector.registerListen(currentAccountId, host)
 }

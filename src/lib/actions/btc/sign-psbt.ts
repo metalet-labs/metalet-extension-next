@@ -1,10 +1,10 @@
-import ECPairFactory from 'ecpair'
-import { getBtcNetwork, getNetwork } from '@/lib/network'
+import { getSigner } from '@/lib/account'
+import { getCurrentWallet } from '@/lib/wallet'
 import * as ecc from '@bitcoin-js/tiny-secp256k1-asmjs'
+import { getBtcNetwork, getNetwork } from '@/lib/network'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import btcjs, { Psbt, payments, networks, Transaction } from 'bitcoinjs-lib'
-import { getAddressType, getPublicKey, getAddress, getSigner } from '@/lib/account'
 
-const ECPair = ECPairFactory(ecc)
 btcjs.initEccLib(ecc)
 
 const toXOnly = (pubKey: Buffer) => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33))
@@ -45,8 +45,8 @@ export async function process({
   options?: { toSignInputs?: ToSignInput[]; autoFinalized: boolean }
 }): Promise<string> {
   const psbtNetwork = await getBtcNetwork()
-  const addressType = await getAddressType('btc')
-  const pubkey = await getPublicKey('btc')
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const pubkey = wallet.getPublicKeyHex()
 
   if (!options) {
     options = { toSignInputs: undefined, autoFinalized: true }
@@ -61,7 +61,7 @@ export async function process({
 
   psbt.data.inputs.forEach((v, index) => {
     const isNotSigned = !(v.finalScriptSig || v.finalScriptWitness)
-    const isP2TR = addressType === 'P2TR'
+    const isP2TR = wallet.getScriptType() === ScriptType.P2TR
     const lostInternalPubkey = !v.tapInternalKey
     // Special measures taken for compatibility with certain applications.
     if (isNotSigned && isP2TR && lostInternalPubkey) {
@@ -81,7 +81,7 @@ export async function process({
   //   psbt.signInput(v.index, keyPair, v.sighashTypes)
   // })
   for (let i = 0; i < options.toSignInputs.length; i++) {
-    const keyPair = await getSigner('btc', options!.toSignInputs![i].treehash)
+    const keyPair = await getSigner(Chain.BTC, options!.toSignInputs![i].treehash)
     const v = options.toSignInputs[i]
     psbt.signInput(v.index, keyPair, v.sighashTypes)
   }
@@ -96,8 +96,9 @@ export async function process({
 }
 
 const formatOptionsToSignInputs = async (_psbt: string | Psbt, options?: SignPsbtOptions) => {
-  const pubkey = await getPublicKey('btc')
-  const btcAddress = await getAddress('btc')
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const pubkey = wallet.getPublicKeyHex()
+  const btcAddress = wallet.getAddress()
   const account = { pubkey, address: btcAddress }
 
   let toSignInputs: ToSignInput[] = []

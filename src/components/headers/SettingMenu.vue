@@ -53,7 +53,7 @@ const lockWallet = async () => {
         </div>
       </MenuItem>
       <MenuItem v-if="!IS_DEV">
-        <button @click="goToTab('/wallet')" class="menu-item">
+        <button @click="goToTab('/wallet', true)" class="menu-item">
           <BrowserIcon />
           <span>Open in Window</span>
         </button>

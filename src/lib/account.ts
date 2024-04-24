@@ -2,10 +2,12 @@ import { mvc } from 'meta-contract'
 import useStorage from '@/lib/storage'
 import { crypto } from 'bitcoinjs-lib'
 import { signMessage } from '@/lib/crypto'
+import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import { fetchUtxos } from '@/queries/utxos'
 import { notifyContent } from '@/lib/notify-content'
 import { getBtcNetwork, getNetwork } from '@/lib/network'
 import { generateRandomString, raise } from '@/lib/helpers'
+import { ScriptType, Chain as UtxoChain } from '@metalet/utxo-wallet-service'
 import type { V1Account, V2Account, Chain, ChainDetail } from './types'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
 import {
@@ -16,6 +18,15 @@ import {
   derivePrivateKey,
   deriveBtcPrivateKey,
 } from '@/lib/bip32-deriver'
+
+const CURRENT_WALLET_ID = 'currentWalletId'
+
+// import { getCurrentWalletId, hasWallets } from './wallet'
+
+// export { getCurrentWalletId, hasWallets }
+export async function getCurrentWalletId() {
+  return await storage.get(CURRENT_WALLET_ID)
+}
 
 export { V2Account as Account }
 
@@ -219,7 +230,7 @@ async function getAccountProperty(chain: Chain, key: keyof ChainDetail[Chain]): 
 
 export async function getAddress(chain: Chain = 'mvc', path?: string): Promise<string> {
   const network = await getNetwork()
-  const account = await getCurrentAccount()
+  const activeWallet = await getActiveWalletOnlyAccount()
 
   if (chain === 'btc' || !path) {
     return getAccountProperty(chain, network === 'mainnet' ? 'mainnetAddress' : 'testnetAddress')
@@ -230,7 +241,7 @@ export async function getAddress(chain: Chain = 'mvc', path?: string): Promise<s
     const rootPath = await getMvcRootPath()
     const concatPath = `${rootPath}/${path}`
 
-    const mneObj = mvc.Mnemonic.fromString(account!.mnemonic)
+    const mneObj = mvc.Mnemonic.fromString(activeWallet!.mnemonic)
     const hdpk = mneObj.toHDPrivateKey('', network)
     const privateKey = hdpk.deriveChild(concatPath).privateKey
 
@@ -258,24 +269,13 @@ export async function getPrivateKey(chain: Chain = 'mvc') {
   return derivePrivateKey({ mnemonic, chain, network, path })
 }
 
-export async function getSigner(chain: Chain = 'mvc', treehash?: string) {
-  const addressType = await getAddressType(chain)
-  if (addressType === 'P2TR') {
-    const network = await getNetwork()
-    const mnemonic = await getCurrentAccount().then((account) => account!.mnemonic)
-    const path = await getAccountProperty(chain, 'path')
-    const node = deriveBtcPrivateKey(mnemonic, path, network)
-    const nodeXOnlyPubkey = node.publicKey.subarray(1)
-    if (treehash) {
-      const withTreehash = Buffer.concat([nodeXOnlyPubkey, Buffer.from(treehash, 'hex')])
-      return node.tweak(crypto.taggedHash('TapTweak', withTreehash))
-    }
-
-    return node.tweak(crypto.taggedHash('TapTweak', nodeXOnlyPubkey))
+export async function getSigner(chain: UtxoChain, treehash?: string) {
+  const wallet = await getCurrentWallet(chain)
+  if (wallet.getScriptType() === ScriptType.P2TR) {
+    return wallet.tweak(treehash)
   }
   const btcNetwork = await getBtcNetwork()
-  const privateKey = await getPrivateKey(chain)
-  return deriveSigner(privateKey, btcNetwork)
+  return deriveSigner(wallet.getPrivateKey(), btcNetwork)
 }
 
 export async function getCredential(
@@ -331,34 +331,23 @@ export async function getPublicKey(chain: Chain = 'mvc', path?: string): Promise
 }
 
 export async function getXPublicKey() {
-  const account = await getCurrentAccount()
-  if (!account) {
-    return ''
-  }
-
+  const activeWallet = await getActiveWalletOnlyAccount()
   const network = await getNetwork()
-  const mneObj = mvc.Mnemonic.fromString(account.mnemonic)
+  const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
   const rootPath = await getMvcRootPath()
   const xPublicKey = mneObj.toHDPrivateKey('', network).deriveChild(rootPath).xpubkey.toString()
 
   return xPublicKey
 }
 
-export async function getBalance(chain: Chain = 'mvc', address?: string) {
-  const account = await getCurrentAccount()
-
-  if (!account) {
-    return null
-  }
-
-  if (!address) {
-    address = await getAddress(chain)
-  }
+export async function getBalance(chain: UtxoChain) {
+  const wallet = await getCurrentWallet(chain)
+  const address = wallet.getAddress()
 
   switch (chain) {
-    case 'mvc':
+    case UtxoChain.MVC:
       return fetchSpaceBalance(address)
-    case 'btc':
+    case UtxoChain.BTC:
       return fetchBtcBalance(address)
     default: {
       return doNothing(address)
@@ -367,8 +356,8 @@ export async function getBalance(chain: Chain = 'mvc', address?: string) {
 }
 
 export async function getUtxos(chain: Chain = 'mvc', params?: { path?: string }) {
-  const account = await getCurrentAccount()
-  if (!account) {
+  const activeWallet = await getActiveWalletOnlyAccount()
+  if (!activeWallet || !!activeWallet.accounts.length) {
     return null
   }
   const address = await getAddress(chain, params?.path)
@@ -416,33 +405,33 @@ export async function needsMigrationV2(): Promise<boolean> {
   return v1Mnemonics.some((mne) => !v2Mnemonics.includes(mne))
 }
 
-type AccountManager = {
-  all: () => Promise<Map<string, V2Account>>
-  getCurrent: () => Promise<V2Account | undefined>
-  removeCurrent: () => Promise<boolean>
-  set: (account: V2Account) => Promise<void>
-  add: (account: Omit<V2Account, 'id' | 'name'>) => Promise<void>
-  connect: (accountId: string) => Promise<boolean>
-  getPublicKey: (chain: Chain, path?: string) => Promise<string>
-  getBalance: (chain: Chain, address?: string) => Promise<Awaited<ReturnType<typeof fetchSpaceBalance>> | null>
-  getAddress: (chain: Chain, path?: string) => Promise<any>
-  getXPublicKey: () => Promise<string | null>
-  getUtxos: (chain: Chain, params?: any) => Promise<any>
-  updateName: (name: string) => Promise<void>
-}
+// type AccountManager = {
+//   all: () => Promise<Map<string, V2Account>>
+//   getCurrent: () => Promise<V2Account | undefined>
+//   removeCurrent: () => Promise<boolean>
+//   set: (account: V2Account) => Promise<void>
+//   add: (account: Omit<V2Account, 'id' | 'name'>) => Promise<void>
+//   connect: (accountId: string) => Promise<boolean>
+//   getPublicKey: (chain: Chain, path?: string) => Promise<string>
+//   getBalance: (chain: Chain, address?: string) => Promise<Awaited<ReturnType<typeof fetchSpaceBalance>> | null>
+//   getAddress: (chain: Chain, path?: string) => Promise<any>
+//   getXPublicKey: () => Promise<string | null>
+//   getUtxos: (chain: Chain, params?: any) => Promise<any>
+//   updateName: (name: string) => Promise<void>
+// }
 
-const accountManager = {} as AccountManager
-accountManager.all = getAccounts
-accountManager.getCurrent = getCurrentAccount
-accountManager.set = setAccount
-accountManager.add = addAccount
-accountManager.connect = connectAccount
-accountManager.getAddress = getAddress
-accountManager.getPublicKey = getPublicKey
-accountManager.getXPublicKey = getXPublicKey
-accountManager.getBalance = getBalance
-accountManager.getUtxos = getUtxos
-accountManager.removeCurrent = removeCurrentAccount
-accountManager.updateName = updateName
+// const accountManager = {} as AccountManager
+// accountManager.all = getAccounts
+// accountManager.getCurrent = getCurrentAccount
+// accountManager.set = setAccount
+// accountManager.add = addAccount
+// accountManager.connect = connectAccount
+// accountManager.getAddress = getAddress
+// accountManager.getPublicKey = getPublicKey
+// accountManager.getXPublicKey = getXPublicKey
+// accountManager.getBalance = getBalance
+// accountManager.getUtxos = getUtxos
+// accountManager.removeCurrent = removeCurrentAccount
+// accountManager.updateName = updateName
 
-export default accountManager
+// export default accountManager

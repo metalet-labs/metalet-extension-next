@@ -1,8 +1,9 @@
-import { goToPage } from './utils'
+import { getNet } from './network'
 import useStorage from '@/lib/storage'
 import { type V3Wallet } from './types'
-import { toast } from '@/components/ui/toast'
 import { getCurrentAccountId } from './account'
+import { getV3AddressTypeStorage } from './addressType'
+import { Chain, MvcWallet, BtcWallet, AddressType, CoinType } from '@metalet/utxo-wallet-service'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
 export const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
@@ -133,78 +134,80 @@ export async function getV3CurrentAccount() {
   const walletId = await getCurrentWalletId()
   const wallets = await getV3Wallets()
   if (!walletId || !wallets.length) {
-    goToPage('/manage/wallets')
     throw new Error('current wallet id not found')
   }
   const wallet = wallets.find((wallet) => wallet.id === walletId)
   if (!wallet) {
-    goToPage('/manage/wallets')
     throw new Error('wallet not found')
   }
 
   const { accounts } = wallet
   if (!accounts || !accounts.length) {
-    goToPage('/manage/wallets')
     throw new Error('wallet does not have any accounts')
   }
   const currentAccountId = await getCurrentAccountId()
   if (!currentAccountId) {
-    goToPage('/manage/wallets')
     throw new Error('current account id not found')
   }
   const account = accounts.find((account) => account.id === currentAccountId)
   if (!account) {
-    goToPage('/manage/wallets')
     throw new Error('current account not found')
   }
   return account
 }
 
 export async function updateWalletName(walletId: string, name: string) {
-  try {
-    const walletsMap = await getV3WalletsStorage()
-    if (!walletsMap) {
-      throw new Error('V3 wallets storage not found.')
-    }
-    const wallet = walletsMap[walletId]
-    if (!wallet) {
-      throw new Error(`Wallet not found with id ${walletId}.`)
-    }
-    wallet.name = name
-    await setV3WalletsStorage(walletsMap)
-  } catch (error) {
-    toast({ title: (error as Error).message, toastType: 'warning' })
-    goToPage('/manage/wallets')
+  const walletsMap = await getV3WalletsStorage()
+  if (!walletsMap) {
+    throw new Error('V3 wallets storage not found.')
   }
+  const wallet = walletsMap[walletId]
+  if (!wallet) {
+    throw new Error(`Wallet not found with id ${walletId}.`)
+  }
+  wallet.name = name
+  await setV3WalletsStorage(walletsMap)
 }
 
 export async function updateAccountName(walletId: string, accountId: string, name: string) {
-  try {
-    const walletsMap = await getV3WalletsStorage()
-    if (!walletsMap) {
-      throw new Error('V3 wallets storage not found.')
-    }
-    const wallet = walletsMap[walletId]
-    if (!wallet) {
-      throw new Error(`Wallet not found with id ${walletId}.`)
-    }
-    const accounts = wallet.accounts
-    if (!accounts) {
-      throw new Error(`Wallet acounts not found with id ${walletId}.`)
-    }
-    const account = accounts.find((account) => account.id === accountId)
-    if (!account) {
-      throw new Error(`Account not found with id ${accountId}.`)
-    }
-    account.name = name
-    await setV3WalletsStorage(walletsMap)
-  } catch (error) {
-    toast({ title: (error as Error).message, toastType: 'warning' })
-    goToPage('/manage/wallets')
+  const walletsMap = await getV3WalletsStorage()
+  if (!walletsMap) {
+    throw new Error('V3 wallets storage not found.')
   }
+  const wallet = walletsMap[walletId]
+  if (!wallet) {
+    throw new Error(`Wallet not found with id ${walletId}.`)
+  }
+  const accounts = wallet.accounts
+  if (!accounts) {
+    throw new Error(`Wallet acounts not found with id ${walletId}.`)
+  }
+  const account = accounts.find((account) => account.id === accountId)
+  if (!account) {
+    throw new Error(`Account not found with id ${accountId}.`)
+  }
+  account.name = name
+  await setV3WalletsStorage(walletsMap)
 }
 
 export async function hasWallets() {
   const wallets = await getV3Wallets()
   return !!wallets.length
+}
+
+export async function getCurrentWallet(chain: Chain) {
+  const network = getNet()
+  const activeWallet = await getActiveWalletOnlyAccount()
+  const mnemonic = activeWallet.mnemonic
+  const addressIndex = activeWallet.accounts[0].addressIndex
+  const addressType = await getV3AddressTypeStorage(chain)
+  if (chain === Chain.BTC) {
+    const coinType = addressType === AddressType.SameAsMvc ? activeWallet.mvcTypes[0] : CoinType.BTC
+    return new BtcWallet({ coinType, addressType, addressIndex, network, mnemonic })
+  } else if (chain === Chain.MVC) {
+    const coinType = activeWallet.mvcTypes[0]
+    return new MvcWallet({ coinType, addressType, addressIndex, network, mnemonic })
+  } else {
+    throw new Error(`Chain ${chain} is not supported`)
+  }
 }

@@ -1,10 +1,13 @@
 import { Buffer } from 'buffer'
 import CryptoJS from 'crypto-js'
+import { getNetwork } from '@/lib/network'
 import { parseLocalTransaction } from './metadata'
 import { BN, TxComposer, mvc } from 'meta-contract'
 import { getMvcRootPath, type Account } from './account'
 import { type MvcUtxo, fetchUtxos } from '@/queries/utxos'
+import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import { DERIVE_MAX_DEPTH, FEEB, P2PKH_UNLOCK_SIZE } from '@/data/config'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 export function eciesEncrypt(message: string, privateKey: mvc.PrivateKey): string {
   const publicKey = privateKey.toPublicKey()
@@ -61,7 +64,7 @@ export const verifySignature = (
   publicKey: mvc.PublicKey,
   encoding?: 'utf-8' | 'base64' | 'hex' | 'utf8'
 ) => {
-  const messageHash = mvc.crypto.Hash.sha256(Buffer.from('MVC Signed Message:\n' + message))
+  const messageHash = mvc.crypto.Hash.sha256(Buffer.from('Bitcoin Signed Message:\n' + message))
 
   const sigDER = Buffer.from(signature, encoding || 'hex')
   const sigObj = mvc.crypto.Signature.fromDER(sigDER)
@@ -83,12 +86,12 @@ type ToSignTransaction = {
   dataDependsOn?: number
 }
 export const signTransaction = async (
-  account: Account,
-  network: 'testnet' | 'mainnet',
   { txHex, scriptHex, inputIndex, satoshis, sigtype, path }: ToSignTransaction,
   returnsTransaction: boolean = false
 ) => {
-  const mneObj = mvc.Mnemonic.fromString(account.mnemonic)
+  const network = await getNetwork()
+  const activeWallet = await getActiveWalletOnlyAccount()
+  const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
   const hdpk = mneObj.toHDPrivateKey('', network)
   const rootPath = await getMvcRootPath()
   // find out priv / pub according to path
@@ -131,11 +134,11 @@ export const signTransaction = async (
 }
 
 export const signTransactions = async (
-  account: Account,
-  network: 'testnet' | 'mainnet',
   toSignTransactions: ToSignTransaction[]
 ) => {
-  const mneObj = mvc.Mnemonic.fromString(account.mnemonic)
+  const network = await getNetwork()
+  const activeWallet = await getActiveWalletOnlyAccount()
+  const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
   const hdpk = mneObj.toHDPrivateKey('', network)
   const rootPath = await getMvcRootPath()
 
@@ -259,15 +262,16 @@ export const signTransactions = async (
  *
  */
 export const payTransactions = async (
-  account: Account,
-  network: 'testnet' | 'mainnet',
   toPayTransactions: {
     txComposer: string
     message?: string
   }[],
   hasMetaid: boolean = false
 ) => {
-  const address = account.mvc.mainnetAddress
+  const network = await getNetwork()
+  const wallet = await getCurrentWallet(Chain.MVC)
+  const activeWallet = await getActiveWalletOnlyAccount()
+  const address = wallet.getAddress()
   let usableUtxos = ((await fetchUtxos('mvc', address)) as MvcUtxo[]).map((u) => {
     return {
       txId: u.txid,
@@ -371,7 +375,7 @@ export const payTransactions = async (
     const changeOutput = txComposer.getOutput(changeIndex)
 
     // sign
-    const mneObj = mvc.Mnemonic.fromString(account.mnemonic)
+    const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
     const hdpk = mneObj.toHDPrivateKey('', network)
 
     const rootPath = await getMvcRootPath()

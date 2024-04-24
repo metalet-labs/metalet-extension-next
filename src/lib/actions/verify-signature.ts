@@ -1,18 +1,26 @@
-import { mvc } from 'meta-contract'
+// import { mvc } from 'meta-contract'
+// import { verifySignature } from '../crypto'
+import { getCurrentWallet } from '../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
 
-import { getPrivateKey } from '../account'
-import { verifySignature } from '../crypto'
-
-export async function process(params: any, host: string) {
+export async function process(params: any) {
   const { message, signature, encoding } = params
+  const chianWallet = await getCurrentWallet(Chain.MVC)
 
-  const wif = await getPrivateKey()
-  const publicKey = mvc.PrivateKey.fromWIF(wif).toPublicKey()
+  // const wif = chianWallet.getPrivateKey()
+  // const publicKey = mvc.PrivateKey.fromWIF(wif).toPublicKey()
 
-  const verified = verifySignature(message, signature, publicKey, encoding)
+  // const verified = verifySignature(message, signature, publicKey, encoding)
 
   return {
     status: 'ok',
-    result: { verified },
+    result: {
+      verified: chianWallet.verifyMessage({
+        text: message,
+        publicKey: chianWallet.getPublicKeyHex(),
+        signature,
+        encoding,
+      }),
+    },
   }
 }
