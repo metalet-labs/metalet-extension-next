@@ -4,6 +4,7 @@ import { type Asset } from '@/data/assets'
 import { useQuery } from '@tanstack/vue-query'
 import { mvcApi, metaletApiV3 } from './request'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { Activities_QUERY_INTERVAL } from './constants'
 
 export type Operation = {
   flag: string
@@ -160,6 +161,7 @@ export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?:
         return fetchTokenActivities(address.value, asset)
       }
     },
+    refetchInterval: Activities_QUERY_INTERVAL,
     ...options,
   })
 }

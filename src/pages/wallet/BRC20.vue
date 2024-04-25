@@ -14,6 +14,7 @@ import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import Activities from './components/Activities.vue'
 import TickerList from './components/TickerList.vue'
 import FilterIcon from '@/assets/icons-v3/filter.svg'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import TransferPNG from '@/assets/icons-v3/transfer.png'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { getTags, BTCAsset, MVCAsset } from '@/data/assets'
@@ -21,7 +22,6 @@ import { useBRCTickerAseetQuery, useBRC20AssetQuery } from '@/queries/btc'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import LoadingIcon from '@/components/LoadingIcon.vue'
 
 const route = useRoute()
 const router = useRouter()

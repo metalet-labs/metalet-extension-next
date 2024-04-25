@@ -5,14 +5,14 @@ import { getNetwork } from '@/lib/network'
 import type { Asset } from '@/data/assets'
 import Avatar from '@/components/Avatar.vue'
 import { UseImage } from '@vueuse/components'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { useMVCAssetsQuery } from '@/queries/tokens'
-import LoadingIcon from '@/components/LoadingIcon.vue'
 import { computed, onMounted, ref, watch } from 'vue'
-import { getPrivateKey, getAddress } from '@/lib/account'
+import LoadingIcon from '@/components/LoadingIcon.vue'
 import { API_NET, API_TARGET, FtManager } from 'meta-contract'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
 
-const address = ref('')
 const ftManager = ref()
 const operation = ref('')
 const loading = ref(false)
@@ -33,6 +33,10 @@ type Receiver = {
   amount: string
 }
 
+const { getAddress, currentMVCWallet } = useChainWalletsStore()
+
+const address = getAddress(Chain.MVC)
+
 const split = async (genesis: string, codehash: string, symbol: string, decimal: number) => {
   try {
     loading.value = true
@@ -40,7 +44,7 @@ const split = async (genesis: string, codehash: string, symbol: string, decimal:
     currentGenesis.value = genesis
     currentCodehash.value = codehash
     const network: API_NET = (await getNetwork()) as API_NET
-    const purse = await getPrivateKey('mvc')
+    const purse = currentMVCWallet.value!.getPrivateKey()
     const apiHost = await getApiHost()
     const ftManager = new FtManager({
       network,
@@ -94,7 +98,7 @@ const merge = async (genesis: string, codehash: string) => {
     currentCodehash.value = codehash
     operation.value = 'merge'
     const network: API_NET = (await getNetwork()) as API_NET
-    const purse = await getPrivateKey('mvc')
+    const purse = currentMVCWallet.value!.getPrivateKey()
     const apiHost = await getApiHost()
     const ftManager = new FtManager({
       network,
@@ -135,10 +139,6 @@ const merge = async (genesis: string, codehash: string) => {
   }
 }
 
-getAddress('mvc').then((_address) => {
-  address.value = _address
-})
-
 const { isLoading, data: mvcAssets } = useMVCAssetsQuery(address, {
   enabled: computed(() => !!address.value),
   autoRefresh: true,
@@ -146,9 +146,9 @@ const { isLoading, data: mvcAssets } = useMVCAssetsQuery(address, {
 
 // TODO: Change computed
 watch(
-  [mvcAssets, ftManager, isRefresh],
+  [mvcAssets, ftManager, isRefresh, address],
   async ([assets, manager, _isRefresh]) => {
-    if (manager && assets && _isRefresh) {
+    if (manager && assets && _isRefresh && address) {
       assetLoading.value = true
       const _assets: (Asset & { utxoCount: number })[] = []
       for (let asset of assets || []) {
@@ -173,17 +173,19 @@ const hasMergeToken = computed(() => {
   return ftAsssets.value.some((asset) => asset.utxoCount > NeedToMergeCount)
 })
 
-onMounted(async () => {
-  const network: API_NET = (await getNetwork()) as API_NET
-  const purse = await getPrivateKey('mvc')
-  const apiHost = await getApiHost()
-  ftManager.value = new FtManager({
-    network,
-    apiTarget: API_TARGET.MVC,
-    purse,
-    feeb: FEEB,
-    apiHost,
-  })
+watch(currentMVCWallet, async (_currentMVCWallet) => {
+  if (_currentMVCWallet) {
+    const network: API_NET = (await getNetwork()) as API_NET
+    const purse = _currentMVCWallet.getPrivateKey()
+    const apiHost = await getApiHost()
+    ftManager.value = new FtManager({
+      network,
+      apiTarget: API_TARGET.MVC,
+      purse,
+      feeb: FEEB,
+      apiHost,
+    })
+  }
 })
 </script>
 

@@ -1,19 +1,39 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { getAddress } from '@/lib/account'
+import { ref, computed, watch } from 'vue'
 import { BtcWallet } from '@/lib/wallets/btc'
 import { getBtcUtxos } from '@/queries/utxos'
+import { prettifyAddress } from '@/lib/formatters'
 import { fetchBtcBalance } from '@/queries/balance'
+import { Chain } from '@metalet/utxo-wallet-service'
+import LoadingIcon from '@/components/LoadingIcon.vue'
+import { FeeRateSelector, Avatar } from '@/components'
 import { ArrowPathIcon } from '@heroicons/vue/24/outline'
-import BTCRateList from '@/pages/wallet/components/BTCRateList.vue'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
 
 const utxos = ref()
-const address = ref()
+const isLoading = ref(true)
 const feeRate = ref<number>()
 const operationLock = ref(false)
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult | undefined>()
+
+const { getAddress } = useChainWalletsStore()
+
+const address = getAddress(Chain.BTC)
+
+watch(
+  address,
+  (newAddress) => {
+    if (newAddress) {
+      getBtcUtxos(newAddress).then((_utxos) => {
+        utxos.value = _utxos
+        isLoading.value = false
+      })
+    }
+  },
+  { immediate: true }
+)
 
 const mergeDisabled = computed(() => {
   return !utxos.value || utxos.value.length < 5 || !feeRate.value || operationLock.value
@@ -47,43 +67,44 @@ const merge = async () => {
     }
   }
 }
-
-getAddress('btc').then((_address) => {
-  address.value = _address
-  getBtcUtxos(_address).then((_utxos) => {
-    console.log({ _utxos })
-
-    utxos.value = _utxos
-  })
-})
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div class="space-y-2">
-      <div class="label">BTC Address</div>
-      <div class="value break-all">{{ address }}</div>
+  <div>
+    <div class="text-2xl font-medium">BTC Merge</div>
+    <div class="mt-2 text-gray-primary text-xs">
+      Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
+      cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
     </div>
-
-    <div class="space-y-2">
-      <div class="label">UTXO Count</div>
-      <div class="value">{{ utxos?.length || '--' }}</div>
+    <div class="mt-4 py-3 flex gap-3 items-center">
+      <Avatar :id="address" />
+      <div class="flex flex-col gap-1">
+        <div class="text-sm font-medium">BTC Address</div>
+        <div class="text-gray-primary text-xs" :title="address">{{ prettifyAddress(address) }}</div>
+      </div>
     </div>
+    <div class="space-y-4">
+      <div class="flex items-center gap-2">
+        <div class="label">UTXO Count</div>
+        <LoadingIcon v-if="isLoading" />
+        <div class="value" v-else>{{ utxos?.length }}</div>
+      </div>
 
-    <BTCRateList v-model:currentRateFee="feeRate" />
+      <FeeRateSelector v-model:currentRateFee="feeRate" />
 
-    <button
-      @click="merge"
-      :disabled="mergeDisabled"
-      :class="[
-        mergeDisabled ? 'cursor-not-allowed opacity-50' : undefined,
-        'bg-primary-blue text-white py-2 rounded-md text-xs w-full flex items-center justify-center gap-x-2',
-      ]"
-    >
-      <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
-      Merge
-    </button>
-    <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
+      <button
+        @click="merge"
+        :disabled="mergeDisabled"
+        :class="[
+          { 'cursor-not-allowed opacity-50': mergeDisabled },
+          'bg-blue-primary text-white py-2 rounded-md text-xs w-full flex items-center justify-center gap-x-2',
+        ]"
+      >
+        <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
+        Merge
+      </button>
+      <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
+    </div>
   </div>
 </template>
 
@@ -96,3 +117,5 @@ getAddress('btc').then((_address) => {
   @apply text-sm text-gray-700;
 }
 </style>
+
+{"ab61352c3fea9f802dd0465e0bdc28d4":{"id":"ab61352c3fea9f802dd0465e0bdc28d4","name":"Wallet 01","mnemonic":"attend cattle blanket flower before nose scare sweet someone spider kiss boil","mvcTypes":[10001,236],"accounts":[{"id":"961f962c63a1942e8900e892090a27ae","name":"Account 01","addressIndex":0},{"id":"6d3573ec75b1ca1228ddaccba8d975a7","name":"Account 02","addressIndex":1},{"id":"7fc414c0c39befd62cce714fca57f326","name":"Account 03","addressIndex":2}]},"40bbaca19806d54f4aed0643b612ef34":{"id":"40bbaca19806d54f4aed0643b612ef34","name":"Wallet 02","mnemonic":"tumble deposit bird brush sponsor limit play destroy truly hat lazy icon","mvcTypes":[10001],"accounts":[{"id":"455c1bc18ba14e23593c51d7d75ae103","name":"Account 01","addressIndex":0}]}}

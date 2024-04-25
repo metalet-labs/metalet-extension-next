@@ -40,7 +40,7 @@ const route = useRoute()
 const router = useRouter()
 
 const { updataWallet } = useChainWalletsStore()
-const address = ref<string>(route.params.address as string)
+const address = computed(() => route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
 const asset = computed(() => {
@@ -59,9 +59,7 @@ const balaceEnabled = computed(() => {
   return false
 })
 
-const { isLoading, data: balance } = useBalanceQuery(address, symbol, {
-  enabled: balaceEnabled,
-})
+const { isLoading, data: balance } = useBalanceQuery(address, symbol, { enabled: balaceEnabled })
 
 const tags = computed(() => {
   if (asset.value) {
@@ -125,8 +123,8 @@ const setAddressType = async (addressType: AddressType, _address: string) => {
   const chain = asset.value!.chain as Chain
   await setV3AddressTypeStorage(chain, addressType)
   await updataWallet(chain)
-  address.value = _address
   isOpen.value = false
+  router.replace(`/wallet/asset/${symbol.value}/${_address}`)
 }
 
 const chainWallets = ref()
@@ -147,9 +145,10 @@ const toReceive = () => {
     <div class="w-full h-15 -my-3 flex items-center justify-between">
       <ArrowLeftIcon class="w-3.5 cursor-pointer" @click="router.push('/wallet')" />
       <span>{{ symbol }}</span>
-      <div class="w-3.5 cursor-pointer" @click="isOpen = true" title="Set Default Address">
+      <div class="w-3.5 cursor-pointer" @click="isOpen = true" title="Set Default Address" v-if="asset.chain === 'btc'">
         <ToggleIcon />
       </div>
+      <div v-else></div>
       <Drawer v-model:open="isOpen" activeSnapPoint="#chainWallets">
         <DrawerContent>
           <DrawerHeader>

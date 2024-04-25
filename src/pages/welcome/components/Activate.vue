@@ -11,22 +11,20 @@ import BtcLogoIcon from '@/assets/images/btc-logo.svg?url'
 import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
 import { genUID, formatIndex } from '@metalet/utxo-wallet-service'
+import { getBackupV3Wallet, setBackupV3Wallet } from '@/lib/backup'
 import { addV3Wallet, getV3Wallets, setCurrentWalletId } from '@/lib/wallet'
 
 const loading = ref(true)
 const error = ref<string>()
 const router = useRouter()
 
-const { words, mvcTypes } = defineProps({
-  words: {
-    type: Array<string>,
-    required: true,
-  },
-  mvcTypes: {
-    type: Array<number>,
-    required: true,
-  },
-})
+type ActivateType = 'create' | 'import'
+
+const { words, mvcTypes, type } = defineProps<{
+  words: string[]
+  mvcTypes: number[]
+  type: ActivateType
+}>()
 
 const mnemonic = words.join(' ')
 if (!mnemonic) {
@@ -56,6 +54,11 @@ onMounted(async () => {
   await setCurrentWalletId(walletId)
   await setCurrentAccountId(accountId)
   await WalletsStore.initWalletManager()
+  if (type === 'import') {
+    const walletIds = await getBackupV3Wallet()
+    walletIds.push(walletId)
+    setBackupV3Wallet(walletIds)
+  }
   loading.value = false
 })
 </script>

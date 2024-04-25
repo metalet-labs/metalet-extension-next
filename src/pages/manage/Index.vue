@@ -16,6 +16,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { getCurrentWalletId, setV3WalletsStorage, getV3WalletsStorage, setCurrentWalletId } from '@/lib/wallet'
+import { IS_DEV } from '@/data/config'
 
 const { updateAllWallets } = useChainWalletsStore()
 
@@ -102,12 +103,12 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
           collapsible
           type="single"
           class="w-full"
-          :key="wallet.id"
-          :default-value="currentWalletId"
+          :defaultValue="IS_DEV ? currentWalletId : undefined"
+          :modelValue="IS_DEV ? undefined : currentWalletId"
           v-for="wallet in Object.values(walletObj)"
         >
-          <AccordionItem :value="wallet.id">
-            <AccordionTrigger class="">
+          <AccordionItem :key="wallet.id" :value="wallet.id">
+            <AccordionTrigger>
               <div class="flex items-center gap-2">
                 <span>{{ wallet.name }}</span>
                 <PencilIcon

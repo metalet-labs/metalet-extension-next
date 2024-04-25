@@ -1,4 +1,5 @@
 import Copy from './Copy.vue'
+import Avatar from './Avatar.vue'
 import Button from './Button.vue'
 import FlexBox from './FlexBox.vue'
 import Receive from './Receive.vue'
@@ -26,4 +27,5 @@ export {
   PasswordInput,
   SeedPhrase,
   VerifySeedPhrase,
+  Avatar
 }

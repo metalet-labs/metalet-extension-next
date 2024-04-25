@@ -9,7 +9,7 @@ const showResetModal = ref(false)
 <template>
   <div class="-mx-4">
     <router-link
-      to="/wallet/backup"
+      to="/wallet/set-password"
       class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
     >
       <span>Change Password</span>

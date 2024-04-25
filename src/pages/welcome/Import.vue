@@ -61,7 +61,7 @@ passwordManager.has().then((_hasPassword) => {
           }
         "
       />
-      <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="mvcTypes" />
+      <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="mvcTypes" type="import" />
     </div>
   </div>
 </template>

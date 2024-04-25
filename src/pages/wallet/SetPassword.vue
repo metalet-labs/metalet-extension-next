@@ -1,43 +1,18 @@
 <script lang="ts" setup>
-import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
-import PasswordImg from '@/assets/images/password.svg?url'
-import { Ref, computed, ref } from 'vue'
-import { passwordStrength } from 'check-password-strength'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-// import accountManager from '@/lib/account'
 import passwordManager from '@/lib/password'
+import { PasswordInput } from '@/components'
+import { toast } from '@/components/ui/toast'
+import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
 
 const router = useRouter()
+const phase = ref<1 | 2>(1)
 
-const phase: Ref<1 | 2> = ref(1)
-
-const isCovered = ref(true)
-const passwordInputType = computed(() => (isCovered.value ? 'password' : 'text'))
+const error = ref('')
 const password = ref('')
 const confirmPassword = ref('')
-const isExact = ref(true)
 
-// enum SecurityLevel {
-//   TooWeak = 'Too weak',
-//   Weak = 'Weak',
-//   Medium = 'Medium',
-//   Strong = 'Strong',
-// }
-// const barLength = computed(() => {
-//   switch (securityLevel.value) {
-//     case SecurityLevel.TooWeak:
-//       return 10
-//     case SecurityLevel.Weak:
-//       return 33
-//     case SecurityLevel.Medium:
-//       return 66
-//     case SecurityLevel.Strong:
-//       return 100
-//   }
-// })
-// const securityLevel = computed(() => {
-//   return passwordStrength(password.value).value as SecurityLevel
-// })
 const canPass = computed(() => {
   return password.value.length >= 8
 })
@@ -53,104 +28,57 @@ const back = () => {
 
 const next = async () => {
   if (phase.value === 1) {
-    phase.value = 2
-  } else {
-    // 检查两次密码是否一致
-    if (password.value !== confirmPassword.value) {
-      isExact.value = false
-      return
+    const isCorrect = await passwordManager.check(password.value)
+    if (isCorrect) {
+      password.value = ''
+      error.value = ''
+      phase.value = 2
+    } else {
+      error.value = 'Incorrect password. Try again.'
     }
-
-    // 保存密码到账号
-    await passwordManager.set(password.value)
-
-    // 重载
-    router.push('/wallet')
+  } else {
+    if (password.value !== confirmPassword.value) {
+      error.value = "Passwords don't match. Try again."
+    } else {
+      await passwordManager.set(password.value)
+      toast({ title: 'Password updated successfully.', toastType: 'success' })
+      router.push('/wallet')
+    }
   }
 }
 </script>
 
 <template>
-  <div class="flex h-full flex-col pt-4">
-    <div class="grow">
-      <img :src="PasswordImg" class="mx-auto h-7 w-9" />
-      <template v-if="phase === 1">
-        <h3 class="mt-4 text-center text-lg">Set Password</h3>
-
-        <div class="mt-16">
-          <h4 class="mb-2 text-sm">Password</h4>
-          <div class="relative">
-            <input
-              :type="passwordInputType"
-              class="w-full rounded-md bg-gray-100 p-4 pr-12 text-sm text-gray-700"
-              v-model="password"
-            />
-            <div class="absolute right-0 top-0 flex h-full items-center pr-4">
-              <button @click="isCovered = !isCovered">
-                <EyeIcon v-if="isCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
-                <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- securityLevel -->
-        <!-- <div class="mt-4 flex items-center justify-between">
-          <div class="flex grow items-center justify-start gap-x-4">
-            <span class="text-sm text-gray-500">Security level</span>
-            <div class="relative h-2 grow rounded-full bg-gray-200">
-              <div
-                :class="[
-                  securityLevel === SecurityLevel.TooWeak ? 'bg-red-500' : '',
-                  securityLevel === SecurityLevel.Weak ? 'bg-red-500' : '',
-                  securityLevel === SecurityLevel.Medium ? 'bg-yellow-500' : '',
-                  securityLevel === SecurityLevel.Strong ? 'bg-green-500' : '',
-                  'absolute left-0 top-0 h-full rounded-full transition-all',
-                ]"
-                :style="{
-                  width: `${barLength}%`,
-                }"
-              ></div>
-            </div>
-          </div>
-
-          <div class="w-20 text-right text-sm">{{ securityLevel }}</div>
-        </div> -->
-
-        <!-- security level tip -->
-        <p class="mt-4 text-xs text-gray-400">Passwords must be at least 8 characters in length.</p>
-      </template>
-
-      <template v-if="phase === 2">
-        <h3 class="mt-4 text-center text-lg">Confirm Password</h3>
-
-        <div class="mt-16">
-          <h4 class="mb-2 text-sm">Password</h4>
-          <div class="relative">
-            <input
-              :type="passwordInputType"
-              class="w-full rounded-md border bg-gray-100 p-4 pr-12 text-sm text-gray-700"
-              :class="isExact ? 'border-transparent' : 'border-red-500'"
-              v-model="confirmPassword"
-            />
-            <div class="absolute right-0 top-0 flex h-full items-center pr-4">
-              <button @click="isCovered = !isCovered">
-                <EyeIcon v-if="isCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
-                <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
-              </button>
-            </div>
-          </div>
-          <p class="mt-2 text-sm text-red-500" v-if="!isExact">Passwords do not match</p>
-        </div>
-      </template>
+  <div class="flex h-full flex-col">
+    <div class="h-15 -my-3 flex items-center">
+      <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="back" />
     </div>
+    <div class="space-y-2 pt-4">
+      <h3 class="mt-4 text-2xl font-medium">Change Password</h3>
+      <p class="mt-2 text-sm text-gray-primary">
+        This password only works to unlock your Metalet wallet on this device, and Metalet cannot recover this password
+        for you.
+      </p>
+    </div>
+    <div class="grow">
+      <PasswordInput
+        v-if="phase === 1"
+        v-model:password="password"
+        title="Old Password"
+        v-model:error="error"
+        class="mt-9"
+      />
 
-    <!-- buttons -->
-    <div class="grid grid-cols-2 gap-x-2">
-      <button class="rounded-md border border-blue-primary py-4 text-base leading-none" @click="back">Back</button>
+      <div v-if="phase === 2" class="mt-9 space-y-9">
+        <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
+        <PasswordInput v-model:password="confirmPassword" title="Confirm Password" v-model:error="error" />
+      </div>
+    </div>
+    <div class="flex items-center justify-center gap-2 my-6">
+      <button class="w-30 h-12 bg-blue-light rounded-3xl text-blue-primary" @click="back">Back</button>
       <button
-        class="gradient-bg rounded-md py-4 text-base leading-none text-white"
-        :class="!canPass && 'opacity-50 saturate-50'"
+        class="w-30 h-12 bg-blue-primary rounded-3xl text-white"
+        :class="!canPass && 'opacity-50 cursor-not-allowed'"
         :disabled="!canPass"
         @click="next"
       >

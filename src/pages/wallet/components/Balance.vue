@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
 import { getNet } from '@/lib/network'
 import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
@@ -8,18 +7,9 @@ import BridgeIcon from '@/assets/icons-v3/bridge.svg'
 import NetworkIcon from '@/assets/icons-v3/network.svg'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
+import { ArrowUpRightIcon, QrCodeIcon } from '@heroicons/vue/20/solid'
 
 const router = useRouter()
-
-const hoverIcon = ref()
-
-function handleMouseOver(icon: string) {
-  hoverIcon.value = icon // 鼠标悬停时切换图片
-}
-
-function handleMouseLeave() {
-  hoverIcon.value = undefined // 鼠标离开时恢复原始图片
-}
 
 function toSelectAsset(purpose: 'receive' | 'send') {
   router.push({ name: 'select-asset', params: { purpose } })
@@ -39,11 +29,9 @@ function toSelectAsset(purpose: 'receive' | 'send') {
       </div>
     </div>
 
-    <div class="text-black-secondary flex justify-between mt-6 text-[13px]">
+    <div class="text-black-secondary flex justify-between mt-6 text-ss" v-if="false">
       <div
         @click="toSelectAsset('send')"
-        @mouseover="handleMouseOver('send')"
-        @mouseleave="handleMouseLeave()"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
       >
         <div
@@ -56,8 +44,6 @@ function toSelectAsset(purpose: 'receive' | 'send') {
       <div
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
         @click="toSelectAsset('receive')"
-        @mouseover="handleMouseOver('receive')"
-        @mouseleave="handleMouseLeave()"
       >
         <div
           class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
@@ -66,11 +52,7 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         </div>
         <span>Receive</span>
       </div>
-      <div
-        class="cursor-not-allowed flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
-        @mouseover="handleMouseOver('swap')"
-        @mouseleave="handleMouseLeave()"
-      >
+      <div class="cursor-not-allowed flex flex-col items-center gap-y-[11px] hover:text-blue-primary">
         <div
           class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
         >
@@ -78,11 +60,7 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         </div>
         <span>Swap</span>
       </div>
-      <div
-        class="cursor-not-allowed flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
-        @mouseover="handleMouseOver('bridge')"
-        @mouseleave="handleMouseLeave()"
-      >
+      <div class="cursor-not-allowed flex flex-col items-center gap-y-[11px] hover:text-blue-primary">
         <div
           class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
         >
@@ -90,6 +68,16 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         </div>
         <span>Bridge</span>
       </div>
+    </div>
+    <div class="grid grid-cols-2 gap-2 mt-6 text-ss">
+      <button class="button" @click="toSelectAsset('send')">
+        <ArrowUpRightIcon class="mr-1 h-4 w-4" />
+        <span>Send</span>
+      </button>
+      <button class="button" @click="toSelectAsset('send')">
+        <QrCodeIcon class="mr-1 h-4 w-4" />
+        <span>Receive</span>
+      </button>
     </div>
   </div>
 </template>

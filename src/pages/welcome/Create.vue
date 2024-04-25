@@ -11,7 +11,6 @@ const stepLen = ref(2)
 const hasPassword = ref(false)
 const words = bip39.generateMnemonic(wordlist).split(' ')
 
-
 passwordManager.has().then((_hasPassword) => {
   if (_hasPassword) {
     hasPassword.value = true
@@ -42,7 +41,7 @@ passwordManager.has().then((_hasPassword) => {
           }
         "
       />
-      <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="[10001]" />
+      <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="[10001]" type="create" />
     </FlexBox>
   </FlexBox>
 </template>

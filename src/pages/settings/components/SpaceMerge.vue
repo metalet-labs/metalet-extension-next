@@ -1,21 +1,27 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { FEEB } from '@/data/config'
+import { Avatar } from '@/components'
 import { getApiHost } from '@/lib/host'
 import { getNetwork } from '@/lib/network'
-import { getPrivateKey, getAddress } from '@/lib/account'
-import { API_NET, API_TARGET, Wallet } from 'meta-contract'
 import { useMVCUTXOQuery } from '@/queries/utxos'
+import { prettifyAddress } from '@/lib/formatters'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { fetchSpaceBalance } from '@/queries/balance'
+import LoadingIcon from '@/components/LoadingIcon.vue'
+import { API_NET, API_TARGET, Wallet } from 'meta-contract'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
 
-const address = ref()
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult | undefined>()
 
+const { getAddress, currentMVCWallet } = useChainWalletsStore()
+const address = getAddress(Chain.MVC)
+
 const merge = async () => {
   const network: API_NET = (await getNetwork()) as API_NET
-  const purse = await getPrivateKey('mvc')
+  const purse = currentMVCWallet.value!.getPrivateKey()
   const apiHost = await getApiHost()
   const wallet = new Wallet(purse, network, FEEB, API_TARGET.MVC, apiHost)
   let { txId } = await wallet.merge().catch((err) => {
@@ -42,31 +48,37 @@ const merge = async () => {
   }
 }
 
-getAddress('mvc').then((_address) => {
-  address.value = _address
-})
-
-const { data } = useMVCUTXOQuery(address, { enabled: computed(() => !!address.value) })
+const { isLoading, data } = useMVCUTXOQuery(address, { enabled: computed(() => !!address.value) })
 </script>
 
 <template>
-  <div class="space-y-4">
-    <div class="space-y-2">
-      <div class="label">MVC Address</div>
-      <div class="value">{{ address }}</div>
+  <div>
+    <div class="text-2xl font-medium">Space Merge</div>
+    <div class="mt-2 text-gray-primary text-xs">
+      Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
+      cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
     </div>
-
-    <div class="space-y-2">
-      <div class="label">UTXO Count</div>
-      <div class="value">{{ data?.length ? (data.length >= 300 ? '>=300' : data.length) : '--' }}</div>
+    <div class="mt-4 py-3 flex gap-3 items-center">
+      <Avatar :id="address" />
+      <div class="flex flex-col gap-1">
+        <div class="text-sm font-medium">MVC Address</div>
+        <div class="text-gray-primary text-xs" :title="address">{{ prettifyAddress(address) }}</div>
+      </div>
+    </div>
+  </div>
+  <div class="space-y-4">
+    <div class="flex items-center gap-2">
+      <div class="label">UTXO Count:</div>
+      <LoadingIcon v-if="isLoading" />
+      <div class="value" v-else>{{ data?.length }}</div>
     </div>
 
     <button
       @click="merge"
       :disabled="!data || data.length < 3"
       :class="[
-        'bg-primary-blue text-white py-2 rounded-md text-xs w-full',
-        !data || data.length < 3 ? 'cursor-not-allowed opacity-50' : null,
+        'bg-blue-primary text-white py-2 rounded-md text-xs w-full',
+        { 'cursor-not-allowed opacity-50': !data || data.length < 3 },
       ]"
     >
       Merge

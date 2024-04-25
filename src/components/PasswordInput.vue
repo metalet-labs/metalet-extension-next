@@ -1,20 +1,52 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
+import { passwordStrength } from 'check-password-strength'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
 
-defineProps<{
-  error: string
+const props = defineProps<{
   password: string
+  title?: string
+  error?: string
+  validate?: boolean
 }>()
 
 const isCovered = ref(true)
 const emit = defineEmits(['update:password'])
 const passwordInputType = computed(() => (isCovered.value ? 'password' : 'text'))
+
+const securityLevel = computed(() => passwordStrength(props.password).value)
+
+const securityColor = computed(() => {
+  if (securityLevel.value === 'Strong') {
+    return '#07C28C'
+  } else if (securityLevel.value === 'Medium') {
+    return '#FF8F1F'
+  } else if (securityLevel.value === 'Weak') {
+    return '#FA5151'
+  } else if (securityLevel.value === 'Too weak') {
+    return '#FA5151'
+  }
+})
+
+const levelColors = computed(() => {
+  if (!props.password) {
+    return ['bg-transparent', 'bg-transparent', 'bg-transparent']
+  }
+  if (securityLevel.value === 'Strong') {
+    return ['bg-[#07C28C]', 'bg-[#07C28C]', 'bg-[#07C28C]']
+  } else if (securityLevel.value === 'Medium') {
+    return ['bg-[#FF8F1F]', 'bg-[#FF8F1F]', 'bg-[#EBEBEB]']
+  } else if (securityLevel.value === 'Weak') {
+    return ['bg-[#FA5151]', 'bg-[#FA5151]', 'bg-[#EBEBEB]']
+  } else if (securityLevel.value === 'Too weak') {
+    return ['bg-[#FA5151]', 'bg-[#FA5151]', 'bg-[#FA5151]']
+  }
+})
 </script>
 
 <template>
   <form @submit.prevent>
-    <h4 class="mb-2 text-sm">Password</h4>
+    <h4 class="mb-2 text-sm">{{ title || 'Password' }}</h4>
     <div class="relative">
       <input
         name="password"
@@ -31,6 +63,22 @@ const passwordInputType = computed(() => (isCovered.value ? 'password' : 'text')
           <EyeIcon v-if="isCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
           <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
         </button>
+      </div>
+      <div class="absolute -bottom-8 left-0 flex items-center justify-between w-full text-sm" v-if="validate">
+        <div class="flex items-center gap-1">
+          <div :class="['w-8 h-1.5 rounded-md', bgColor]" v-for="(bgColor, index) in levelColors" :key="index"></div>
+        </div>
+        <div v-if="password">
+          <span v-if="['Too weak', 'Weak'].includes(securityLevel)" class="text-[#FA5151]">
+            Password strength: {{ securityLevel }}
+          </span>
+          <span v-else-if="securityLevel === 'Medium'" class="text-[#FF8F1F]">
+            Password strength: {{ securityLevel }}
+          </span>
+          <span v-else-if="securityLevel === 'Strong'" class="text-[#07C28C]">
+            Password strength: {{ securityLevel }}
+          </span>
+        </div>
       </div>
       <p v-if="error" class="absolute -bottom-8 left-0 text-sm text-red-500">{{ error }}</p>
     </div>

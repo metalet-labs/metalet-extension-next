@@ -10,7 +10,7 @@ const router = useRouter()
 </script>
 
 <template>
-  <div class="grid grid-cols-5 items-center text-gray-900 p-4">
+  <div class="grid grid-cols-5 items-center text-gray-900 p-4 h-15">
     <!-- back arrow -->
     <div class="col-span-1 flex items-center">
       <button @click="backRouter ? router.push(backRouter) : router.back()">

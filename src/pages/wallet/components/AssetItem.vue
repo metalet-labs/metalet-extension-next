@@ -23,8 +23,8 @@ if (props.asset?.contract) {
   tag.value = getTagInfo(props.asset.contract)
 }
 
-const balaceEnabled = computed(() => !!address && !!asset.value.symbol && !asset.value.balance)
-const { data: balance } = useBalanceQuery(ref(address), ref(asset.value.symbol), { enabled: balaceEnabled })
+const balaceEnabled = computed(() => !!address.value && !!asset.value.symbol && !asset.value.balance)
+const { data: balance } = useBalanceQuery(address, ref(asset.value.symbol), { enabled: balaceEnabled })
 
 const coinType = computed(() => {
   return getExchangeCoinType(asset.value.symbol, asset.value.contract)

@@ -12,7 +12,7 @@ const props = defineProps<{
   exchangeRate?: number
 }>()
 
-const address = ref(props.address)
+const address = computed(() => props.address)
 const enabled = computed(() => !!address.value)
 
 const { isLoading, data: activities } = useActivitiesQuery(address, props.asset, { enabled })
