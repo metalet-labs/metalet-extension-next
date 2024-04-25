@@ -9,6 +9,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentWalletId, getV3CurrentWallet } from '@/lib/wallet'
 import { PasswordInput, SeedPhrase, VerifySeedPhrase } from '@/components'
 import { getBackupV3Wallet, hasBackupCurrentWallet, setBackupV3Wallet } from '@/lib/backup'
+import { toast } from '@/components/ui/toast'
 
 const router = useRouter()
 const { currentMVCWallet } = useChainWalletsStore()
@@ -47,6 +48,11 @@ const next = async () => {
         const currentWalletId = (await getCurrentWalletId()) as string
         walletIds.push(currentWalletId)
         await setBackupV3Wallet(walletIds)
+        toast({
+          title: 'Backup Success',
+          description: 'Your wallet has been backed up successfully',
+          toastType: 'success',
+        })
         router.push('/wallet')
       }
     } else {
