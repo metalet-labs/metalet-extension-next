@@ -1,15 +1,13 @@
 import { goToTab } from '@/lib/utils'
 import { isLocked } from './lib/lock'
-import useStorage from './lib/storage'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
 import { needMigrate } from './lib/migrate'
+import { hasPassword } from './lib/password'
 import Wallet from './pages/wallet/Index.vue'
 import { getCurrentAccountId } from './lib/account'
 import { getCurrentWalletId, hasWallets } from './lib/wallet'
-
-const storage = useStorage()
 
 const routes = [
   {
@@ -492,11 +490,14 @@ const authPages = [
   '/accounts',
   '/migrateV2',
   '/manage/wallets',
+  '/wallet/set-password',
 ]
 
 router.beforeEach(async (to, _, next) => {
   if (to.fullPath !== '/migrateV2' && (await needMigrate())) {
     next('/migrateV2')
+  } else if (!authPages.includes(to.path) && (!await hasPassword())) {
+    next('/wallet/set-password')
   } else if (to.fullPath !== '/lock' && (await isLocked())) {
     next('/lock')
   } else if (!authPages.includes(to.path) && (!(await getCurrentAccountId()) || !(await getCurrentWalletId()))) {

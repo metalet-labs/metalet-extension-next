@@ -9,6 +9,12 @@ import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
 const router = useRouter()
 const phase = ref<1 | 2>(1)
 
+passwordManager.has().then((_hasPassword) => {
+  if (!_hasPassword) {
+    phase.value = 2
+  }
+})
+
 const error = ref('')
 const password = ref('')
 const confirmPassword = ref('')
@@ -41,7 +47,7 @@ const next = async () => {
       error.value = "Passwords don't match. Try again."
     } else {
       await passwordManager.set(password.value)
-      toast({ title: 'Password updated successfully.', toastType: 'success' })
+      toast({ title: 'Set Password successfully.', toastType: 'success' })
       router.push('/wallet')
     }
   }
@@ -54,7 +60,7 @@ const next = async () => {
       <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="back" />
     </div>
     <div class="space-y-2 pt-4">
-      <h3 class="mt-4 text-2xl font-medium">Change Password</h3>
+      <h3 class="mt-4 text-2xl font-medium">Set Password</h3>
       <p class="mt-2 text-sm text-gray-primary">
         This password only works to unlock your Metalet wallet on this device, and Metalet cannot recover this password
         for you.
@@ -70,7 +76,7 @@ const next = async () => {
       />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
-        <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
+        <PasswordInput v-model:password="password" title="New password (min. 8 characters)" :validate="true" />
         <PasswordInput v-model:password="confirmPassword" title="Confirm Password" v-model:error="error" />
       </div>
     </div>
