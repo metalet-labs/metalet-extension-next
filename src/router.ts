@@ -7,7 +7,7 @@ import { needMigrate } from './lib/migrate'
 import { hasPassword } from './lib/password'
 import Wallet from './pages/wallet/Index.vue'
 import { getCurrentAccountId } from './lib/account'
-import { getCurrentWalletId, hasWallets } from './lib/wallet'
+import { getCurrentWalletId, hasV3Wallets, hasWallets } from './lib/wallet'
 
 const routes = [
   {
@@ -496,29 +496,33 @@ const authPages = [
 router.beforeEach(async (to, _, next) => {
   if (to.fullPath !== '/migrateV2' && (await needMigrate())) {
     next('/migrateV2')
-  } else if (!authPages.includes(to.path) && (!await hasPassword())) {
-    next('/wallet/set-password')
-  } else if (to.fullPath !== '/lock' && (await isLocked())) {
-    next('/lock')
-  } else if (!authPages.includes(to.path) && (!(await getCurrentAccountId()) || !(await getCurrentWalletId()))) {
-    if (await hasWallets()) {
-      next('/manage/wallets')
+  } else if (!authPages.includes(to.path)) {
+    if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
+      if (await hasWallets()) {
+        next('/manage/wallets')
+      } else {
+        goToTab('/welcome', true)
+        next('/welcome')
+      }
+    } else if (!(await hasPassword())) {
+      next('/wallet/set-password')
+    } else if (await isLocked()) {
+      next('/lock')
     } else {
-      goToTab('/welcome', true)
-      next('/welcome')
+      if (['asset', 'token'].includes(to.name as string)) {
+        to.meta.headerTitle = to.params.symbol
+      }
+
+      if (to.name === 'send-token') {
+        to.meta.headerTitle = `Send ${to.params.symbol}`
+      }
+
+      if (to.path === '/wallet') {
+        assetList.value = []
+      }
+      next()
     }
   } else {
-    if (['asset', 'token'].includes(to.name as string)) {
-      to.meta.headerTitle = to.params.symbol
-    }
-
-    if (to.name === 'send-token') {
-      to.meta.headerTitle = `Send ${to.params.symbol}`
-    }
-
-    if (to.path === '/wallet') {
-      assetList.value = []
-    }
     next()
   }
 })
