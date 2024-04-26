@@ -26,6 +26,7 @@ export const goToTab = (path: string, created = false) => {
     router.push(path)
   } else {
     window.open(`${window.location.href.split('#')[0]}#${path}`, '_blank')
+    window.close()
   }
 }
 

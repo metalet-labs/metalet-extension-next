@@ -1,32 +1,44 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { API_NET, FtManager } from 'meta-contract'
-import { CircleStackIcon } from '@heroicons/vue/24/solid'
-import { useQueryClient } from '@tanstack/vue-query'
-
+import { getTags } from '@/data/assets'
 import { getNetwork } from '@/lib/network'
-import { prettifyTokenBalance } from '@/lib/formatters'
-import { getAddress, getCurrentAccount, getPrivateKey } from '@/lib/account'
-import type { TransactionResult } from '@/global-types'
+import { useRoute, useRouter } from 'vue-router'
+import { API_NET, FtManager } from 'meta-contract'
 import { useMVCTokenQuery } from '@/queries/tokens'
-
-import Modal from '@/components/Modal.vue'
+import { useQueryClient } from '@tanstack/vue-query'
+import LoadingIcon from '@/components/LoadingIcon.vue'
+import type { TransactionResult } from '@/global-types'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { AssetLogo, Divider, FlexBox, Button } from '@/components'
 import TransactionResultModal from './components/TransactionResultModal.vue'
+import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
 const route = useRoute()
+const router = useRouter()
 const symbol = ref(route.params.symbol as string)
 const genesis = ref(route.params.genesis as string)
 const address = ref(route.params.address as string)
 
-const queryClient = useQueryClient()
+const { currentMVCWallet } = useChainWalletsStore()
 
-const error = ref<Error>()
+const tags = computed(() => {
+  if (asset.value) {
+    return getTags(asset.value)
+  }
+})
+
+const queryClient = useQueryClient()
 
 // 用户拥有的代币资产
 const { isLoading, data: asset } = useMVCTokenQuery(address, genesis, {
-  enabled: computed(() => !!address.value && !genesis.value),
+  enabled: computed(() => !!address.value && !!genesis.value),
+})
+
+const balance = computed(() => {
+  if (asset.value) {
+    return new Decimal(asset.value.balance!.total).div(10 ** asset.value.decimal).toNumber()
+  }
 })
 
 // form
@@ -51,7 +63,7 @@ async function send() {
 
   operationLock.value = true
 
-  const privateKey = await getPrivateKey('mvc')
+  const privateKey = currentMVCWallet.value!.getPrivateKey()
 
   const network = await getNetwork()
 
@@ -92,9 +104,15 @@ async function send() {
     })
     .catch((err) => {
       isOpenConfirmModal.value = false
-      error.value = err.message
       if (err instanceof Error) {
         if (err.message === 'Too many token-utxos, should merge them to continue.') {
+          transactionResult.value = {
+            router: 'ft-merge',
+            status: 'failed',
+            message: err.message,
+            confirmText: 'Merge',
+          }
+        } else {
           transactionResult.value = {
             router: 'ft-merge',
             status: 'failed',
@@ -105,7 +123,7 @@ async function send() {
       } else {
         transactionResult.value = {
           status: 'failed',
-          message: err.message,
+          message: err?.message || err,
         }
       }
 
@@ -113,24 +131,15 @@ async function send() {
     })
   if (transferRes && transferRes.txid) {
     isOpenConfirmModal.value = false
-    transactionResult.value = {
-      chain: 'mvc',
-      status: 'success',
-      txId: transferRes.txid,
-      fromAddress: address.value,
-      toAdddress: recipient.value,
-      amount: amountInSats.value,
-      token: {
-        symbol: asset.value!.symbol,
-        decimal: asset.value!.decimal,
+    router.replace({
+      name: 'SendSuccess',
+      params: {
+        txId: transferRes.txid,
+        chain: 'mvc',
+        symbol: symbol.value,
+        amount: amount.value,
+        address: recipient.value,
       },
-    }
-
-    isOpenResultModal.value = true
-
-    // 刷新query
-    queryClient.invalidateQueries({
-      queryKey: ['tokens', { address: address.value }],
     })
   }
 
@@ -139,77 +148,108 @@ async function send() {
 </script>
 
 <template>
-  <div class="mt-8 flex flex-col items-center gap-y-8" v-if="asset && genesis">
+  <div class="space-y-6 h-full relative" v-if="asset && genesis">
     <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
-    <img :src="asset?.logo" alt="" class="h-16 w-16 rounded-xl" v-if="asset?.logo" />
-    <CircleStackIcon class="h-10 w-10 text-gray-300 transition-all group-hover:text-blue-500" v-else />
 
-    <div class="space-y-3 self-stretch">
-      <!-- address input -->
-      <input class="main-input w-full !rounded-xl !p-4 text-sm" placeholder="Recipient's address" v-model="recipient" />
+    <div class="space-y-4">
+      <FlexBox d="col" ai="center">
+        <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
 
-      <!-- amount input -->
-      <div class="relative">
-        <input class="main-input w-full !rounded-xl !py-4 !pl-4 !pr-12 text-sm" placeholder="Amount" v-model="amount" />
-        <!-- unit -->
+        <div class="mt-3 text-base">{{ symbol }}</div>
+
         <div
-          class="absolute right-0 top-0 flex h-full items-center justify-center text-right text-xs text-gray-500"
-          v-if="asset?.symbol"
+          :key="tag.name"
+          v-for="tag in tags"
+          :style="`background-color:${tag.bg};color:${tag.color};`"
+          :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
         >
-          <div class="border-l border-solid border-gray-500 px-4 py-1">{{ asset.symbol }}</div>
+          {{ tag.name }}
         </div>
-      </div>
+      </FlexBox>
 
-      <!-- balance -->
-      <div class="flex items-center gap-x-2 text-xs text-gray-500">
-        <div>Your Balance:</div>
-        <div v-if="isLoading">--</div>
-        <div v-else-if="asset">
-          {{ prettifyTokenBalance(asset.balance?.total || 0, asset.decimal) + ' ' + asset.symbol }}
-        </div>
-      </div>
+      <Divider />
     </div>
 
-    <!-- send -->
-    <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="popConfirm">Send</button>
+    <div class="space-y-2">
+      <div>Receiver</div>
+      <textarea
+        v-model="recipient"
+        class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
+      />
+    </div>
+    <div class="space-y-2">
+      <FlexBox ai="center" jc="between">
+        <span>Amount</span>
+        <span class="text-gray-primary text-xs">
+          <span>Balance:</span>
+          <span v-if="balance">{{ balance }} {{ symbol }}</span>
+          <span v-else>--</span>
+        </span>
+      </FlexBox>
+      <input
+        min="0"
+        type="number"
+        step="0.00001"
+        :max="asset.balance!.total"
+        v-model="amount"
+        class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
+      />
+    </div>
 
-    <Modal v-model:is-open="isOpenConfirmModal" title="Confirm">
-      <template #title>
-        <div class="text-black-primary text-center">Confirm Send</div>
-      </template>
+    <Button
+      type="primary"
+      @click="isOpenConfirmModal = true"
+      :disabled="!recipient"
+      class="absolute bottom-4 left-1/2 -translate-x-1/2 w-61.5 h-12"
+      :class="!recipient || operationLock ? 'opacity-50 cursor-not-allowed' : undefined"
+    >
+      <FlexBox ai="center" :gap="1" v-if="operationLock">
+        <LoadingIcon />
+        <span>Loading...</span>
+      </FlexBox>
+      <span v-else>Next</span>
+    </Button>
 
-      <template #body>
-        <div class="mt-4 space-y-4">
-          <div class="space-y-1">
-            <div class="label">Amount</div>
-            <div class="value">{{ amount }} {{ asset?.symbol }}</div>
-          </div>
-          <div class="space-y-1">
-            <div class="label">Recipient Address</div>
-            <div class="value break-all text-sm">{{ recipient }}</div>
-          </div>
-          <!-- <div class="space-y-1">
-            <div class="label">Network Fee</div>
-            <div class="value">100 SPACE</div>
-          </div> -->
+    <Drawer v-model:open="isOpenConfirmModal">
+      <DrawerContent class="bg-white">
+        <DrawerHeader>
+          <FlexBox d="col" ai="center" :gap="4">
+            <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+            <div class="text-base">{{ amount }} {{ symbol }}</div>
+          </FlexBox>
+        </DrawerHeader>
+        <Divider class="mt-2" />
+        <div class="p-4 space-y-4 text-ss">
+          <FlexBox ai="center" jc="between">
+            <div class="text-gray-primary">From</div>
+            <div class="break-all w-[228px]">{{ address }}</div>
+          </FlexBox>
+          <FlexBox ai="center" jc="between">
+            <div class="text-gray-primary">To</div>
+            <div class="break-all w-[228px]">{{ recipient }}</div>
+          </FlexBox>
+          <FlexBox ai="center" jc="between">
+            <div class="text-gray-primary">Amount</div>
+            <div class="break-all">{{ amount }} {{ symbol }}</div>
+          </FlexBox>
         </div>
-      </template>
-
-      <template #control>
-        <div v-if="operationLock">
-          <div class="w-full py-3 text-center text-sm text-gray-500">Operating...</div>
-        </div>
-        <div class="grid grid-cols-2 gap-x-4" v-else>
-          <button
-            class="w-full rounded-lg border border-primary-blue bg-white py-3 text-sm text-gray-700"
-            @click="isOpenConfirmModal = false"
-          >
-            Cancel
-          </button>
-          <button class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100" @click="send">Confirm</button>
-        </div>
-      </template>
-    </Modal>
+        <DrawerFooter>
+          <FlexBox ai="center" jc="center" :gap="2">
+            <DrawerClose>
+              <Button type="light" class="w-[119px] h-12">Cancel</Button>
+            </DrawerClose>
+            <Button
+              @click="send"
+              type="primary"
+              :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': operationLock }]"
+            >
+              <LoadingIcon v-if="operationLock" />
+              <span>Confirm</span>
+            </Button>
+          </FlexBox>
+        </DrawerFooter>
+      </DrawerContent>
+    </Drawer>
   </div>
   <div v-else class="text-center text-gray-primary w-full py-3 text-base">Token can not found.</div>
 </template>

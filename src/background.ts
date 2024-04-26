@@ -4,9 +4,10 @@ import { network } from '@/lib/network'
 import actions from './data/query-actions'
 import browser from 'webextension-polyfill'
 import exActions from './data/extension-actions'
-import { getCurrentWalletId, hasWallets } from './lib/wallet'
 import { getAddress, getCurrentAccountId } from './lib/account'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
+import { getCurrentWalletId, hasWallets, getCurrentWallet } from './lib/wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 // const browser = window.browser as typeof chromex
 browser.runtime.onMessage.addListener(async (msg, sender) => {
@@ -80,7 +81,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       if (actionName === 'InscribeTransfer') {
         const rawUrl = 'popup.html#/wallet/inscribe'
         let popupUrl = browser.runtime.getURL(rawUrl)
-        const address = await getAddress('btc')
+        const wallet = await getCurrentWallet(Chain.BTC)
+        const address = wallet.getAddress()
         popupUrl += `/${msg.params}/${address}`
         let top = 0
         let left = 0

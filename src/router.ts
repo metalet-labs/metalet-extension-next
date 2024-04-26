@@ -177,7 +177,7 @@ const routes = [
         },
       },
       {
-        path: '/wallet/send-token/:symbol/:genesis',
+        path: '/wallet/send-token/:symbol/:address/:genesis',
         component: () => import('./pages/wallet/SendToken.vue'),
         name: 'send-token',
         meta: {

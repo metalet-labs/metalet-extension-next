@@ -17,7 +17,13 @@ const props = defineProps<{
 
 const flow = computed(() => {
   const { outcome, income } = props.activity
-  return outcome > income ? 'Send' : 'Receive'
+  if (outcome > income) {
+    return 'Send'
+  } else if (income > outcome) {
+    return 'Receive'
+  } else {
+    return 'Transfer'
+  }
 })
 
 const isConfirmed = computed(() => {
@@ -40,7 +46,7 @@ const difference = computed(() => {
     display = `+${(income - outcome) / 10 ** decimal} ${symbol}`
     displayClass = 'text-green-700'
   } else {
-    display = '-'
+    display = `0 ${symbol}`
     displayClass = 'text-gray-500'
   }
 
@@ -70,7 +76,7 @@ const toActivityTx = async () => {
         :flow="flow"
       />
       <div>
-        <div :class="['flex items-center gap-x-2 text-sm', !isConfirmed ? 'text-orange-primary' : undefined]">
+        <div :class="['flex items-center gap-x-2 text-sm', { 'text-orange-primary': !isConfirmed }]">
           <span>{{ flow }}</span>
           <LoadingIcon v-if="!isConfirmed" class="text-orange-primary w-4 h-4" />
         </div>
@@ -78,7 +84,7 @@ const toActivityTx = async () => {
       </div>
     </FlexBox>
     <FlexBox d="col" ai="end">
-      <div class="text-sm">{{ difference.display }}</div>
+      <div :class="['text-sm', difference.displayClass]">{{ difference.display }}</div>
       <div
         @click="toActivityTx"
         :title="activity.txid"
@@ -88,27 +94,4 @@ const toActivityTx = async () => {
       </div>
     </FlexBox>
   </FlexBox>
-  <!-- <div class="w-full py-3">
-
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-x-2 text-green-500" v-if="isConfirmed">
-        <div class="h-2 w-2 rounded-full bg-green-500"></div>
-        <div>Confirmed</div>
-      </div>
-
-      <div class="flex items-center gap-x-2 text-red-500" v-else>
-        <div class="h-2 w-2 rounded-full bg-red-500"></div>
-        <div>Unconfirmed</div>
-      </div>
-      <div :class="['text-sm text-gray-500']">{{ prettifyTimestamp(activity.time) }}</div>
-    </div>
-
-    <div :class="[difference.displayClass, 'text-right  text-lg ']">{{ difference.display }}</div>
-
-    <div class="flex items-center justify-end gap-x-2">
-      <div class="cursor-pointer text-xs text-gray-400 hover:underline" @click="toActivityTx">
-        {{ prettifyTxId(activity.txid) }}
-      </div>
-    </div>
-  </div> -->
 </template>

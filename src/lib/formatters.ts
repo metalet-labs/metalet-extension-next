@@ -15,8 +15,8 @@ export const prettifyTxId = (txId: string, useDigits = 6) => {
   return `${txId.slice(0, useDigits)}...${txId.slice(-useDigits)}`
 }
 
-export const prettifyAddress = (txId: string, useDigits = 6) => {
-  return `${txId.slice(0, useDigits)}...${txId.slice(-useDigits)}`
+export const prettifyAddress = (address: string, useDigits = 6) => {
+  return `${address.slice(0, useDigits)}...${address.slice(-useDigits)}`
 }
 
 export const prettifyBalance = (balance: number, symbol: string = 'SPACE'): string => {

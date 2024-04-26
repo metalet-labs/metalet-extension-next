@@ -345,7 +345,6 @@ export const payTransactions = async (
     }
 
     const addressObj = new mvc.Address(address, network)
-    console.log({ addressObj })
     // find out the total amount of the transaction (total output minus total input)
     const totalOutput = tx.outputs.reduce((acc, output) => acc + output.satoshis, 0)
     const totalInput = tx.inputs.reduce((acc, input) => acc + input.output!.satoshis, 0)

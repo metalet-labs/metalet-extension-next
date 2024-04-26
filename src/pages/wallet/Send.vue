@@ -235,7 +235,6 @@ async function send() {
     <div class="space-y-4 w-full">
       <FlexBox d="col" ai="center" :gap="3">
         <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
-
         <div class="text-base">{{ symbol }}</div>
       </FlexBox>
 

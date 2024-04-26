@@ -57,14 +57,13 @@ const toInscribe = () => {
     <div>
       <div class="text-sm">Inscribe Transfer</div>
       <div class="text-gray-primary text-xs">You have to inscribe a TRANSFER inscription first.</div>
-      <FlexBox
-        ai="center"
-        jc="center"
-        class="bg-gray-secondary text-sm rounded-md h-12 mt-3 cursor-pointer"
+      <div
         @click="toInscribe"
+        class="flex items-center justify-center gap-2 bg-gray-secondary text-sm rounded-md h-12 mt-3 cursor-pointer border border-blue-primary bg-[rgba(23, 26, 255, 0.05)]"
       >
-        Available {{ tickersData.tokenBalance.availableBalance }} {{ symbol }}
-      </FlexBox>
+        <span class="text-gray-primary">Available</span>
+        <span>{{ tickersData.tokenBalance.availableBalance }} {{ symbol }}</span>
+      </div>
     </div>
   </FlexBox>
 </template>

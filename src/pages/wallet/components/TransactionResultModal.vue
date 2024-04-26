@@ -3,12 +3,12 @@ import { PropType } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { useRouter } from 'vue-router'
 import Copy from '@/components/Copy.vue'
-import Modal from '@/components/Modal.vue'
 import { type Chain } from '@/lib/types'
+import Modal from '@/components/Modal.vue'
 import { getBrowserHost } from '@/lib/host'
-import { prettifyTokenBalance } from '@/lib/formatters'
 import SuccessIcon from '@/assets/icons/success.svg?url'
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/solid'
+import { prettifyTokenBalance, prettifyAddress, prettifyTxId } from '@/lib/formatters'
 
 const router = useRouter()
 
@@ -120,25 +120,33 @@ const toResultTxs = async (txId: string) => {
 
         <div class="flex justify-between">
           <div class="label">From</div>
-          <div class="text-xs flex gap-2">
-            <div class="truncate w-48 cursor-pointer" :title="result.fromAddress">{{ result.fromAddress }}</div>
+          <div class="text-xs flex items-center gap-2">
+            <div class="hover:underline hover:text-blue-primary cursor-pointer" :title="result.fromAddress">
+              {{ prettifyAddress(result.fromAddress) }}
+            </div>
             <Copy :text="result.fromAddress" />
           </div>
         </div>
 
         <div class="flex justify-between">
           <div class="label">To</div>
-          <div class="text-xs flex gap-2">
-            <div class="truncate w-48 cursor-pointer" :title="result.toAdddress">{{ result.toAdddress }}</div>
+          <div class="text-xs flex items-center gap-2">
+            <div class="hover:underline hover:text-blue-primary cursor-pointer" :title="result.toAdddress">
+              {{ prettifyAddress(result.toAdddress) }}
+            </div>
             <Copy :text="result.toAdddress" />
           </div>
         </div>
 
         <div class="flex justify-between">
           <div class="label">TxID</div>
-          <div class="text-xs flex gap-2">
-            <div class="hover:underline truncate w-48 cursor-pointer" @click="toResultTx" :title="result.txId">
-              {{ result.txId }}
+          <div class="text-xs flex items-center gap-2">
+            <div
+              class="hover:underline hover:text-blue-primary cursor-pointer"
+              @click="toResultTx"
+              :title="result.txId"
+            >
+              {{ prettifyTxId(result.txId) }}
             </div>
             <Copy :text="result.txId" />
           </div>
@@ -159,23 +167,22 @@ const toResultTxs = async (txId: string) => {
     </template>
 
     <template #control>
-      <div class="flex items-center justify-center gap-4" v-if="result && result.status === 'failed' && result.router">
-        <button
-          @click="closeModal"
-          class="box-border border border-gray-primary w-[133px] rounded-lg py-2.5 text-sm text-black-primary"
-        >
+      <div class="flex items-center justify-center gap-2" v-if="result && result.status === 'failed' && result.router">
+        <button @click="closeModal" class="w-30 rounded-3xl py-4 text-ss text-blue-primary bg-blue-light">
           Cancel
         </button>
         <button
-          class="main-btn-bg rounded-lg py-3 text-sm w-[133px] text-sky-100 px-4"
+          class="bg-blue-primary rounded-3xl py-4 text-ss w-30 text-white px-4"
           @click="$router.push({ name: (result as FailedResult).router })"
         >
           {{ result?.confirmText || 'Confirm' }}
         </button>
       </div>
-      <button v-else class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100 outline-none" @click="ok">
-        {{ result?.confirmText || 'Confirm' }}
-      </button>
+      <div v-else class="flex justify-center">
+        <button class="w-61.5 rounded-3xl bg-blue-primary py-3 text-sm text-white outline-none" @click="ok">
+          {{ result?.confirmText || 'Confirm' }}
+        </button>
+      </div>
     </template>
   </Modal>
 </template>

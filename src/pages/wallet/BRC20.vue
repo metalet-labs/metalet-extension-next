@@ -161,7 +161,7 @@ watch(assetUSD, (_assetUSD) => {
     </div>
 
     <div class="flex items-center justify-center gap-x-2">
-      <RouterLink to="javascript:void(0);" class="btn-blue-light">
+      <RouterLink to="javascript:void(0);" class="btn-blue-light" v-if="false">
         <img :src="MintPNG" alt="Mint" />
         <span>Mint</span>
       </RouterLink>
