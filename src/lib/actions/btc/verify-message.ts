@@ -1,6 +1,3 @@
-import { getNetwork } from '@/lib/network'
-import { getPrivateKey, getPublicKey } from '@/lib/account'
-import { Message, PrivateKey, Networks } from 'bitcore-lib'
 import { getCurrentWallet } from '@/lib/wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
 

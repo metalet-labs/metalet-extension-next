@@ -60,6 +60,7 @@ const getHostAndToTx = async (txid: string) => {
 const running = ref(false)
 const isFinished = ref(false)
 const processTxids = ref([])
+const processRes = ref()
 const runAction = async () => {
   running.value = true
 
@@ -68,7 +69,6 @@ const runAction = async () => {
 
   try {
     processRes = await process(params, host as string)
-    console.log({ processRes })
 
     if (processRes.txids && processRes.broadcasted) {
       processTxids.value = processRes.txids

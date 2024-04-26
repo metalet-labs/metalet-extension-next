@@ -1,6 +1,7 @@
-// import accountManager from '../account'
-import { getPublicKey } from '../account'
+import { getCurrentWallet } from '../wallet'
+import { Chain } from '@metalet/utxo-wallet-service'
 
-export async function process(params: any) {
-  return await getPublicKey('mvc', params?.path)
+export async function process() {
+  const wallet = await getCurrentWallet(Chain.MVC)
+  return wallet.getPublicKeyHex()
 }

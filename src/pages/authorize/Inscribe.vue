@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import actions from '@/data/authorize-actions'
 import Copy from '@/components/Copy.vue'
+import actions from '@/data/authorize-actions'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { MetaidData } from '@/lib/actions/btc/inscribe'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
