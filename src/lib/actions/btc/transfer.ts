@@ -1,8 +1,8 @@
-import { getUtxos } from '@/queries/utxos'
+import Decimal from 'decimal.js'
+import { getBtcUtxos } from '@/queries/utxos'
 import { getCurrentWallet } from '@/lib/wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { broadcastBTCTx, getBTCTRate } from '@/queries/transaction'
-import Decimal from 'decimal.js'
 
 interface TransferParameters {
   toAddress: string
@@ -12,6 +12,7 @@ interface TransferParameters {
 
 export async function process(params: TransferParameters): Promise<{ txId: string } | { txHex: string }> {
   const wallet = await getCurrentWallet(Chain.BTC)
+  console.log(wallet.getAddress())
 
   let feeRate = params.options?.feeRate
 
@@ -22,7 +23,10 @@ export async function process(params: TransferParameters): Promise<{ txId: strin
   }
 
   feeRate = Number(feeRate)
-  const utxos = await getUtxos(wallet.getAddress())
+  console.log({ feeRate })
+
+  const utxos = await getBtcUtxos(wallet.getAddress())
+  console.log({ utxos })
 
   const { psbt, rawTx } = wallet.send(
     params.toAddress,

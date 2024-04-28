@@ -7,6 +7,7 @@ import Divider from './Divider.vue'
 import EditName from './EditName.vue'
 import AssetLogo from './AssetLogo.vue'
 import SeedPhrase from './SeedPhrase.vue'
+import LoadingIcon from './LoadingIcon.vue'
 import LoadingText from './LoadingText.vue'
 import PasswordInput from './PasswordInput.vue'
 import FeeRateSelector from './FeeRateSelector.vue'
@@ -27,5 +28,6 @@ export {
   PasswordInput,
   SeedPhrase,
   VerifySeedPhrase,
-  Avatar
+  Avatar,
+  LoadingIcon
 }

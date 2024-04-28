@@ -23,7 +23,6 @@ const checkedAll = computed(() => checked1.value && checked2.value && checked3.v
 
 const disconnect = async () => {
   emit('update:show', false)
-
   await storage.delete(PASSWORD_KEY)
   await storage.delete(V3_WALLETS_STORAGE_KEY)
   window.location.reload()
@@ -31,66 +30,69 @@ const disconnect = async () => {
 </script>
 
 <template>
-  <Teleport to="body">
-    <div class="fixed inset-0 isolate z-50 flex items-end bg-black/20 backdrop-blur-sm" v-show="show">
-      <div class="grow rounded-t-xl bg-white p-4 pb-8">
-        <div class="flex items-center justify-between border-b border-gray-100 pb-4">
-          <span class="text-base">Reset Wallet</span>
-          <button class="text-gray-400 hover:text-gray-500" @click="$emit('update:show', false)" type="button">
-            <XMarkIcon class="h-5 w-5" />
-          </button>
-        </div>
-
-        <div class="pt-4 space-y-4">
-          <div class="flex flex-col gap-2 text-ss">
-            <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
-              <Checkbox id="tips1" v-model:checked="checked1" />
-              <p>We will not store or help you retrieve your password.</p>
-            </div>
-            <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
-              <Checkbox id="tips1" v-model:checked="checked2" />
-              <p>
-                If you forget your password, you can reset your wallet. It is also possible to re-import the wallet
-                using a mnemonic phrase or private key.
-              </p>
-            </div>
-            <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
-              <Checkbox id="tips1" v-model:checked="checked3" />
-              <p>
-                Note that resetting the wallet without backup will permanently lose all assets. Before resetting, be
-                sure to back up all wallets.
-              </p>
-            </div>
+  <Teleport to="main" v-if="show">
+    <div class="absolute inset-0 isolate z-50 flex items-end bg-black/20 backdrop-blur-sm flex-col overflow-hidden">
+      <div class="grow w-full" @click="$emit('update:show', false)"></div>
+      <div class="animate-drawer-up">
+        <div class="rounded-t-xl bg-white p-4 pb-8">
+          <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+            <span class="text-base">Reset Wallet</span>
+            <button class="text-gray-400 hover:text-gray-500" @click="$emit('update:show', false)" type="button">
+              <XMarkIcon class="h-5 w-5" />
+            </button>
           </div>
 
-          <div class="space-y-2">
-            <p class="text-sm">
-              To confirm wallet reset, please enter:
-              <span class="text-red-500">RESET</span>
-            </p>
-            <input
-              type="text"
-              class="w-full rounded-lg focus:outline-blue-primary border p-4 text-sm"
-              v-model="resetText"
-              placeholder="RESET"
-            />
-          </div>
+          <div class="pt-4 space-y-4">
+            <div class="flex flex-col gap-2 text-ss">
+              <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
+                <Checkbox id="tips1" v-model:checked="checked1" />
+                <p>We will not store or help you retrieve your password.</p>
+              </div>
+              <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
+                <Checkbox id="tips1" v-model:checked="checked2" />
+                <p>
+                  If you forget your password, you can reset your wallet. It is also possible to re-import the wallet
+                  using a mnemonic phrase or private key.
+                </p>
+              </div>
+              <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
+                <Checkbox id="tips1" v-model:checked="checked3" />
+                <p>
+                  Note that resetting the wallet without backup will permanently lose all assets. Before resetting, be
+                  sure to back up all wallets.
+                </p>
+              </div>
+            </div>
 
-          <div class="flex items-center justify-center gap-2">
-            <button
-              class="w-30 h-12 bg-blue-light text-blue-primary rounded-3xl text-ss"
-              @click="$emit('update:show', false)"
-            >
-              Cancel
-            </button>
-            <button
-              @click="disconnect"
-              :disabled="!checkedAll"
-              class="w-30 h-12 bg-red-600 text-white rounded-3xl text-ss"
-              :class="[checkedAll ? 'cursor-pointer' : 'cursor-not-allowed opacity-50 saturate-50']"
-            >
-              Reset
-            </button>
+            <div class="space-y-2">
+              <p class="text-sm">
+                To confirm wallet reset, please enter:
+                <span class="text-red-500">RESET</span>
+              </p>
+              <input
+                type="text"
+                class="w-full rounded-lg focus:outline-blue-primary border p-4 text-sm"
+                v-model="resetText"
+                placeholder="RESET"
+              />
+            </div>
+
+            <div class="flex items-center justify-center gap-2">
+              <button
+                class="w-30 h-12 bg-blue-light text-blue-primary rounded-3xl text-ss"
+                @click="$emit('update:show', false)"
+              >
+                Cancel
+              </button>
+              <button
+                @click="disconnect"
+                :disabled="!checkedAll"
+                class="w-30 h-12 bg-red-600 text-white rounded-3xl text-ss"
+                :class="[checkedAll ? 'cursor-pointer' : 'cursor-not-allowed opacity-50 saturate-50']"
+              >
+                Reset
+              </button>
+            </div>
           </div>
         </div>
       </div>

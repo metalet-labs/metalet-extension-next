@@ -2,8 +2,9 @@ import { PageResult } from './types'
 import { getNet } from '@/lib/network'
 import { type Asset } from '@/data/assets'
 import { getBRC20Logo } from '@/data/logos'
-import { metaletApiV3 } from './request'
+import { metaletApiV3, unisatApi } from './request'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { UNISAT_ENABLED } from '@/data/config'
 
 export type Brc20 = {
   symbol: SymbolTicker
@@ -54,6 +55,30 @@ interface TokenBalance {
 
 export const fetchBRC20Token = async (address: string): Promise<Asset[]> => {
   const net = getNet()
+  if (UNISAT_ENABLED) {
+    return (
+      await unisatApi<PageResult<TokenBalance>>(`/brc20/list`).get({ net, address, cursor: '0', size: '100000' })
+    ).list.map(
+      (token) =>
+        ({
+          symbol: token.ticker,
+          logo: getBRC20Logo(token.ticker),
+          tokenName: token.ticker,
+          isNative: false,
+          chain: 'btc',
+          queryable: true,
+          decimal: 0,
+          contract: 'BRC-20',
+          balance: {
+            total: Number(token.overallBalance),
+            availableBalance: Number(token.availableBalance),
+            availableBalanceSafe: Number(token.availableBalanceSafe),
+            availableBalanceUnSafe: Number(token.availableBalanceUnSafe),
+            transferBalance: Number(token.transferableBalance),
+          },
+        }) as Asset
+    )
+  }
   return (
     await metaletApiV3<PageResult<TokenBalance>>(`/brc20/tokens`).get({ net, address, cursor: '0', size: '100000' })
   ).list.map(

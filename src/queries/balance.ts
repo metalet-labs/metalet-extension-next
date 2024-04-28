@@ -2,9 +2,10 @@ import Decimal from 'decimal.js'
 import { ComputedRef, Ref } from 'vue'
 import { getNet } from '@/lib/network'
 import { useQuery } from '@tanstack/vue-query'
-import { metaletApiV3, mvcApi } from './request'
+import { metaletApiV3, mvcApi, unisatApi } from './request'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
+import { UNISAT_ENABLED } from '@/data/config'
 
 export type Balance = {
   address: string
@@ -50,6 +51,15 @@ export interface BitcoinBalance {
 
 export const fetchBtcBalance = async (address: string): Promise<Balance> => {
   const net = getNet()
+  if (UNISAT_ENABLED) {
+    const data = await unisatApi<BitcoinBalance>(`/address/balance`).get({ net, address })
+    return {
+      address,
+      total: new Decimal(data.amount).mul(1e8).toNumber(),
+      confirmed: new Decimal(data.confirm_amount).mul(1e8).toNumber(),
+      unconfirmed: new Decimal(data.pending_amount).mul(1e8).toNumber(),
+    }
+  }
   const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`).get({ net, address })
   return {
     address,

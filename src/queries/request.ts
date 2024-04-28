@@ -191,7 +191,7 @@ enum API_STATUS {
 interface UnisatResult<T> {
   status: API_STATUS
   message: string
-  result: T
+  data: T
 }
 
 const unisatRequest = <T>(url: string, options: RequestOption): Promise<T> =>
@@ -199,7 +199,7 @@ const unisatRequest = <T>(url: string, options: RequestOption): Promise<T> =>
     if (data.status === API_STATUS.FAILED) {
       throw new Error(data.message)
     }
-    return data.result
+    return data.data
   })
 
 export const unisatApi = <T>(path: string) => {
@@ -208,10 +208,6 @@ export const unisatApi = <T>(path: string) => {
   const headers = new Headers()
   headers.append('X-Client', 'UniSat Wallet')
   headers.append('Content-Type', 'application/json;charset=utf-8')
-  headers.append(
-    'User-Agent',
-    'Mozilla/5.0 (Hacintosh; Intel Mac 0S X 10-15_7) Appleebkit/537.36 (KHTMl, like Gecko) Chrome/110.0.0.0 Safari/537.36'
-  )
 
   return {
     get: (params?: any) => unisatRequest<T>(`${unisatHost}${path}`, { method: 'GET', headers, params, mode: 'cors' }),

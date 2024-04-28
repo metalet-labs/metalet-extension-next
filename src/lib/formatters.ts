@@ -7,7 +7,7 @@ export const calcBalance = (balance: number, decimal: number, symbol: string): s
   return `${new Decimal(balance).dividedBy(10 ** decimal).toNumber()} ${symbol}`
 }
 
-export const prettifyTimestamp = (timestamp: number, format = 'YYYY-MM-DD HH:mm:ss') => {
+export const prettifyTimestamp = (timestamp: number, format = 'YYYY/MM/DD HH:mm:ss') => {
   return dayjs(timestamp).format(format)
 }
 

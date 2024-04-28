@@ -2,8 +2,9 @@ import { Chain } from '@/lib/types'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
+import { UNISAT_ENABLED } from '@/data/config'
 import { fetchBtcTxHex } from '@/queries/transaction'
-import { mvcApi, mempoolApi, metaletApiV3 } from './request'
+import { mvcApi, mempoolApi, metaletApiV3, unisatApi } from './request'
 
 export interface UTXO {
   txId: string
@@ -60,20 +61,42 @@ export enum AddressType {
 }
 
 export interface UnisatUTXO {
-  txId: string
-  outputIndex: number
+  txid: string
+  vout: number
   satoshis: number
   scriptPk: string
   addressType: AddressType
   inscriptions: {
-    id: string
-    num: number
+    inscriptionId: string
+    inscriptionNumber?: number
     offset: number
+  }[]
+  atomicals: {
+    atomicalId: string
+    atomicalNumber: number
+    type: 'NFT' | 'FT'
+    ticker?: string
+  }[]
+
+  runes: {
+    runeid: string
+    rune: string
+    amount: string
   }[]
 }
 
 export async function getBtcUtxos(address: string, needRawTx = false): Promise<UTXO[]> {
   const net = getNet()
+  if (UNISAT_ENABLED) {
+    const unisatUtxos = await unisatApi<UnisatUTXO[]>(`/address/btc-utxo`).get({ net, address })
+    const utxos = unisatUtxos.map((utxo) => formatUnisatUTXO(utxo))
+    return utxos.sort((a, b) => {
+      if (a.confirmed !== b.confirmed) {
+        return b.confirmed ? 1 : -1
+      }
+      return a.satoshis - b.satoshis
+    })
+  }
   const utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
   if (needRawTx) {
     for (let utxo of utxos) {
@@ -124,6 +147,16 @@ function formatMempoolUTXO(utxo: MempoolUtxo): UTXO {
     outputIndex: utxo.vout,
     satoshis: utxo.value,
     confirmed: utxo.status.confirmed,
+    inscriptions: [],
+  }
+}
+
+function formatUnisatUTXO(utxo: UnisatUTXO): UTXO {
+  return {
+    txId: utxo.txid,
+    outputIndex: utxo.vout,
+    satoshis: utxo.satoshis,
+    confirmed: true,
     inscriptions: [],
   }
 }

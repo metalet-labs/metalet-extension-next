@@ -26,11 +26,11 @@ getAssetsDisplay().then((display) => {
   assetsDisplay.value = display
 })
 
-const { isLoading: btcAssetsLoading, data: btcAssets } = useBRC20AssetQuery(btcAddress, {
+const { data: btcAssets } = useBRC20AssetQuery(btcAddress, {
   enabled: computed(() => !!btcAddress.value),
 })
 
-const { isFetching: mvcAssetsLoading, data: mvcAssets } = useMVCAssetsQuery(mvcAddress, {
+const { data: mvcAssets } = useMVCAssetsQuery(mvcAddress, {
   enabled: computed(() => !!mvcAddress.value),
   autoRefresh: true,
 })
@@ -64,7 +64,7 @@ function toToken(token: Asset, address: string) {
 <template>
   <div class="mt-2 space-y-5 text-black divide-y divide-gray-light">
     <template v-if="!!serviceNetwork && ['all', 'btc'].includes(serviceNetwork)">
-      <div class="space-y-2 divide-y divide-gray-light" v-if="btcAddress">
+      <div class="space-y-2 divide-y divide-gray-light">
         <AssetItem :asset="BTCAsset" :address="btcAddress" @click="toNative(BTCAsset, btcAddress)" />
         <AssetItem
           :asset="asset"
@@ -74,11 +74,10 @@ function toToken(token: Asset, address: string) {
           @click="toBRC20(asset, btcAddress)"
         />
       </div>
-      <div v-else class="text-center text-gray-500 text-sm">BTC Asset Loading...</div>
     </template>
 
     <template v-if="!!serviceNetwork && ['all', 'mvc'].includes(serviceNetwork)">
-      <div class="space-y-2 divide-y divide-gray-light" v-if="mvcAddress">
+      <div class="space-y-2 divide-y divide-gray-light">
         <AssetItem :asset="MVCAsset" :address="mvcAddress" @click="toNative(MVCAsset, mvcAddress)" />
         <AssetItem
           :asset="asset"
@@ -88,7 +87,6 @@ function toToken(token: Asset, address: string) {
           @click="toToken(asset, mvcAddress)"
         />
       </div>
-      <div v-else class="text-center text-gray-500 text-sm">MVC Asset Loading...</div>
     </template>
 
     <!-- Manage Token List -->

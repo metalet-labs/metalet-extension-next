@@ -24,7 +24,9 @@ if (props.asset?.contract) {
 }
 
 const balaceEnabled = computed(() => !!address.value && !!asset.value.symbol && !asset.value.balance)
-const { data: balance } = useBalanceQuery(address, ref(asset.value.symbol), { enabled: balaceEnabled })
+const { isLoading: isBalanceLoading, data: balance } = useBalanceQuery(address, ref(asset.value.symbol), {
+  enabled: balaceEnabled,
+})
 
 const coinType = computed(() => {
   return getExchangeCoinType(asset.value.symbol, asset.value.contract)
@@ -48,8 +50,10 @@ const assetPrice = computed(() => {
   return `-- ${asset.value.symbol}`
 })
 
+const loading = computed(() => isBalanceLoading.value && isExchangeRateLoading.value)
+
 const assetUSD = computed(() => {
-  if (isExchangeRateLoading.value) {
+  if (loading.value) {
     return
   }
   const usdRate = new Decimal(exchangeRate.value?.price || 0)
@@ -78,17 +82,18 @@ watch(
     <div class="flex gap-2 cursor-pointer items-center justify-between rounded-md py-3">
       <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
-        <UseImage :src="asset.logo" v-if="asset.logo && asset.codeHash" class="h-10 w-10 rounded-md">
+        <UseImage :src="asset.logo!" class="h-10 w-10 rounded-md">
+          <template #loading>
+            <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+              {{ asset.symbol[0].toLocaleUpperCase() }}
+            </div>
+          </template>
           <template #error>
-            <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-[#1E2BFF]">
+            <div class="text-center leading-10 rounded-full text-white text-base bg-btn-blue">
               {{ asset.symbol[0].toLocaleUpperCase() }}
             </div>
           </template>
         </UseImage>
-        <img class="h-10 w-10 rounded-full" :src="asset.logo" v-else-if="asset.logo" />
-        <div v-else class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-[#1E2BFF]">
-          {{ asset.symbol[0].toLocaleUpperCase() }}
-        </div>
         <div class="flex flex-col gap-y-1 items-start">
           <div :title="asset.tokenName" class="flex items-center gap-x-0.5 text-base">
             <span class="max-w-[100px] truncate overflow-hidden">{{ asset.tokenName }}</span>
@@ -109,14 +114,13 @@ watch(
       </div>
 
       <div class="flex grow overflow-hidden flex-col items-end text-xs gap-y-1">
-        <div :class="['w-full text-right']">
+        <div class="w-full flex flex-col items-end">
           <div class="text-black-primary text-sm">{{ assetPrice }}</div>
-          <div :class="['text-xs font-normal text-gray-primary']">
+          <div class="text-xs text-gray-primary">
             <span v-if="assetUSD">
               <!-- TODO： put into utils -->
               {{ `$${assetUSD.toDecimalPlaces(2, Decimal.ROUND_FLOOR).toNumber().toFixed(2)}` }}
             </span>
-            <span v-else>$--</span>
           </div>
         </div>
       </div>

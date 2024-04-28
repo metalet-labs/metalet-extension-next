@@ -11,3 +11,5 @@ export const NOTIFICATION_HEIGHT = IS_WINDOWS ? 640 : 630
 
 export const DEBUG = false
 export const IS_DEV = process.env.NODE_ENV === 'development'
+
+export const UNISAT_ENABLED = false

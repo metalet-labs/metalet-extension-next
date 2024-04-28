@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { IS_DEV } from '@/data/config'
 import { EditName } from '@/components'
 import { type V3Wallet } from '@/lib/types'
 import Avatar from '@/components/Avatar.vue'
@@ -7,16 +8,17 @@ import { totalBalance } from '@/lib/balance'
 import { toast } from '@/components/ui/toast'
 import AddIcon from '@/assets/icons-v3/add.svg'
 import { goToTab, goToPage } from '@/lib/utils'
+import { getBackupV3Wallet } from '@/lib/backup'
 import { WalletsStore } from '@/stores/WalletStore'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { FlexBox, Divider, Button } from '@/components'
+import { ArrowRightIcon } from '@heroicons/vue/20/solid'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { getCurrentWalletId, setV3WalletsStorage, getV3WalletsStorage, setCurrentWalletId } from '@/lib/wallet'
-import { IS_DEV } from '@/data/config'
 
 const { updateAllWallets } = useChainWalletsStore()
 
@@ -29,9 +31,14 @@ const editNameType = ref<'Wallet' | 'Account'>('Wallet')
 const walletObj = ref<Record<string, V3Wallet>>({})
 const currentWalletId = ref<string>()
 const currentAccountId = ref<string>()
+const backupWallets = ref<string[]>([])
 
-getV3WalletsStorage().then((_wallets) => {
+getV3WalletsStorage().then(async (_wallets) => {
   walletObj.value = _wallets
+})
+
+getBackupV3Wallet().then((_backupWallets) => {
+  backupWallets.value = _backupWallets
 })
 
 getCurrentWalletId().then((_currentWalletId) => {
@@ -90,7 +97,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
     />
     <FlexBox class="w-full h-15" ai="center" jc="between">
       <ArrowLeftIcon @click="$router.push('/wallet')" class="w-3.5 cursor-pointer" />
-      <RouterLink to="/" class="text-sm" v-if="false">Edit wallet</RouterLink>
+      <RouterLink to="/" class="text-sm">Edit wallet</RouterLink>
     </FlexBox>
     <FlexBox class="flex-1 overflow-y-auto pr-4 -mr-4" d="col">
       <FlexBox class="w-full py-6" d="col" :gap="2" ai="center" jc="center">
@@ -136,10 +143,24 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                 </FlexBox>
                 <SuccessIcon v-show="account.id === currentAccountId" />
               </FlexBox>
-              <FlexBox ai="center" :gap="3" class="h-15 cursor-pointer" @click="addAccount(wallet)">
+              <FlexBox
+                ai="center"
+                :gap="3"
+                class="h-15 cursor-pointer"
+                @click="addAccount(wallet)"
+                v-if="backupWallets.includes(wallet.id)"
+              >
                 <AddIcon class="w-[38px] h-[38px]" />
                 <span>Add account</span>
               </FlexBox>
+              <RouterLink
+                to="/wallet/backup"
+                v-else
+                class="flex items-center justify-center gap-2 cursor-pointer text-red-500"
+              >
+                Back up now
+                <ArrowRightIcon class="w-4" />
+              </RouterLink>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

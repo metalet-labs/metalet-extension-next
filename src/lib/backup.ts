@@ -13,7 +13,7 @@ export const setBackupV3Wallet = async (walletIds: string[]) => {
   await storage.set(BACKUP_V3_KEY, walletIds)
 }
 
-export const hasBackupCurrentWallet = async () => {
+export const hasBackupCurrentWallet = async (walletId?: string) => {
   const currentWalletId = await getCurrentWalletId()
   if (!currentWalletId) {
     return false

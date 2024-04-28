@@ -74,7 +74,7 @@ function toSelectAsset(purpose: 'receive' | 'send') {
         <ArrowUpRightIcon class="mr-1 h-4 w-4" />
         <span>Send</span>
       </button>
-      <button class="button" @click="toSelectAsset('send')">
+      <button class="button" @click="toSelectAsset('receive')">
         <QrCodeIcon class="mr-1 h-4 w-4" />
         <span>Receive</span>
       </button>

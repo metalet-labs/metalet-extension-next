@@ -1,2 +1,2 @@
-export const Balance_QUERY_INTERVAL = 30000
-export const Activities_QUERY_INTERVAL = 30000
+export const Balance_QUERY_INTERVAL = undefined
+export const Activities_QUERY_INTERVAL = undefined
