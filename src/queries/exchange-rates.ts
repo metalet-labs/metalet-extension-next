@@ -25,7 +25,7 @@ export const fetchFTExchangeRates = async (): Promise<RawRates> => {
 }
 
 export const doNothing = async (symbol: SymbolTicker): Promise<RawRates> => ({
-  symbol: 0,
+  [symbol]: 0,
   [symbol.toLowerCase()]: 0,
 })
 
@@ -33,18 +33,7 @@ export enum CoinCategory {
   Native = 'Native',
   BRC20 = 'BRC-20',
   MetaContract = 'MetaContract',
-}
-
-export const getExchangeCoinType = (symbol: SymbolTicker, contract?: string): CoinCategory => {
-  if (DEFAULT_SYMBOLS.includes(symbol)) {
-    return CoinCategory.Native
-  } else if (contract === 'BRC-20') {
-    return CoinCategory.BRC20
-  } else if (contract === 'MetaContract') {
-    return CoinCategory.MetaContract
-  } else {
-    throw Error('Unknown coin category')
-  }
+  Rune = 'Rune',
 }
 
 export const useExchangeRatesQuery = (

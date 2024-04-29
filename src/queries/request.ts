@@ -12,7 +12,7 @@ import {
   UNISAT_TESTNET_HOST,
 } from '@/data/hosts'
 
-type OptionParams = Record<string, string | undefined>
+type OptionParams = Record<string, string | number | undefined>
 
 interface OptionData {
   [key: string]: unknown

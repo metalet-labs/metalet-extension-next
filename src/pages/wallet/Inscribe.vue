@@ -8,12 +8,12 @@ import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
 import { commitInscribe } from '@/queries/inscribe'
+import { useBRC20AseetQuery } from '@/queries/brc20'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import InscribeSuccessPNG from '@/assets/icons-v3/inscribe-success.png'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
-import { useBRCTickerAseetQuery, useBRC20AssetQuery } from '@/queries/btc'
 import { preInscribe, PreInscribe, getInscribeInfo } from '@/queries/inscribe'
 import { FlexBox, Divider, FeeRateSelector, Button, AssetLogo } from '@/components'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
@@ -33,35 +33,18 @@ const router = useRouter()
 const orderId = ref()
 const open = ref(false)
 const rawTx = ref<string>()
+const currentRateFee = ref<number>()
 
 const { currentBTCWallet } = useChainWalletsStore()
-
-if (!route.params.address || !route.params.symbol) {
-  router.go(-1)
-}
 
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
-const { data: btcAssets } = useBRC20AssetQuery(address, { enabled: computed(() => !!address.value) })
-const asset = computed(() => {
-  if (btcAssets.value && btcAssets.value.length > 0) {
-    return btcAssets.value.find((asset) => asset.symbol === symbol.value)
-  }
-})
-
-const currentRateFee = ref<number>()
-
-const { data: tokenData } = useBRCTickerAseetQuery(address, symbol, {
+const { data: asset } = useBRC20AseetQuery(address, symbol, {
   enabled: computed(() => !!address.value),
 })
 
-const availableBalance = computed(() => {
-  if (tokenData.value) {
-    return tokenData.value.tokenBalance.availableBalance
-  }
-  return '--'
-})
+const availableBalance = computed(() => asset.value?.balance.availableBalance)
 
 const nextStep = ref(0)
 const operationLock = ref(false)
@@ -112,7 +95,7 @@ const popConfirm = async () => {
     return
   }
 
-  if (inscribeAmount.value > Number(tokenData.value?.tokenBalance.availableBalance || 0)) {
+  if (inscribeAmount.value > Number(asset.value?.balance.availableBalance || 0)) {
     transactionResult.value = {
       status: 'warning',
       message: 'Insufficient Balance.',

@@ -5,8 +5,8 @@ import type { Psbt } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
-import { useBRC20AssetQuery } from '@/queries/btc'
 import { useQueryClient } from '@tanstack/vue-query'
+import { useBRC20AseetQuery } from '@/queries/brc20'
 import { getInscriptionUtxo } from '@/queries/utxos'
 import { broadcastBTCTx } from '@/queries/transaction'
 import LoadingIcon from '@/components/LoadingIcon.vue'
@@ -28,20 +28,14 @@ const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 const inscriptionId = ref<string>(route.params.inscriptionId as string)
 
-const { data: btcAssets } = useBRC20AssetQuery(address, { enabled: computed(() => !!address.value) })
-
 const { currentBTCWallet } = useChainWalletsStore()
 
-const asset = computed(() => {
-  if (btcAssets.value) {
-    const asset = btcAssets.value.find((asset) => asset.symbol === symbol.value)
-    if (!asset) {
-      router.go(-1)
-      return
-    }
-    return asset
-  }
-})
+const tickerEnabled = computed(() => !!address.value && !!symbol.value)
+
+const {
+  data: asset,
+  isLoading: tickersLoading,
+} = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
 
 const tags = computed(() => {
   if (asset.value) {

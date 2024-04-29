@@ -6,6 +6,8 @@ import { notifyBg } from '@/lib/notify-bg'
 import { notifyContent } from '@/lib/notify-content'
 import { type Net } from '@metalet/utxo-wallet-service'
 
+// TODO: refactor to use global state
+
 export type Service = Chain | 'all'
 
 export type Network = 'mainnet' | 'testnet'

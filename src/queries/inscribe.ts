@@ -119,8 +119,8 @@ export async function fetchCInscriptions(
   const { list, total } = await metaletApiV3<{ list: Inscription[]; total: number }>('/address/inscriptions').get({
     net,
     address,
-    cursor: `${cursor}`,
-    size: `${size}`,
+    cursor: cursor.toString(),
+    size: size.toString(),
   })
 
   cursor += size
@@ -145,7 +145,7 @@ export async function getBRCInscriptionInfo(inscriptionId: string): Promise<Insc
 export const useInscriptionsInfiniteQuery = (
   address: Ref<string>,
   size: Ref<number>,
-  options: { enabled: ComputedRef<boolean> }
+  options: { enabled: Ref<boolean> }
 ) => {
   return useInfiniteQuery(
     ['Inscriptions', { address, size }],

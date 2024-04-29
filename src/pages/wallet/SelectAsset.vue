@@ -7,6 +7,7 @@ import { useRouter, useRoute } from 'vue-router'
 import AssetItem from './components/AssetItem.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
 import SearchInput from '@/components/SearchInput.vue'
+import { CoinCategory } from '@/queries/exchange-rates'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
@@ -85,6 +86,7 @@ function selectAsset(asset: Asset) {
       v-for="asset in assets"
       @click="selectAsset(asset)"
       v-if="btcAddress && mvcAddress"
+      :coinCategory="CoinCategory.Native"
       :address="selectAddress(asset.chain)"
     />
     <Receive

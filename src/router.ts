@@ -129,6 +129,16 @@ const routes = [
         },
       },
       {
+        path: '/wallet/sendRune/:name/:runeId/:address',
+        component: () => import('./pages/wallet/SendRune.vue'),
+        name: 'SendRune',
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Send Rune',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/sendSuccess/:chain/:symbol/:amount/:address/:txId',
         component: () => import('./pages/wallet/SendSuccess.vue'),
         name: 'SendSuccess',
@@ -244,6 +254,18 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'BRC20',
+          noFooter: true,
+          backRouter: '/wallet',
+        },
+      },
+      {
+        path: '/wallet/rune/:name/:runeId/:address',
+        component: () => import('./pages/wallet/Rune.vue'),
+        name: 'rune',
+        props: true,
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Rune',
           noFooter: true,
           backRouter: '/wallet',
         },
@@ -509,12 +531,14 @@ router.beforeEach(async (to, _, next) => {
     } else if (await isLocked()) {
       next('/lock')
     } else {
-      if (['asset', 'token'].includes(to.name as string)) {
+      if (['asset', 'token', 'brc20'].includes(to.name as string)) {
         to.meta.headerTitle = to.params.symbol
-      }
-
-      if (to.name === 'send-token') {
+      } else if (['rune'].includes(to.name as string)) {
+        to.meta.headerTitle = to.params.name
+      } else if (to.name === 'send-token') {
         to.meta.headerTitle = `Send ${to.params.symbol}`
+      }else if (to.name === 'SendRune') {
+        to.meta.headerTitle = `Send ${to.params.name}`
       }
 
       if (to.path === '/wallet') {

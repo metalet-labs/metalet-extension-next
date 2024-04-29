@@ -2,51 +2,19 @@ import Decimal from 'decimal.js'
 import { ComputedRef, Ref } from 'vue'
 import { getNet } from '@/lib/network'
 import { useQuery } from '@tanstack/vue-query'
-import { metaletApiV3, mvcApi, unisatApi } from './request'
+import { UNISAT_ENABLED } from '@/data/config'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
-import { UNISAT_ENABLED } from '@/data/config'
-
-export type Balance = {
-  address: string
-  confirmed?: number
-  unconfirmed?: number
-  availableBalance?: number
-  transferBalance?: number
-  availableBalanceSafe?: number
-  availableBalanceUnSafe?: number
-  total: number
-}
+import { metaletApiV3, mvcApi, unisatApi } from './request'
+import { Balance, BitcoinBalance, BTCBalance } from './types/balance'
 
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
-  const balance: any = await mvcApi(`/address/${address}/balance`).get()
-  balance.total = new Decimal(balance.confirmed).add(balance.unconfirmed).toNumber()
-  return balance
-}
-
-interface BTCBalance {
-  balance: number
-  block: {
-    incomeFee: number
-    spendFee: number
+  const balance = await mvcApi<Omit<Balance, 'total'>>(`/address/${address}/balance`).get()
+  return {
+    confirmed: balance.confirmed,
+    unconfirmed: balance.unconfirmed,
+    total: new Decimal(balance.confirmed).add(balance.unconfirmed).toNumber(),
   }
-  mempool: {
-    incomeFee: number
-    spendFee: number
-  }
-}
-
-export interface BitcoinBalance {
-  confirm_amount: string
-  pending_amount: string
-  amount: string
-  confirm_btc_amount: string
-  pending_btc_amount: string
-  btc_amount: string
-  confirm_inscription_amount: string
-  pending_inscription_amount: string
-  inscription_amount: string
-  usd_value: string
 }
 
 export const fetchBtcBalance = async (address: string): Promise<Balance> => {
@@ -54,7 +22,6 @@ export const fetchBtcBalance = async (address: string): Promise<Balance> => {
   if (UNISAT_ENABLED) {
     const data = await unisatApi<BitcoinBalance>(`/address/balance`).get({ net, address })
     return {
-      address,
       total: new Decimal(data.amount).mul(1e8).toNumber(),
       confirmed: new Decimal(data.confirm_amount).mul(1e8).toNumber(),
       unconfirmed: new Decimal(data.pending_amount).mul(1e8).toNumber(),
@@ -62,7 +29,6 @@ export const fetchBtcBalance = async (address: string): Promise<Balance> => {
   }
   const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`).get({ net, address })
   return {
-    address,
     total: new Decimal(data.balance).mul(1e8).toNumber(),
     confirmed: new Decimal(data.block.incomeFee).mul(1e8).toNumber(),
     unconfirmed: new Decimal(data.mempool.incomeFee).mul(1e8).toNumber(),
@@ -71,7 +37,6 @@ export const fetchBtcBalance = async (address: string): Promise<Balance> => {
 
 export const doNothing = async (address: string): Promise<Balance> => {
   return {
-    address,
     confirmed: 0,
     unconfirmed: 0,
     total: 0,

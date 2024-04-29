@@ -1,9 +1,9 @@
 import { mvcApi } from './request'
-import { Balance } from './balance'
 import { ComputedRef, Ref } from 'vue'
-import { type Asset } from '@/data/assets'
+import { Balance } from './types/balance'
 import { useQuery } from '@tanstack/vue-query'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { FTAsset, type Asset } from '@/data/assets'
 import { Balance_QUERY_INTERVAL } from './constants'
 
 export type Token = {
@@ -50,7 +50,7 @@ export const useMVCAssetsQuery = (
               confirmed: token.confirmed,
               unconfirmed: token.unconfirmed,
             },
-          }) as Asset
+          }) as FTAsset
       ),
     refetchInterval: options.autoRefresh ? Balance_QUERY_INTERVAL : undefined,
     ...options,
@@ -110,7 +110,6 @@ export const fetchTokenBalance = async (address: string, genesis: string): Promi
   const confirmed = token?.confirmed || 0
   const unconfirmed = token?.unconfirmed || 0
   return {
-    address,
     confirmed,
     unconfirmed,
     total: confirmed + unconfirmed,

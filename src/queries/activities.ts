@@ -1,9 +1,9 @@
 import Decimal from 'decimal.js'
 import { ComputedRef, Ref } from 'vue'
-import { type Asset } from '@/data/assets'
 import { useQuery } from '@tanstack/vue-query'
 import { mvcApi, metaletApiV3 } from './request'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import type { FTAsset, Asset } from '@/data/assets'
 import { Activities_QUERY_INTERVAL } from './constants'
 
 export type Operation = {
@@ -124,7 +124,7 @@ export const fetchOneActivity = async (txid: string): Promise<Activity> => {
   return detail
 }
 
-export const fetchTokenActivities = async (address: string, asset: Asset): Promise<TokenActivities> => {
+export const fetchTokenActivities = async (address: string, asset: FTAsset): Promise<TokenActivities> => {
   return await mvcApi<TokenActivities>(`/contract/ft/address/${address}/${asset.codeHash}/${asset.genesis}/tx`).get()
 }
 
@@ -149,7 +149,7 @@ export const useOneActivityQuery = (
 
 export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean> }) => {
   return useQuery({
-    queryKey: ['activities', { address, symbol: asset.symbol, genesis: asset.genesis }],
+    queryKey: ['activities', { address, symbol: asset.symbol, genesis: (asset as FTAsset).genesis }],
     queryFn: async () => {
       if (asset.symbol === 'BTC') {
         return fetchBtcActivities(address.value)
@@ -158,7 +158,9 @@ export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?:
       } else if (asset.contract === 'BRC-20') {
         return fetchBRC20Activities(address.value, asset.symbol)
       } else if (asset.contract === 'MetaContract') {
-        return fetchTokenActivities(address.value, asset)
+        return fetchTokenActivities(address.value, asset as FTAsset)
+      } else {
+        return []
       }
     },
     refetchInterval: Activities_QUERY_INTERVAL,

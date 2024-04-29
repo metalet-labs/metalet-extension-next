@@ -1,6 +1,8 @@
 import { computed, ref } from 'vue'
 import { type Chain } from './types'
 
+// refactor to global state
+
 interface Asset {
   chain: Chain
   name: string

@@ -3,12 +3,13 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AssetItem from './AssetItem.vue'
 import { getAssetsDisplay } from '@/lib/assets'
-import { useBRC20AssetQuery } from '@/queries/btc'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useMVCAssetsQuery } from '@/queries/tokens'
-import { type Asset, BTCAsset, MVCAsset } from '@/data/assets'
+import { useBRC20AssetsQuery } from '@/queries/brc20'
+import { CoinCategory } from '@/queries/exchange-rates'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { type Asset, BTCAsset, MVCAsset, FTAsset } from '@/data/assets'
 
 const router = useRouter()
 const { getAddress } = useChainWalletsStore()
@@ -26,7 +27,7 @@ getAssetsDisplay().then((display) => {
   assetsDisplay.value = display
 })
 
-const { data: btcAssets } = useBRC20AssetQuery(btcAddress, {
+const { data: btcAssets } = useBRC20AssetsQuery(btcAddress, {
   enabled: computed(() => !!btcAddress.value),
 })
 
@@ -53,7 +54,7 @@ function toBRC20(asset: Asset, address: string) {
   })
 }
 
-function toToken(token: Asset, address: string) {
+function toToken(token: FTAsset, address: string) {
   router.push({
     name: 'token',
     params: { genesis: token.genesis, symbol: token.symbol, address },
@@ -65,12 +66,18 @@ function toToken(token: Asset, address: string) {
   <div class="mt-2 space-y-5 text-black divide-y divide-gray-light">
     <template v-if="!!serviceNetwork && ['all', 'btc'].includes(serviceNetwork)">
       <div class="space-y-2 divide-y divide-gray-light">
-        <AssetItem :asset="BTCAsset" :address="btcAddress" @click="toNative(BTCAsset, btcAddress)" />
+        <AssetItem
+          :asset="BTCAsset"
+          :address="btcAddress"
+          :coinCategory="CoinCategory.Native"
+          @click="toNative(BTCAsset, btcAddress)"
+        />
         <AssetItem
           :asset="asset"
           :key="asset.symbol"
           :address="btcAddress"
           v-for="asset in btcAssets"
+          :coinCategory="CoinCategory.BRC20"
           @click="toBRC20(asset, btcAddress)"
         />
       </div>
@@ -78,13 +85,19 @@ function toToken(token: Asset, address: string) {
 
     <template v-if="!!serviceNetwork && ['all', 'mvc'].includes(serviceNetwork)">
       <div class="space-y-2 divide-y divide-gray-light">
-        <AssetItem :asset="MVCAsset" :address="mvcAddress" @click="toNative(MVCAsset, mvcAddress)" />
+        <AssetItem
+          :asset="MVCAsset"
+          :address="mvcAddress"
+          :coinCategory="CoinCategory.Native"
+          @click="toNative(MVCAsset, mvcAddress)"
+        />
         <AssetItem
           :asset="asset"
           :key="asset.genesis"
           :address="mvcAddress"
           v-for="asset in mvcAssets"
           @click="toToken(asset, mvcAddress)"
+          :coinCategory="CoinCategory.MetaContract"
         />
       </div>
     </template>

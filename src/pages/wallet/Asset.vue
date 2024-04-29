@@ -105,11 +105,6 @@ watch(assetUSD, (_assetUSD) => {
 })
 
 const toSend = () => {
-  const { contract } = asset.value!
-  if (contract === 'BRC-20') {
-    router.push(`/wallet/sendBRC?symbol=${symbol.value}`)
-    return
-  }
   router.push({
     name: 'send',
     params: {

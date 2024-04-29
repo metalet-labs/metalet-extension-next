@@ -1,6 +1,7 @@
 <script setup>
 import AssetList from './AssetList.vue'
 import NFTList from './NFTs/NFTList.vue'
+import RuneList from './Runes/RuneList.vue';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 </script>
 
@@ -9,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
     <TabsList class="p-0 gap-6">
       <TabsTrigger value="Cypto">Cypto</TabsTrigger>
       <TabsTrigger value="NFTs">NFTs</TabsTrigger>
+      <TabsTrigger value="Runes">Runes</TabsTrigger>
       <!-- <TabsTrigger value="Activity">Activity</TabsTrigger> -->
     </TabsList>
     <TabsContent value="Cypto">
@@ -16,6 +18,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
     </TabsContent>
     <TabsContent value="NFTs">
       <NFTList />
+    </TabsContent>
+    <TabsContent value="Runes">
+      <RuneList />
     </TabsContent>
     <TabsContent value="Activity"></TabsContent>
   </Tabs>

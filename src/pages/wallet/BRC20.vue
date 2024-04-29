@@ -1,99 +1,51 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { useRoute } from 'vue-router'
+import { getTags } from '@/data/assets'
 import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
 import Ticker from './components/Ticker.vue'
 import { calcBalance } from '@/lib/formatters'
 import MintPNG from '@/assets/icons-v3/mint.png'
-import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import AssetLogo from '@/components/AssetLogo.vue'
-import { useBalanceQuery } from '@/queries/balance'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import Activities from './components/Activities.vue'
 import TickerList from './components/TickerList.vue'
+import { useBRC20AseetQuery } from '@/queries/brc20'
 import FilterIcon from '@/assets/icons-v3/filter.svg'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import TransferPNG from '@/assets/icons-v3/transfer.png'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
-import { getTags, BTCAsset, MVCAsset } from '@/data/assets'
-import { useBRCTickerAseetQuery, useBRC20AssetQuery } from '@/queries/btc'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
-const router = useRouter()
-
-if (!route.params.address) {
-  router.go(-1)
-}
-
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
-
-const { data: btcAssets } = useBRC20AssetQuery(address, { enabled: computed(() => !!address.value) })
-
-const asset = computed(() => {
-  if (symbol.value === 'BTC') {
-    return BTCAsset
-  }
-  if (symbol.value === 'SPACE') {
-    return MVCAsset
-  }
-  if (btcAssets.value) {
-    return btcAssets.value.find((asset) => asset.symbol === symbol.value!)
-  }
-})
-
-const balaceEnabled = computed(() => {
-  if (asset.value) {
-    return !!address.value && !!symbol.value && !asset.value.balance
-  }
-  return false
-})
-
-const { isLoading, data: balance } = useBalanceQuery(address, symbol, {
-  enabled: balaceEnabled,
-})
 
 const tickerEnabled = computed(() => !!address.value && !!symbol.value)
 
 // TODO：修复useBRCTickerAseetQuery重新请求刷新
 const {
-  isLoading: tickersLoading,
-  data: tickersData,
   refetch,
-} = useBRCTickerAseetQuery(address, symbol, {
-  enabled: tickerEnabled,
-})
+  data: asset,
+  isLoading: tickersLoading,
+} = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
 
 if (route.query.refresh) {
   refetch()
 }
 
-const transferableList = computed(() => tickersData.value?.transferableList)
+const transferableList = computed(() => asset.value?.transferableList)
 
-const transferableBalance = computed(() => {
-  if (tickersData.value?.tokenBalance) {
-    return Number(tickersData.value?.tokenBalance.transferableBalance)
-  }
-  return '--'
-})
+const transferableBalance = computed(() => asset.value?.balance.transferableBalance)
 
-const availableBalanceSafe = computed(() => {
-  if (tickersData.value?.tokenBalance) {
-    return Number(tickersData.value?.tokenBalance.availableBalance)
-  }
-  return '--'
-})
+const availableBalanceSafe = computed(() => asset.value?.balance.availableBalanceSafe)
 
-const availableBalanceUnSafe = computed(() => {
-  if (tickersData.value?.tokenBalance) {
-    return Math.abs(Number(tickersData.value?.tokenBalance.availableBalanceUnSafe))
-  }
-})
+const availableBalanceUnSafe = computed(() => asset.value?.balance.availableBalanceUnSafe)
 
 const tags = computed(() => {
   if (asset.value) {
@@ -124,17 +76,14 @@ const assetUSD = computed(() => {
   if (asset.value) {
     if (asset.value?.balance) {
       const balanceInStandardUnit = new Decimal(asset.value.balance?.total || 0).dividedBy(10 ** asset.value.decimal)
-      return usdRate.mul(balanceInStandardUnit)
-    } else if (balance.value && exchangeRate.value) {
-      const balanceInStandardUnit = new Decimal(balance.value.total).dividedBy(10 ** asset.value.decimal)
-      return usdRate.mul(balanceInStandardUnit)
+      return usdRate.mul(balanceInStandardUnit).toNumber()
     }
   }
 })
 
 watch(assetUSD, (_assetUSD) => {
   if (asset.value && _assetUSD) {
-    updateAsset({ chain: asset.value.chain, name: asset.value.symbol, value: _assetUSD.toNumber() })
+    updateAsset({ chain: asset.value.chain, name: asset.value.symbol, value: _assetUSD })
   }
 })
 </script>
@@ -147,7 +96,7 @@ watch(assetUSD, (_assetUSD) => {
       <div class="mt-3 text-2xl">
         <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
         <span v-else>-- {{ asset.symbol }}</span>
-        <span class="text-gray-primary ml-2">≈ ${{ assetUSD?.toNumber().toFixed(2) }}</span>
+        <span class="text-gray-primary ml-2" v-if="assetUSD !== undefined">≈ ${{ assetUSD.toFixed(2) }}</span>
       </div>
 
       <div

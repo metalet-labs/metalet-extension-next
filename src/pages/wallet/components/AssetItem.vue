@@ -6,16 +6,18 @@ import { UseImage } from '@vueuse/components'
 import { isOfficialToken } from '@/lib/assets'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
-import { type Asset, getTagInfo, type Tag } from '@/data/assets'
-import { useExchangeRatesQuery, getExchangeCoinType } from '@/queries/exchange-rates'
+import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
+import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset } from '@/data/assets'
 
 const props = defineProps<{
-  asset: Asset
   address: string
+  coinCategory: CoinCategory
+  asset: Asset | BRC20Asset | FTAsset
 }>()
 
 const asset = computed(() => props.asset)
 const address = computed(() => props.address)
+const coinCategory = computed(() => props.coinCategory)
 
 const tag = ref<Tag>()
 
@@ -28,14 +30,10 @@ const { isLoading: isBalanceLoading, data: balance } = useBalanceQuery(address, 
   enabled: balaceEnabled,
 })
 
-const coinType = computed(() => {
-  return getExchangeCoinType(asset.value.symbol, asset.value.contract)
-})
-
 const rateEnabled = computed(() => !!address && !!asset.value.symbol)
 const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRatesQuery(
   ref(asset.value.symbol),
-  coinType,
+  ref(coinCategory),
   {
     enabled: rateEnabled,
   }
@@ -99,7 +97,7 @@ watch(
             <span class="max-w-[100px] truncate overflow-hidden">{{ asset.tokenName }}</span>
             <CheckBadgeIcon
               class="h-4 w-4 shrink-0 text-blue-500"
-              v-if="asset?.genesis && isOfficialToken(asset.genesis)"
+              v-if="(asset as FTAsset)?.genesis && isOfficialToken((asset as FTAsset).genesis)"
             />
           </div>
 
@@ -130,18 +128,18 @@ watch(
       class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
     >
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
-        <span class="text-black-primary truncate">{{ asset.balance?.transferBalance }}</span>
+        <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.transferableBalance }}</span>
         <span class="text-[#909399]">Transferable</span>
       </div>
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
-        <span class="text-black-primary truncate">{{ asset.balance?.availableBalanceSafe }}</span>
+        <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.availableBalanceSafe }}</span>
         <span class="text-[#909399]">Available</span>
       </div>
       <div
-        v-if="asset.balance?.availableBalanceUnSafe"
+        v-if="(asset as BRC20Asset).balance?.availableBalanceUnSafe"
         class="text-xs flex flex-col gap-1 items-center justify-between w-full"
       >
-        <span class="text-black-primary truncate">{{ asset.balance?.availableBalanceUnSafe }}</span>
+        <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.availableBalanceUnSafe }}</span>
         <span class="text-[#909399]">Available(pending)</span>
       </div>
     </div>

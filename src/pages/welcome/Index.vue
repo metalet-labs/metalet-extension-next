@@ -1,9 +1,7 @@
-<script lang="ts" setup>
-import { FlexBox } from '@/components'
-</script>
+<script lang="ts" setup></script>
 
 <template>
-  <FlexBox class="w-screen h-screen">
+  <div class="flex w-screen h-screen">
     <RouterView />
-  </FlexBox>
+  </div>
 </template>

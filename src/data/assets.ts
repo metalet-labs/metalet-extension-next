@@ -1,9 +1,10 @@
-import { Balance } from '@/queries/balance'
+import { TokenTransfer } from '@/queries/brc20'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import BtcLogoImg from '../assets/images/btc-logo.svg?url'
 import SpaceLogoImg from '../assets/icons-v3/space.svg?url'
+import { Balance, BRC20Balance } from '@/queries/types/balance'
 
-export type Asset = {
+export interface Asset {
   symbol: SymbolTicker
   logo?: string
   tokenName: string
@@ -12,9 +13,21 @@ export type Asset = {
   queryable: boolean
   decimal: number
   balance?: Balance
-  genesis?: string
   contract?: string
-  codeHash?: string
+}
+
+export interface BRC20Asset extends Asset {
+  balance: BRC20Balance
+  transferableList?: TokenTransfer[]
+}
+
+export interface FTAsset extends Asset {
+  genesis: string
+  codeHash: string
+}
+
+export interface RuneAsset extends Asset {
+  runeId: string
 }
 
 export interface Tag {
@@ -52,11 +65,19 @@ function getTagInfo(name: string): Tag | undefined {
 
 function getTags(asset: Asset): Tag[] {
   const tagList: Tag[] = []
-  if (asset.contract) {
+  if (asset?.contract) {
     const contractTag = getTagInfo(asset.contract)
     if (contractTag) {
       tagList.push(contractTag)
     }
+  } else if ((asset as RuneAsset)?.runeId) {
+    ;[
+      {
+        name: 'Runes',
+        bg: 'rgb(247, 147, 26, 0.2)',
+        color: '#FF981C',
+      },
+    ]
   }
   return tagList
 }

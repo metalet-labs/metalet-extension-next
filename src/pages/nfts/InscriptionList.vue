@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { ref, computed } from 'vue'
 import BRCToken from './BRCToken.vue'
 import { useRouter } from 'vue-router'
-import { getAddress } from '@/lib/account'
+import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { useInscriptionsInfiniteQuery } from '@/queries/inscribe'
 import { formatTimestamp } from '@/lib/formatters'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
-const size = ref(10)
-const address = ref()
 const router = useRouter()
+const size = ref(10)
 
-getAddress('btc').then((_address) => {
-  address.value = _address
-})
+const { getAddress } = useChainWalletsStore()
+const address = getAddress(Chain.BTC)
 
 const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useInscriptionsInfiniteQuery(
   address,
@@ -48,9 +46,9 @@ const toBRC20Detail = (inscriptionId: string) => {
           class="flex flex-col items-center justify-center rounded-md cursor-pointer text-[#999999]"
         >
           <BRCToken :value="inscription.outputValue" :contentBody="inscription.contentBody" />
-          <span class="text-sm text-center mt-3 truncate" :title="'# ' + inscription.inscriptionNumber">{{
-            inscription.utxoHeight === 0 ? 'Uncomfirmed' : `# ${inscription.inscriptionNumber}`
-          }}</span>
+          <span class="text-sm text-center mt-3 truncate" :title="'# ' + inscription.inscriptionNumber">
+            {{ inscription.utxoHeight === 0 ? 'Uncomfirmed' : `# ${inscription.inscriptionNumber}` }}
+          </span>
           <span class="text-xs text-center mt-1 h-[30px]">{{ formatTimestamp(inscription.timestamp) }}</span>
         </div>
       </div>
