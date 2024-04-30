@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
-import { ref, computed, watch } from 'vue'
 import BRCToken from './BRCToken.vue'
 import { useRouter } from 'vue-router'
-import { getAddress } from '@/lib/account'
-import { ArrowDownLeftIcon } from '@heroicons/vue/20/solid'
-import { type Inscription, useBRCInscriptionsQuery } from '@/queries/inscribe'
+import { ref, computed, watch } from 'vue'
 import { formatTimestamp } from '@/lib/formatters'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { ArrowDownLeftIcon } from '@heroicons/vue/20/solid'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { type Inscription, useBRCInscriptionsQuery } from '@/queries/inscribe'
 
 const size = ref(10)
-const address = ref()
 const cursorRef = ref(0)
 const router = useRouter()
 const inscriptions = ref<Inscription[]>([])
 
-getAddress('btc').then((_address) => {
-  address.value = _address
-})
+const { getAddress } = useChainWalletsStore()
+const address = getAddress(Chain.BTC)
 
 const { isLoading, data: inscriptionsData } = useBRCInscriptionsQuery(address, cursorRef, size, {
   enabled: computed(() => !!address.value),

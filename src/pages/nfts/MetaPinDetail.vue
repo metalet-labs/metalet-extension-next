@@ -5,8 +5,8 @@ import { formatTimestamp } from '@/lib/formatters'
 import { shortestAddress } from '@/lib/formatters'
 import { useMetaPinQuery } from '@/queries/metaPin'
 
-const { params } = useRoute()
 const router = useRouter()
+const { params } = useRoute()
 
 const address = params.address as string
 const metaPinId = ref(params.metaPinId as string)

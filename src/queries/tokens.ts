@@ -1,9 +1,9 @@
 import { mvcApi } from './request'
 import { ComputedRef, Ref } from 'vue'
 import { Balance } from './types/balance'
+import type { FTAsset } from '@/data/assets'
 import { useQuery } from '@tanstack/vue-query'
 import { SymbolTicker } from '@/lib/asset-symbol'
-import { FTAsset, type Asset } from '@/data/assets'
 import { Balance_QUERY_INTERVAL } from './constants'
 
 export type Token = {
@@ -84,7 +84,7 @@ export const useMVCTokenQuery = (
             unconfirmed: token.unconfirmed,
             total: token.confirmed + token.unconfirmed,
           },
-        } as Asset
+        } as FTAsset
       }
     },
     refetchInterval: Balance_QUERY_INTERVAL,

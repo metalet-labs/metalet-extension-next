@@ -1,15 +1,14 @@
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { computed, ref } from 'vue'
-
 import useNftsQuery from '@/queries/nfts'
-import { useCollectionInfoQuery } from '@/queries/metadata'
-import { getAddress } from '@/lib/account'
-
 import NftItem from './components/NftItem.vue'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { useCollectionInfoQuery } from '@/queries/metadata'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
-const address = ref<string>('')
-getAddress('mvc').then((add) => (address.value = add!))
+const { getAddress } = useChainWalletsStore()
+const address = getAddress(Chain.MVC)
 
 const route = useRoute()
 const { codehash, genesis } = route.params as {
@@ -20,9 +19,9 @@ const { meta_txid: txid, meta_output_index: outputIndex } = route.query as {
   meta_txid: string
   meta_output_index: string
 }
-const { isLoading: isLoadingCollectionInfo, data: collectionInfo } = useCollectionInfoQuery(txid, Number(outputIndex))
+const { data: collectionInfo } = useCollectionInfoQuery(txid, Number(outputIndex))
 
-const { isLoading, data: nfts } = useNftsQuery(
+const { data: nfts } = useNftsQuery(
   address,
   {
     codehash,

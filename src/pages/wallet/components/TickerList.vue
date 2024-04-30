@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import Ticker from './Ticker.vue'
 import { ref, computed } from 'vue'
-import { type TokenTransfer } from '@/queries/btc'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
+import { type TokenTransfer } from '@/queries/brc20'
 import { LoadingText, Divider, FlexBox } from '@/components'
 import ArrowDwonIcon from '@/assets/icons-v3/arrow_down.svg'
 

@@ -1,24 +1,20 @@
 <script lang="ts" setup>
-import { ChevronRightIcon } from '@heroicons/vue/20/solid'
-import { useRouter } from 'vue-router'
-import { ref, onMounted, computed } from 'vue'
-
-import { NftCollection, useNftsQuery } from '@/queries/nfts'
-import { useCollectionInfoQuery } from '@/queries/metadata'
-import { getAddress } from '@/lib/account'
-
+import { computed } from 'vue'
 import NftItem from './NftItem.vue'
+import { useRouter } from 'vue-router'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { ChevronRightIcon } from '@heroicons/vue/20/solid'
+import { useCollectionInfoQuery } from '@/queries/metadata'
+import { NftCollection, useNftsQuery } from '@/queries/nfts'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
+const router = useRouter()
 const props = defineProps<{
   collection: NftCollection
 }>()
-const router = useRouter()
 
-const address = ref<string>('')
-
-onMounted(async () => {
-  address.value = await getAddress('mvc')
-})
+const { getAddress } = useChainWalletsStore()
+const address = getAddress(Chain.MVC)
 
 const { isLoading, data: nfts } = useNftsQuery(
   address,

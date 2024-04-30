@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import dayjs from 'dayjs'
 import { ref, computed } from 'vue'
 import MetaPin from './MetaPin.vue'
 import { useRouter } from 'vue-router'
-import { getAddress } from '@/lib/account'
+import { formatTimestamp } from '@/lib/formatters'
+import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { useMetaPinsInfiniteQuery } from '@/queries/metaPin'
-import { formatTimestamp } from '@/lib/formatters'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const size = ref(2)
-const address = ref()
 const router = useRouter()
 
-getAddress('btc').then((_address) => {
-  address.value = _address
-})
+const { getAddress } = useChainWalletsStore()
+const address = getAddress(Chain.BTC)
 
 const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useMetaPinsInfiniteQuery(address, size, {
   enabled: computed(() => !!address.value),

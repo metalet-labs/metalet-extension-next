@@ -2,12 +2,12 @@
 import { FEEB } from '@/data/config'
 import { getApiHost } from '@/lib/host'
 import { getNetwork } from '@/lib/network'
-import type { Asset } from '@/data/assets'
+import type { FTAsset } from '@/data/assets'
 import Avatar from '@/components/Avatar.vue'
 import { UseImage } from '@vueuse/components'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useMVCAssetsQuery } from '@/queries/tokens'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { API_NET, API_TARGET, FtManager } from 'meta-contract'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
@@ -22,7 +22,7 @@ const currentGenesis = ref('')
 const currentCodehash = ref('')
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult>()
-const ftAsssets = ref<(Asset & { utxoCount: number })[]>([])
+const ftAsssets = ref<(FTAsset & { utxoCount: number })[]>([])
 
 const splitCount = 10
 const testSplit = false
@@ -150,7 +150,7 @@ watch(
   async ([assets, manager, _isRefresh]) => {
     if (manager && assets && _isRefresh && address) {
       assetLoading.value = true
-      const _assets: (Asset & { utxoCount: number })[] = []
+      const _assets: (FTAsset & { utxoCount: number })[] = []
       for (let asset of assets || []) {
         const { codeHash, genesis } = asset
         await manager.api.getFungibleTokenUnspents(codeHash, genesis, address.value).then((data: any) => {

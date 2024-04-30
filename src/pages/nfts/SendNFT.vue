@@ -4,15 +4,19 @@ import { useRoute } from 'vue-router'
 import Copy from '@/components/Copy.vue'
 import type { Psbt } from 'bitcoinjs-lib'
 import { BtcWallet } from '@/lib/wallets/btc'
+import { getBtcUtxos } from '@/queries/utxos'
 import { getMetaPin } from '@/queries/metaPin'
 import { useQueryClient } from '@tanstack/vue-query'
+import { ScriptType } from '@metalet/utxo-wallet-service'
 import { UTXO, getInscriptionUtxo } from '@/queries/utxos'
 import BTCRateList from '../wallet/components/BTCRateList.vue'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
 import TransactionResultModal, { type TransactionResult } from '../wallet/components/TransactionResultModal.vue'
 
 const route = useRoute()
 const queryClient = useQueryClient()
+const { currentBTCWallet } = useChainWalletsStore()
 
 const id = ref(route.params.id as string)
 const imgUrl = ref(route.query.imgUrl as string)
@@ -74,22 +78,43 @@ async function next() {
 
   amount.value = utxo.satoshis
 
-  const wallet = await BtcWallet.create()
-  const info = await wallet.getBRCFeeAndPsbt(recipient.value, utxo, currentRateFee.value).catch((err: Error) => {
+  // const wallet = await BtcWallet.create()
+  // const info = await wallet.getBRCFeeAndPsbt(recipient.value, utxo, currentRateFee.value).catch((err: Error) => {
+  //   transactionResult.value = {
+  //     status: 'failed',
+  //     message: err.message,
+  //   }
+  //   isOpenResultModal.value = true
+  //   operationLock.value = false
+  // })
+
+  // if (info) {
+  //   const { fee, psbt } = info
+  //   calcFee.value = fee
+  //   txPsbt.value = psbt
+  //   operationLock.value = false
+  //   isShowComfirm.value = true
+  // }
+  try {
+    const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const {
+      fee,
+      psbt,
+    } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
+
+    txPsbt.value = psbt
+    calcFee.value = fee
+    isShowComfirm.value = true
+  } catch (error) {
+    console.error('Error in BTC transaction:', error)
     transactionResult.value = {
       status: 'failed',
-      message: err.message,
+      message: error as string,
     }
     isOpenResultModal.value = true
+  } finally {
     operationLock.value = false
-  })
-
-  if (info) {
-    const { fee, psbt } = info
-    calcFee.value = fee
-    txPsbt.value = psbt
-    operationLock.value = false
-    isShowComfirm.value = true
   }
 }
 
@@ -153,9 +178,9 @@ async function send() {
             <div class="text-xs overflow-hidden line-clamp-6 break-all" :title="content" v-else>
               {{ content }}
             </div>
-            <span class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#EBECFF] text-[#787FFF] text-xs scale-75"
-              >{{ satoshis }} sat</span
-            >
+            <span class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#EBECFF] text-[#787FFF] text-xs scale-75">
+              {{ satoshis }} sat
+            </span>
           </div>
         </div>
       </div>
@@ -192,9 +217,9 @@ async function send() {
           <div class="text-xs overflow-hidden line-clamp-6 break-all" :title="content" v-else>
             {{ content }}
           </div>
-          <span class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#EBECFF] text-[#787FFF] text-xs scale-75"
-            >{{ satoshis }} sat</span
-          >
+          <span class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#EBECFF] text-[#787FFF] text-xs scale-75">
+            {{ satoshis }} sat
+          </span>
         </div>
       </div>
       <div class="mt-8 space-y-5 relative flex-1">
@@ -213,7 +238,8 @@ async function send() {
           </span>
         </div>
         <div class="flex items-center justify-between">
-          <span>Network Fee</span><span>{{ prettifyBalanceFixed(calcFee || 0, 'BTC', 8) }}</span>
+          <span>Network Fee</span>
+          <span>{{ prettifyBalanceFixed(calcFee || 0, 'BTC', 8) }}</span>
         </div>
         <div class="w-full left-0 flex items-center justify-center gap-x-4 absolute bottom-5">
           <button

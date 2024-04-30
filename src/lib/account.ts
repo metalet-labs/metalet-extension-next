@@ -1,6 +1,5 @@
 import { mvc } from 'meta-contract'
 import useStorage from '@/lib/storage'
-import { crypto } from 'bitcoinjs-lib'
 import { signMessage } from '@/lib/crypto'
 import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import { fetchUtxos } from '@/queries/utxos'
@@ -16,7 +15,6 @@ import {
   derivePublicKey,
   inferAddressType,
   derivePrivateKey,
-  deriveBtcPrivateKey,
 } from '@/lib/bip32-deriver'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
@@ -334,9 +332,12 @@ export async function getXPublicKey() {
   const activeWallet = await getActiveWalletOnlyAccount()
   const network = await getNetwork()
   const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
-  const rootPath = await getMvcRootPath()
-  const xPublicKey = mneObj.toHDPrivateKey('', network).deriveChild(rootPath).xpubkey.toString()
-
+  const mvcWallet = await getCurrentWallet(UtxoChain.MVC)
+  const rootPath = mvcWallet.getPath()
+  const xPublicKey = mneObj
+    .toHDPrivateKey('', network)
+    .deriveChild(rootPath.slice(0, rootPath.length - 4))
+    .xpubkey.toString()
   return xPublicKey
 }
 

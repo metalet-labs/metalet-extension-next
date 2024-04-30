@@ -34,7 +34,6 @@ const tickerEnabled = computed(() => !!address.value && !!symbol.value)
 
 const {
   data: asset,
-  isLoading: tickersLoading,
 } = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
 
 const tags = computed(() => {
