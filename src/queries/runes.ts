@@ -36,7 +36,7 @@ export async function fetchRunesList(
       isNative: false,
       chain: 'btc',
       queryable: true,
-      decimal: 0,
+      decimal: data.divisibility,
       balance: {
         confirmed: Number(data.amount),
         unconfirmed: 0,
@@ -71,7 +71,7 @@ export async function fetchRuneDetail(address: string, runeId: string) {
       isNative: false,
       chain: 'btc',
       queryable: true,
-      decimal: 0,
+      decimal: runeDetail.runeInfo.divisibility,
       balance: {
         confirmed: Number(runeDetail.runeBalance.amount),
         unconfirmed: 0,

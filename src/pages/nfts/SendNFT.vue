@@ -6,6 +6,7 @@ import type { Psbt } from 'bitcoinjs-lib'
 import { BtcWallet } from '@/lib/wallets/btc'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getMetaPin } from '@/queries/metaPin'
+import { FeeRateSelector } from '@/components'
 import { useQueryClient } from '@tanstack/vue-query'
 import { ScriptType } from '@metalet/utxo-wallet-service'
 import { UTXO, getInscriptionUtxo } from '@/queries/utxos'
@@ -98,10 +99,7 @@ async function next() {
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxos = await getBtcUtxos(address.value, needRawTx)
-    const {
-      fee,
-      psbt,
-    } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
+    const { fee, psbt } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
 
     txPsbt.value = psbt
     calcFee.value = fee
@@ -164,36 +162,41 @@ async function send() {
 </script>
 
 <template>
-  <div class="pt-[30px] space-y-[30px] h-full">
+  <div class="h-full">
     <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
 
     <!-- send page -->
-    <div v-show="!isShowComfirm" class="space-y-4 w-full pb-4">
-      <div class="space-y-2">
-        <div class="grid grid-cols-3 gap-3">
-          <div
-            class="flex items-center justify-center rounded-md p-2 bg-[#F5F5F5] relative aspect-square w-full overflow-hidden"
-          >
-            <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
-            <div class="text-xs overflow-hidden line-clamp-6 break-all" :title="content" v-else>
-              {{ content }}
+    <div v-show="!isShowComfirm" class="space-y-4 w-full min-h-full pb-4 flex flex-col">
+      <div class="grow space-y-4">
+        <div class="flex items-center gap-3 rounded-md">
+          <div class="grid grid-cols-3 gap-3">
+            <div
+              class="flex items-center justify-center rounded-md p-2 bg-blue-primary relative aspect-square w-full overflow-hidden"
+            >
+              <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
+              <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>
+                {{ content }}
+              </div>
+              <span
+                class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[rgb(235,236,255,0.2)] text-[#EBECFF] text-xs scale-75"
+              >
+                {{ satoshis }} sat
+              </span>
             </div>
-            <span class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#EBECFF] text-[#787FFF] text-xs scale-75">
-              {{ satoshis }} sat
-            </span>
           </div>
         </div>
-      </div>
-      <div class="space-y-2">
-        <div class="text-black-primary text-sm">Receiver</div>
-        <input
-          v-model="recipient"
-          placeholder="Recipient's address"
-          class="main-input w-full !rounded-xl !p-4 !text-xs"
-        />
-      </div>
+        <Divider />
 
-      <BTCRateList v-model:currentRateFee="currentRateFee" />
+        <div class="space-y-2">
+          <div class="texg-sm font-medium">Receive Address</div>
+          <textarea
+            v-model="recipient"
+            placeholder="Recipient's address"
+            class="border border-blue-primary w-full rounded-lg p-2 text-sm h-16 focus:outline-none focus:ring-0"
+          />
+        </div>
+        <FeeRateSelector v-model:currentRateFee="currentRateFee" />
+      </div>
 
       <div v-if="operationLock" class="w-full py-3 text-center text-sm text-gray-500">Loading...</div>
       <button
@@ -201,56 +204,54 @@ async function send() {
         @click="next"
         :disabled="!recipient"
         :class="!recipient ? 'opacity-50 cursor-not-allowed' : ''"
-        class="main-btn-bg w-full rounded-lg py-3 mt-3 text-sm text-sky-100"
+        class="w-61.5 rounded-3xl py-3 bg-blue-primary text-center text-base text-white disabled:opacity-50 mx-auto"
       >
         Next
       </button>
     </div>
 
     <!-- comfirm page -->
-    <div v-show="isShowComfirm" class="h-full flex flex-col">
-      <div class="grid grid-cols-3 gap-3">
-        <div
-          class="flex items-center justify-center rounded-md p-2 bg-[#F5F5F5] relative aspect-square w-full overflow-hidden"
-        >
-          <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
-          <div class="text-xs overflow-hidden line-clamp-6 break-all" :title="content" v-else>
-            {{ content }}
+    <div v-show="isShowComfirm" class="min-h-full flex flex-col">
+      <div class="grow space-y-[30px]">
+        <div class="grid grid-cols-3 gap-3">
+          <div
+            class="flex items-center justify-center rounded-md p-2 bg-blue-primary relative aspect-square w-full overflow-hidden"
+          >
+            <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
+            <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>
+              {{ content }}
+            </div>
+            <span
+              class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[rgb(235,236,255,0.2)] text-[#EBECFF] text-xs scale-75"
+            >
+              {{ satoshis }} sat
+            </span>
           </div>
-          <span class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#EBECFF] text-[#787FFF] text-xs scale-75">
-            {{ satoshis }} sat
-          </span>
+        </div>
+        <div class="space-y-5">
+          <div class="flex items-center justify-between">
+            <span>From</span>
+            <span class="flex items-center gap-x-2">
+              <span :title="address">{{ shortestAddress(address) }}</span>
+              <Copy :text="address" />
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>To</span>
+            <span class="flex items-center gap-x-2">
+              <span :title="recipient">{{ shortestAddress(recipient) }}</span>
+              <Copy :text="recipient" />
+            </span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span>Network Fee</span>
+            <span>{{ prettifyBalanceFixed(calcFee || 0, 'BTC', 8) }}</span>
+          </div>
         </div>
       </div>
-      <div class="mt-8 space-y-5 relative flex-1">
-        <div class="flex items-center justify-between">
-          <span>From</span>
-          <span class="flex items-center gap-x-2">
-            <span :title="address">{{ shortestAddress(address) }}</span>
-            <Copy :text="address" />
-          </span>
-        </div>
-        <div class="flex items-center justify-between">
-          <span>To</span>
-          <span class="flex items-center gap-x-2">
-            <span :title="recipient">{{ shortestAddress(recipient) }}</span>
-            <Copy :text="recipient" />
-          </span>
-        </div>
-        <div class="flex items-center justify-between">
-          <span>Network Fee</span>
-          <span>{{ prettifyBalanceFixed(calcFee || 0, 'BTC', 8) }}</span>
-        </div>
-        <div class="w-full left-0 flex items-center justify-center gap-x-4 absolute bottom-5">
-          <button
-            @click="cancel"
-            class="border w-[133px] rounded-lg py-3 text-sm text-black-primary"
-            style="border-image: 'linear-gradient(105deg, #72F5F6 4%, #171AFF 94%) 1'"
-          >
-            Cancel
-          </button>
-          <button @click="send" class="main-btn-bg w-[133px] rounded-lg py-3 text-sm text-sky-100">Confirm</button>
-        </div>
+      <div class="flex items-center justify-center gap-x-2">
+        <button @click="cancel" class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary">Cancel</button>
+        <button @click="send" class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white">Confirm</button>
       </div>
     </div>
   </div>

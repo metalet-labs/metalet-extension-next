@@ -125,7 +125,7 @@ const next = async () => {
     </div>
 
     <!-- buttons -->
-    <div class="flex flex-col items-center justify-center py-10 relative">
+    <div class="flex flex-col items-center justify-center py-5 relative">
       <button
         @click="next"
         :disabled="!password"
@@ -139,7 +139,7 @@ const next = async () => {
       <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary" v-if="phase === 1">
         Forget password?
       </button>
-      <p v-if="error" class="absolute -bottom-8 left-0 text-sm text-red-500 text-center w-full">{{ error }}</p>
+      <p v-if="error" class="absolute bottom-[100%] left-0 text-sm text-red-500 text-center w-full">{{ error }}</p>
     </div>
     <ResetModal v-model:show="showResetModal" />
   </div>

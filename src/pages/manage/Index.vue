@@ -97,7 +97,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
     />
     <FlexBox class="w-full h-15" ai="center" jc="between">
       <ArrowLeftIcon @click="$router.push('/wallet')" class="w-3.5 cursor-pointer" />
-      <RouterLink to="/" class="text-sm">Edit wallet</RouterLink>
+      <RouterLink to="/edit/wallets" class="text-sm">Edit wallet</RouterLink>
     </FlexBox>
     <FlexBox class="flex-1 overflow-y-auto pr-4 -mr-4" d="col">
       <FlexBox class="w-full py-6" d="col" :gap="2" ai="center" jc="center">

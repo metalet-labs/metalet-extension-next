@@ -21,10 +21,6 @@ password.has().then((has) => {
 
 const showResetModal = ref(false)
 
-const toAccountList = () => {
-  router.push('/accounts')
-}
-
 const lockWallet = async () => {
   await lock()
   router.replace('/lock')
@@ -47,10 +43,10 @@ const lockWallet = async () => {
         </router-link>
       </MenuItem>
       <MenuItem>
-        <div class="menu-item">
+        <router-link to="/wallet/connect-site" class="menu-item">
           <CollectionIcon />
           <span>Dapp connection</span>
-        </div>
+        </router-link>
       </MenuItem>
       <MenuItem v-if="!IS_DEV">
         <button @click="goToTab('/wallet', true)" class="menu-item">
@@ -64,15 +60,10 @@ const lockWallet = async () => {
           <LockIcon class="w-4.5" />
           <span>Lock</span>
         </button>
-        <router-link to="/wallet/set-password" class="menu-item" v-else>Set Password</router-link>
-      </MenuItem>
-
-      <MenuItem v-if="false">
-        <button class="menu-item" @click="toAccountList">Add / Switch Account</button>
-      </MenuItem>
-
-      <MenuItem v-if="hasPassword && false">
-        <button class="menu-item" @click="showResetModal = true">Reset Account</button>
+        <router-link to="/wallet/set-password" class="menu-item" v-else>
+          <LockIcon class="w-4.5" />
+          <span>Set Password</span>
+        </router-link>
       </MenuItem>
     </MenuItems>
   </Menu>

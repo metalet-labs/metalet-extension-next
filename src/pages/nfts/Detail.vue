@@ -95,8 +95,6 @@ const toTransferNft = () => {
 
 <style lang="css" scoped>
 .row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  @apply flex items-center justify-between;
 }
 </style>

@@ -211,3 +211,14 @@ export async function getCurrentWallet(chain: Chain) {
     throw new Error(`Chain ${chain} is not supported`)
   }
 }
+
+export async function deleteV3Wallet(walletId: string) {
+  console.log(walletId);
+  
+  const walletsMap = await getV3WalletsStorage()
+  if (!walletsMap) {
+    throw new Error('V3 wallets storage not found.')
+  }
+  delete walletsMap[walletId]
+  await setV3WalletsStorage(walletsMap)
+}

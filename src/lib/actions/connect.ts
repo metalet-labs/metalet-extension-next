@@ -3,7 +3,7 @@ import { getCurrentWallet } from '../wallet'
 import { getCurrentAccountId } from '../account'
 import { Chain } from '@metalet/utxo-wallet-service'
 
-export async function process(_: unknown, host: string) {
+export async function process({ logo }: { logo?: string }, host: string) {
   const wallet = await getCurrentWallet(Chain.MVC)
   const currentAccountId = await getCurrentAccountId()
 
@@ -11,7 +11,7 @@ export async function process(_: unknown, host: string) {
     return { address: '' }
   }
 
-  await connector.connect(currentAccountId, host)
+  await connector.connect(currentAccountId, host, logo)
 
   return { address: wallet.getAddress() }
 }

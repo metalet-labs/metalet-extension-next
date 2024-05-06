@@ -4,10 +4,10 @@ import { network } from '@/lib/network'
 import actions from './data/query-actions'
 import browser from 'webextension-polyfill'
 import exActions from './data/extension-actions'
-import { getAddress, getCurrentAccountId } from './lib/account'
+import { getCurrentAccountId } from './lib/account'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
 import { getCurrentWalletId, hasWallets, getCurrentWallet } from './lib/wallet'
-import { Chain } from '@metalet/utxo-wallet-service'
 
 // const browser = window.browser as typeof chromex
 browser.runtime.onMessage.addListener(async (msg, sender) => {

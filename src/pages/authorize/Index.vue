@@ -68,7 +68,12 @@ const runAction = async () => {
   let processRes: any = null
 
   try {
-    processRes = await process(params, host as string)
+    if (actionName === 'Connect') {
+      params.logo = logo.value
+      processRes = await process(params, host as string)
+    } else {
+      processRes = await process(params, host as string)
+    }
 
     if (processRes.txids && processRes.broadcasted) {
       processTxids.value = processRes.txids

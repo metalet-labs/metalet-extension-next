@@ -207,6 +207,16 @@ const routes = [
         },
       },
       {
+        path: '/wallet/connect-site',
+        component: () => import('./pages/wallet/ConnectSite.vue'),
+        name: 'connect-site',
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Connect',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/select-network',
         component: () => import('./pages/wallet/SelectNetwork.vue'),
         meta: {
@@ -481,6 +491,16 @@ const routes = [
           noFooter: true,
         },
       },
+      {
+        path: '/edit/wallets',
+        name: 'edit-wallets',
+        component: () => import('./pages/manage/Edit.vue'),
+        meta: {
+          secondaryHeader: false,
+          headerTitle: '',
+          noFooter: true,
+        },
+      },
     ],
   },
   {
@@ -519,13 +539,11 @@ router.beforeEach(async (to, _, next) => {
   if (to.fullPath !== '/migrateV2' && (await needMigrate())) {
     next('/migrateV2')
   } else if (!authPages.includes(to.path)) {
-    if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
-      if (await hasWallets()) {
-        next('/manage/wallets')
-      } else {
-        goToTab('/welcome', true)
-        next('/welcome')
-      }
+    if (!(await hasWallets())) {
+      goToTab('/welcome', true)
+      next('/welcome')
+    } else if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
+      next('/manage/wallets')
     } else if (!(await hasPassword())) {
       next('/wallet/set-password')
     } else if (await isLocked()) {
@@ -537,7 +555,7 @@ router.beforeEach(async (to, _, next) => {
         to.meta.headerTitle = to.params.name
       } else if (to.name === 'send-token') {
         to.meta.headerTitle = `Send ${to.params.symbol}`
-      }else if (to.name === 'SendRune') {
+      } else if (to.name === 'SendRune') {
         to.meta.headerTitle = `Send ${to.params.name}`
       }
 

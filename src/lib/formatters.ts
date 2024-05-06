@@ -73,5 +73,5 @@ export const formatTimestamp = (timestamp: number | string) => {
   if (String(timestamp).length === 10) {
     timestamp *= 1000
   }
-  return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')
+  return dayjs(timestamp).format('YYYY/MM/DD HH:mm:ss')
 }

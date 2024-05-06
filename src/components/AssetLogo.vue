@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import FlexBox from './FlexBox.vue'
 import { type Chain } from '@/lib/types'
 import { UseImage } from '@vueuse/components'
 import IncomeLogo from '@/assets/icons-v3/income.svg'

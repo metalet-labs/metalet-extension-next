@@ -145,7 +145,7 @@ async function transfer() {
         <textarea
           v-model="recipient"
           placeholder="Recipient's address"
-          class="border border-blue-primary w-full rounded-lg p-3 text-sm h-16 focus:outline-none focus:ring-0"
+          class="border border-blue-primary w-full rounded-lg p-2 text-sm h-16 focus:outline-none focus:ring-0"
         />
       </div>
     </div>

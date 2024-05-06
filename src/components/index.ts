@@ -9,6 +9,7 @@ import AssetLogo from './AssetLogo.vue'
 import SeedPhrase from './SeedPhrase.vue'
 import LoadingIcon from './LoadingIcon.vue'
 import LoadingText from './LoadingText.vue'
+import DeleteWallet from './DeleteWallet.vue'
 import PasswordInput from './PasswordInput.vue'
 import FeeRateSelector from './FeeRateSelector.vue'
 import VerifySeedPhrase from './VerifySeedPhrase.vue'
@@ -29,5 +30,6 @@ export {
   SeedPhrase,
   VerifySeedPhrase,
   Avatar,
-  LoadingIcon
+  LoadingIcon,
+  DeleteWallet,
 }
