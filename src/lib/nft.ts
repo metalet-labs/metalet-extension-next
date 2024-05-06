@@ -1,7 +1,7 @@
 import nfts from '../data/nfts'
 import useStorage from './storage'
 
-export type NFTType = 'BTC Oridinals' | 'MetaContract' | 'MetaPin'
+export type NFTType = 'BTC Oridinals' | 'MetaContract' | 'MetaID PIN'
 
 const NFTType_Key = 'NFTType'
 

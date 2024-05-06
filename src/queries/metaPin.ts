@@ -75,7 +75,7 @@ export async function getMetaPin(pinId: string): Promise<MetaIDPin> {
 
 export const useMetaPinQuery = (pinId: Ref<string>, options: { enabled: ComputedRef<boolean> }) => {
   return useQuery({
-    queryKey: ['MetaPin', { pinId }],
+    queryKey: ['MetaID PIN', { pinId }],
     queryFn: () => getMetaPin(pinId.value),
     ...options,
   })

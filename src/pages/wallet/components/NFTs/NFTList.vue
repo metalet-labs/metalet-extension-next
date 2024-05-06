@@ -31,13 +31,13 @@ const nftTypeOnchange = (_nftType: NFTType) => {
         <DropdownMenuContent align="start" class="bg-white">
           <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')">BTC Oridinals</DropdownMenuItem>
           <DropdownMenuItem @select="nftTypeOnchange('MetaContract')">MetaContract</DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaPin')">MetaPin</DropdownMenuItem>
+          <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')">MetaID PIN</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
     <InscriptionList v-if="nftType === 'BTC Oridinals'" />
     <MetaContractList v-else-if="nftType === 'MetaContract'" />
-    <MetaIDPinList v-else-if="nftType === 'MetaPin'" />
+    <MetaIDPinList v-else-if="nftType === 'MetaID PIN'" />
     <NO_NFT_DATA v-else />
   </div>
 </template>
