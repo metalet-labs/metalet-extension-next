@@ -156,7 +156,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
               <RouterLink
                 to="/wallet/backup"
                 v-else
-                class="flex items-center justify-center gap-2 cursor-pointer text-red-500"
+                class="flex items-center justify-center gap-2 cursor-pointer text-red-primary bg-[#FFEFEF] w-full py-2 rounded-[60px] mt-2.5 text-ss font-medium"
               >
                 Back up now
                 <ArrowRightIcon class="w-4" />

@@ -33,6 +33,12 @@ if (!mnemonic) {
 
 onMounted(async () => {
   const wallets = await getV3Wallets()
+  const hasWallet = wallets.find((wallet) => wallet.mnemonic === mnemonic)
+  if (hasWallet) {
+    loading.value = false
+    error.value = 'Wallet already exists.'
+    return
+  }
   const walletId = genUID()
   const accountId = genUID()
   await addV3Wallet({

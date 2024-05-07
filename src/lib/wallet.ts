@@ -73,7 +73,7 @@ export async function getActiveWalletOnlyAccount() {
   }
   const wallet = wallets.find((wallet) => wallet.id === walletId)
   if (!wallet) {
-    throw new Error('wallet not found')
+    throw new Error('Plese select a wallet first.')
   }
 
   const { accounts } = wallet

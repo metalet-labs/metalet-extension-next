@@ -10,16 +10,16 @@ import { getBackupV3Wallet } from '@/lib/backup'
 import { WalletsStore } from '@/stores/WalletStore'
 import RemoveIcon from '@/assets/icons-v3/remove.svg'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
+import { EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import {
+  deleteV3Wallet,
   getCurrentWalletId,
   setCurrentWalletId,
   setV3WalletsStorage,
   getV3WalletsStorage,
-  deleteV3Wallet,
 } from '@/lib/wallet'
-import { EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
 
 const { updateAllWallets } = useChainWalletsStore()
 
@@ -52,18 +52,6 @@ getCurrentWalletId().then((_currentWalletId) => {
 getCurrentAccountId().then((_currentAccountId) => {
   currentAccountId.value = _currentAccountId
 })
-
-const addAccount = async (wallet: V3Wallet) => {
-  const addressIndices = wallet.accounts.map((account) => account.addressIndex)
-  const maxAddressIndex = Math.max(...addressIndices)
-  const walletManager = await WalletsStore.getWalletManager()
-  const account = walletManager!.addAccount(wallet.id, {
-    addressIndex: maxAddressIndex + 1,
-  })
-  wallet.accounts.push(account)
-  setV3WalletsStorage(walletObj.value)
-  toast({ title: 'New account created', toastType: 'success' })
-}
 
 const relaodAccout = async (_walletId: string, _accountId: string) => {
   currentWalletId.value = _walletId

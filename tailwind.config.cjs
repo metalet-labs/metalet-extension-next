@@ -26,6 +26,7 @@ module.exports = {
         'btn-blue': '#1E2BFF',
         'orange-primary': '#FF8F1F',
         'slate-light': '#606266',
+        'red-primary': '#FA5151',
       },
       fontSize: {
         ss: ['0.8125rem', '1.125rem'],

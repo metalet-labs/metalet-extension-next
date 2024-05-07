@@ -2,6 +2,7 @@
 import { Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import passwordManager from '@/lib/password'
+import { toast } from '@/components/ui/toast'
 import { EyeIcon } from '@heroicons/vue/24/solid'
 import ResetModal from '@/components/ResetModal.vue'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
@@ -9,7 +10,6 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentWalletId, getV3CurrentWallet } from '@/lib/wallet'
 import { PasswordInput, SeedPhrase, VerifySeedPhrase } from '@/components'
 import { getBackupV3Wallet, hasBackupCurrentWallet, setBackupV3Wallet } from '@/lib/backup'
-import { toast } from '@/components/ui/toast'
 
 const router = useRouter()
 const { currentMVCWallet } = useChainWalletsStore()
@@ -42,7 +42,7 @@ const next = async () => {
   } else if (phase.value === 3) {
     if (verifySeedPhrase.value?.confirm()) {
       if (await hasBackupCurrentWallet()) {
-        error.value = 'You have already backed up the current wallet'
+        router.push('/wallet')
       } else {
         const walletIds = await getBackupV3Wallet()
         const currentWalletId = (await getCurrentWalletId()) as string
