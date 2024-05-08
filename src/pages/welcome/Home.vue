@@ -34,7 +34,7 @@ getAccounts().then((accounts) => {
             @click="$router.push('/welcome/import')"
             :class="['w-32.5', !checked ? 'opacity-50' : undefined]"
           >
-            Import wallet
+            Import Wallet
           </Button>
           <Button
             type="primary"
@@ -42,18 +42,14 @@ getAccounts().then((accounts) => {
             @click="$router.push('/welcome/create')"
             :class="['w-32.5', !checked ? 'opacity-50' : undefined]"
           >
-            Create wallet
+            Create Wallet
           </Button>
         </FlexBox>
         <FlexBox :gap="1.5" ai="center">
           <Checkbox id="terms" v-model:checked="checked" />
           <span class="text-slate-light">
             I agree to Metalet's
-            <a
-              target="_blank"
-              class="text-blue-primary"
-              href="https://docs.google.com/document/d/1JFUS6f3Vs3Jh2CA4xpTixOUaMto4pANxmM_7b3suut8/edit"
-            >
+            <a target="_blank" class="text-blue-primary" href="https://metalet.space/terms-of-service">
               Terms of Service
             </a>
           </span>

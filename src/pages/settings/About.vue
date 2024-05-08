@@ -16,27 +16,19 @@ import MetaletLogo from '@/assets/images/metalet-logo-v3.svg?url'
 
     <div class="w-64 mt-6 grow">
       <Divider />
-      <a
-        target="_blank"
-        class="flex items-center justify-between py-4"
-        href="https://docs.google.com/document/d/1JFUS6f3Vs3Jh2CA4xpTixOUaMto4pANxmM_7b3suut8/edit"
-      >
+      <a target="_blank" class="flex items-center justify-between py-4" href="https://metalet.space/terms-of-service">
         <span class="text-sm font-medium">Terms of Service</span>
         <LinkIcon class="w-4.5" />
       </a>
       <Divider />
-      <a
-        target="_blank"
-        class="flex items-center justify-between py-4"
-        href="https://docs.google.com/document/d/1MyCcA9E6sVd6ThvQaocBeN07umYUJB4zhbhT3E4LxWw/edit"
-      >
+      <a target="_blank" class="flex items-center justify-between py-4" href="https://metalet.space/privacy-policy">
         <span class="text-sm font-medium">Privacy policy</span>
         <LinkIcon class="w-4.5" />
       </a>
       <Divider />
     </div>
 
-    <a href="https://metalet.space/" target="_blank" class="text-center text-xs text-blue-primary py-12">
+    <a href="https://metalet.space" target="_blank" class="text-center text-xs text-blue-primary py-12">
       Go to the official website to learn more.
     </a>
   </div>

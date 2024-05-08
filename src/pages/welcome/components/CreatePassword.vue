@@ -45,7 +45,8 @@ const submit = async () => {
       <div class="text-2xl font-medium">Create Password</div>
     </FlexBox>
     <p class="mt-2 text-sm text-gray-primary">
-      This password is only used to unlock your Metalet wallet on this device. Metalet cannot recover this password for you.
+      This password is only used to unlock your Metalet wallet on this device. Metalet cannot recover this password for
+      you.
     </p>
     <FlexBox d="col" class="mt-9 gap-y-10">
       <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
@@ -56,11 +57,7 @@ const submit = async () => {
         <Checkbox id="terms" v-model:checked="checked" />
         <span class="text-slate-light">
           I agree to Metalet's
-          <a
-            target="_blank"
-            class="text-blue-primary"
-            href="https://docs.google.com/document/d/1JFUS6f3Vs3Jh2CA4xpTixOUaMto4pANxmM_7b3suut8/edit"
-          >
+          <a target="_blank" class="text-blue-primary" href="https://metalet.space/terms-of-service">
             Terms of Service
           </a>
         </span>

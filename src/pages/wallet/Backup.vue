@@ -78,9 +78,9 @@ const next = async () => {
     <div class="grow">
       <template v-if="phase === 1">
         <div class="pt-4 space-y-2">
-          <h3 class="mt-4 text-2xl font-medium">Backup mnemonic words</h3>
+          <h3 class="mt-4 text-2xl font-medium">Backup Mnemonic Phrase</h3>
           <p class="mt-2 text-sm text-gray-primary">
-            Please enter the wallet password, and after verification, you can back up the wallet mnemonic.
+            Please enter the wallet password. After verification, you can backup the wallet mnemonic phrase.
           </p>
         </div>
         <PasswordInput v-model:password="password" v-model:error="error" class="mt-12" />
@@ -88,17 +88,17 @@ const next = async () => {
 
       <div v-else-if="phase === 2" class="space-y-8">
         <div class="pt-4 space-y-2">
-          <h3 class="text-2xl font-medium">Note down seed phrase</h3>
+          <h3 class="text-2xl font-medium">Please note down the mnemonic phrase below.</h3>
           <p class="text-sm text-gray-primary">
-            Networking devices may leak information, and it is strongly recommended that you use paper and pen to copy
-            and back up the mnemonic words and keep them properly.
+            Internet-connected devices might leak information. We strongly encourage you to backup the mnemonic phrase
+            by writing it down on paper and keeping it safe.
           </p>
         </div>
         <div class="relative mt-2">
           <SeedPhrase :words="mnemonic.split(' ')" :edit="false" />
           <div
             v-if="isCoveredMne"
-            class="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-gray-100/30 backdrop-blur"
+            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 rounded-lg bg-gray-100/30 backdrop-blur"
           >
             <button
               class="w- flex w-32 items-center justify-center gap-x-2 rounded-full border border-black py-2"
@@ -107,6 +107,9 @@ const next = async () => {
               <EyeIcon class="h-5 w-5" />
               <span>Show</span>
             </button>
+            <div class="w-64 text-center">
+              Click to view your Mnemonic Phrase. Please ensure that no one else is watching your screen at this time.
+            </div>
           </div>
         </div>
         <div class="space-y-2">
@@ -117,8 +120,8 @@ const next = async () => {
 
       <div v-else-if="phase === 3">
         <div class="pt-4 space-y-2">
-          <h3 class="text-2xl font-medium">Verify your mnemonic words again</h3>
-          <p class="text-sm text-gray-primary">Please fill in your mnemonic words according to the serial number.</p>
+          <h3 class="text-2xl font-medium">Please Verify Your Mnemonic Phrase Again</h3>
+          <p class="text-sm text-gray-primary">Please fill in your mnemonic phrase according to the sequence number.</p>
         </div>
         <VerifySeedPhrase ref="verifySeedPhrase" :randomNum="4" :words="mnemonic.split(' ')" class="mt-8" />
       </div>

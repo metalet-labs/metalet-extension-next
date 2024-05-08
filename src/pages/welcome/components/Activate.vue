@@ -86,10 +86,22 @@ onMounted(async () => {
       <img :src="SuccessPNG" alt="Send Success" class="w-30" v-if="!error" />
       <FailIcon class="w-30" v-else />
       <h1 class="text-2xl mt-6 font-medium">
-        <span v-if="error">Wallet Created Failed</span>
-        <span v-else>Wallet Created Successfully</span>
+        <span v-if="error">
+          Wallet
+          <span v-if="$props.type === 'create'">Created</span>
+          <span v-if="$props.type === 'import'">Imported</span>
+          Failed
+        </span>
+        <span v-else>
+          Wallet
+          <span v-if="$props.type === 'create'">Created</span>
+          <span v-if="$props.type === 'import'">Imported</span>
+          Successfully
+        </span>
       </h1>
-      <p class="text-sm mt-12 text-gray-primary text-center w-64">Metalet currently supports the following multiple tokens</p>
+      <p class="text-sm mt-12 text-gray-primary text-center w-64">
+        Metalet currently supports the following multiple tokens
+      </p>
       <FlexBox ai="center" :gap="4" class="mt-4">
         <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />
         <img :src="SpaceLogoIcon" class="w-11" alt="Space" />

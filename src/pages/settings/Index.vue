@@ -34,11 +34,11 @@ const toGithub = () => {
 }
 
 const toTerms = () => {
-  window.open('https://docs.google.com/document/d/1JFUS6f3Vs3Jh2CA4xpTixOUaMto4pANxmM_7b3suut8/edit', '_blank')
+  window.open('https://metalet.space/terms-of-service', '_blank')
 }
 
 const toPolicy = () => {
-  window.open('https://docs.google.com/document/d/1MyCcA9E6sVd6ThvQaocBeN07umYUJB4zhbhT3E4LxWw/edit', '_blank')
+  window.open('https://metalet.space/privacy-policy', '_blank')
 }
 
 const toCurrentAccount = () => {
