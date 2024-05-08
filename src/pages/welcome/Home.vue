@@ -20,9 +20,11 @@ getAccounts().then((accounts) => {
         <div class="text-2xl font-semibold">
           Metalet ——
           <br />
-          The portal to exploring the Web3 blockchain world.
+          The Entrance to The Web3 Blockchain
         </div>
-        <p class="text-gray-primary">Unravel blockchain's infinite possibilities, unlock the digital future.</p>
+        <p class="text-gray-primary">
+          Discover the infinite possibilities of blockchain, journey through the future digital realm.
+        </p>
       </FlexBox>
       <FlexBox d="col" :gap="4">
         <FlexBox :gap="2">

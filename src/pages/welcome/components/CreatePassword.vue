@@ -28,7 +28,7 @@ const submit = async () => {
     return
   }
   if (password.value !== confirmPassword.value) {
-    error.value = 'Password does not match.'
+    error.value = 'The passwords entered twice do not match.'
     return
   }
 
@@ -45,10 +45,10 @@ const submit = async () => {
       <div class="text-2xl font-medium">Create Password</div>
     </FlexBox>
     <p class="mt-2 text-sm text-gray-primary">
-      This password only unlocks your Metalet wallet on this device. Metalet cannot recover it for you.
+      This password is only used to unlock your Metalet wallet on this device. Metalet cannot recover this password for you.
     </p>
     <FlexBox d="col" class="mt-9 gap-y-10">
-      <PasswordInput v-model:password="password" title="New password (min. 8 characters)" :validate="true" />
+      <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
       <PasswordInput v-model:password="confirmPassword" title="Confirm Password" v-model:error="error" />
     </FlexBox>
     <FlexBox d="col" ai="center" jc="center" class="mt-16" :gap="4">

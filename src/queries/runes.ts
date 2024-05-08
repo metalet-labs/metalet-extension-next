@@ -1,5 +1,5 @@
 import { PageResult } from './types'
-import { unisatApi } from './request'
+import { metaletApiV3, unisatApi } from './request'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { type RuneAsset } from '@/data/assets'
@@ -9,7 +9,7 @@ import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 
 export interface RuneBalance {
   amount: string
-  runeid: string
+  runeId: string
   rune: string
   spacedRune: string
   symbol: string
@@ -23,7 +23,9 @@ export async function fetchRunesList(
 ): Promise<{ list: RuneAsset[]; nextCursor: number | null }> {
   const net = getNet()
   if (UNISAT_ENABLED) {
-    const { list, total } = await unisatApi<PageResult<RuneBalance>>('/runes/list').get({
+    const { list, total } = await unisatApi<PageResult<Omit<RuneBalance, 'runeId'> & { runeid: string }>>(
+      '/runes/list'
+    ).get({
       net,
       address,
       cursor: cursor.toString(),
@@ -32,7 +34,7 @@ export async function fetchRunesList(
 
     const runeAssets = list.map((data) => ({
       symbol: data.symbol,
-      tokenName: data.rune,
+      tokenName: data.spacedRune,
       isNative: false,
       chain: 'btc',
       queryable: true,
@@ -53,7 +55,34 @@ export async function fetchRunesList(
     }
   }
 
-  return { list: [], nextCursor: null }
+  const { list, total } = await metaletApiV3<PageResult<RuneBalance>>('/runes/address/balance-list').get({
+    net,
+    address,
+    cursor: cursor.toString(),
+    size: size.toString(),
+  })
+
+  const runeAssets = list.map((data) => ({
+    symbol: data.symbol,
+    tokenName: data.spacedRune,
+    isNative: false,
+    chain: 'btc',
+    queryable: true,
+    decimal: data.divisibility,
+    balance: {
+      confirmed: Number(data.amount),
+      unconfirmed: 0,
+      total: Number(data.amount),
+    },
+    runeId: data.runeId,
+  })) as RuneAsset[]
+
+  cursor += size
+
+  return {
+    list: runeAssets,
+    nextCursor: cursor > total ? null : cursor,
+  }
 }
 
 export async function fetchRuneDetail(address: string, runeId: string) {
@@ -80,17 +109,23 @@ export async function fetchRuneDetail(address: string, runeId: string) {
       runeId,
     } as RuneAsset
   }
+  const runeDetail = await metaletApiV3<RuneBalance>('/runes/address/balance-info').get({
+    net,
+    address,
+    runeId,
+  })
+
   return {
-    symbol: '',
-    tokenName: '',
+    symbol: runeDetail.symbol,
+    tokenName: runeDetail.spacedRune,
     isNative: false,
     chain: 'btc',
     queryable: true,
-    decimal: 0,
+    decimal: runeDetail.divisibility,
     balance: {
-      confirmed: 0,
+      confirmed: Number(runeDetail.amount),
       unconfirmed: 0,
-      total: 0,
+      total: Number(runeDetail.amount),
     },
     runeId,
   } as RuneAsset

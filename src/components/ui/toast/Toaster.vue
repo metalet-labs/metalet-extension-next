@@ -13,7 +13,7 @@ const { toasts } = useToast()
       <div class="grid gap-1">
         <ToastTitle v-if="toast.title" class="flex items-center gap-x-2">
           <template v-if="toast.toastType === 'success'">
-            <SuccessIcon class="flex-shrink-0"/>
+            <SuccessIcon class="flex-shrink-0 w-5 h-5" />
           </template>
           <span class="break-all">{{ toast.title }}</span>
         </ToastTitle>

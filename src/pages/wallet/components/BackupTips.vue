@@ -14,16 +14,15 @@ defineProps<{
       <DangerWarningIcon />
     </div>
     <div class="space-y-3">
-      <div class="font-medium">You haven't backed up your wallet</div>
+      <div class="font-medium">Please backup your wallet.</div>
       <div class="text-xs text-gray-primary">
-        If your device is lost, the app is reinstalled, orapp data is deleted, you'll lose this wallet andits assets and
-        can't get them back.
+        In the event of device loss, app reinstall, app data deletion, etc., this wallet and its assets will be lost and cannot be recovered.
       </div>
       <button
         @click="$router.push('/wallet/backup')"
         class="round-md bg-blue-primary text-white text-ss font-medium px-6 py-2 rounded-3xl"
       >
-        Back up now
+        Backup now
       </button>
     </div>
   </div>

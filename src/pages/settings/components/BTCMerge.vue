@@ -70,20 +70,20 @@ const merge = async () => {
 </script>
 
 <template>
-  <div>
+  <div class="min-h-full flex flex-col">
     <div class="text-2xl font-medium">BTC Merge</div>
     <div class="mt-2 text-gray-primary text-xs">
       Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
       cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
     </div>
-    <div class="mt-4 py-3 flex gap-3 items-center">
-      <Avatar :id="address" />
-      <div class="flex flex-col gap-1">
-        <div class="text-sm font-medium">BTC Address</div>
-        <div class="text-gray-primary text-xs" :title="address">{{ prettifyAddress(address) }}</div>
+    <div class="space-y-4 grow mt-4">
+      <div class="flex gap-3 items-center">
+        <Avatar :id="address" />
+        <div class="flex flex-col gap-1">
+          <div class="text-sm font-medium">BTC Address</div>
+          <div class="text-gray-primary text-xs" :title="address">{{ prettifyAddress(address) }}</div>
+        </div>
       </div>
-    </div>
-    <div class="space-y-4">
       <div class="flex items-center gap-2">
         <div class="label">UTXO Count</div>
         <LoadingIcon v-if="isLoading" />
@@ -92,19 +92,19 @@ const merge = async () => {
 
       <FeeRateSelector v-model:currentRateFee="feeRate" />
 
-      <button
-        @click="merge"
-        :disabled="mergeDisabled"
-        :class="[
-          { 'cursor-not-allowed opacity-50': mergeDisabled },
-          'bg-blue-primary text-white py-2 rounded-md text-xs w-full flex items-center justify-center gap-x-2',
-        ]"
-      >
-        <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
-        Merge
-      </button>
       <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
     </div>
+    <button
+      @click="merge"
+      :disabled="mergeDisabled"
+      :class="[
+        { 'cursor-not-allowed opacity-50': mergeDisabled },
+        'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
+      ]"
+    >
+      <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
+      Merge
+    </button>
   </div>
 </template>
 
@@ -118,4 +118,11 @@ const merge = async () => {
 }
 </style>
 
-{"ab61352c3fea9f802dd0465e0bdc28d4":{"id":"ab61352c3fea9f802dd0465e0bdc28d4","name":"Wallet 01","mnemonic":"attend cattle blanket flower before nose scare sweet someone spider kiss boil","mvcTypes":[10001,236],"accounts":[{"id":"961f962c63a1942e8900e892090a27ae","name":"Account 01","addressIndex":0},{"id":"6d3573ec75b1ca1228ddaccba8d975a7","name":"Account 02","addressIndex":1},{"id":"7fc414c0c39befd62cce714fca57f326","name":"Account 03","addressIndex":2}]},"40bbaca19806d54f4aed0643b612ef34":{"id":"40bbaca19806d54f4aed0643b612ef34","name":"Wallet 02","mnemonic":"tumble deposit bird brush sponsor limit play destroy truly hat lazy icon","mvcTypes":[10001],"accounts":[{"id":"455c1bc18ba14e23593c51d7d75ae103","name":"Account 01","addressIndex":0}]}}
+{"ab61352c3fea9f802dd0465e0bdc28d4":{"id":"ab61352c3fea9f802dd0465e0bdc28d4","name":"Wallet 01","mnemonic":"attend
+cattle blanket flower before nose scare sweet someone spider kiss
+boil","mvcTypes":[10001,236],"accounts":[{"id":"961f962c63a1942e8900e892090a27ae","name":"Account
+01","addressIndex":0},{"id":"6d3573ec75b1ca1228ddaccba8d975a7","name":"Account
+02","addressIndex":1},{"id":"7fc414c0c39befd62cce714fca57f326","name":"Account
+03","addressIndex":2}]},"40bbaca19806d54f4aed0643b612ef34":{"id":"40bbaca19806d54f4aed0643b612ef34","name":"Wallet
+02","mnemonic":"tumble deposit bird brush sponsor limit play destroy truly hat lazy
+icon","mvcTypes":[10001],"accounts":[{"id":"455c1bc18ba14e23593c51d7d75ae103","name":"Account 01","addressIndex":0}]}}

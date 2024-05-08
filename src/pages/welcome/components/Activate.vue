@@ -86,10 +86,10 @@ onMounted(async () => {
       <img :src="SuccessPNG" alt="Send Success" class="w-30" v-if="!error" />
       <FailIcon class="w-30" v-else />
       <h1 class="text-2xl mt-6 font-medium">
-        <span v-if="error">Wallet created Failed</span>
-        <span v-else>Wallet created Failed</span>
+        <span v-if="error">Wallet Created Failed</span>
+        <span v-else>Wallet Created Successfully</span>
       </h1>
-      <p class="text-sm mt-12 text-gray-primary">Metalet currently supports the following cryptos</p>
+      <p class="text-sm mt-12 text-gray-primary text-center w-64">Metalet currently supports the following multiple tokens</p>
       <FlexBox ai="center" :gap="4" class="mt-4">
         <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />
         <img :src="SpaceLogoIcon" class="w-11" alt="Space" />
@@ -102,7 +102,7 @@ onMounted(async () => {
         @click="$router.push('/wallet')"
         :class="['mt-26 w-61.5', { 'cursor-not-allowed opacity-50': loading || error }]"
       >
-        Activate Metalet
+        Launch Metalet
       </Button>
       <Button v-else :class="['mt-26 w-61.5']" @click="$router.go(0)">Back To Step 1</Button>
       <!-- error -->

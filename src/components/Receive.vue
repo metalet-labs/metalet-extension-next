@@ -37,7 +37,7 @@ const emit = defineEmits(['update:open'])
           <AssetLogo :chain="asset.chain" type="network" :symbol="asset.symbol" :logo="asset.logo" class="w-15" />
           <div class="mt-3 font-medium">{{ asset.symbol }}</div>
           <div class="text-gray-primary text-xs text-center w-60">
-            Only supports receiving {{ network }} network assets
+            Only supports receiving assets from the {{ network }} network.
           </div>
           <Divider class="w-[232px] my-4" />
           <img :src="qrcode" alt="" class="w-[232px] h-[232px] rounded-lg" />

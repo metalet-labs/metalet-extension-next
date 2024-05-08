@@ -60,9 +60,9 @@ const next = async () => {
       <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="back" />
     </div>
     <div class="space-y-2 pt-4">
-      <h3 class="mt-4 text-2xl font-medium">Set Password</h3>
+      <h3 class="mt-4 text-2xl font-medium">Change Password</h3>
       <p class="mt-2 text-sm text-gray-primary">
-        This password only works to unlock your Metalet wallet on this device, and Metalet cannot recover this password
+        This password only works to unlock your Metalet wallet on this device,and Metalet cannot recover this password
         for you.
       </p>
     </div>
@@ -76,7 +76,7 @@ const next = async () => {
       />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
-        <PasswordInput v-model:password="password" title="New password (min. 8 characters)" :validate="true" />
+        <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
         <PasswordInput v-model:password="confirmPassword" title="Confirm Password" v-model:error="error" />
       </div>
     </div>

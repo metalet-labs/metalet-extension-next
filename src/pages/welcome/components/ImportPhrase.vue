@@ -53,13 +53,13 @@ watch(
     </FlexBox>
     <Tabs default-value="phrase" class="w-full">
       <TabsList class="grid grid-cols-2 bg-gray-secondary rounded-lg text-gray-primary">
-        <TabsTrigger value="phrase" class="text-xs">Import from Phrase</TabsTrigger>
-        <TabsTrigger value="privateKey" class="text-xs">Import from PrivateKey</TabsTrigger>
+        <TabsTrigger value="phrase" class="text-xs">Import Phrase</TabsTrigger>
+        <TabsTrigger value="privateKey" class="text-xs" disabled>Import Private Key</TabsTrigger>
       </TabsList>
       <TabsContent value="phrase">
         <FlexBox d="col" :gap="4">
           <FlexBox ai="center" :gap="1">
-            <span>My seed phrase has</span>
+            <span>My mnemonic phrase is</span>
             <Select v-model:modelValue="wordsLen">
               <SelectTrigger class="w-30 text-base">
                 <SelectValue placeholder="Select a number of words" />
@@ -92,7 +92,7 @@ watch(
           <div class="h-90">
             <textarea
               disabled
-              placeholder="Enter your private key here"
+              placeholder="Paste or enter your private key."
               class="w-full h-45 focus:outline-none border border-gray-soft rounded-lg px-4 py-3.5 cursor-not-allowed"
             />
           </div>

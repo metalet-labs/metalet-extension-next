@@ -148,7 +148,7 @@ const next = () => {
               Use default address generation strategy for Metalet wallet. The derivation path will be `m/44'/10001'/0'`.
             </div>
           </div>
-          <SuccessIcon v-if="mvcPath === 10001" />
+          <SuccessIcon v-if="mvcPath === 10001" class="w-5 h-5" />
           <div v-else class="w-4 h-4 border border-[#C5C5C5] rounded-full"></div>
         </div>
         <div
@@ -158,11 +158,13 @@ const next = () => {
           <div class="flex flex-col gap-y-1.5 w-64">
             <div class="text-sm font-semibold">MVC Custom</div>
             <div class="text-xs">
-              Use a custom derivation path for Metalet wallet. Mostly used for backward compatibility. Carefully choose
+              Use a custom derivation path for Metalet wallet.
+              <br />
+              Mostly used for backward compatibility. Carefully choose
               this when you're importing an older account and make sure you know the derivation path.
             </div>
           </div>
-          <SuccessIcon v-if="mvcPath !== 10001" />
+          <SuccessIcon v-if="mvcPath !== 10001" class="w-5 h-5" />
           <div v-else class="w-4 h-4 border border-[#C5C5C5] rounded-full"></div>
         </div>
       </div>

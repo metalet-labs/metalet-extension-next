@@ -66,7 +66,7 @@ const disconnect = async () => {
 
             <div class="space-y-2">
               <p class="text-sm">
-                To confirm wallet reset, please enter:
+                If you confirm to reset your wallet, please enter below:
                 <span class="text-red-500">RESET</span>
               </p>
               <input

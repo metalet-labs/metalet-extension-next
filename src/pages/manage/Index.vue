@@ -99,11 +99,11 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       <ArrowLeftIcon @click="$router.push('/wallet')" class="w-3.5 cursor-pointer" />
       <RouterLink to="/edit/wallets" class="text-sm">Edit wallet</RouterLink>
     </FlexBox>
-    <FlexBox class="flex-1 overflow-y-auto pr-4 -mr-4" d="col">
-      <FlexBox class="w-full py-6" d="col" :gap="2" ai="center" jc="center">
+    <div class="flex flex-col grow overflow-y-auto pr-4 -mr-4">
+      <div class="flex flex-col items-start justify-center gap-2 w-full py-6">
         <div class="text-gray-primary">Current Account Asset</div>
         <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }}</div>
-      </FlexBox>
+      </div>
       <Divider />
       <FlexBox class="w-full py-[49px]" d="col">
         <Accordion
@@ -141,7 +141,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                     @click.stop="updataAccountName(wallet.id, account.id, account.name)"
                   />
                 </FlexBox>
-                <SuccessIcon v-show="account.id === currentAccountId" />
+                <SuccessIcon v-show="account.id === currentAccountId" class="w-5 h-5" />
               </FlexBox>
               <FlexBox
                 ai="center"
@@ -158,7 +158,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                 v-else
                 class="flex items-center justify-center gap-2 cursor-pointer text-red-primary bg-[#FFEFEF] w-full py-2 rounded-[60px] mt-2.5 text-ss font-medium"
               >
-                Back up now
+                Go to Backup
                 <ArrowRightIcon class="w-4" />
               </RouterLink>
             </AccordionContent>
@@ -172,7 +172,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       >
         Add Wallet
       </Button>
-    </FlexBox>
+    </div>
   </div>
 </template>
 

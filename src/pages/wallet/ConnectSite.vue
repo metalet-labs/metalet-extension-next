@@ -2,8 +2,8 @@
 import { ref } from 'vue'
 import connector from '@/lib/connector'
 import { UseImage } from '@vueuse/components'
-import { XMarkIcon } from '@heroicons/vue/16/solid'
 import { getCurrentAccountId } from '@/lib/account'
+import UnlinkIcon from '@/assets/icons-v3/unlink.svg'
 
 const currentAccountId = ref()
 const connections = ref<Array<{ host: string; logo?: string }>>([])
@@ -42,8 +42,8 @@ getCurrentConnections()
           </UseImage>
           <span class="font-bold">{{ connection.host }}</span>
         </div>
-        <XMarkIcon
-          class="w-5 cursor-pointer"
+        <UnlinkIcon
+          class="cursor-pointer"
           @click="
             async () => {
               await connector.disconnect(currentAccountId, connection.host)

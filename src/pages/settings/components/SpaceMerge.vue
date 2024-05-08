@@ -52,38 +52,38 @@ const { isLoading, data } = useMVCUTXOQuery(address, { enabled: computed(() => !
 </script>
 
 <template>
-  <div>
+  <div class="min-h-full flex flex-col">
     <div class="text-2xl font-medium">Space Merge</div>
     <div class="mt-2 text-gray-primary text-xs">
       Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
       cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
     </div>
-    <div class="mt-4 py-3 flex gap-3 items-center">
-      <Avatar :id="address" />
-      <div class="flex flex-col gap-1">
-        <div class="text-sm font-medium">MVC Address</div>
-        <div class="text-gray-primary text-xs" :title="address">{{ prettifyAddress(address) }}</div>
+    <div class="space-y-4 grow mt-4">
+      <div class="flex gap-3 items-center">
+        <Avatar :id="address" />
+        <div class="flex flex-col gap-1">
+          <div class="text-sm font-medium">MVC Address</div>
+          <div class="text-gray-primary text-xs" :title="address">{{ prettifyAddress(address) }}</div>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="space-y-4">
-    <div class="flex items-center gap-2">
-      <div class="label">UTXO Count:</div>
-      <LoadingIcon v-if="isLoading" />
-      <div class="value" v-else>{{ data?.length }}</div>
-    </div>
+      <div class="flex items-center gap-2">
+        <div class="label">UTXO Count:</div>
+        <LoadingIcon v-if="isLoading" />
+        <div class="value" v-else>{{ data?.length }}</div>
+      </div>
 
+      <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
+    </div>
     <button
       @click="merge"
       :disabled="!data || data.length < 3"
       :class="[
-        'bg-blue-primary text-white py-2 rounded-md text-xs w-full',
+        'bg-blue-primary text-white w-61.5 rounded-3xl my-12 py-4 text-xs mx-auto',
         { 'cursor-not-allowed opacity-50': !data || data.length < 3 },
       ]"
     >
       Merge
     </button>
-    <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
   </div>
 </template>
 

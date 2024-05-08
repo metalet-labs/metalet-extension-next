@@ -190,13 +190,13 @@ watch(currentMVCWallet, async (_currentMVCWallet) => {
 </script>
 
 <template>
-  <div>
+  <div class="min-h-full flex flex-col">
     <div class="text-2xl font-medium">FT Merge</div>
     <div class="mt-2 text-gray-primary text-xs">
       Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
       cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
     </div>
-    <div class="mt-4 py-3 flex gap-3 items-center">
+    <div class="py-4 flex gap-3 items-center">
       <Avatar :id="address" />
       <div class="flex flex-col gap-1">
         <div class="text-sm font-medium">MVC Address</div>
@@ -204,7 +204,7 @@ watch(currentMVCWallet, async (_currentMVCWallet) => {
       </div>
     </div>
     <div class="-mx-5 px-5 bg-gray-light py-3">Token</div>
-    <div class="py-16 text-center" v-if="isLoading || assetLoading">Token List Loading...</div>
+    <div class="py-16 text-center text-gray-primary" v-if="isLoading || assetLoading">Token List Loading...</div>
     <div v-for="(asset, index) in ftAsssets" :key="index" v-else-if="hasMergeToken || testSplit">
       <div class="flex items-center justify-between py-3" v-if="asset.utxoCount > NeedToMergeCount || testSplit">
         <div class="flex items-center gap-3">

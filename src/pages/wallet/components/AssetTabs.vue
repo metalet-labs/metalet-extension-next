@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
     <TabsList class="p-0 gap-6">
       <TabsTrigger value="Cypto">Cypto</TabsTrigger>
       <TabsTrigger value="NFTs">NFTs</TabsTrigger>
-      <TabsTrigger value="Runes" v-if="false">Runes</TabsTrigger>
+      <TabsTrigger value="Runes">Runes</TabsTrigger>
       <!-- <TabsTrigger value="Activity">Activity</TabsTrigger> -->
     </TabsList>
     <TabsContent value="Cypto">

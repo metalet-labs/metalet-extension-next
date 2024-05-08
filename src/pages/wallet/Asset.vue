@@ -170,7 +170,7 @@ const toReceive = () => {
                 </div>
               </div>
               <div class="flex flex-col items-end gap-1.5">
-                <SuccessCheckedIcon v-show="wallet.address === address" />
+                <SuccessCheckedIcon v-show="wallet.address === address" class="w-5 h-5" />
                 <!-- <span class="text-xs text-gray-primary">$0.00</span> -->
               </div>
             </div>
