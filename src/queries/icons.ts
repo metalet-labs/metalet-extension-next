@@ -2,6 +2,7 @@ import { Chain } from '@/lib/types'
 import { ComputedRef, ref } from 'vue'
 import { metaletApiV3 } from './request'
 import { useQuery } from '@tanstack/vue-query'
+import { CoinCategory } from './exchange-rates'
 
 interface IconResult {
   brc20_coin: Record<string, string>
@@ -22,17 +23,12 @@ export const getIcon = (chain: Chain, name: string): string => {
   return ''
 }
 
-// export const useIconQuery = (chain: Chain, name: string, options: { enabled: ComputedRef<boolean> }) => {
-//   return useQuery({
-//     queryKey: ['icons'],
-//     queryFn: () => getIcons(),
-//     select: (result) => {
-//       if (chain === 'btc') {
-//         return result.brc20_coin[name]
-//       } else {
-//         return result.ft_coin[name]
-//       }
-//     },
-//     ...options,
-//   })
-// }
+export interface Icons {
+  [coinCategory: string]: {
+    [coinSymbol: string]: string
+  }
+}
+
+export async function getIcons(): Promise<Icons> {
+  return await metaletApiV3<Icons>('/coin/icons').get()
+}

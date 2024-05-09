@@ -3,17 +3,29 @@ import { computed } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { FlexBox } from '@/components'
 import { type Chain } from '@/lib/types'
-import { type Asset } from '@/data/assets'
+import { FTAsset, type Asset } from '@/data/assets'
 import { getBrowserHost } from '@/lib/host'
 import AssetLogo from '@/components/AssetLogo.vue'
 import type { Activity } from '@/queries/activities'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const props = defineProps<{
   asset: Asset
   activity: Activity
+  coinCategory: CoinCategory
 }>()
+
+const { getIcon } = useIconsStore()
+const icon = computed(
+  () =>
+    getIcon(
+      props.coinCategory,
+      props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
+    ) || ''
+)
 
 const flow = computed(() => {
   const { outcome, income } = props.activity
@@ -70,7 +82,7 @@ const toActivityTx = async () => {
       <AssetLogo
         :symbol="asset.symbol"
         :chain="asset.chain"
-        :logo="asset.logo"
+        :logo="icon"
         type="activity"
         class="w-[38px] text-lg"
         :flow="flow"

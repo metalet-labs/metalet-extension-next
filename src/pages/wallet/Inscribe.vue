@@ -26,6 +26,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const route = useRoute()
 const router = useRouter()
@@ -39,6 +41,9 @@ const { currentBTCWallet } = useChainWalletsStore()
 
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
+
+const { getIcon } = useIconsStore()
+const icon = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as SymbolTicker) || '')
 
 const { data: asset } = useBRC20AseetQuery(address, symbol, {
   enabled: computed(() => !!address.value),
@@ -241,7 +246,7 @@ const changeTabIdx = (idx: number) => {
 
     <div v-else-if="nextStep === 1" class="relative h-full space-y-4">
       <FlexBox d="col" ai="center" class="space-y-4 py-1">
-        <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
         <div class="text-center text-base">{{ inscribeAmount }} {{ asset.symbol }}</div>
       </FlexBox>
       <div class="space-y-2">

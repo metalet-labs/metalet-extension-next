@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import BtcLogoImg from '@/assets/images/btc-logo.svg?url'
-import CheckIcon from '@/assets/icons/check.svg?component'
-import SpaceLogoImg from '@/assets/images/space-logo.svg?url'
+import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
+import SpaceLogoImg from '@/assets/icons-v3/space.svg?url'
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 import NetworkTypeImg from '@/assets/icons/all-network-type.svg?url'
 import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import BtcLogoImg from '@/assets/images/btc-logo.svg?url'
-import SpaceLogoImg from '@/assets/images/space-logo.svg?url'
+import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
+import SpaceLogoImg from '@/assets/icons-v3/space.svg?url'
 import DownArrowImg from '@/assets/icons-v3/down-arrow.svg?url'
 import { type Service, getServiceNetwork } from '@/lib/network'
 import NetworkTypeImg from '@/assets/icons/network-type.svg?url'

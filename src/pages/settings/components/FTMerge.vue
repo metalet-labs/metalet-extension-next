@@ -12,6 +12,8 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { API_NET, API_TARGET, FtManager } from 'meta-contract'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const ftManager = ref()
 const operation = ref('')
@@ -27,6 +29,8 @@ const ftAsssets = ref<(FTAsset & { utxoCount: number })[]>([])
 const splitCount = 10
 const testSplit = false
 const NeedToMergeCount = 3
+
+const { getIcon } = useIconsStore()
 
 type Receiver = {
   address: string
@@ -208,7 +212,7 @@ watch(currentMVCWallet, async (_currentMVCWallet) => {
     <div v-for="(asset, index) in ftAsssets" :key="index" v-else-if="hasMergeToken || testSplit">
       <div class="flex items-center justify-between py-3" v-if="asset.utxoCount > NeedToMergeCount || testSplit">
         <div class="flex items-center gap-3">
-          <UseImage :src="asset.logo" v-if="asset.logo && asset.codeHash" class="h-10 w-10 rounded-md">
+          <UseImage :src="getIcon(CoinCategory.MetaContract, asset.genesis) || ''" class="h-10 w-10 rounded-md">
             <template #loading>
               <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-[#1E2BFF]">
                 {{ asset.symbol[0].toLocaleUpperCase() }}

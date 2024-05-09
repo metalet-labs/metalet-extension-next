@@ -86,7 +86,7 @@ export const fetchBRC20Activities = async (address: string, symbol: SymbolTicker
     .get({
       address,
       chain: 'btc',
-      tick: symbol,
+      tick: symbol.toLocaleLowerCase(),
     })
     .then((data) => data.inscriptionsList)
     .then((activities) => {

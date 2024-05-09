@@ -11,9 +11,11 @@ import Activities from './components/Activities.vue'
 import { PencilIcon } from '@heroicons/vue/20/solid'
 import { useRuneDetailQuery } from '@/queries/runes'
 import FilterIcon from '@/assets/icons-v3/filter.svg'
+import { CoinCategory } from '@/queries/exchange-rates'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { useIconsStore } from '@/stores/IconsStore'
 
 const route = useRoute()
 const router = useRouter()
@@ -40,6 +42,9 @@ const assetUSD = computed(() => {
   }
 })
 
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
+
 watch(assetUSD, (_assetUSD) => {
   if (asset.value && _assetUSD) {
     updateAsset({ chain: asset.value.chain, name: asset.value.tokenName, value: _assetUSD.toNumber() })
@@ -59,7 +64,7 @@ const toSend = () => {
   <LoadingText text="Rune Asset Loading..." v-if="isRuneDetailLoading" />
   <div class="flex flex-col items-center space-y-6 w-full" v-else-if="asset">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+      <AssetLogo :logo="logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
         <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
@@ -106,7 +111,13 @@ const toSend = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Activities class="mt-8 self-stretch" :asset="asset" :exchangeRate="0" :address="address" />
+      <Activities
+        class="mt-8 self-stretch"
+        :asset="asset"
+        :exchangeRate="0"
+        :address="address"
+        :coinCategory="CoinCategory.Rune"
+      />
     </div>
   </div>
   <LoadingText text="No Rune Asset Found." v-else />

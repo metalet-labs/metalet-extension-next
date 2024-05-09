@@ -10,6 +10,7 @@ import { calcBalance } from '@/lib/formatters'
 import MintPNG from '@/assets/icons-v3/mint.png'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import AssetLogo from '@/components/AssetLogo.vue'
+import { useIconsStore } from '@/stores/IconsStore'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import Activities from './components/Activities.vue'
 import TickerList from './components/TickerList.vue'
@@ -25,6 +26,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 const route = useRoute()
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
+
+const { getIcon } = useIconsStore()
+const icon = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as SymbolTicker) || '')
 
 const tickerEnabled = computed(() => !!address.value && !!symbol.value)
 
@@ -91,7 +95,7 @@ watch(assetUSD, (_assetUSD) => {
 <template>
   <div class="flex flex-col items-center space-y-6 w-full" v-if="asset">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+      <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
         <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
@@ -167,7 +171,13 @@ watch(assetUSD, (_assetUSD) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Activities class="mt-8 self-stretch" :asset="asset" :exchangeRate="Number(exchangeRate)" :address="address" />
+      <Activities
+        class="mt-8 self-stretch"
+        :asset="asset"
+        :exchangeRate="Number(exchangeRate)"
+        :address="address"
+        :coinCategory="CoinCategory.BRC20"
+      />
     </div>
   </div>
   <LoadingText v-else text="Asset Loading..." />

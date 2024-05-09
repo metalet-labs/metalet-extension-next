@@ -1,7 +1,6 @@
 import { Ref } from 'vue'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
-import { getBRC20Logo } from '@/data/logos'
 import { useQuery } from '@tanstack/vue-query'
 import { UNISAT_ENABLED } from '@/data/config'
 import { type BRC20Asset } from '@/data/assets'
@@ -58,7 +57,6 @@ export const fetchBRC20List = async (address: string): Promise<BRC20Asset[]> => 
       (brc20) =>
         ({
           symbol: brc20.ticker,
-          logo: getBRC20Logo(brc20.ticker),
           tokenName: brc20.ticker,
           isNative: false,
           chain: 'btc',
@@ -83,7 +81,6 @@ export const fetchBRC20List = async (address: string): Promise<BRC20Asset[]> => 
     (brc20) =>
       ({
         symbol: brc20.ticker,
-        logo: getBRC20Logo(brc20.ticker),
         tokenName: brc20.ticker,
         isNative: false,
         chain: 'btc',
@@ -113,7 +110,6 @@ export async function fetchBRC20Detail(address: string, symbol: string): Promise
     })
     return {
       symbol,
-      logo: getBRC20Logo(symbol),
       tokenName: symbol,
       isNative: false,
       chain: 'btc',
@@ -140,7 +136,6 @@ export async function fetchBRC20Detail(address: string, symbol: string): Promise
   })
   return {
     symbol,
-    logo: getBRC20Logo(symbol),
     tokenName: symbol,
     isNative: false,
     chain: 'btc',

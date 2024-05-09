@@ -7,6 +7,9 @@ import CloseIcon from '@/assets/icons-v3/close.svg'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import { computed } from 'vue'
 import { toast } from './ui/toast'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
+import { SymbolTicker } from '@/lib/asset-symbol'
 
 const porps = defineProps<{
   asset: Asset
@@ -23,6 +26,9 @@ const network = computed(() => {
   }
 })
 const emit = defineEmits(['update:open'])
+
+const { getIcon } = useIconsStore()
+const icon = computed(() => getIcon(CoinCategory.Native, porps.asset.symbol as SymbolTicker) || '')
 </script>
 
 <template>
@@ -34,7 +40,7 @@ const emit = defineEmits(['update:open'])
       </div>
       <div class="p-4 grow">
         <div class="w-full h-full rounded-xl bg-white flex flex-col items-center py-6">
-          <AssetLogo :chain="asset.chain" type="network" :symbol="asset.symbol" :logo="asset.logo" class="w-15" />
+          <AssetLogo :chain="asset.chain" type="network" :symbol="asset.symbol" :logo="icon" class="w-15" />
           <div class="mt-3 font-medium">{{ asset.symbol }}</div>
           <div class="text-gray-primary text-xs text-center w-60">
             Only supports receiving assets from the {{ network }} network.

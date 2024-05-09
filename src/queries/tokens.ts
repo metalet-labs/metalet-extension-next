@@ -44,7 +44,6 @@ export const useMVCAssetsQuery = (
             contract: 'MetaContract',
             codeHash: token.codeHash,
             genesis: token.genesis,
-            logo: `https://y8u3ysgqmvgb0tsg.public.blob.vercel-storage.com/wrapt-coins/${token.symbol.toLowerCase()}.png`,
             balance: {
               total: token.confirmed + token.unconfirmed,
               confirmed: token.confirmed,
@@ -78,7 +77,6 @@ export const useMVCTokenQuery = (
           contract: 'MetaContract',
           codeHash: token.codeHash,
           genesis: token.genesis,
-          logo: `https://y8u3ysgqmvgb0tsg.public.blob.vercel-storage.com/wrapt-coins/${token.symbol.toLowerCase()}.png`,
           balance: {
             confirmed: token.confirmed,
             unconfirmed: token.unconfirmed,

@@ -8,6 +8,9 @@ import { toast } from '@/components/ui/toast'
 import { prettifyTxId } from '@/lib/formatters'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
+import { SymbolTicker } from '@/lib/asset-symbol'
 
 const route = useRoute()
 const chain = ref(route.query.chain as Chain)
@@ -22,6 +25,9 @@ const network = computed(() => {
     return 'Microvisionchain'
   }
 })
+
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || '')
 </script>
 
 <template>
@@ -32,7 +38,7 @@ const network = computed(() => {
     </div>
     <div class="p-4 grow">
       <div class="w-full h-full rounded-xl bg-white flex flex-col items-center py-6">
-        <AssetLogo :chain="asset.chain" type="network" :symbol="asset.symbol" :logo="asset.logo" class="w-15" />
+        <AssetLogo :chain="asset.chain" type="network" :symbol="asset.symbol" :logo="logo" class="w-15" />
         <div class="mt-3 font-medium">{{ asset.symbol }}</div>
         <div class="text-gray-primary text-xs text-center w-60">
           Only supports receiving {{ network }} network assets

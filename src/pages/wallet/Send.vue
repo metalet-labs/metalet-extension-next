@@ -17,6 +17,8 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const cost = ref()
 const route = useRoute()
@@ -32,6 +34,9 @@ const transactionResult = ref<TransactionResult>()
 const address = ref(route.params.address as string)
 const symbol = ref(route.params.symbol as SymbolTicker)
 const asset = computed(() => allAssets.find((asset) => asset.symbol === symbol.value)!)
+
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || '')
 
 const { currentBTCWallet, initMvcWallet } = useChainWalletsStore()
 
@@ -223,6 +228,7 @@ async function send() {
       symbol: symbol.value,
       amount: amount.value,
       address: recipient.value,
+      coinCategory: CoinCategory.Native,
     },
   })
 }
@@ -234,7 +240,7 @@ async function send() {
 
     <div class="space-y-4 w-full">
       <FlexBox d="col" ai="center" :gap="3">
-        <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+        <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
         <div class="text-base">{{ symbol }}</div>
       </FlexBox>
 
@@ -290,7 +296,7 @@ async function send() {
       <DrawerContent class="bg-white">
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
-            <AssetLogo :logo="asset.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+            <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
             <div class="text-base">{{ amount }} {{ symbol }}</div>
           </FlexBox>
         </DrawerHeader>

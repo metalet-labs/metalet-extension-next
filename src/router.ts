@@ -139,7 +139,7 @@ const routes = [
         },
       },
       {
-        path: '/wallet/sendSuccess/:chain/:symbol/:amount/:address/:txId',
+        path: '/wallet/sendSuccess/:chain/:coinCategory/:symbol/:amount/:address/:txId',
         component: () => import('./pages/wallet/SendSuccess.vue'),
         name: 'SendSuccess',
         meta: {

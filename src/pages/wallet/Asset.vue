@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { getLogo } from '@/data/logos'
 import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
@@ -9,6 +8,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyAddress } from '@/lib/formatters'
 import AssetLogo from '@/components/AssetLogo.vue'
+import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { WalletsStore } from '@/stores/WalletStore'
 import CloseIcon from '@/assets/icons-v3/close.svg'
@@ -42,6 +42,9 @@ const router = useRouter()
 const { updataWallet } = useChainWalletsStore()
 const address = computed(() => route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
+
+const { getIcon } = useIconsStore()
+const icon = computed(() => getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || '')
 
 const asset = computed(() => {
   if (symbol.value === 'BTC') {
@@ -161,7 +164,7 @@ const toReceive = () => {
               class="h-15 w-full px-4 py-3 flex items-center justify-between cursor-pointer"
             >
               <div class="flex items-center gap-3 w-full" @click="setAddressType(wallet.addressType, wallet.address)">
-                <img :src="getLogo(symbol, asset.chain)" alt="" class="w-9" />
+                <img :src="icon" alt="" class="w-9" />
                 <div class="space-y-1">
                   <div class="text-sm" :title="wallet.address">
                     {{ prettifyAddress(wallet.address) }}
@@ -179,7 +182,7 @@ const toReceive = () => {
       </Drawer>
     </div>
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+      <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
         <span v-if="balance">{{ calcBalance(balance.total, asset.decimal, asset.symbol) }}</span>
@@ -224,7 +227,13 @@ const toReceive = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Activities class="mt-8 self-stretch" :asset="asset" :exchangeRate="Number(exchangeRate)" :address="address" />
+      <Activities
+        class="mt-8 self-stretch"
+        :asset="asset"
+        :exchangeRate="Number(exchangeRate)"
+        :address="address"
+        :coinCategory="CoinCategory.Native"
+      />
     </div>
   </div>
   <LoadingText v-else text="Asset Loading..." />

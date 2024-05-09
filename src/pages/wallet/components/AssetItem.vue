@@ -4,6 +4,7 @@ import { ref, computed, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
 import { UseImage } from '@vueuse/components'
 import { isOfficialToken } from '@/lib/assets'
+import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
@@ -20,6 +21,15 @@ const address = computed(() => props.address)
 const coinCategory = computed(() => props.coinCategory)
 
 const tag = ref<Tag>()
+
+const { getIcon } = useIconsStore()
+const icon = computed(
+  () =>
+    getIcon(
+      props.coinCategory,
+      props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
+    ) || ''
+)
 
 if (props.asset?.contract) {
   tag.value = getTagInfo(props.asset.contract)
@@ -80,7 +90,7 @@ watch(
     <div class="flex gap-2 cursor-pointer items-center justify-between rounded-md py-3">
       <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
-        <UseImage :src="asset.logo!" class="h-10 w-10 rounded-md">
+        <UseImage :src="icon" class="h-10 w-10 rounded-md">
           <template #loading>
             <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
               {{ asset.symbol[0].toLocaleUpperCase() }}
@@ -94,7 +104,9 @@ watch(
         </UseImage>
         <div class="flex flex-col gap-y-1 items-start">
           <div :title="asset.tokenName" class="flex items-center gap-x-0.5 text-base">
-            <span class="max-w-[100px] truncate overflow-hidden">{{ asset.tokenName }}</span>
+            <span :class="{ 'max-w-[100px] truncate overflow-hidden': coinCategory === 'BRC-20' }">
+              {{ asset.tokenName }}
+            </span>
             <CheckBadgeIcon
               class="h-4 w-4 shrink-0 text-blue-500"
               v-if="(asset as FTAsset)?.genesis && isOfficialToken((asset as FTAsset).genesis)"

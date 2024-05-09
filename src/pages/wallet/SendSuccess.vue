@@ -1,24 +1,28 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { toTx } from '@/lib/helpers'
-import { getLogo } from '@/data/logos'
+import { useRoute } from 'vue-router'
 import { type Chain } from '@/lib/types'
 import { getBrowserHost } from '@/lib/host'
-import { useRouter, useRoute } from 'vue-router'
 import LinkIcon from '@/assets/icons-v3/link.svg'
 import { FlexBox, Divider, Button } from '@/components'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const route = useRoute()
-const router = useRouter()
 
 const chain = route.params.chain as Chain
 const symbol = route.params.symbol as string
 const amount = route.params.amount as string
 const receiver = route.params.address as string
 const txId = route.params.txId as string
+const coinCategory = route.params.coinCategory as CoinCategory
 
-const logo = getLogo(symbol, chain)
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(coinCategory, route.params.symbol as string) || '')
 
+// const logo = getLogo(symbol, chain)
 
 // TODO: make it into utils
 const toScanUrl = async (txId: string) => {

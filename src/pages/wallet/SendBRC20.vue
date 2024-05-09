@@ -16,6 +16,8 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const cost = ref()
 const route = useRoute()
@@ -27,6 +29,9 @@ const amount = ref(Number(route.params.amount))
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 const inscriptionId = ref<string>(route.params.inscriptionId as string)
+
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as SymbolTicker) || '')
 
 const { currentBTCWallet } = useChainWalletsStore()
 
@@ -133,6 +138,7 @@ async function send() {
       symbol: symbol.value,
       amount: amount.value,
       address: recipient.value,
+      coinCategory: CoinCategory.BRC20,
     },
   })
 }
@@ -144,7 +150,7 @@ async function send() {
 
     <div class="space-y-4">
       <FlexBox d="col" ai="center">
-        <AssetLogo :logo="asset?.logo" :symbol="symbol" chain="btc" type="network" class="w-15" />
+        <AssetLogo :logo="logo" :symbol="symbol" chain="btc" type="network" class="w-15" />
 
         <div class="mt-3 text-base">{{ symbol }}</div>
 
@@ -191,7 +197,7 @@ async function send() {
       <DrawerContent class="bg-white">
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
-            <AssetLogo :logo="asset?.logo" :symbol="symbol" chain="btc" type="network" class="w-15" />
+            <AssetLogo :logo="logo" :symbol="symbol" chain="btc" type="network" class="w-15" />
             <div class="text-base">{{ amount }} {{ symbol }}</div>
           </FlexBox>
         </DrawerHeader>

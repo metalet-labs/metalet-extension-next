@@ -7,7 +7,6 @@ import { computed, ref } from 'vue'
 import { toTx } from '@/lib/helpers'
 import actions from '@/data/authorize-actions'
 import { getBrowserHost } from '@/lib/host'
-import logos from '@/data/logos'
 import { DEBUG } from '@/data/config'
 
 import TransferToken from './TransferToken.vue'
@@ -32,10 +31,6 @@ const route = useRoute()
 const { host, actionName, nonce, tabId, icon } = route.query
 
 const logo = computed(() => {
-  type Host = keyof typeof logos
-  const logo = logos[host as Host]
-  if (logo) return logo
-
   if (icon) return icon as string
 
   return null

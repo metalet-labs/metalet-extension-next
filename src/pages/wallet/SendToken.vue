@@ -13,12 +13,17 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { AssetLogo, Divider, FlexBox, Button } from '@/components'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const route = useRoute()
 const router = useRouter()
 const symbol = ref(route.params.symbol as string)
 const genesis = ref(route.params.genesis as string)
 const address = ref(route.params.address as string)
+
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.MetaContract, route.params.genesis as string) || '')
 
 const { currentMVCWallet } = useChainWalletsStore()
 
@@ -136,9 +141,10 @@ async function send() {
       params: {
         txId: transferRes.txid,
         chain: 'mvc',
-        symbol: symbol.value,
+        symbol: genesis.value,
         amount: amount.value,
         address: recipient.value,
+        coinCategory: CoinCategory.MetaContract,
       },
     })
   }
@@ -153,7 +159,7 @@ async function send() {
 
     <div class="space-y-4">
       <FlexBox d="col" ai="center">
-        <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+        <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
 
         <div class="mt-3 text-base">{{ symbol }}</div>
 
@@ -214,7 +220,7 @@ async function send() {
       <DrawerContent class="bg-white">
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
-            <AssetLogo :logo="asset?.logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+            <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
             <div class="text-base">{{ amount }} {{ symbol }}</div>
           </FlexBox>
         </DrawerHeader>

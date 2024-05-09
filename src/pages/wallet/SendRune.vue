@@ -14,6 +14,8 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const cost = ref()
 const route = useRoute()
@@ -28,6 +30,9 @@ const transactionResult = ref<TransactionResult>()
 
 const runeId = ref(route.params.runeId as string)
 const address = ref(route.params.address as string)
+
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
 
 const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(address, runeId, {
   enabled: computed(() => !!address.value && !!runeId.value),
@@ -207,6 +212,7 @@ async function send() {
       symbol: asset.value!.symbol,
       amount: amount.value,
       address: recipient.value,
+      coinCategory: CoinCategory.Rune,
     },
   })
 }
@@ -218,7 +224,7 @@ async function send() {
 
     <div class="space-y-4 w-full">
       <FlexBox d="col" ai="center" :gap="3">
-        <AssetLogo :logo="asset?.logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
+        <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
         <div class="text-base">{{ asset.tokenName }}</div>
       </FlexBox>
 
@@ -274,7 +280,7 @@ async function send() {
       <DrawerContent class="bg-white">
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
-            <AssetLogo :logo="asset.logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
+            <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
             <div class="text-base">{{ amount }} {{ asset.symbol }}</div>
           </FlexBox>
         </DrawerHeader>

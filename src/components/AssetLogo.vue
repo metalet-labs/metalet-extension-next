@@ -17,7 +17,12 @@ const { logo, chain, symbol } = defineProps<{
 
 <template>
   <div class="relative text-3xl">
-    <UseImage :src="logo!" class="w-full aspect-square">
+    <UseImage :src="logo!" class="w-full aspect-square rounded-xl">
+      <template #loading>
+        <div class="aspect-square flex items-center justify-center rounded-full text-white bg-blue-primary">
+          {{ symbol[0].toLocaleUpperCase() }}
+        </div>
+      </template>
       <template #error>
         <div class="aspect-square flex items-center justify-center rounded-full text-white bg-blue-primary">
           {{ symbol[0].toLocaleUpperCase() }}

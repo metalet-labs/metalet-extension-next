@@ -1,12 +1,9 @@
 import { TokenTransfer } from '@/queries/brc20'
 import { SymbolTicker } from '@/lib/asset-symbol'
-import BtcLogoImg from '../assets/images/btc-logo.svg?url'
-import SpaceLogoImg from '../assets/icons-v3/space.svg?url'
 import { Balance, BRC20Balance } from '@/queries/types/balance'
 
 export interface Asset {
   symbol: SymbolTicker
-  logo?: string
   tokenName: string
   isNative: boolean
   chain: 'btc' | 'mvc'
@@ -84,7 +81,6 @@ function getTags(asset: Asset): Tag[] {
 
 const BTCAsset: Asset = {
   symbol: 'BTC',
-  logo: BtcLogoImg,
   tokenName: 'BTC',
   isNative: true,
   chain: 'btc',
@@ -94,7 +90,6 @@ const BTCAsset: Asset = {
 
 const MVCAsset: Asset = {
   symbol: 'SPACE',
-  logo: SpaceLogoImg,
   tokenName: 'SPACE',
   isNative: true,
   chain: 'mvc',

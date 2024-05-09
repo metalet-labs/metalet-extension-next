@@ -1,8 +1,11 @@
 <script lang="ts" setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Switch } from '@headlessui/vue'
 import { addAssetsDisplay, getAssetsDisplay, removeAssetsDisplay } from '@/lib/assets'
 import { type Asset } from '@/data/assets'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
+import { SymbolTicker } from '@/lib/asset-symbol'
 
 const props = defineProps<{
   asset: Asset
@@ -14,6 +17,9 @@ getAssetsDisplay().then((assets) => {
   enabled.value = assets.includes(props.asset.symbol)
   initializing.value = false
 })
+
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.Native, props.asset.symbol as SymbolTicker) || '')
 
 // 观察enabled的变化，toggle的时候，打印出来
 watch(enabled, async (value) => {
@@ -32,7 +38,7 @@ watch(enabled, async (value) => {
 <template>
   <div class="flex items-center justify-between rounded px-4 py-6">
     <div class="flex items-center gap-x-3">
-      <img class="h-10 w-10 rounded-full" :src="asset.logo" />
+      <img class="h-10 w-10 rounded-full" :src="logo" />
       <div class="flex flex-col">
         <div class="text-base">{{ asset.tokenName }}</div>
         <div class="text-xs text-gray-500">{{ asset.symbol }}</div>

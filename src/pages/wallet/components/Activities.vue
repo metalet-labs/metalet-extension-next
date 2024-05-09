@@ -5,10 +5,12 @@ import { LoadingText } from '@/components'
 import ActivityItem from './ActivityItem.vue'
 import { useActivitiesQuery } from '@/queries/activities'
 import NoActivitiesPNG from '@/assets/icons-v3/no_activities.png'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const props = defineProps<{
   address: string
   asset: Asset
+  coinCategory: CoinCategory
   exchangeRate?: number
 }>()
 
@@ -23,8 +25,9 @@ const { isLoading, data: activities } = useActivitiesQuery(address, props.asset,
 
   <ActivityItem
     :asset="asset"
-    :activity="activity"
     :key="activity.txid"
+    :activity="activity"
+    :coinCategory="coinCategory"
     v-else-if="activities?.length"
     v-for="activity in activities"
   />

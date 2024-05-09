@@ -5,6 +5,7 @@ import { getTags } from '@/data/assets'
 import { useRoute, useRouter } from 'vue-router'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
 import AssetLogo from '@/components/AssetLogo.vue'
+import { useIconsStore } from '@/stores/IconsStore'
 import { useMVCTokenQuery } from '@/queries/tokens'
 import Activities from './components/Activities.vue'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
@@ -21,6 +22,9 @@ const symbol = route.params.symbol as string
 const address = route.params.address as string
 const genesis = route.params.genesis as string
 const enabled = computed(() => !!address && !!symbol && !!genesis)
+
+const { getIcon } = useIconsStore()
+const icon = computed(() => getIcon(CoinCategory.MetaContract, route.params.genesis as string) || '')
 
 const tags = computed(() => {
   if (asset.value) {
@@ -77,7 +81,7 @@ const copyGenesis = () => {
 <template>
   <div class="flex flex-col items-center space-y-6 w-full" v-if="asset">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="asset.logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+      <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
         <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
@@ -131,7 +135,13 @@ const copyGenesis = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Activities class="mt-8 self-stretch" :asset="asset" :exchangeRate="Number(exchangeRate)" :address="address" />
+      <Activities
+        class="mt-8 self-stretch"
+        :asset="asset"
+        :exchangeRate="Number(exchangeRate)"
+        :address="address"
+        :coinCategory="CoinCategory.MetaContract"
+      />
     </div>
   </div>
   <Loading v-else text="Asset Loading..." />

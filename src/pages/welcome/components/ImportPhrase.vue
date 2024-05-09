@@ -52,7 +52,7 @@ watch(
       <div class="text-2xl font-medium">Import Wallet</div>
     </FlexBox>
     <Tabs default-value="phrase" class="w-full">
-      <TabsList class="grid grid-cols-2 bg-gray-secondary rounded-lg text-gray-primary">
+      <TabsList class="grid grid-cols-2 bg-gray-secondary rounded-lg text-gray-primary" v-if="false">
         <TabsTrigger value="phrase" class="text-xs">Import Phrase</TabsTrigger>
         <TabsTrigger value="privateKey" class="text-xs" disabled>Import Private Key</TabsTrigger>
       </TabsList>
