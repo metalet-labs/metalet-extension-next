@@ -87,7 +87,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
 </script>
 
 <template>
-  <div class="flex flex-col w-full -my-3 pb-24 relative h-full">
+  <div class="flex flex-col w-full -my-3 relative min-h-full">
     <EditName
       v-model:open="editNameOpen"
       :type="editNameType"
@@ -95,17 +95,17 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       :walletId="editWalletId"
       :accountId="editAccountId"
     />
-    <FlexBox class="w-full h-15" ai="center" jc="between">
+    <div class="flex items-center justify-between w-full h-15">
       <ArrowLeftIcon @click="$router.push('/wallet')" class="w-3.5 cursor-pointer" />
       <RouterLink to="/edit/wallets" class="text-sm">Edit wallet</RouterLink>
-    </FlexBox>
+    </div>
     <div class="flex flex-col grow overflow-y-auto pr-4 -mr-4">
       <div class="flex flex-col items-start justify-center gap-2 w-full py-6">
         <div class="text-gray-primary">Current Account Asset</div>
         <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }}</div>
       </div>
       <Divider />
-      <FlexBox class="w-full py-[49px]" d="col">
+      <div class="flex flex-col w-full py-6">
         <Accordion
           collapsible
           type="single"
@@ -164,15 +164,9 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </FlexBox>
-      <Button
-        type="primary"
-        @click="goToTab('/welcome', true)"
-        class="py-6 absolute bottom-6 w-61.5 left-1/2 -translate-x-1/2"
-      >
-        Add Wallet
-      </Button>
+      </div>
     </div>
+    <Button type="primary" @click="goToTab('/welcome', true)" class="my-12 y-6 w-61.5 mx-auto">Add Wallet</Button>
   </div>
 </template>
 

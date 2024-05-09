@@ -86,7 +86,9 @@ const copyGenesis = () => {
       <div class="mt-3 text-2xl">
         <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
         <span v-else>-- {{ asset.symbol }}</span>
-        <span class="text-gray-primary ml-2">≈ ${{ assetUSD?.toNumber().toFixed(2) }}</span>
+        <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
+          ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
+        </span>
       </div>
 
       <div
