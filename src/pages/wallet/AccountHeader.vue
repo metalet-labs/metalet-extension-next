@@ -94,7 +94,7 @@ const copy = (address: string, addressType: string, type: string) => {
     </div>
   </div>
   <Drawer v-model:open="isOpen" activeSnapPoint="#wallet">
-    <DrawerContent>
+    <DrawerContent class="bg-white">
       <DrawerHeader>
         <DrawerTitle class="text-center relative">
           <span>Wallet Address</span>
