@@ -95,7 +95,7 @@ const next = async () => {
           </p>
         </div>
         <div class="relative mt-2">
-          <SeedPhrase :words="mnemonic.split(' ')" :edit="false" />
+          <SeedPhrase :words="mnemonic.split(' ')" :edit="false" :noCopied="true" />
           <div
             v-if="isCoveredMne"
             class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 rounded-lg bg-gray-100/30 backdrop-blur"

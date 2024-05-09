@@ -2,7 +2,6 @@ import Copy from './Copy.vue'
 import Avatar from './Avatar.vue'
 import Button from './Button.vue'
 import FlexBox from './FlexBox.vue'
-import Receive from './Receive.vue'
 import Divider from './Divider.vue'
 import EditName from './EditName.vue'
 import AssetLogo from './AssetLogo.vue'
@@ -13,6 +12,7 @@ import DeleteWallet from './DeleteWallet.vue'
 import PasswordInput from './PasswordInput.vue'
 import FeeRateSelector from './FeeRateSelector.vue'
 import VerifySeedPhrase from './VerifySeedPhrase.vue'
+import SwitchAddressModal from './SwitchAddressModal.vue'
 import AddressTypeSelector from './AddressTypeSelector.vue'
 
 export {
@@ -24,7 +24,6 @@ export {
   AssetLogo,
   AddressTypeSelector,
   Copy,
-  Receive,
   EditName,
   PasswordInput,
   SeedPhrase,
@@ -32,4 +31,5 @@ export {
   Avatar,
   LoadingIcon,
   DeleteWallet,
+  SwitchAddressModal
 }

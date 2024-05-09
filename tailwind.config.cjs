@@ -93,6 +93,10 @@ module.exports = {
           from: { transform: 'translate3d(0, 100%, 0)' },
           to: { transform: 'translate3d(0, 0, 0)' },
         },
+        'drawer-down': {
+          from: { transform: 'translate3d(0, 0, 0)' },
+          to: { transform: 'translate3d(0, 100%, 0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -100,6 +104,7 @@ module.exports = {
         'collapsible-down': 'collapsible-down 0.2s ease-in-out',
         'collapsible-up': 'collapsible-up 0.2s ease-in-out',
         'drawer-up': 'drawer-up 0.5s cubic-bezier(.32,.72,0,1)',
+        'drawer-down': 'drawer-down 0.5s cubic-bezier(.32,.72,0,1)',
       },
     },
   },

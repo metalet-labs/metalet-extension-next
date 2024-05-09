@@ -3,26 +3,33 @@ import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { type Chain } from '@/lib/types'
 import { allAssets } from '@/data/assets'
-import { Divider, Copy } from '@/components'
 import { toast } from '@/components/ui/toast'
 import { prettifyTxId } from '@/lib/formatters'
-import { useQRCode } from '@vueuse/integrations/useQRCode'
-import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+import { SymbolTicker } from '@/lib/asset-symbol'
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { SymbolTicker } from '@/lib/asset-symbol'
+import { Divider, Copy, AssetLogo } from '@/components'
+import { useQRCode } from '@vueuse/integrations/useQRCode'
+import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 
 const route = useRoute()
-const chain = ref(route.query.chain as Chain)
 const address = ref(route.params.address as string)
 const qrcode = useQRCode(address.value)
 const asset = computed(() => allAssets.find((asset) => asset.chain === chain.value))
 
 const network = computed(() => {
-  if (asset.value?.chain === 'btc') {
+  if (route.params.symbol === 'BTC') {
     return 'Bitcoin'
-  } else if (asset.value?.chain === 'mvc') {
+  } else if (route.params.symbol === 'SPACE') {
     return 'Microvisionchain'
+  }
+})
+
+const chain = computed(() => {
+  if (route.params.symbol === 'BTC') {
+    return 'btc'
+  } else if (route.params.symbol === 'SPACE') {
+    return 'mvc'
   }
 })
 

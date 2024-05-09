@@ -96,7 +96,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       :accountId="editAccountId"
     />
     <div class="flex items-center justify-between w-full h-15">
-      <ArrowLeftIcon @click="$router.push('/wallet')" class="w-3.5 cursor-pointer" />
+      <ArrowLeftIcon @click="$router.back()" class="w-3.5 cursor-pointer" />
       <RouterLink to="/edit/wallets" class="text-sm">Edit wallet</RouterLink>
     </div>
     <div class="flex flex-col grow overflow-y-auto pr-4 -mr-4">
