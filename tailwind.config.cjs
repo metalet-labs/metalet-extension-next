@@ -89,11 +89,11 @@ module.exports = {
           from: { height: 'var(--radix-collapsible-content-height)' },
           to: { height: 0 },
         },
-        'drawer-up': {
+        'drawer-modal-up': {
           from: { transform: 'translate3d(0, 100%, 0)' },
           to: { transform: 'translate3d(0, 0, 0)' },
         },
-        'drawer-down': {
+        'drawer-modal-down': {
           from: { transform: 'translate3d(0, 0, 0)' },
           to: { transform: 'translate3d(0, 100%, 0)' },
         },
@@ -103,8 +103,8 @@ module.exports = {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'collapsible-down': 'collapsible-down 0.2s ease-in-out',
         'collapsible-up': 'collapsible-up 0.2s ease-in-out',
-        'drawer-up': 'drawer-up 0.5s cubic-bezier(.32,.72,0,1)',
-        'drawer-down': 'drawer-down 0.5s cubic-bezier(.32,.72,0,1)',
+        'drawer-modal-up': 'drawer-modal-up 0.5s cubic-bezier(.32,.72,0,1)',
+        'drawer-modal-down': 'drawer-modal-down 0.5s cubic-bezier(.32,.72,0,1)',
       },
     },
   },

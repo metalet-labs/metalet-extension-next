@@ -27,17 +27,31 @@ const disconnect = async () => {
   await storage.delete(V3_WALLETS_STORAGE_KEY)
   window.location.reload()
 }
+
+const modalState = ref<'open' | 'closed'>('open')
+
+const close = () => {
+  modalState.value = 'closed'
+  const timeId = setTimeout(() => {
+    clearTimeout(timeId)
+    emit('update:show', false)
+    modalState.value = 'open'
+  }, 150)
+}
 </script>
 
 <template>
   <Teleport to="main" v-if="show">
     <div class="absolute inset-0 isolate z-50 flex items-end bg-black/20 backdrop-blur-sm flex-col overflow-hidden">
-      <div class="grow w-full" @click="$emit('update:show', false)"></div>
-      <div class="animate-drawer-up">
+      <div class="grow w-full" @click="close"></div>
+      <div
+        :data-state="modalState"
+        class="data-[state=open]:animate-drawer-modal-up data-[state=closed]:animate-drawer-modal-down"
+      >
         <div class="rounded-t-xl bg-white p-4 pb-8">
           <div class="flex items-center justify-between border-b border-gray-100 pb-4">
             <span class="text-base">Reset Wallet</span>
-            <button class="text-gray-400 hover:text-gray-500" @click="$emit('update:show', false)" type="button">
+            <button class="text-gray-400 hover:text-gray-500" @click="close" type="button">
               <XMarkIcon class="h-5 w-5" />
             </button>
           </div>

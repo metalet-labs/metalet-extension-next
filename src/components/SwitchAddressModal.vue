@@ -63,7 +63,7 @@ const close = () => {
       <div class="grow w-full" @click="close"></div>
       <div
         :data-state="modalState"
-        class="w-full bg-white rounded-t-xl data-[state=open]:animate-drawer-up data-[state=closed]:animate-drawer-down"
+        class="w-full bg-white rounded-t-xl data-[state=open]:animate-drawer-modal-up data-[state=closed]:animate-drawer-modal-down"
       >
         <div class="py-3.5 h-12 relative text-center">
           <span>Set Default Address</span>
@@ -92,9 +92,3 @@ const close = () => {
     </div>
   </Teleport>
 </template>
-
-<style scoped lang="css">
-.reset-button {
-  @apply rounded-lg border-2 py-3 text-sm;
-}
-</style>
