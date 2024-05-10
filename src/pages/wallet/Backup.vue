@@ -33,6 +33,7 @@ const next = async () => {
     const isCorrect = await passwordManager.check(password.value)
     if (isCorrect) {
       phase.value = 2
+      error.value = ''
     } else {
       error.value = 'Incorrect password. Try again.'
       return

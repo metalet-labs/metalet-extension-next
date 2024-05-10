@@ -159,10 +159,8 @@ const next = () => {
           <div class="flex flex-col gap-y-1.5 w-64">
             <div class="text-sm font-semibold">MVC Custom</div>
             <div class="text-xs">
-              Use a custom derivation path for Metalet wallet.
-              <br />
-              Mostly used for backward compatibility. Carefully choose this when you're importing an older account and
-              make sure you know the derivation path.
+              Use a custom derivation path for Metalet wallet. Mostly used for backward compatibility. Carefully choose
+              this when you're importing an older account and make sure you know the derivation path.
             </div>
           </div>
           <SuccessIcon v-if="mvcPath !== 10001" class="w-5 h-5" />

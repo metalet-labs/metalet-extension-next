@@ -69,7 +69,7 @@ const toSend = () => {
   })
 }
 const toReceive = () => {
-  router.push(`/wallet/receive/${address}?chain=mvc`)
+  router.push(`/wallet/receive/${CoinCategory.MetaContract}/${symbol}/${address}?chain=mvc&genesis=${genesis}`)
 }
 
 const copyGenesis = () => {

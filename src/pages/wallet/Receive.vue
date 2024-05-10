@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { allAssets } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import { prettifyTxId } from '@/lib/formatters'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { useIconsStore } from '@/stores/IconsStore'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { Divider, Copy, AssetLogo } from '@/components'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
@@ -14,30 +14,43 @@ import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 const route = useRoute()
 const address = ref(route.params.address as string)
 const qrcode = useQRCode(address.value)
-const asset = computed(() => allAssets.find((asset) => asset.symbol === route.params.symbol))
+const genesis = route.query.genesis as string
+const symbol = route.params.symbol as SymbolTicker
+const coinCategory = (route.params.coinCategory as CoinCategory) || CoinCategory.Native
+
+const chain = computed(() => {
+  if (route.query.chain) {
+    return route.query.chain as Chain
+  }
+  if (route.params.symbol === 'BTC') {
+    return Chain.BTC
+  } else if (route.params.symbol === 'SPACE') {
+    return Chain.MVC
+  }
+})
 
 const network = computed(() => {
-  if (route.params.symbol === 'BTC') {
+  if (symbol === 'BTC' || chain.value === 'btc') {
     return 'Bitcoin'
-  } else if (route.params.symbol === 'SPACE') {
+  } else if (symbol === 'SPACE' || chain.value === 'mvc') {
     return 'Microvisionchain'
   }
 })
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || '')
+const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
 </script>
 
 <template>
-  <div class="flex flex-col w-full h-full absolute top-0 left-0 bg-gray-secondary" v-if="asset">
+  <div class="flex flex-col w-full h-full absolute top-0 left-0 bg-gray-secondary">
     <div class="w-full h-15 flex items-center justify-between px-4">
       <ChevronLeftIcon class="w-4.5 cursor-pointer" @click="$router.go(-1)" />
       <XMarkIcon class="w-4.5 cursor-pointer" @click="$router.replace('/wallet')" />
     </div>
     <div class="p-4 grow">
       <div class="w-full h-full rounded-xl bg-white flex flex-col items-center py-6">
-        <AssetLogo :chain="asset.chain" type="network" :symbol="asset.symbol" :logo="logo" class="w-15" />
-        <div class="mt-3 font-medium">{{ asset.symbol }}</div>
+        <AssetLogo :chain="chain" type="network" :symbol="symbol" :logo="logo" class="w-15" />
+        <div class="mt-3 font-medium">{{ symbol }}</div>
         <div class="text-gray-primary text-xs text-center w-56">
           Only supports receiving assets from the {{ network }} network.
         </div>

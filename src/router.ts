@@ -110,6 +110,15 @@ const routes = [
         },
       },
       {
+        path: '/wallet/receive/:coinCategory/:symbol/:address',
+        component: () => import('./pages/wallet/Receive.vue'),
+        meta: {
+          secondaryHeader: false,
+          headerTitle: 'Receive',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/send/:symbol/:address',
         component: () => import('./pages/wallet/Send.vue'),
         name: 'send',
