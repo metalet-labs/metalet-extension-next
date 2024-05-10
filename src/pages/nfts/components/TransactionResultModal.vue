@@ -52,7 +52,7 @@ const toResultTx = async () => {
 <template>
   <Modal :is-open="props.isOpenResult" @update:is-open="$emit('update:isOpenResult', $event)">
     <template #title v-if="result && result.status === 'failed'">
-      <div class="flex items-center justify-center gap-2">
+      <div class="text-center">
         <span class="text-gray-500 text-lg font-bold">Transaction Failed</span>
       </div>
     </template>
@@ -66,7 +66,7 @@ const toResultTx = async () => {
     <template #body v-if="result && result.status === 'failed'">
       <div class="mt-4 space-y-4">
         <div class="space-y-1">
-          <div class="text-sm text-gray-500">{{ result.message }}</div>
+          <div class="text-sm text-gray-500 text-center">{{ result.message }}</div>
         </div>
       </div>
     </template>

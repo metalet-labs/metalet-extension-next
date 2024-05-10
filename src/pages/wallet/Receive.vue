@@ -38,8 +38,8 @@ const logo = computed(() => getIcon(CoinCategory.Native, route.params.symbol as 
       <div class="w-full h-full rounded-xl bg-white flex flex-col items-center py-6">
         <AssetLogo :chain="asset.chain" type="network" :symbol="asset.symbol" :logo="logo" class="w-15" />
         <div class="mt-3 font-medium">{{ asset.symbol }}</div>
-        <div class="text-gray-primary text-xs text-center w-60">
-          Only supports receiving {{ network }} network assets
+        <div class="text-gray-primary text-xs text-center w-56">
+          Only supports receiving assets from the {{ network }} network.
         </div>
         <Divider class="w-[232px] my-4" />
         <img :src="qrcode" alt="" class="w-[232px] h-[232px] rounded-lg" />
