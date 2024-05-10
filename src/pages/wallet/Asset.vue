@@ -39,7 +39,7 @@ const isOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const { updataWallet } = useChainWalletsStore()
+const { updataWallet, currentBTCWallet } = useChainWalletsStore()
 const address = computed(() => route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
@@ -134,7 +134,7 @@ WalletsStore.getAccountChainWallets().then((_chainWallets) => {
 })
 
 const toReceive = () => {
-  router.push(`/wallet/receive/${symbol.value}/${address.value}`)
+  router.push(`/wallet/receive/${symbol.value}/${address.value}?tag=${currentBTCWallet.value?.getAddressType()}`)
 }
 </script>
 
@@ -187,7 +187,9 @@ const toReceive = () => {
       <div class="mt-3 text-2xl">
         <span v-if="balance">{{ calcBalance(balance.total, asset.decimal, asset.symbol) }}</span>
         <span v-else>-- {{ asset.symbol }}</span>
-        <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">≈ ${{ assetUSD?.toNumber().toFixed(2) }}</span>
+        <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
+          ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
+        </span>
       </div>
 
       <div

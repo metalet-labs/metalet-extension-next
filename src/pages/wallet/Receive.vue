@@ -12,6 +12,9 @@ import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 
 const route = useRoute()
+const tag = route.query.tag as string
+console.log(tag)
+
 const address = ref(route.params.address as string)
 const qrcode = useQRCode(address.value)
 const genesis = route.query.genesis as string
@@ -50,7 +53,12 @@ const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
     <div class="p-4 grow">
       <div class="w-full h-full rounded-xl bg-white flex flex-col items-center py-6">
         <AssetLogo :chain="chain" type="network" :symbol="symbol" :logo="logo" class="w-15" />
-        <div class="mt-3 font-medium">{{ symbol }}</div>
+        <div class="mt-3 font-medium">
+          <span>{{ symbol }}</span>
+        </div>
+        <div class="text-xs px-1.5 py-0.5 rounded inline-block bg-gray-light text-gray-primary" v-if="tag">
+          {{ tag }}
+        </div>
         <div class="text-gray-primary text-xs text-center w-56">
           Only supports receiving assets from the {{ network }} network.
         </div>

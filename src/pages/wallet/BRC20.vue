@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { useRoute } from 'vue-router'
 import { getTags } from '@/data/assets'
 import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
 import Ticker from './components/Ticker.vue'
 import { calcBalance } from '@/lib/formatters'
+import { useRoute, useRouter } from 'vue-router'
 import MintPNG from '@/assets/icons-v3/mint.png'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import AssetLogo from '@/components/AssetLogo.vue'
@@ -19,13 +19,18 @@ import FilterIcon from '@/assets/icons-v3/filter.svg'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import TransferPNG from '@/assets/icons-v3/transfer.png'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
+import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
+const router = useRouter()
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
+
+const { currentBTCWallet } = useChainWalletsStore()
 
 const { getIcon } = useIconsStore()
 const icon = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as SymbolTicker) || '')
@@ -85,6 +90,12 @@ const assetUSD = computed(() => {
   }
 })
 
+const toReceive = () => {
+  router.push(
+    `/wallet/receive/${CoinCategory.BRC20}/${symbol.value}/${address.value}?tag=${currentBTCWallet.value?.getAddressType()}`
+  )
+}
+
 watch(assetUSD, (_assetUSD) => {
   if (asset.value && _assetUSD) {
     updateAsset({ chain: asset.value.chain, name: asset.value.symbol, value: _assetUSD })
@@ -122,6 +133,10 @@ watch(assetUSD, (_assetUSD) => {
         <img :src="TransferPNG" alt="Transfer" />
         <span>Transfer</span>
       </RouterLink>
+      <button @click="toReceive" class="btn-blue-primary">
+        <ArrowDownIcon class="w-3" />
+        <span>Receive</span>
+      </button>
     </div>
 
     <div class="border border-gray-soft rounded-lg w-full">
