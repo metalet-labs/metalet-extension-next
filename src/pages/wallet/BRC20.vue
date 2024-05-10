@@ -180,7 +180,7 @@ watch(assetUSD, (_assetUSD) => {
       />
     </div>
   </div>
-  <LoadingText v-else text="Asset Loading..." />
+  <LoadingText v-else :text="`${symbol} details Loading...`" />
 </template>
 
 <style scoped lang="css">

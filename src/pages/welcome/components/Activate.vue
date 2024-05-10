@@ -100,7 +100,7 @@ onMounted(async () => {
         </span>
       </h1>
       <p class="text-sm mt-12 text-gray-primary text-center w-64">
-        Metalet currently supports the following multiple tokens
+        Metalet currently supports the following multiple chains
       </p>
       <FlexBox ai="center" :gap="4" class="mt-4">
         <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />

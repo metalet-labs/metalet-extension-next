@@ -141,6 +141,7 @@ export async function fetchBRC20Detail(address: string, symbol: string): Promise
     chain: 'btc',
     queryable: true,
     decimal: 0,
+    transferableList: brc20Detail.transferableList,
     balance: {
       confirmed:
         Number(brc20Detail.tokenBalance.availableBalanceSafe) + Number(brc20Detail.tokenBalance.transferableBalance),
@@ -155,11 +156,7 @@ export async function fetchBRC20Detail(address: string, symbol: string): Promise
   } as BRC20Asset
 }
 
-export const useBRC20AseetQuery = (
-  address: Ref<string>,
-  ticker: Ref<string>,
-  options: { enabled: Ref<boolean> }
-) => {
+export const useBRC20AseetQuery = (address: Ref<string>, ticker: Ref<string>, options: { enabled: Ref<boolean> }) => {
   return useQuery({
     queryKey: ['BRCTicker', { address, ticker }],
     queryFn: () => fetchBRC20Detail(address.value, ticker.value),

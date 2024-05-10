@@ -52,9 +52,8 @@ const toResultTx = async () => {
 <template>
   <Modal :is-open="props.isOpenResult" @update:is-open="$emit('update:isOpenResult', $event)">
     <template #title v-if="result && result.status === 'failed'">
-      <div class="flex items-center gap-2">
-        <span class="text-gray-500">Transaction Failed</span>
-        <ExclamationTriangleIcon class="h-5 w-5 text-red-500"></ExclamationTriangleIcon>
+      <div class="flex items-center justify-center gap-2">
+        <span class="text-gray-500 text-lg font-bold">Transaction Failed</span>
       </div>
     </template>
     <template #title v-if="result && result.status === 'success'">

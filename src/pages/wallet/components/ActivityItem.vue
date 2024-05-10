@@ -28,7 +28,10 @@ const icon = computed(
 )
 
 const flow = computed(() => {
-  const { outcome, income } = props.activity
+  const { outcome, income, actionType } = props.activity
+  if (actionType === 'inscribeTransfer') {
+    return 'Inscribe-Transfer'
+  }
   if (outcome > income) {
     return 'Send'
   } else if (income > outcome) {

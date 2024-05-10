@@ -12,7 +12,6 @@ import DeleteWallet from './DeleteWallet.vue'
 import PasswordInput from './PasswordInput.vue'
 import FeeRateSelector from './FeeRateSelector.vue'
 import VerifySeedPhrase from './VerifySeedPhrase.vue'
-import SwitchAddressModal from './SwitchAddressModal.vue'
 import AddressTypeSelector from './AddressTypeSelector.vue'
 
 export {
@@ -31,5 +30,4 @@ export {
   Avatar,
   LoadingIcon,
   DeleteWallet,
-  SwitchAddressModal
 }

@@ -216,8 +216,8 @@ const changeTabIdx = (idx: number) => {
       <Divider />
       <div>
         <div class="flex items-center justify-between">
-          <span class="text-sm">Available</span>
-          <span class="text-xs text-gray-primary">{{ availableBalance }} {{ asset.symbol }}</span>
+          <span class="text-sm">Amount</span>
+          <span class="text-xs text-gray-primary">Available: {{ availableBalance }} {{ asset.symbol }}</span>
         </div>
         <input
           min="0"

@@ -60,6 +60,11 @@ const next = async () => {
     }
   }
 }
+
+const back = () => {
+  error.value = ''
+  phase.value -= 1
+}
 </script>
 
 <template>
@@ -67,7 +72,7 @@ const next = async () => {
     <!-- TODO: put into secondary-header -->
     <div class="grid grid-cols-5 items-center h-15">
       <div class="col-span-1 flex items-center">
-        <button @click="phase === 1 ? $router.back() : (phase -= 1)">
+        <button @click="phase === 1 ? $router.back() : back()">
           <ChevronLeftIcon class="w-6 h-6" />
         </button>
       </div>

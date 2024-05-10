@@ -40,7 +40,7 @@ const toBRC20Detail = (inscriptionId: string) => {
 
 <template>
   <div class="space-y-4">
-    <LoadingText v-if="isLoading" text="InscriptionList loading..." />
+    <LoadingText v-if="isLoading" text="Inscriptions loading..." />
     <div v-else-if="inscriptions.length">
       <div class="px-3 py-4 grid grid-cols-3 gap-x-3 gap-y-7">
         <div

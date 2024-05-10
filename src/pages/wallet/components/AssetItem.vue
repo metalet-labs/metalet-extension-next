@@ -104,7 +104,10 @@ watch(
         </UseImage>
         <div class="flex flex-col gap-y-1 items-start">
           <div :title="asset.tokenName" class="flex items-center gap-x-0.5 text-base">
-            <span :class="{ 'max-w-[100px] truncate overflow-hidden': coinCategory === 'BRC-20' }">
+            <span
+              :title="asset.tokenName"
+              :class="['truncate max-w-64', { 'max-w-24 truncate overflow-hidden': coinCategory === 'BRC-20' }]"
+            >
               {{ asset.tokenName }}
             </span>
             <CheckBadgeIcon
@@ -125,7 +128,9 @@ watch(
 
       <div class="flex grow overflow-hidden flex-col items-end text-xs gap-y-1">
         <div class="w-full flex flex-col items-end">
-          <div class="text-black-primary text-sm">{{ assetPrice }}</div>
+          <div class="text-black-primary text-sm truncate max-w-full" :title="assetPrice">
+            {{ assetPrice }}
+          </div>
           <div class="text-xs text-gray-primary">
             <span v-if="assetUSD">
               <!-- TODO： put into utils -->

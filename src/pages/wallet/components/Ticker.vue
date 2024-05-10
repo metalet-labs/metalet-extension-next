@@ -17,7 +17,7 @@ const { ticker, amount, inscriptionNumber } = defineProps<{
       <div class="mt-[9px] text-lg truncate w-full px-1 text-center" :title="`${amount} ${ticker}`">{{ amount }}</div>
     </template>
     <div class="text-white text-xs absolute bottom-0 w-full text-center h-[25px] leading-[25px]">
-      <div v-if="block" class="bg-blue-primary rounded-b-md">Block</div>
+      <div v-if="block" class="bg-blue-primary rounded-b-md">Transfer</div>
       <div
         v-else-if="inscriptionNumber === undefined || inscriptionNumber === -1"
         class="flex items-center justify-center gap-x-1 bg-orange-primary rounded-b-md"

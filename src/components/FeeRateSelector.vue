@@ -64,7 +64,7 @@ const selectCustom = () => {
     </FlexBox>
     <Drawer v-model:open="open">
       <DrawerContent class="bg-white">
-        <DrawerHeader class="pt-1.5 pb-3.5">
+        <DrawerHeader class="pt-1.5 pb-3.5 py-4">
           <DrawerTitle class="text-center text-sm relative">
             <span>Select Fee Rate</span>
             <DrawerClose>

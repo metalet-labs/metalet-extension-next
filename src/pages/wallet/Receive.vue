@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { type Chain } from '@/lib/types'
 import { allAssets } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import { prettifyTxId } from '@/lib/formatters'
@@ -15,21 +14,13 @@ import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 const route = useRoute()
 const address = ref(route.params.address as string)
 const qrcode = useQRCode(address.value)
-const asset = computed(() => allAssets.find((asset) => asset.chain === chain.value))
+const asset = computed(() => allAssets.find((asset) => asset.symbol === route.params.symbol))
 
 const network = computed(() => {
   if (route.params.symbol === 'BTC') {
     return 'Bitcoin'
   } else if (route.params.symbol === 'SPACE') {
     return 'Microvisionchain'
-  }
-})
-
-const chain = computed(() => {
-  if (route.params.symbol === 'BTC') {
-    return 'btc'
-  } else if (route.params.symbol === 'SPACE') {
-    return 'mvc'
   }
 })
 

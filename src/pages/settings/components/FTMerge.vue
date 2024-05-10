@@ -15,7 +15,6 @@ import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/c
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
 
-const ftManager = ref()
 const operation = ref('')
 const loading = ref(false)
 const isRefresh = ref(true)
@@ -150,14 +149,24 @@ const { isLoading, data: mvcAssets } = useMVCAssetsQuery(address, {
 
 // TODO: Change computed
 watch(
-  [mvcAssets, ftManager, isRefresh, address],
-  async ([assets, manager, _isRefresh]) => {
-    if (manager && assets && _isRefresh && address) {
+  [mvcAssets, currentMVCWallet, isRefresh, address],
+  async ([assets, _currentMVCWallet, _isRefresh, _address]) => {
+    if (assets && _isRefresh && _address && _currentMVCWallet) {
       assetLoading.value = true
       const _assets: (FTAsset & { utxoCount: number })[] = []
       for (let asset of assets || []) {
         const { codeHash, genesis } = asset
-        await manager.api.getFungibleTokenUnspents(codeHash, genesis, address.value).then((data: any) => {
+        const network: API_NET = (await getNetwork()) as API_NET
+        const purse = _currentMVCWallet.getPrivateKey()
+        const apiHost = await getApiHost()
+        const manager = new FtManager({
+          network,
+          apiTarget: API_TARGET.MVC,
+          purse,
+          feeb: FEEB,
+          apiHost,
+        })
+        await manager.api.getFungibleTokenUnspents(codeHash, genesis, _address).then((data: any) => {
           _assets.push({
             ...asset,
             utxoCount: data.length,
@@ -176,29 +185,14 @@ watch(
 const hasMergeToken = computed(() => {
   return ftAsssets.value.some((asset) => asset.utxoCount > NeedToMergeCount)
 })
-
-watch(currentMVCWallet, async (_currentMVCWallet) => {
-  if (_currentMVCWallet) {
-    const network: API_NET = (await getNetwork()) as API_NET
-    const purse = _currentMVCWallet.getPrivateKey()
-    const apiHost = await getApiHost()
-    ftManager.value = new FtManager({
-      network,
-      apiTarget: API_TARGET.MVC,
-      purse,
-      feeb: FEEB,
-      apiHost,
-    })
-  }
-})
 </script>
 
 <template>
   <div class="min-h-full flex flex-col">
     <div class="text-2xl font-medium">FT Merge</div>
     <div class="mt-2 text-gray-primary text-xs">
-      Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
-      cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
+      Due to the technical nature of UTXO, when there are too many UTXOs for a token, issues such as failure loops can
+      occur. The merging tool will automatically help you consolidate your scattered UTXOs into one.
     </div>
     <div class="py-4 flex gap-3 items-center">
       <Avatar :id="address" />

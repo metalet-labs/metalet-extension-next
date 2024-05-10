@@ -1,31 +1,32 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { Psbt } from 'bitcoinjs-lib'
 import { allAssets } from '@/data/assets'
+import { mvcApi } from '@/queries/request'
 import { ref, computed, watch } from 'vue'
+import {  Transaction } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
+import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { useQueryClient } from '@tanstack/vue-query'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { broadcastBTCTx } from '@/queries/transaction'
 import { type SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyBalanceFixed } from '@/lib/formatters'
+import { CoinCategory } from '@/queries/exchange-rates'
 import type { TransactionResult } from '@/global-types'
 import { ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
-import { useIconsStore } from '@/stores/IconsStore'
-import { CoinCategory } from '@/queries/exchange-rates'
 
-const cost = ref()
 const route = useRoute()
 const recipient = ref('')
 const error = ref<Error>()
 const router = useRouter()
-const txPsbt = ref<Psbt>()
+const cost = ref<number>()
+const txHex = ref<string>()
 const totalFee = ref<number>()
 const queryClient = useQueryClient()
 const currentRateFee = ref<number>()
@@ -124,13 +125,14 @@ const popConfirm = async () => {
     try {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
       const utxos = await getBtcUtxos(address.value, needRawTx)
-      const {
-        fee,
-        psbt,
-        cost: _cost,
-      } = currentBTCWallet.value!.send(recipient.value, amount.value.toString(), currentRateFee.value!, utxos)
-      cost.value = _cost
-      txPsbt.value = psbt
+      const { fee, psbt } = currentBTCWallet.value!.send(
+        recipient.value,
+        amount.value.toString(),
+        currentRateFee.value!,
+        utxos
+      )
+      cost.value = amountInSats.value.add(fee).toNumber()
+      txHex.value = psbt.extractTransaction().toHex()
       totalFee.value = fee
       isOpenConfirmModal.value = true
     } catch (error) {
@@ -144,6 +146,23 @@ const popConfirm = async () => {
       operationLock.value = false
     }
   } else {
+    const walletInstance = initMvcWallet()
+    const sentRes = await walletInstance
+      .send(recipient.value, amountInSats.value.toNumber(), { noBroadcast: true })
+      .catch((err) => {
+        isOpenConfirmModal.value = false
+        transactionResult.value = {
+          status: 'failed',
+          message: err.message,
+        }
+        isOpenResultModal.value = true
+      })
+    if (sentRes) {
+      const fee = Transaction.fromHex(sentRes.txHex).virtualSize()
+      totalFee.value = fee
+      cost.value = amountInSats.value.add(fee).toNumber()
+      txHex.value = sentRes.txHex
+    }
     isOpenConfirmModal.value = true
   }
 }
@@ -161,24 +180,26 @@ const isOpenResultModal = ref(false)
 const operationLock = ref(false)
 
 async function sendSpace() {
-  // const walletInstance = toRaw(wallet.value)
-
-  const walletInstance = initMvcWallet()
-  const sentRes = await walletInstance.send(recipient.value, amountInSats.value.toNumber()).catch((err) => {
+  operationLock.value = true
+  if (txHex.value) {
+    const { txid: txId } = await mvcApi<{ txid: string }>('/tx/broadcast').post({ hex: txHex.value })
+    operationLock.value = false
+    return { txId }
+  } else {
     isOpenConfirmModal.value = false
     transactionResult.value = {
       status: 'failed',
-      message: err.message,
+      message: 'No Psbt',
     }
     isOpenResultModal.value = true
-  })
-
-  return sentRes
+    operationLock.value = false
+  }
 }
 
 async function sendBTC() {
-  if (txPsbt.value) {
-    const txId = await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
+  operationLock.value = true
+  if (txHex.value) {
+    const txId = await broadcastBTCTx(txHex.value).catch((err: Error) => {
       isOpenConfirmModal.value = false
       transactionResult.value = {
         status: 'failed',
@@ -196,6 +217,7 @@ async function sendBTC() {
       message: 'No Psbt',
     }
     isOpenResultModal.value = true
+    operationLock.value = false
   }
 }
 
@@ -275,6 +297,10 @@ async function send() {
     </div>
 
     <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
+    <div class="flex items-center justify-between w-full" v-else-if="asset.chain === 'mvc'">
+      <span class="text-sm">Fee Rate</span>
+      <span class="text-xs text-gray-primary">1 sat/vB</span>
+    </div>
 
     <Button
       type="primary"
@@ -314,7 +340,7 @@ async function send() {
             <div class="text-gray-primary">Amount</div>
             <div class="break-all">{{ prettifyBalanceFixed(amount, symbol) }}</div>
           </FlexBox>
-          <FlexBox ai="center" jc="between" v-if="asset.chain === 'btc'">
+          <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Fees (Estimated)</div>
             <div>{{ prettifyBalanceFixed(totalFee, symbol, asset.decimal) }}</div>
           </FlexBox>

@@ -38,7 +38,7 @@ const toInscribe = () => {
         <FlexBox ai="center" jc="between" class="w-full">
           <span class="text-xl">{{ asset.balance.transferableBalance }} {{ symbol }}</span>
           <!-- TODO: select all -->
-          <button class="text-xs text-blue-primary cursor-not-allowed" disabled>Select All</button>
+          <button class="text-xs text-blue-primary cursor-not-allowed" disabled v-if="false">Select All</button>
         </FlexBox>
         <Divider class="border-gray-soft my-4" />
         <FlexBox d="col" :gap="4">

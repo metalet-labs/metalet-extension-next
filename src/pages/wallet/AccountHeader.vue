@@ -93,7 +93,7 @@ const copy = (address: string, addressType: string, type: string) => {
       <ServiceMenu class="cursor-pointer" />
     </div>
   </div>
-  <Drawer v-model:open="isOpen" activeSnapPoint="#wallet">
+  <Drawer v-model:open="isOpen">
     <DrawerContent class="bg-white">
       <DrawerHeader>
         <DrawerTitle class="text-center relative">

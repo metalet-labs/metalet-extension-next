@@ -11,7 +11,7 @@ const { logo, chain, symbol } = defineProps<{
   chain?: Chain
   symbol: string
   type: 'network' | 'activity'
-  flow?: 'Send' | 'Receive' | 'Transfer'
+  flow?: 'Send' | 'Receive' | 'Transfer' | string
 }>()
 </script>
 

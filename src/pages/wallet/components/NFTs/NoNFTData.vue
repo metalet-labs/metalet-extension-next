@@ -15,7 +15,7 @@ defineProps({
     <span class="text-gray-primary text-sm mt-4 w-72 text-center">
       <span v-if="url">No NFTs available at the moment,</span>
       <span v-else>No NFTs available at the moment.</span>
-      <span v-if="url">,Let's check the trading market.</span>
+      <span v-if="url">Let's check the trading market.</span>
     </span>
     <a v-if="url" target="_blank" :href="url" class="bg-blue-primary text-white py-2 px-6 mt-9 rounded-3xl">
       Explore NFT

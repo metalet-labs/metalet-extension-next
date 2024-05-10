@@ -41,7 +41,7 @@ const backRouter = computed(() => {
     </div>
 
     <main
-      class="ext-app flex h-full w-full flex-col xs:relative xs:aspect-[1/2] xs:h-3/4 xs:w-auto xs:min-w-[25rem] xs:rounded-lg xs:border xs:border-gray-100 xs:bg-white xs:shadow-lg"
+      class="ext-app flex h-full w-full flex-col xs:relative xs:aspect-[1/2] xs:h-3/4 xs:w-auto xs:min-w-[25rem] xs:rounded-lg xs:border xs:border-gray-100 xs:bg-white xs:shadow-lg overflow-hidden"
     >
       <!-- Header -->
       <SecondaryHeader v-if="route.meta.secondaryHeader" :backRouter="backRouter">

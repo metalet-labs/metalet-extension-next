@@ -22,6 +22,7 @@ export type Activity = {
   income: number
   outcome: number
   txid: string
+  actionType?: string
 }
 
 export type TokenActivity = {
@@ -99,6 +100,7 @@ export const fetchBRC20Activities = async (address: string, symbol: SymbolTicker
           income: activity.toAddress === address ? Number(activity.amount) : 0,
           outcome: activity.fromAddress === address ? Number(activity.amount) : 0,
           txid: activity.txId,
+          actionType: activity.actionType,
         }
       })
     })

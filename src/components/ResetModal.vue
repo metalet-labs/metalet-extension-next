@@ -60,20 +60,20 @@ const close = () => {
             <div class="flex flex-col gap-2 text-ss">
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked1" />
-                <p>We will not store or help you retrieve your password.</p>
+                <p>We do not store or assist in recovering your password.</p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked2" />
                 <p>
-                  If you forget your password, you can reset your wallet. It is also possible to re-import the wallet
-                  using a mnemonic phrase or private key.
+                  If you forget your password, you can reset the wallet. You can also re-import the wallet using the
+                  mnemonic phrase or private key.
                 </p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked3" />
                 <p>
-                  Note that resetting the wallet without backup will permanently lose all assets. Before resetting, be
-                  sure to back up all wallets.
+                  Please note that resetting the wallet without backup will permanently lose all assets. Before
+                  resetting, make sure to backup all wallets.
                 </p>
               </div>
             </div>
