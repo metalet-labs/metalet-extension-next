@@ -52,7 +52,7 @@ watch(assetUSD, (_assetUSD) => {
 })
 
 const toMint = () => {
-  router.push(`/wallet/receive/${address.value}?chain=${asset.value!.chain}`)
+  router.push(`/wallet/mintRune/${asset.value!.tokenName}/${runeId.value}/${address.value}`)
 }
 
 const toSend = () => {
