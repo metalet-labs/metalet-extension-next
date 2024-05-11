@@ -2,20 +2,25 @@
 import Decimal from 'decimal.js'
 import { Psbt } from 'bitcoinjs-lib'
 import { ref, computed, watch } from 'vue'
-import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
+import { useIconsStore } from '@/stores/IconsStore'
+import { useRuneDetailQuery } from '@/queries/runes'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { broadcastBTCTx } from '@/queries/transaction'
+import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import type { TransactionResult } from '@/global-types'
-import { ScriptType } from '@metalet/utxo-wallet-service'
-import { useRuneDetailQuery } from '@/queries/runes'
+import { getBtcUtxos, getRuneUtxos } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
-import { useIconsStore } from '@/stores/IconsStore'
-import { CoinCategory } from '@/queries/exchange-rates'
+
+interface Tx {
+  address: string
+  value: number
+}
 
 const cost = ref()
 const route = useRoute()
@@ -38,16 +43,10 @@ const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(addre
   enabled: computed(() => !!address.value && !!runeId.value),
 })
 
-const { currentBTCWallet, initMvcWallet } = useChainWalletsStore()
+const { currentBTCWallet } = useChainWalletsStore()
 
 // amount
 const amount = ref<number>()
-const amountInSats = computed(() => {
-  if (amount.value) {
-    return new Decimal(amount.value).mul(10 ** asset.value!.decimal)
-  }
-  return new Decimal(0)
-})
 
 const balance = computed(() => {
   if (asset.value?.balance) {
@@ -55,7 +54,6 @@ const balance = computed(() => {
   }
 })
 
-// btn disabled
 const btnDisabled = computed(() => {
   return !recipient.value || !amount.value || operationLock.value || !currentRateFee.value
 })
@@ -85,14 +83,6 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
-  if (!amountInSats.value) {
-    transactionResult.value = {
-      status: 'warning',
-      message: 'Please input amount.',
-    }
-    isOpenResultModal.value = true
-    return
-  }
   if (!currentRateFee.value) {
     transactionResult.value = {
       status: 'warning',
@@ -114,14 +104,21 @@ const popConfirm = async () => {
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxos = await getBtcUtxos(address.value, needRawTx)
-    const {
-      fee,
-      psbt,
-      cost: _cost,
-    } = currentBTCWallet.value!.send(recipient.value, amount.value.toString(), currentRateFee.value!, utxos)
-    cost.value = _cost
+    const runeUtxos = await getRuneUtxos(address.value, asset.value!.runeId, needRawTx)
+    const { fee, psbt } = currentBTCWallet.value!.signTx(SignType.RUNE_SEND, {
+      utxos,
+      runeId: runeId.value,
+      feeRate: currentRateFee.value,
+      recipient: recipient.value,
+      runeUtxos,
+      runeAmount: amount.value.toString(),
+      divisibility: asset.value!.decimal,
+    }) as {
+      psbt: Psbt
+      fee: string
+    }
     txPsbt.value = psbt
-    totalFee.value = fee
+    totalFee.value = Number(fee)
     isOpenConfirmModal.value = true
   } catch (error) {
     console.error('Error in BTC transaction:', error)
@@ -135,33 +132,9 @@ const popConfirm = async () => {
   }
 }
 
-watch(amountInSats, (newAmountInSats) => {
-  if (balance.value && newAmountInSats && newAmountInSats.gt(balance.value || 0)) {
-    error.value = new Error('Insufficient balance')
-  } else {
-    error.value = undefined
-  }
-})
-
 const isOpenResultModal = ref(false)
 
 const operationLock = ref(false)
-
-async function sendSpace() {
-  // const walletInstance = toRaw(wallet.value)
-
-  const walletInstance = initMvcWallet()
-  const sentRes = await walletInstance.send(recipient.value, amountInSats.value.toNumber()).catch((err) => {
-    isOpenConfirmModal.value = false
-    transactionResult.value = {
-      status: 'failed',
-      message: err.message,
-    }
-    isOpenResultModal.value = true
-  })
-
-  return sentRes
-}
 
 async function sendBTC() {
   if (txPsbt.value) {
@@ -300,12 +273,7 @@ async function send() {
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Fees (Estimated)</div>
-            <div>{{ prettifyBalanceFixed(totalFee, asset.symbol, asset.decimal) }}</div>
-          </FlexBox>
-          <Divider />
-          <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Total</div>
-            <div>{{ prettifyBalanceFixed(cost || 0, asset.symbol, asset.decimal) }}</div>
+            <div>{{ prettifyBalanceFixed(totalFee, 'BTC', 8) }}</div>
           </FlexBox>
         </div>
         <DrawerFooter>

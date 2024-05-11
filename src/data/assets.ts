@@ -25,6 +25,8 @@ export interface FTAsset extends Asset {
 
 export interface RuneAsset extends Asset {
   runeId: string
+  mintable: boolean
+  remainingMint: string
 }
 
 export interface Tag {

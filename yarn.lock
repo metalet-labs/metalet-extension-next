@@ -699,25 +699,32 @@
   resolved "https://registry.yarnpkg.com/@juanelas/base64/-/base64-1.1.5.tgz#d43b3c78e32e609d9b17a15e4f1b6342c9ca1238"
   integrity sha512-mjAF27LzwfYobdwqnxZgeucbKT5wRRNvILg3h5OvCWK+3F7mw/A1tnjHnNiTYtLmTvT/bM1jA5AX7eQawDGs1w==
 
-"@metalet/utxo-wallet-sdk@^0.3.6":
-  version "0.3.6"
-  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-sdk/-/utxo-wallet-sdk-0.3.6.tgz#ff3f281b8e11b5a7be41acdda915e1779902b838"
-  integrity sha512-r8NaO730+iJOuYKK25BVgT1SPEszkS2nnGThGFU5GO4IvGC6VuowrRXTWoMg8e4kzmSx3xEN/Mba88ZLzo7raw==
+"@magiceden-oss/runestone-lib@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@magiceden-oss/runestone-lib/-/runestone-lib-1.0.2.tgz#524394b49119d1acace0edc351f9cd5d7ed1ad73"
+  integrity sha512-C4XoE7tHxxaWQNzovBIEndXGrTesotshnKQA8DXlnoVDvriD6G26ezUoj9AlEb2UAPbEijSga4Dtwd86Z0a1jg==
+
+"@metalet/utxo-wallet-sdk@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-sdk/-/utxo-wallet-sdk-0.4.1.tgz#1d4e2cb52ca347ff418b285ab1aaa9c3e0fe365b"
+  integrity sha512-HcqmiYkvrupVclrZiO0IEU6Zv8xmcgVYQEnlEAFruWR3Ntz8pEYLvIYvIaTKa7O0IUic2BI3VSFsgckPwMMVSg==
   dependencies:
     "@bitcoinerlab/secp256k1" "^1.1.1"
+    "@magiceden-oss/runestone-lib" "^1.0.2"
     "@okxweb3/crypto-lib" "^1.0.1"
     "@scure/bip39" "^1.2.2"
     bip32 "^4.0.0"
     bitcoinjs-lib "^6.1.5"
+    bitcore-lib "^10.0.28"
     decimal.js "^10.4.3"
     ecpair "^2.1.0"
 
-"@metalet/utxo-wallet-service@^0.2.4":
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.2.4.tgz#e2836ff3668b238986670901619e977c1d6d6417"
-  integrity sha512-HTKDOITNleC9go1RyZdsFXckCLeHopkKExZwHigyhFBOTQh8WIIJlDjtfcQ2lj41m0qTdh5HSHM8nKtJddB2yQ==
+"@metalet/utxo-wallet-service@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.3.2.tgz#bb0aa14017a098ba16a43613c991190d53d92600"
+  integrity sha512-NstYwLVn2ZiWvX+1lSq2NzVqEyXV7Rk86pEbobHst+G2gQpvsiN4MWlp4981diU/0ossknPa3IVSJswpE2oPHw==
   dependencies:
-    "@metalet/utxo-wallet-sdk" "^0.3.6"
+    "@metalet/utxo-wallet-sdk" "^0.4.1"
     crypto-js "^4.2.0"
     decimal.js "^10.4.3"
 
@@ -2078,7 +2085,7 @@ bitcoinjs-lib@^6.1.5:
     typeforce "^1.11.3"
     varuint-bitcoin "^1.1.2"
 
-bitcore-lib@^10.0.0:
+bitcore-lib@^10.0.0, bitcore-lib@^10.0.28:
   version "10.0.28"
   resolved "https://registry.yarnpkg.com/bitcore-lib/-/bitcore-lib-10.0.28.tgz#f46810324df1021f194dcdc1411c2d1a83b9be10"
   integrity sha512-uOWHpWbUxEj411p+tp6DCb9NfZdsCAHl6Z/rs96mquQMsef29fOqWUyk4Bl7yLf+KwzU5ZKy0HIPnjGFlmpXpg==

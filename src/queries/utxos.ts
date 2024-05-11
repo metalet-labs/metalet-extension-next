@@ -112,6 +112,24 @@ export async function getBtcUtxos(address: string, needRawTx = false): Promise<U
   })
 }
 
+export async function getRuneUtxos(address: string, runeId: string, needRawTx = false): Promise<UTXO[]> {
+  const net = getNet()
+  const res =
+    (await metaletApiV3<{
+      total: number
+      cursor: number
+      list: UTXO[]
+    }>('/runes/address/utxo').get({ net, address, runeId })) || []
+  if (needRawTx) {
+    for (let utxo of res.list) {
+      utxo.rawTx = await fetchBtcTxHex(utxo.txId)
+      utxo.rawTx
+    }
+  }
+
+  return res.list
+}
+
 // export async function getInscriptionUtxos(inscriptions: Inscription[]): Promise<UTXO[]> {
 //   const unisatUtxos = await unisatApi<UnisatUTXO[]>('/inscription/utxos').post({
 //     inscriptionIds: inscriptions.map((inscription) => inscription.inscriptionId),

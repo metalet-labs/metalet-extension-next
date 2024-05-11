@@ -1,9 +1,9 @@
 import { PageResult } from './types'
-import { metaletApiV3, unisatApi } from './request'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { type RuneAsset } from '@/data/assets'
 import { UNISAT_ENABLED } from '@/data/config'
+import { metaletApiV3, unisatApi } from './request'
 import { AddressRunesTokenSummary } from './types/rune'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 
@@ -14,6 +14,8 @@ export interface RuneBalance {
   spacedRune: string
   symbol: string
   divisibility: number
+  mintable: boolean
+  remainingMint: string
 }
 
 export async function fetchRunesList(
@@ -128,6 +130,8 @@ export async function fetchRuneDetail(address: string, runeId: string) {
       total: Number(runeDetail.amount),
     },
     runeId,
+    mintable: runeDetail.mintable,
+    remainingMint: runeDetail.remainingMint,
   } as RuneAsset
 }
 
