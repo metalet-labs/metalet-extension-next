@@ -214,7 +214,7 @@ async function send() {
       <input
         min="0"
         type="number"
-        step="0.00001"
+        step="1"
         v-model="amount"
         :max="asset.remainingMint"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"

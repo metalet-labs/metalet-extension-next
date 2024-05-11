@@ -78,5 +78,16 @@ button[aria-selected='true'] {
 }
 
 [role='menuitem'] {
-  @apply cursor-pointer hover:text-blue-primary
+  @apply cursor-pointer hover:text-blue-primary;
+}
+
+.tooltip {
+  @apply absolute bg-white text-gray-primary py-1.5 px-2.5 rounded-md text-xs border border-[#F1F3F5] w-64 left-1/4 -translate-x-1/3;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
 }

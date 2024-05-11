@@ -17,11 +17,6 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
-interface Tx {
-  address: string
-  value: number
-}
-
 const cost = ref()
 const route = useRoute()
 const recipient = ref('')

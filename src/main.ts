@@ -5,6 +5,7 @@ import { Buffer } from 'buffer'
 import { createApp, ref } from 'vue'
 import * as Sentry from '@sentry/vue'
 import { IS_DEV } from '@/data/config'
+import tooltip from '@/lib/tooltip';
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import Notification from './components/Notification.vue'
 
@@ -47,4 +48,5 @@ if (!IS_DEV) {
 
 app.use(router)
 app.use(VueQueryPlugin)
+app.directive('tooltip', tooltip);
 app.mount('#app')

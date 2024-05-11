@@ -576,9 +576,9 @@ router.beforeEach(async (to, _, next) => {
       } else if (to.name === 'send-token') {
         to.meta.headerTitle = `Send ${to.params.symbol}`
       } else if (to.name === 'SendRune') {
-        to.meta.headerTitle = `Send ${to.params.name}`
+        to.meta.headerTitle = `${to.params.name}`
       } else if (to.name === 'MintRune') {
-        to.meta.headerTitle = `Mint ${to.params.name}`
+        to.meta.headerTitle = `${to.params.name}`
       }
 
       if (to.path === '/wallet') {

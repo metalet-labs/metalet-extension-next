@@ -90,14 +90,16 @@ export async function getBtcUtxos(address: string, needRawTx = false): Promise<U
   if (UNISAT_ENABLED) {
     const unisatUtxos = await unisatApi<UnisatUTXO[]>(`/address/btc-utxo`).get({ net, address })
     const utxos = unisatUtxos.map((utxo) => formatUnisatUTXO(utxo))
-    return utxos.sort((a, b) => {
+    utxos.sort((a, b) => {
       if (a.confirmed !== b.confirmed) {
         return b.confirmed ? 1 : -1
       }
       return a.satoshis - b.satoshis
     })
+
+    return utxos.filter((utxo) => utxo.confirmed)
   }
-  const utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
+  const utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '0' })) || []
   if (needRawTx) {
     for (let utxo of utxos) {
       utxo.rawTx = await fetchBtcTxHex(utxo.txId)

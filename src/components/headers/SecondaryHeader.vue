@@ -19,7 +19,7 @@ const router = useRouter()
     </div>
 
     <!-- title -->
-    <div class="col-span-3 justify-self-center text-base">
+    <div class="col-span-3 justify-self-center text-base truncate max-w-64">
       <slot name="title"></slot>
     </div>
   </div>

@@ -3,9 +3,9 @@ import Decimal from 'decimal.js'
 import { allAssets } from '@/data/assets'
 import { mvcApi } from '@/queries/request'
 import { ref, computed, watch } from 'vue'
-import {  Transaction } from 'bitcoinjs-lib'
-import { getBtcUtxos } from '@/queries/utxos'
+import { Transaction } from 'bitcoinjs-lib'
 import { useRoute, useRouter } from 'vue-router'
+import { UTXO, getBtcUtxos } from '@/queries/utxos'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -17,6 +17,7 @@ import { CoinCategory } from '@/queries/exchange-rates'
 import type { TransactionResult } from '@/global-types'
 import { ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
@@ -294,6 +295,36 @@ async function send() {
         v-model="amount"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
+    </div>
+
+    <div class="flex flex-col w-full gap-2" v-if="asset.chain === 'btc'">
+      <div class="flex items-center justify-between w-full">
+        <span class="text-sm">Total</span>
+        <span class="text-xs text-gray-primary">
+          {{ prettifyBalanceFixed(balanceData?.total || 0, symbol, asset.decimal) }}
+        </span>
+      </div>
+      <div class="flex items-center justify-between w-full">
+        <span class="text-xs text-gray-primary flex items-center gap-1">
+          Unavailable
+          <span
+            v-tooltip="
+              'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'
+            "
+          >
+            <QuestionMarkCircleIcon class="w-3.5" />
+          </span>
+        </span>
+        <span class="text-xs text-gray-primary">
+          {{ prettifyBalanceFixed(balanceData?.unconfirmed || 0, symbol, asset.decimal) }}
+        </span>
+      </div>
+      <div class="flex items-center justify-between w-full">
+        <span class="text-xs text-gray-primary">Available</span>
+        <span class="text-xs text-gray-primary">
+          {{ prettifyBalanceFixed(balanceData?.confirmed || 0, symbol, asset.decimal) }}
+        </span>
+      </div>
     </div>
 
     <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
