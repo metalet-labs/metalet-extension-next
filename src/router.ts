@@ -7,7 +7,7 @@ import { needMigrate } from './lib/migrate'
 import { hasPassword } from './lib/password'
 import Wallet from './pages/wallet/Index.vue'
 import { getCurrentAccountId } from './lib/account'
-import { getCurrentWalletId, hasV3Wallets, hasWallets } from './lib/wallet'
+import { getCurrentWalletId, hasWallets } from './lib/wallet'
 
 const routes = [
   {
@@ -145,6 +145,16 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Send Rune',
+          noFooter: true,
+        },
+      },
+      {
+        path: '/wallet/mintRune/:name/:runeId/:address',
+        component: () => import('./pages/wallet/MintRune.vue'),
+        name: 'MintRune',
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Mint Rune',
           noFooter: true,
         },
       },
@@ -567,6 +577,8 @@ router.beforeEach(async (to, _, next) => {
         to.meta.headerTitle = `Send ${to.params.symbol}`
       } else if (to.name === 'SendRune') {
         to.meta.headerTitle = `Send ${to.params.name}`
+      } else if (to.name === 'MintRune') {
+        to.meta.headerTitle = `Mint ${to.params.name}`
       }
 
       if (to.path === '/wallet') {
