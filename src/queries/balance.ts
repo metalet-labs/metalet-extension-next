@@ -30,8 +30,8 @@ export const fetchBtcBalance = async (address: string): Promise<Balance> => {
   const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`).get({ net, address })
   return {
     total: new Decimal(data.balance).mul(1e8).toNumber(),
-    confirmed: new Decimal(data.block.incomeFee).mul(1e8).toNumber(),
-    unconfirmed: new Decimal(data.mempool.incomeFee).mul(1e8).toNumber(),
+    confirmed: new Decimal(data.block.incomeFee - data.block.spendFee).mul(1e8).toNumber(),
+    unconfirmed: new Decimal(data.mempool.incomeFee - data.mempool.spendFee).mul(1e8).toNumber(),
   }
 }
 
