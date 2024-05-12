@@ -258,89 +258,135 @@ async function send() {
 </script>
 
 <template>
-  <FlexBox d="col" ai="center" v-if="asset" class="w-full h-full relative space-y-6">
+  <div v-if="asset" class="flex flex-col items-center w-full relative min-h-full">
     <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
 
-    <div class="space-y-4 w-full">
-      <FlexBox d="col" ai="center" :gap="3">
-        <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
-        <div class="text-base">{{ symbol }}</div>
-      </FlexBox>
+    <div class="grow w-full space-y-4">
+      <div class="space-y-4 w-full">
+        <FlexBox d="col" ai="center" :gap="3">
+          <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+          <div class="text-base">{{ symbol }}</div>
+        </FlexBox>
 
-      <Divider />
-    </div>
-
-    <div class="space-y-2 w-full">
-      <div>Receiver</div>
-      <textarea
-        v-model="recipient"
-        class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
-      />
-    </div>
-
-    <div class="space-y-2 w-full">
-      <FlexBox ai="center" jc="between">
-        <span>Amount</span>
-        <span class="text-gray-primary text-xs">
-          <span>Balance:</span>
-          <span v-if="balance">{{ balance }} {{ symbol }}</span>
-          <span v-else>--</span>
-        </span>
-      </FlexBox>
-      <input
-        min="0"
-        type="number"
-        step="0.00001"
-        :max="balance"
-        v-model="amount"
-        class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
-      />
-    </div>
-
-    <div class="flex flex-col w-full gap-2" v-if="asset.chain === 'btc'">
-      <div class="flex items-center justify-between w-full">
-        <span class="text-sm">Total</span>
-        <span class="text-xs text-gray-primary">
-          {{ prettifyBalanceFixed(balanceData?.total || 0, symbol, asset.decimal) }}
-        </span>
+        <Divider />
       </div>
-      <div class="flex items-center justify-between w-full">
-        <span class="text-xs text-gray-primary flex items-center gap-1">
-          Unavailable
-          <span
-            v-tooltip="
-              'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'
-            "
-          >
-            <QuestionMarkCircleIcon class="w-3.5" />
+
+      <div class="space-y-2 w-full">
+        <div>Receiver</div>
+        <textarea
+          v-model="recipient"
+          class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
+        />
+      </div>
+
+      <div class="space-y-2 w-full">
+        <div class="flex items-center justify-between">
+          <span>Amount</span>
+          <span class="text-gray-primary text-xs">
+            <span>Balance:</span>
+            <span v-if="balance !== undefined">{{ balance }} {{ symbol }}</span>
+            <span v-else>--</span>
           </span>
-        </span>
-        <span class="text-xs text-gray-primary">
-          {{ prettifyBalanceFixed(balanceData?.unconfirmed || 0, symbol, asset.decimal) }}
-        </span>
+        </div>
+        <input
+          min="0"
+          type="number"
+          step="0.00001"
+          :max="balance"
+          v-model="amount"
+          class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
+        />
       </div>
-      <div class="flex items-center justify-between w-full">
-        <span class="text-xs text-gray-primary">Available</span>
-        <span class="text-xs text-gray-primary">
-          {{ prettifyBalanceFixed(balanceData?.confirmed || 0, symbol, asset.decimal) }}
-        </span>
+      <div class="flex flex-col w-full gap-2" v-if="asset.chain === 'btc'">
+        <div class="flex items-center justify-between w-full">
+          <span class="text-sm">Total</span>
+          <span class="text-xs text-gray-primary">
+            {{ prettifyBalanceFixed(balanceData?.total || 0, symbol, asset.decimal) }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between w-full">
+          <span class="text-xs text-gray-primary flex items-center gap-1">
+            ending
+            <span
+              v-tooltip="
+                'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'
+              "
+            >
+              <QuestionMarkCircleIcon class="w-3.5" />
+            </span>
+          </span>
+          <span class="text-xs text-gray-primary">
+            {{ prettifyBalanceFixed(balanceData?.unconfirmed || 0, symbol, asset.decimal) }}
+          </span>
+        </div>
+        <div class="flex items-center justify-between w-full">
+          <span class="text-xs text-gray-primary">Available</span>
+          <span class="text-xs text-gray-primary">
+            {{ prettifyBalanceFixed(balanceData?.confirmed || 0, symbol, asset.decimal) }}
+          </span>
+        </div>
       </div>
-    </div>
 
-    <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
-    <div class="flex items-center justify-between w-full" v-else-if="asset.chain === 'mvc'">
-      <span class="text-sm">Fee Rate</span>
-      <span class="text-xs text-gray-primary">1 sat/vB</span>
+      <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
+      <div class="flex items-center justify-between w-full" v-else-if="asset.chain === 'mvc'">
+        <span class="text-sm">Fee Rate</span>
+        <span class="text-xs text-gray-primary">1 sat/vB</span>
+      </div>
+      <Drawer v-model:open="isOpenConfirmModal">
+        <DrawerContent class="bg-white">
+          <DrawerHeader>
+            <FlexBox d="col" ai="center" :gap="4">
+              <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+              <div class="text-base">{{ amount }} {{ symbol }}</div>
+            </FlexBox>
+          </DrawerHeader>
+          <Divider class="mt-2" />
+          <div class="p-4 space-y-4 text-ss">
+            <FlexBox ai="center" jc="between">
+              <div class="text-gray-primary">From</div>
+              <div class="break-all w-[228px]">{{ address }}</div>
+            </FlexBox>
+            <FlexBox ai="center" jc="between">
+              <div class="text-gray-primary">To</div>
+              <div class="break-all w-[228px]">{{ recipient }}</div>
+            </FlexBox>
+            <FlexBox ai="center" jc="between">
+              <div class="text-gray-primary">Amount</div>
+              <div class="break-all">{{ prettifyBalanceFixed(amount, symbol) }}</div>
+            </FlexBox>
+            <FlexBox ai="center" jc="between">
+              <div class="text-gray-primary">Fees (Estimated)</div>
+              <div>{{ prettifyBalanceFixed(totalFee, symbol, asset.decimal) }}</div>
+            </FlexBox>
+            <Divider />
+            <FlexBox ai="center" jc="between">
+              <div class="text-gray-primary">Total</div>
+              <div>{{ prettifyBalanceFixed(cost || 0, symbol, asset.decimal) }}</div>
+            </FlexBox>
+          </div>
+          <DrawerFooter>
+            <FlexBox ai="center" jc="center" :gap="2">
+              <DrawerClose>
+                <Button type="light" class="w-[119px] h-12" @click="operationLock = false">Cancel</Button>
+              </DrawerClose>
+              <Button
+                @click="send"
+                type="primary"
+                :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': btnDisabled }]"
+              >
+                <LoadingIcon v-if="operationLock" />
+                <span>Confirm</span>
+              </Button>
+            </FlexBox>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
-
     <Button
       type="primary"
       @click="popConfirm"
       :disabled="btnDisabled"
-      :class="[
-        { 'opacity-50 cursor-not-allowed': btnDisabled },
-        'absolute bottom-4 left-1/2 -translate-x-1/2 w-61.5 h-12',
-      ]"
+      :class="[{ 'opacity-50 cursor-not-allowed': btnDisabled }, 'my-12 mt-12 w-61.5 h-12']"
     >
       <div class="flex items-center gap-2" v-if="operationLock">
         <LoadingIcon />
@@ -348,57 +394,7 @@ async function send() {
       </div>
       <span v-else>Next</span>
     </Button>
-
-    <Drawer v-model:open="isOpenConfirmModal">
-      <DrawerContent class="bg-white">
-        <DrawerHeader>
-          <FlexBox d="col" ai="center" :gap="4">
-            <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
-            <div class="text-base">{{ amount }} {{ symbol }}</div>
-          </FlexBox>
-        </DrawerHeader>
-        <Divider class="mt-2" />
-        <div class="p-4 space-y-4 text-ss">
-          <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">From</div>
-            <div class="break-all w-[228px]">{{ address }}</div>
-          </FlexBox>
-          <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">To</div>
-            <div class="break-all w-[228px]">{{ recipient }}</div>
-          </FlexBox>
-          <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Amount</div>
-            <div class="break-all">{{ prettifyBalanceFixed(amount, symbol) }}</div>
-          </FlexBox>
-          <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Fees (Estimated)</div>
-            <div>{{ prettifyBalanceFixed(totalFee, symbol, asset.decimal) }}</div>
-          </FlexBox>
-          <Divider />
-          <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Total</div>
-            <div>{{ prettifyBalanceFixed(cost || 0, symbol, asset.decimal) }}</div>
-          </FlexBox>
-        </div>
-        <DrawerFooter>
-          <FlexBox ai="center" jc="center" :gap="2">
-            <DrawerClose>
-              <Button type="light" class="w-[119px] h-12" @click="operationLock = false">Cancel</Button>
-            </DrawerClose>
-            <Button
-              @click="send"
-              type="primary"
-              :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': btnDisabled }]"
-            >
-              <LoadingIcon v-if="operationLock" />
-              <span>Confirm</span>
-            </Button>
-          </FlexBox>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
-  </FlexBox>
+  </div>
   <LoadingText text="Asset Loading..." v-else />
 </template>
 

@@ -1,7 +1,7 @@
 import * as bip39 from '@scure/bip39'
 import { wordlist } from '@scure/bip39/wordlists/english'
 import BIP32Factory, { BIP32Interface } from 'bip32'
-import * as ecc from '@bitcoin-js/tiny-secp256k1-asmjs'
+import * as ecc from '@bitcoinerlab/secp256k1'
 import { mvc } from 'meta-contract'
 import * as bitcoinjs from 'bitcoinjs-lib'
 import type { Payment, Network as btcNetwork } from 'bitcoinjs-lib'
@@ -172,7 +172,7 @@ export function deriveAddress({
 function deriveMvcAddress(mnemonic: string, path: string, network: Network): string {
   const privateKey = deriveMvcPrivateKey(mnemonic, path, network)
 
-  return privateKey.toAddress(network).toString()
+  return privateKey.toAddress(network === 'regtest' ? 'testnet' : network).toString()
 }
 
 function deriveBtcAddress(mnemonic: string, path: string, network: Network): string {

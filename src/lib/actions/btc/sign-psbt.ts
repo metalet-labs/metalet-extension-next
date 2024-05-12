@@ -1,6 +1,5 @@
-import { getSigner } from '@/lib/account'
 import { getCurrentWallet } from '@/lib/wallet'
-import * as ecc from '@bitcoin-js/tiny-secp256k1-asmjs'
+import * as ecc from '@bitcoinerlab/secp256k1'
 import { getBtcNetwork, getNetwork } from '@/lib/network'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import btcjs, { Psbt, payments, networks, Transaction } from 'bitcoinjs-lib'
@@ -81,7 +80,7 @@ export async function process({
   //   psbt.signInput(v.index, keyPair, v.sighashTypes)
   // })
   for (let i = 0; i < options.toSignInputs.length; i++) {
-    const keyPair = await getSigner(Chain.BTC, options!.toSignInputs![i].treehash)
+    const keyPair = wallet.getSigner(options!.toSignInputs![i].treehash)
     const v = options.toSignInputs[i]
     psbt.signInput(v.index, keyPair, v.sighashTypes)
   }

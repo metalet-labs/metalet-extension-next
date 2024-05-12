@@ -133,9 +133,7 @@ export const signTransaction = async (
   }
 }
 
-export const signTransactions = async (
-  toSignTransactions: ToSignTransaction[]
-) => {
+export const signTransactions = async (toSignTransactions: ToSignTransaction[]) => {
   const network = await getNetwork()
   const activeWallet = await getActiveWalletOnlyAccount()
   const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
@@ -392,7 +390,10 @@ export const payTransactions = async (
       }
 
       // find out the path corresponding to this input's prev output's address
-      const inputAddress = mvc.Address.fromString(input.output!.script.toAddress().toString(), network).toString()
+      const inputAddress = mvc.Address.fromString(
+        input.output!.script.toAddress().toString(),
+        network === 'regtest' ? 'testnet' : network
+      ).toString()
       let deriver = 0
       let toUsePrivateKey: mvc.PrivateKey | undefined = undefined
       while (deriver < DERIVE_MAX_DEPTH) {

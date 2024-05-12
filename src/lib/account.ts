@@ -9,13 +9,7 @@ import { generateRandomString, raise } from '@/lib/helpers'
 import { ScriptType, Chain as UtxoChain } from '@metalet/utxo-wallet-service'
 import type { V1Account, V2Account, Chain, ChainDetail } from './types'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
-import {
-  deriveSigner,
-  deriveAddress,
-  derivePublicKey,
-  inferAddressType,
-  derivePrivateKey,
-} from '@/lib/bip32-deriver'
+import { deriveSigner, deriveAddress, derivePublicKey, inferAddressType, derivePrivateKey } from '@/lib/bip32-deriver'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
 
@@ -243,7 +237,7 @@ export async function getAddress(chain: Chain = 'mvc', path?: string): Promise<s
     const hdpk = mneObj.toHDPrivateKey('', network)
     const privateKey = hdpk.deriveChild(concatPath).privateKey
 
-    return privateKey.toAddress(network).toString()
+    return privateKey.toAddress(network === 'regtest' ? 'testnet' : network).toString()
   } catch (e: any) {
     throw new Error(e.message)
   }
