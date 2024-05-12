@@ -10,7 +10,7 @@ import { type Net } from '@metalet/utxo-wallet-service'
 
 export type Service = Chain | 'all'
 
-export type Network = 'mainnet' | 'testnet'
+export type Network = 'mainnet' | 'testnet' | 'regtest'
 
 export const Service_Network_Key = 'service_network'
 

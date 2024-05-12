@@ -8,11 +8,12 @@ import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headless
 
 type Network = {
   id: number
-  type: 'testnet' | 'mainnet'
+  type: 'testnet' | 'mainnet' | 'regtest'
 }
 const networks = [
   { id: 1, type: 'mainnet' },
   { id: 2, type: 'testnet' },
+  { id: 3, type: 'regtest' },
 ] as Network[]
 const selectedNetwork: Ref<Network> = ref(networks[0])
 const initialed = ref(false)
