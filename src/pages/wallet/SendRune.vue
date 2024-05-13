@@ -229,7 +229,7 @@ async function send() {
         type="number"
         :max="balance"
         v-model="amount"
-        :step="new Decimal(1).div(10 * asset.decimal).toString()"
+        :step="new Decimal(1).div(10 ** asset.decimal).toNumber()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
     </div>

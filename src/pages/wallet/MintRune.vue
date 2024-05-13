@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
-import { Psbt } from 'bitcoinjs-lib'
+import { sleep } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useRuneDetailQuery } from '@/queries/runes'
@@ -16,10 +16,8 @@ import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
-import { sleep } from '@/lib/helpers'
 
 const route = useRoute()
-const error = ref<Error>()
 const router = useRouter()
 const totalFee = ref<number>()
 const baseRawTx = ref<string>()
@@ -221,8 +219,8 @@ async function send() {
       </FlexBox>
       <input
         min="0"
-        type="number"
         step="1"
+        type="number"
         v-model="amount"
         :max="asset.remainingMint"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
@@ -257,12 +255,8 @@ async function send() {
         <Divider class="mt-2" />
         <div class="p-4 space-y-4 text-ss">
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">From</div>
-            <div class="break-all w-[228px]">{{ address }}</div>
-          </FlexBox>
-          <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">To</div>
-            <div class="break-all w-[228px]">{{ address }}</div>
+            <div class="text-gray-primary">Amount</div>
+            <div class="break-all">{{ (amount || 0) * (Number(asset.termsAmount) || 0) }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Repeat Mint</div>

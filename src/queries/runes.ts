@@ -15,6 +15,7 @@ export interface RuneBalance {
   symbol: string
   divisibility: number
   mintable: boolean
+  termsAmount: string
   remainingMint: string
 }
 
@@ -131,6 +132,7 @@ export async function fetchRuneDetail(address: string, runeId: string) {
     },
     runeId,
     mintable: runeDetail.mintable,
+    termsAmount: runeDetail.termsAmount,
     remainingMint: runeDetail.remainingMint,
   } as RuneAsset
 }

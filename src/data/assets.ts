@@ -26,6 +26,7 @@ export interface FTAsset extends Asset {
 export interface RuneAsset extends Asset {
   runeId: string
   mintable: boolean
+  termsAmount: string
   remainingMint: string
 }
 
