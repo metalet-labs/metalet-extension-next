@@ -4,8 +4,8 @@ import { allAssets } from '@/data/assets'
 import { mvcApi } from '@/queries/request'
 import { ref, computed, watch } from 'vue'
 import { Transaction } from 'bitcoinjs-lib'
+import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
-import { UTXO, getBtcUtxos } from '@/queries/utxos'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -283,8 +283,10 @@ async function send() {
         <div class="flex items-center justify-between">
           <span>Amount</span>
           <span class="text-gray-primary text-xs">
-            <span>Balance:</span>
-            <span v-if="balance !== undefined">{{ balance }} {{ symbol }}</span>
+            <span>Max:</span>
+            <span v-if="balance !== undefined">
+              {{ prettifyBalanceFixed(balanceData?.confirmed || 0, symbol, asset.decimal) }}
+            </span>
             <span v-else>--</span>
           </span>
         </div>
@@ -292,8 +294,8 @@ async function send() {
           min="0"
           type="number"
           step="0.00001"
-          :max="balance"
           v-model="amount"
+          :max="Number(balanceData?.confirmed || 0)"
           class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
         />
       </div>

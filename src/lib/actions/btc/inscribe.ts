@@ -410,28 +410,33 @@ export function inscribe(
       commitAddrs: tool.commitAddrs,
       commitCost: 0,
       revealCost: 0,
+      totalCost: 0,
     }
   }
+
+  const commitCost =
+    tool.commitTxPrevOutputFetcher.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue
+    }, 0) -
+    tool.commitTx.outs
+      .filter((out) => bitcoin.address.fromOutputScript(out.script, wallet.getNetwork()) === wallet.getAddress())
+      .reduce((total, out) => {
+        return total + out.value
+      }, 0)
+
+  const revealTotalOutput = (request.revealOutValue || defaultRevealOutValue) * tool.revealTxs.length
 
   return {
     commitTx: tool.commitTx.toHex(),
     revealTxs: tool.revealTxs.map((revealTx) => revealTx.toHex()),
     ...tool.calculateFee(),
     commitAddrs: tool.commitAddrs,
-    commitCost:
-      tool.commitTxPrevOutputFetcher.reduce((accumulator, currentValue) => {
-        return accumulator + currentValue
-      }, 0) -
-      tool.commitTx.outs
-        .filter((out) => bitcoin.address.fromOutputScript(out.script) === wallet.getAddress())
-        .reduce((total, out) => {
-          return total + out.value
-        }, 0),
+    commitCost,
     revealCost:
       tool.revealTxPrevOutputFetcher.reduce((accumulator, currentValue) => {
         return accumulator + currentValue
-      }, 0) -
-      (request.revealOutValue || defaultRevealOutValue) * tool.revealTxs.length,
+      }, 0) - revealTotalOutput,
+    totalCost: commitCost - revealTotalOutput,
   }
 }
 
@@ -444,6 +449,7 @@ interface InscribeHexResult {
   revealTxsHex: string[]
   commitCost: number
   revealCost: number
+  totalCost: number
 }
 
 interface InscribeTxIdResult {
@@ -451,6 +457,7 @@ interface InscribeTxIdResult {
   revealTxIds: string[]
   commitCost: number
   revealCost: number
+  totalCost: number
 }
 
 export async function process({
@@ -473,7 +480,7 @@ export async function process({
   const signer = wallet.getSigner() as BIP32Interface
 
   try {
-    const { commitTx, revealTxs, commitCost, revealCost } = inscribe(
+    const { commitTx, revealTxs, commitCost, revealCost, totalCost } = inscribe(
       network,
       { ...data, commitTxPrevOutputList },
       signer,
@@ -487,9 +494,9 @@ export async function process({
       const commitTxId = await broadcastBTCTx(commitTx)
       await sleep(1000)
       const [...revealTxIds] = await Promise.all([...revealTxs.map((revealTx) => broadcastBTCTx(revealTx))])
-      return { commitTxId, revealTxIds, commitCost, revealCost }
+      return { commitTxId, revealTxIds, commitCost, revealCost, totalCost }
     }
-    return { commitTxHex: commitTx, revealTxsHex: revealTxs, commitCost, revealCost }
+    return { commitTxHex: commitTx, revealTxsHex: revealTxs, commitCost, revealCost, totalCost }
   } catch (error) {
     throw error
   }
