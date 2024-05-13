@@ -7,7 +7,7 @@ import { getCurrentWallet } from '../../wallet'
 import * as bcrypto from './bitcoinjs-lib/crypto'
 import { base, signUtil } from '@okxweb3/crypto-lib'
 import BIP32Factory, { BIP32Interface } from 'bip32'
-import { Chain } from '@metalet/utxo-wallet-service'
+import { BtcWallet, Chain } from '@metalet/utxo-wallet-service'
 import { broadcastBTCTx } from '@/queries/transaction'
 import * as ecc from '@bitcoinerlab/secp256k1'
 import { vectorSize } from './bitcoinjs-lib/transaction'
@@ -394,7 +394,12 @@ function createMetaIdTxCtxData(
   }
 }
 
-export function inscribe(network: bitcoin.Network, request: InscriptionRequest, keyPairs: BIP32Interface) {
+export function inscribe(
+  network: bitcoin.Network,
+  request: InscriptionRequest,
+  keyPairs: BIP32Interface,
+  wallet: BtcWallet
+) {
   const tool = InscriptionTool.newInscriptionTool(network, request, keyPairs)
   if (tool.mustCommitTxFee > 0) {
     return {
@@ -413,12 +418,20 @@ export function inscribe(network: bitcoin.Network, request: InscriptionRequest, 
     revealTxs: tool.revealTxs.map((revealTx) => revealTx.toHex()),
     ...tool.calculateFee(),
     commitAddrs: tool.commitAddrs,
-    commitCost: tool.commitTxPrevOutputFetcher.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue
-    }, 0),
-    revealCost: tool.revealTxPrevOutputFetcher.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue
-    }, 0),
+    commitCost:
+      tool.commitTxPrevOutputFetcher.reduce((accumulator, currentValue) => {
+        return accumulator + currentValue
+      }, 0) -
+      tool.commitTx.outs
+        .filter((out) => bitcoin.address.fromOutputScript(out.script) === wallet.getAddress())
+        .reduce((total, out) => {
+          return total + out.value
+        }, 0),
+    revealCost:
+      tool.revealTxPrevOutputFetcher.reduce((accumulator, currentValue) => {
+        return accumulator + currentValue
+      }, 0) -
+      (request.revealOutValue || defaultRevealOutValue) * tool.revealTxs.length,
   }
 }
 
@@ -463,7 +476,8 @@ export async function process({
     const { commitTx, revealTxs, commitCost, revealCost } = inscribe(
       network,
       { ...data, commitTxPrevOutputList },
-      signer
+      signer,
+      wallet
     )
     if (commitTx === '') {
       throw new Error('Insufficient funds')

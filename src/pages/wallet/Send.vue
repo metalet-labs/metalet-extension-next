@@ -301,12 +301,18 @@ async function send() {
         <div class="flex items-center justify-between w-full">
           <span class="text-sm">Total</span>
           <span class="text-xs text-gray-primary">
-            {{ prettifyBalanceFixed(balanceData?.total || 0, symbol, asset.decimal) }}
+            {{
+              prettifyBalanceFixed(
+                (balanceData?.unconfirmed || 0) + (balanceData?.confirmed || 0),
+                symbol,
+                asset.decimal
+              )
+            }}
           </span>
         </div>
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary flex items-center gap-1">
-            ending
+            Pendding
             <span
               v-tooltip="
                 'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'

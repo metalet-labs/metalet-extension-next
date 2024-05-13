@@ -99,7 +99,10 @@ export async function getBtcUtxos(address: string, needRawTx = false): Promise<U
 
     return utxos.filter((utxo) => utxo.confirmed)
   }
-  const utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '0' })) || []
+  const utxos =
+    (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })).filter(
+      (utxo) => utxo.confirmed
+    ) || []
   if (needRawTx) {
     for (let utxo of utxos) {
       utxo.rawTx = await fetchBtcTxHex(utxo.txId)

@@ -34,4 +34,6 @@ export interface BTCBalance {
     incomeFee: number
     spendFee: number
   }
+  peddingBalance: number
+  safeBalance: number
 }
