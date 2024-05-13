@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { ref, computed } from 'vue'
 import { Psbt } from 'bitcoinjs-lib'
-import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useRuneDetailQuery } from '@/queries/runes'
@@ -17,7 +17,6 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
-const cost = ref()
 const route = useRoute()
 const recipient = ref('')
 const error = ref<Error>()
@@ -66,6 +65,15 @@ const popConfirm = async () => {
     transactionResult.value = {
       status: 'warning',
       message: 'Please input amount.',
+    }
+    isOpenResultModal.value = true
+    return
+  }
+  const parts = amount.value.toString().split('.')
+  if (!(parts.length < 2 || parts[1].length <= (asset.value?.decimal || 0))) {
+    transactionResult.value = {
+      status: 'warning',
+      message: `The minimum decimal unit is ${new Decimal(1).div(10 ** (asset.value?.decimal || 0))}`,
     }
     isOpenResultModal.value = true
     return
@@ -219,9 +227,9 @@ async function send() {
       <input
         min="0"
         type="number"
-        step="0.00001"
         :max="balance"
         v-model="amount"
+        :step="new Decimal(1).div(10 * asset.decimal).toString()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
     </div>

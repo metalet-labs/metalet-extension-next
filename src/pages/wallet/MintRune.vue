@@ -55,6 +55,14 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
+  if (!new Decimal(amount.value).modulo(1).isZero() || new Decimal(amount.value).lessThan(0)) {
+    transactionResult.value = {
+      status: 'warning',
+      message: 'Please enter a positive integer (>0).',
+    }
+    isOpenResultModal.value = true
+    return
+  }
   if (asset.value!.chain === 'btc' && !currentRateFee.value) {
     transactionResult.value = {
       status: 'warning',

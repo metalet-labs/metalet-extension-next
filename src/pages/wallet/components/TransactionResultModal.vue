@@ -90,8 +90,8 @@ const toResultTxs = async (txId: string) => {
       </div>
     </template>
     <template #title v-if="result && result.status === 'warning'">
-      <div class="flex items-center gap-2">
-        <span class="text-gray-500">Transaction Warning</span>
+      <div class="flex items-center gap-2 justify-center">
+        <span class="text-gray-500 text-lg font-bold">Transaction Warning</span>
         <ExclamationTriangleIcon class="h-5 w-5 text-yellow-500"></ExclamationTriangleIcon>
       </div>
     </template>
