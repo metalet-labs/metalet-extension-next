@@ -14,6 +14,8 @@ const router = useRouter()
 function toSelectAsset(purpose: 'receive' | 'send') {
   router.push({ name: 'select-asset', params: { purpose } })
 }
+
+const network = getNet()
 </script>
 
 <template>
@@ -21,11 +23,11 @@ function toSelectAsset(purpose: 'receive' | 'send') {
     <div class="mt-2 flex items-center justify-between">
       <div class="text-[40px] leading-10 font-bold">$ {{ totalBalance.toFixed(2) }}</div>
       <div
-        v-if="getNet() === 'testnet'"
+        v-if="network !== 'mainnet'"
         class="bg-[#CCD0FF] bg-opacity-20 py-2 px-3 rounded-lg text-[#1D28FE] flex items-center gap-1"
       >
         <NetworkIcon class="w-2.5" />
-        <span class="text-xs">Testnet</span>
+        <span class="text-xs">{{ network }}</span>
       </div>
     </div>
 
