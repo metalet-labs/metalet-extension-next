@@ -314,7 +314,7 @@ async function send() {
         </div>
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary flex items-end gap-1">
-            <span>Pendding</span>
+            <span>Pending</span>
             <span
               v-tooltip="
                 'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'

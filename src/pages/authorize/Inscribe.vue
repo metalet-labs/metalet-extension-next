@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Copy from '@/components/Copy.vue'
 import actions from '@/data/authorize-actions'
+import { getCurrentWallet } from '@/lib/wallet'
+import { useBalanceQuery } from '@/queries/balance'
+import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { MetaidData } from '@/lib/actions/btc/inscribe'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
@@ -18,6 +21,7 @@ const props = defineProps<{
   }
 }>()
 
+const address = ref('')
 const loading = ref(true)
 const error = ref<Error>()
 const commitCost = ref<number>(0)
@@ -34,6 +38,14 @@ metaidDataList.sort((a, b) => {
   } else {
     return 0
   }
+})
+
+getCurrentWallet(Chain.BTC).then((wallet) => {
+  address.value = wallet.getAddress()
+})
+
+const { data: balanceData } = useBalanceQuery(address, ref('BTC'), {
+  enabled: computed(() => !!address),
 })
 
 const isShowingDetails = ref(false)
@@ -132,7 +144,21 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
       <LoadingIcon class="!text-gray-primary" />
       <span>Data Loading...</span>
     </div>
-    <div v-else-if="error" class="text-red-500 text-xs">{{ error.message }}</div>
+    <div v-else-if="error" class="w-full flex flex-col gap-4">
+      <div class="flex justify-between">
+        <div class="label">Total</div>
+        <div class="text-xs flex gap-2">{{ balanceData?.total || 0 / 1e8 }} BTC</div>
+      </div>
+      <div class="flex justify-between">
+        <div class="label">Pending</div>
+        <div class="text-xs flex gap-2">{{ balanceData?.unconfirmed || 0 / 1e8 }} BTC</div>
+      </div>
+      <div class="flex justify-between">
+        <div class="label">Available</div>
+        <div class="text-xs flex gap-2">{{ balanceData?.confirmed || 0 / 1e8 }} BTC</div>
+      </div>
+      <p class="text-red-500 text-xs">{{ error.message }}</p>
+    </div>
     <div v-else class="mt-2 flex flex-col items-center justify-center gap-y-2">
       <div class="flex flex-col w-full gap-y-2">
         <div class="flex justify-between">
