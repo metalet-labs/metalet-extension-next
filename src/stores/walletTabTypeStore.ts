@@ -21,5 +21,5 @@ interface WalletStore {
 
 export const walletTabStore = reactive<WalletStore>({
   tabs,
-  selectedTab: tabs[2],
+  selectedTab: tabs[0],
 })
