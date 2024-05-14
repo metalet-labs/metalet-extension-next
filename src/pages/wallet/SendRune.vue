@@ -45,7 +45,7 @@ const amount = ref<number>()
 
 const balance = computed(() => {
   if (asset.value?.balance) {
-    return new Decimal(asset.value.balance.total).div(10 ** asset.value.decimal).toNumber()
+    return new Decimal(asset.value.balance.total).toNumber()
   }
 })
 
@@ -223,7 +223,7 @@ async function send() {
         <span>Amount</span>
         <span class="text-gray-primary text-xs">
           <span>Balance:</span>
-          <span v-if="balance">{{ balance }} {{ asset.symbol }}</span>
+          <span v-if="balance">{{ prettifyBalanceFixed(balance, asset.symbol, asset.decimal) }}</span>
           <span v-else>--</span>
         </span>
       </FlexBox>
@@ -260,7 +260,7 @@ async function send() {
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
             <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
-            <div class="text-base">{{ amount }} {{ asset.symbol }}</div>
+            <div class="text-base">{{ transferToNumber(amount || 0) }} {{ asset.symbol }}</div>
           </FlexBox>
         </DrawerHeader>
         <Divider class="mt-2" />
