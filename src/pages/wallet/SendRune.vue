@@ -2,6 +2,7 @@
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
 import { Psbt } from 'bitcoinjs-lib'
+import { transferToNumber } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useRuneDetailQuery } from '@/queries/runes'
@@ -69,11 +70,13 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
-  const parts = amount.value.toString().split('.')
+
+  const parts = transferToNumber(amount.value).split('.')
+
   if (!(parts.length < 2 || parts[1].length <= (asset.value?.decimal || 0))) {
     transactionResult.value = {
       status: 'warning',
-      message: `The minimum decimal unit is ${new Decimal(1).div(10 ** (asset.value?.decimal || 0))}`,
+      message: `The minimum decimal unit is ${transferToNumber(new Decimal(1).div(10 ** (asset.value?.decimal || 0)).toNumber())}`,
     }
     isOpenResultModal.value = true
     return
@@ -272,7 +275,7 @@ async function send() {
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Amount</div>
-            <div class="break-all">{{ prettifyBalanceFixed(amount, asset.symbol) }}</div>
+            <div class="break-all">{{ transferToNumber(amount || 0) }} {{ asset.symbol }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Fees (Estimated)</div>

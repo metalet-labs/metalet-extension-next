@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
         {{ tab.name }}
         <span
           v-if="tab.isNew"
-          class="bg-red-primary text-white px-2 py-1 rounded-full text-xs font-semibold scale-50 ml-14 -mt-5 absolute"
+          class="bg-[#FFEBE7] text-red-primary px-1 py-0.5 rounded-t rounded-e text-xs font-semibold scale-[0.7] ml-16 -mt-5 absolute"
         >
           NEW
         </span>

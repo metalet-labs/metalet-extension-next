@@ -20,3 +20,23 @@ export const generateRandomString = (length: number = 32) => {
 export const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
+export function transferToNumber(inputNumber: number | string): string {
+  if (isNaN(Number(inputNumber))) {
+    return String(inputNumber);
+  }
+
+  const numericInput = String(inputNumber);
+  const parsedInput = parseFloat(numericInput);
+
+  const eformat = parsedInput.toExponential(); // 转换为标准的科学计数法形式（字符串）
+  const tmpArray = eformat.match(/\d(?:\.(\d*))?e([+-]\d+)/); // 分离出小数值和指数值
+
+  if (tmpArray) {
+    const [, decimalPart = '', exponent] = tmpArray;
+    const number = parsedInput.toFixed(Math.max(0, decimalPart.length - parseInt(exponent, 10)));
+    return number;
+  }
+
+  return String(parsedInput);
+}
