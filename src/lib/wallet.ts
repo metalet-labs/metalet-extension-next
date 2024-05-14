@@ -62,10 +62,9 @@ export async function getV3CurrentWallet() {
   return wallet
 }
 
-export async function getActiveWalletOnlyAccount() {
-  const walletId = await getCurrentWalletId()
+export async function getWalletOnlyAccount(walletId: string, accountId: string) {
   if (!walletId) {
-    throw new Error('current wallet id not found')
+    throw new Error('wallet id not found')
   }
   const wallets = await getV3Wallets()
   if (!wallets.length) {
@@ -80,16 +79,28 @@ export async function getActiveWalletOnlyAccount() {
   if (!accounts || !accounts.length) {
     throw new Error('wallet does not have any accounts')
   }
-  const currentAccountId = await getCurrentAccountId()
-  if (!currentAccountId) {
-    throw new Error('current account id not found')
+
+  if (!accountId) {
+    throw new Error('account id not found')
   }
-  const account = accounts.find((account) => account.id === currentAccountId)
+  const account = accounts.find((account) => account.id === accountId)
   if (!account) {
     throw new Error('current account not found')
   }
   wallet.accounts = [account]
   return wallet
+}
+
+export async function getActiveWalletOnlyAccount() {
+  const currentWalletId = await getCurrentWalletId()
+  if (!currentWalletId) {
+    throw new Error('current wallet id not found')
+  }
+  const currentAccountId = await getCurrentAccountId()
+  if (!currentAccountId) {
+    throw new Error('current account id not found')
+  }
+  return getWalletOnlyAccount(currentWalletId, currentAccountId)
 }
 
 export async function getInactiveWallets() {
@@ -104,10 +115,9 @@ export async function getInactiveWallets() {
   return wallets.filter((wallet) => wallet.id !== currentWalletId)
 }
 
-export async function getActiveWalletOtherAccounts() {
-  const walletId = await getCurrentWalletId()
+export async function getWalletOtherAccounts(walletId: string, accountId: string) {
   if (!walletId) {
-    throw new Error('current wallet id not found')
+    throw new Error('wallet id not found')
   }
   const wallets = await getV3Wallets()
   if (!wallets.length) {
@@ -122,12 +132,24 @@ export async function getActiveWalletOtherAccounts() {
   if (!accounts || !accounts.length) {
     throw new Error('wallet does not have any accounts')
   }
+
+  if (!accountId) {
+    throw new Error('current account id not found')
+  }
+  wallet.accounts = accounts.filter((account) => account.id !== accountId)
+  return wallet
+}
+
+export async function getActiveWalletOtherAccounts() {
+  const walletId = await getCurrentWalletId()
+  if (!walletId) {
+    throw new Error('current wallet id not found')
+  }
   const currentAccountId = await getCurrentAccountId()
   if (!currentAccountId) {
     throw new Error('current account id not found')
   }
-  wallet.accounts = accounts.filter((account) => account.id !== currentAccountId)
-  return wallet
+  return getWalletOtherAccounts(walletId, currentAccountId)
 }
 
 export async function getV3CurrentAccount() {
@@ -213,8 +235,6 @@ export async function getCurrentWallet(chain: Chain) {
 }
 
 export async function deleteV3Wallet(walletId: string) {
-  console.log(walletId);
-  
   const walletsMap = await getV3WalletsStorage()
   if (!walletsMap) {
     throw new Error('V3 wallets storage not found.')

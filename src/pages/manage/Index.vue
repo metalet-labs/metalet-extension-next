@@ -62,12 +62,24 @@ const addAccount = async (wallet: V3Wallet) => {
 }
 
 const relaodAccout = async (_walletId: string, _accountId: string) => {
-  currentWalletId.value = _walletId
-  currentAccountId.value = _accountId
-  await setCurrentWalletId(_walletId)
-  await setCurrentAccountId(_accountId)
-  updateAllWallets()
-  goToPage('/wallet')
+  if (currentWalletId.value === _walletId) {
+    if (currentAccountId.value === _accountId) {
+      return
+    } else {
+      currentAccountId.value = _accountId
+      updateAllWallets()
+      goToPage('/wallet')
+      return
+    }
+  } else {
+    currentWalletId.value = _walletId
+    currentAccountId.value = _accountId
+    await setCurrentWalletId(_walletId)
+    await setCurrentAccountId(_accountId)
+    await WalletsStore.addWalletOnlyAccount(_walletId, _accountId)
+    WalletsStore.loadWalletOtherAccounts(_walletId, _accountId)
+    goToPage('/wallet')
+  }
 }
 
 const updataWalletName = (walletId: string, walletName: string) => {
@@ -129,9 +141,9 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                 ai="center"
                 jc="between"
                 :key="account.id"
-                class="h-15 cursor-pointer"
                 v-for="account in wallet.accounts"
                 @click="relaodAccout(wallet.id, account.id)"
+                :class="['h-15', account.id === currentAccountId ? 'cursor-not-allowed' : 'cursor-pointer']"
               >
                 <FlexBox ai="center" :gap="3">
                   <Avatar :id="account.id" />

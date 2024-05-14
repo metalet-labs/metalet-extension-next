@@ -9,7 +9,8 @@ import { Chain, type Net } from '@metalet/utxo-wallet-service'
 import {
   hasV3Wallets,
   getCurrentWalletId,
-  getInactiveWallets,
+  getWalletOnlyAccount,
+  getWalletOtherAccounts,
   getActiveWalletOnlyAccount,
   getActiveWalletOtherAccounts,
 } from '@/lib/wallet'
@@ -18,6 +19,9 @@ let walletManager: WalletManager | null = null
 
 // TODO: Execute it only once.
 const initWalletManager = async (): Promise<WalletManager> => {
+  if (walletManager) {
+    return walletManager
+  }
   try {
     const activeWallet = await getActiveWalletOnlyAccount()
     const walletsOptions = [
@@ -31,7 +35,7 @@ const initWalletManager = async (): Promise<WalletManager> => {
     ]
     const network = getNet() as Net
     walletManager = new WalletManager({ network, walletsOptions })
-    loadOtherAccounts()
+    loadActiveWalletOtherAccounts()
     return walletManager
   } catch (err) {
     toast({ title: (err as Error).message, toastType: 'fail' })
@@ -56,7 +60,7 @@ const getWalletManager = async (): Promise<WalletManager> => {
 }
 
 // TODO: Execute it only once.
-const loadOtherAccounts = async () => {
+const loadActiveWalletOtherAccounts = async () => {
   const manager = await getWalletManager()
   const activeWallet = await getActiveWalletOtherAccounts()
   if (!activeWallet) {
@@ -74,14 +78,24 @@ const loadOtherAccounts = async () => {
       addressIndex: account.addressIndex,
     })
   }
-  const inactiveWallets = await getInactiveWallets()
-  for (let wallet of inactiveWallets) {
-    manager.addWallet({
-      id: wallet.id,
-      name: wallet.name,
-      mnemonic: wallet.mnemonic,
-      mvcTypes: wallet.mvcTypes,
-      accountsOptions: wallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),
+}
+
+const loadWalletOtherAccounts = async (walletId: string, accountId: string) => {
+  const manager = await getWalletManager()
+  const wallet = await getWalletOtherAccounts(walletId, accountId)
+  if (!wallet) {
+    if (await hasV3Wallets()) {
+      goToPage('/manage/wallets')
+    } else {
+      goToTab('/welcome', true)
+    }
+    return
+  }
+  for (let account of wallet.accounts) {
+    manager.addAccount(wallet.id, {
+      id: account.id,
+      name: account.name,
+      addressIndex: account.addressIndex,
     })
   }
 }
@@ -122,10 +136,24 @@ const getCurrentChainWallet = async (chain: Chain) => {
   return chainWallet
 }
 
+const addWalletOnlyAccount = async (walletId: string, accountId: string) => {
+  const manager = await getWalletManager()
+  const wallet = await getWalletOnlyAccount(walletId, accountId)
+  manager.addWallet({
+    id: wallet.id,
+    name: wallet.name,
+    mnemonic: wallet.mnemonic,
+    mvcTypes: wallet.mvcTypes,
+    accountsOptions: wallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),
+  })
+}
+
 export const WalletsStore = reactive({
   getWalletManager,
   hasWalletManager,
   initWalletManager,
-  getAccountChainWallets,
+  addWalletOnlyAccount,
   getCurrentChainWallet,
+  getAccountChainWallets,
+  loadWalletOtherAccounts,
 })

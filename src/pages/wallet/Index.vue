@@ -14,13 +14,7 @@ hasBackupCurrentWallet().then((_backup) => {
 })
 
 hasWallets().then(async (_hasWallets) => {
-  
-  console.time();
-  
   await WalletsStore.initWalletManager()
-
-  console.timeEnd();
-  
 })
 </script>
 

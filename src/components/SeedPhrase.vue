@@ -13,11 +13,15 @@ defineProps({
     type: Function,
     required: false,
   },
+  noCopied: {
+    type: Boolean,
+    required: false,
+  },
 })
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-2 pr-3 -mr-3 overflow-y-auto max-h-[304px]">
+  <div :class="['grid grid-cols-2 gap-2 pr-3 -mr-3 overflow-y-auto max-h-[304px]', { 'select-none': noCopied }]">
     <div class="flex items-center h-11 border-gray-soft border rounded-lg" v-for="(_, index) in words" :key="index">
       <div class="flex items-center justify-center w-7.5 h-full text-gray-primary bg-gray-secondary rounded-l-lg">
         {{ index + 1 }}
