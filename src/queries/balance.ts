@@ -28,10 +28,11 @@ export const fetchBtcBalance = async (address: string): Promise<Balance> => {
     }
   }
   const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`).get({ net, address })
+
   return {
     total: new Decimal(data.balance || 0).mul(1e8).toNumber(),
     confirmed: new Decimal(data.safeBalance || 0).mul(1e8).toNumber(),
-    unconfirmed: new Decimal(data.peddingBalance || 0).mul(1e8).toNumber(),
+    unconfirmed: new Decimal(data.pendingBalance || 0).mul(1e8).toNumber(),
   }
 }
 

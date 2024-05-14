@@ -34,6 +34,8 @@ export interface BTCBalance {
     incomeFee: number
     spendFee: number
   }
-  peddingBalance: number
+  pendingBalance: number
   safeBalance: number
+  runesBalance: number
+  inscriptionsBalance: number
 }

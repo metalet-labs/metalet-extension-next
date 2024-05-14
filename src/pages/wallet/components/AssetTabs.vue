@@ -2,16 +2,27 @@
 import AssetList from './AssetList.vue'
 import NFTList from './NFTs/NFTList.vue'
 import RuneList from './Runes/RuneList.vue'
+import { walletTabStore } from '@/stores/walletTabTypeStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 </script>
 
 <template>
-  <Tabs default-value="Cypto" class="w-full">
+  <Tabs :default-value="walletTabStore.selectedTab.name" class="w-full">
     <TabsList class="p-0 gap-6">
-      <TabsTrigger value="Cypto">Cypto</TabsTrigger>
-      <TabsTrigger value="NFTs">NFTs</TabsTrigger>
-      <TabsTrigger value="Runes">Runes</TabsTrigger>
-      <!-- <TabsTrigger value="Activity">Activity</TabsTrigger> -->
+      <TabsTrigger
+        v-for="tab in walletTabStore.tabs"
+        :key="tab.id"
+        :value="tab.name"
+        @click="walletTabStore.selectedTab = tab"
+      >
+        {{ tab.name }}
+        <span
+          v-if="tab.isNew"
+          class="bg-red-primary text-white px-2 py-1 rounded-full text-xs font-semibold scale-50 ml-14 -mt-5 absolute"
+        >
+          NEW
+        </span>
+      </TabsTrigger>
     </TabsList>
     <TabsContent value="Cypto">
       <AssetList />
