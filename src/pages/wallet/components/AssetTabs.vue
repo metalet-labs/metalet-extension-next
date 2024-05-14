@@ -10,9 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
   <Tabs :default-value="walletTabStore.selectedTab.name" class="w-full">
     <TabsList class="p-0 gap-6">
       <TabsTrigger
-        v-for="tab in walletTabStore.tabs"
         :key="tab.id"
         :value="tab.name"
+        v-for="tab in walletTabStore.tabs"
         @click="walletTabStore.selectedTab = tab"
       >
         {{ tab.name }}

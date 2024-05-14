@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AssetItem from '../AssetItem.vue'
 import { type RuneAsset } from '@/data/assets'
+import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { useRunesInfiniteQuery } from '@/queries/runes'
@@ -50,6 +51,9 @@ function toRune(asset: RuneAsset, address: string) {
     >
       <span>Load more Runes</span>
       <LoadingIcon v-if="isFetchingNextPage" class="text-gray-primary" />
+    </div>
+    <div v-else-if="!isLoading && runes.length === 0" class="w-full py-12">
+      <EmptyIcon class="mx-auto" />
     </div>
   </div>
 </template>
