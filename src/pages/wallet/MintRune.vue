@@ -48,7 +48,7 @@ const popConfirm = async () => {
   if (!amount.value) {
     transactionResult.value = {
       status: 'warning',
-      message: 'Please input amount.',
+      message: 'Please enter the amount.',
     }
     isOpenResultModal.value = true
     return
@@ -64,7 +64,7 @@ const popConfirm = async () => {
   if (asset.value!.chain === 'btc' && !currentRateFee.value) {
     transactionResult.value = {
       status: 'warning',
-      message: 'Please input current rate fee.',
+      message: 'Please enter the current fee rate.',
     }
     isOpenResultModal.value = true
     return
