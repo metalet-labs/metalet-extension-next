@@ -41,7 +41,16 @@ export async function getNetwork(): Promise<Network> {
 }
 
 export function getBtcNetwork() {
-  return network.value === 'mainnet' ? networks.bitcoin : networks.testnet
+  switch (network.value) {
+    case 'mainnet':
+      return networks.bitcoin
+    case 'testnet':
+      return networks.testnet
+    case 'regtest':
+      return networks.regtest
+    default:
+      throw new Error('Unknown network')
+  }
 }
 
 export function getNet(): Net {
