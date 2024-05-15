@@ -99,9 +99,11 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
 
     return utxos.filter((utxo) => utxo.confirmed)
   }
-  const utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
+  let utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
+  console.log(utxos)
+
   if (!useUnconfirmed) {
-    utxos.filter((utxo) => utxo.confirmed)
+    utxos = utxos.filter((utxo) => utxo.confirmed)
   }
   if (needRawTx) {
     for (let utxo of utxos) {
