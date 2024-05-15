@@ -1,6 +1,8 @@
-import randomBytes from 'randombytes'
+import Decimal from 'decimal.js'
 import { sleep } from '@/lib/helpers'
+import randomBytes from 'randombytes'
 import * as bitcoin from './bitcoinjs-lib'
+import { Transaction } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getBtcNetwork } from '@/lib/network'
 import * as ecc from '@bitcoinerlab/secp256k1'
@@ -13,7 +15,6 @@ import { vectorSize } from './bitcoinjs-lib/transaction'
 import { BtcWallet, Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { getAddressType, private2public, sign } from './txBuild'
 import { getMetaIdPinUnspentOutputsObj, setMetaIdPinUnspentOutputsObj } from '@/lib/metaIdPin'
-import { Transaction } from 'bitcoinjs-lib'
 
 const schnorr = signUtil.schnorr.secp256k1.schnorr
 
@@ -218,7 +219,7 @@ export class InscriptionTool {
       const feeWithoutChange = Math.floor(txForEstimate.virtualSize() * commitFeeRate)
       if (totalSenderAmount - totalRevealPrevOutputValue - feeWithoutChange < 0) {
         throw new Error(
-          `Insufficient funds. Sender amount: ${totalSenderAmount} sats, Required amount: ${totalRevealPrevOutputValue + feeWithoutChange} sats`
+          `Required amount: ${new Decimal(totalRevealPrevOutputValue + feeWithoutChange).div(1e8).toFixed(8)} BTC`
         )
         this.mustCommitTxFee = fee
         return true

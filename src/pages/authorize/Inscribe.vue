@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
 import Copy from '@/components/Copy.vue'
 import actions from '@/data/authorize-actions'
@@ -57,7 +58,7 @@ getCurrentWallet(Chain.BTC).then((wallet) => {
 })
 
 const { data: balanceData } = useBalanceQuery(address, ref('BTC'), {
-  enabled: computed(() => !!address),
+  enabled: computed(() => !!address && !!error),
 })
 
 const isShowingDetails = ref(false)
@@ -160,19 +161,18 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
       <span>Data Loading...</span>
     </div>
     <div v-else-if="error" class="w-full flex flex-col gap-4">
+      <p class="text-red-500 text-xs">{{ error.message }}</p>
       <div class="flex justify-between">
-        <div class="label">Total</div>
-        <div class="text-xs flex gap-2">{{ balanceData?.total || 0 / 1e8 }} BTC</div>
+        <div class="label">You have:</div>
       </div>
       <div class="flex justify-between">
         <div class="label">Pending</div>
-        <div class="text-xs flex gap-2">{{ balanceData?.unconfirmed || 0 / 1e8 }} BTC</div>
+        <div class="text-xs flex gap-2">{{ new Decimal(balanceData?.unconfirmed || 0).div(1e8).toFixed(8) }} BTC</div>
       </div>
       <div class="flex justify-between">
         <div class="label">Available</div>
-        <div class="text-xs flex gap-2">{{ balanceData?.confirmed || 0 / 1e8 }} BTC</div>
+        <div class="text-xs flex gap-2">{{ new Decimal(balanceData?.confirmed || 0).div(1e8).toFixed(8) }} BTC</div>
       </div>
-      <p class="text-red-500 text-xs">{{ error.message }}</p>
     </div>
     <div v-else class="mt-2 flex flex-col items-center justify-center gap-y-2">
       <div class="flex flex-col w-full gap-y-2">
