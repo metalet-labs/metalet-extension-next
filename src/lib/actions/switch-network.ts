@@ -1,24 +1,20 @@
 import { getCurrentWallet } from '../wallet'
-import { setNetwork, getNetwork } from '../network'
+import { setNetwork, getNetwork, type Network } from '../network'
 import { Chain } from '@metalet/utxo-wallet-service'
 
-export async function process() {
-  const network = await getNetwork()
-  let switched: 'mainnet' | 'testnet'
-  if (network === 'mainnet') {
-    await setNetwork('testnet')
-    switched = 'testnet'
-  } else {
-    await setNetwork('mainnet')
-    switched = 'mainnet'
+export async function process({ network }: { network?: Network }) {
+  const _network = await getNetwork()
+  if (!network) {
+    network = _network === 'mainnet' ? 'testnet' : 'mainnet'
   }
+  await setNetwork(network)
   const wallet = await getCurrentWallet(Chain.MVC)
 
   const address = wallet.getAddress()
 
   return {
     status: 'ok',
-    network: switched,
+    network,
     address,
   }
 }
