@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { ref, computed, watch, toRaw } from 'vue'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getCurrentWallet } from '@/lib/wallet'
-import { Chain } from '@metalet/utxo-wallet-service'
+import { ref, computed, watch, toRaw } from 'vue'
 import { useBTCRateQuery } from '@/queries/transaction'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { prettifyTxId, prettifyBalance } from '@/lib/formatters'
 import { ChevronDoubleRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/solid'
 
@@ -43,7 +43,7 @@ watch(
       try {
         const wallet = await getCurrentWallet(Chain.BTC)
         const address = wallet.getAddress()
-        const utxos = await getBtcUtxos(address)
+        const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH)
         const { txInputs, txOutputs } = wallet.send(
           props.params.toAddress,
           new Decimal(props.params.satoshis).div(1e8).toString(),

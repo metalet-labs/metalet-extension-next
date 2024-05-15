@@ -3,11 +3,12 @@ import { raise } from '../helpers'
 import { getBtcNetwork } from '../network'
 import { getXOnlyPublicKey } from '../btc-util'
 import { createPayment } from '../bip32-deriver'
-import { Chain } from '@metalet/utxo-wallet-service'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { getBtcUtxos, type UTXO } from '@/queries/utxos'
 import { Payment, Psbt, Transaction } from 'bitcoinjs-lib'
 import { fetchBtcTxHex, broadcastBTCTx } from '@/queries/transaction'
 import { Account, getCurrentAccount, getAddressType, getAddress, getSigner } from '@/lib/account'
+import { getCurrentWallet } from '../wallet'
 
 export class BtcWallet {
   private account?: Account = undefined
@@ -23,11 +24,12 @@ export class BtcWallet {
   }
 
   async merge(feeRate: number) {
+    const wallet = await getCurrentWallet(Chain.BTC)
     const btcNetwork = await getBtcNetwork()
-    const address = await getAddress('btc')
+    const address = wallet.getAddress()
     const addressType = await getAddressType('btc')
     const payment = await createPayment(addressType)
-    const utxos = (await getBtcUtxos(address)) || []
+    const utxos = (await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH)) || []
 
     const buildPsbt = async (utxos: UTXO[], amount: Decimal) => {
       const psbt = new Psbt({ network: btcNetwork }).addOutput({

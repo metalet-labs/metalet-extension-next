@@ -4,10 +4,10 @@ import { BtcWallet } from '@/lib/wallets/btc'
 import { getBtcUtxos } from '@/queries/utxos'
 import { prettifyAddress } from '@/lib/formatters'
 import { fetchBtcBalance } from '@/queries/balance'
-import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { FeeRateSelector, Avatar } from '@/components'
 import { ArrowPathIcon } from '@heroicons/vue/24/outline'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
 
@@ -18,7 +18,7 @@ const operationLock = ref(false)
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult | undefined>()
 
-const { getAddress } = useChainWalletsStore()
+const { getAddress, currentBTCWallet } = useChainWalletsStore()
 
 const address = getAddress(Chain.BTC)
 
@@ -26,7 +26,8 @@ watch(
   address,
   (newAddress) => {
     if (newAddress) {
-      getBtcUtxos(newAddress).then((_utxos) => {
+      const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+      getBtcUtxos(newAddress, needRawTx).then((_utxos) => {
         utxos.value = _utxos
         isLoading.value = false
       })
