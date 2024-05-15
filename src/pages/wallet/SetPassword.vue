@@ -62,8 +62,8 @@ const next = async () => {
     <div class="space-y-2 pt-4">
       <h3 class="mt-4 text-2xl font-medium">Change Password</h3>
       <p class="mt-2 text-sm text-gray-primary">
-        This password only works to unlock your Metalet wallet on this device,and Metalet cannot recover this password
-        for you.
+        This password is exclusively applicable for unlocking your Metalet wallet on this specific device, and please be
+        advised that Metalet does not possess the capability to retrieve it on your behalf.
       </p>
     </div>
     <div class="grow">

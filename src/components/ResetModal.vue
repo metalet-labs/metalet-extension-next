@@ -60,27 +60,27 @@ const close = () => {
             <div class="flex flex-col gap-2 text-ss">
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked1" />
-                <p>We do not store or assist in recovering your password.</p>
+                <p>We neither retain nor furnish assistance in the retrieval of your password.</p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked2" />
                 <p>
-                  If you forget your password, you can reset the wallet. You can also re-import the wallet using the
-                  mnemonic phrase or private key.
+                  Should you misplace your password, you have the option to reset the wallet. Alternatively,
+                  re-importation of the wallet utilizing the mnemonic phrase or private key is also feasible.
                 </p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked3" />
                 <p>
-                  Please note that resetting the wallet without backup will permanently lose all assets. Before
-                  resetting, make sure to backup all wallets.
+                  Please be advised that the resetting of the wallet without a prior backup will result in the permanent
+                  loss of all assets. Prior to undertaking the reset process, ensure to create backups of all wallets.
                 </p>
               </div>
             </div>
 
             <div class="space-y-2">
               <p class="text-sm">
-                If you confirm to reset your wallet, please enter below:
+                Should you affirm your intent to reset your wallet, kindly input the following below:
                 <span class="text-red-500">RESET</span>
               </p>
               <input

@@ -24,7 +24,7 @@ const goToNetwork = () => {
   <div class="w-[50px] h-[34px] rounded-[18px] py-1 px-2 flex items-center justify-center gap-1 bg-[#F5F5F5] cursor-pointer" @click="goToNetwork">
     <img v-if="service === 'all'" :src="AllNetworkTypeImg" alt="" class="w-[22px] h-[22px]" />
     <img v-else-if="service === 'btc'" :src="BtcLogoImg" alt="Bitcoin" class="w-[22px] h-[22px]" />
-    <img v-else-if="service === 'mvc'" :src="SpaceLogoImg" alt="Microvisionchain" class="w-[22px] h-[22px]" />
+    <img v-else-if="service === 'mvc'" :src="SpaceLogoImg" alt="MicrovisionChain" class="w-[22px] h-[22px]" />
     <img v-else :src="NetworkTypeImg" alt="" class="w-[22px] h-[22px]" />
     <img :src="DownArrowImg" alt="" />
   </div>

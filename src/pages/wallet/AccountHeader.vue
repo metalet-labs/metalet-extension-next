@@ -123,14 +123,14 @@ const copy = (address: string, addressType: string, type: string) => {
           <img :src="SpaceLogo" alt="Bitcoin" class="w-8" />
           <div>
             <div class="space-x-2">
-              <span>Microvisionchain</span>
+              <span>MicrovisionChain</span>
               <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ mvcWallet.addressType }}</span>
             </div>
             <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(mvcWallet.address) }}</div>
           </div>
           <CopyIcon
             class="cursor-pointer hover:text-blue-primary w-4.5"
-            @click="copy(mvcWallet.address, mvcWallet.addressType, 'Microvisionchain')"
+            @click="copy(mvcWallet.address, mvcWallet.addressType, 'MicrovisionChain')"
           />
         </FlexBox>
       </FlexBox>

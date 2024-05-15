@@ -56,7 +56,7 @@ const popConfirm = async () => {
   if (!new Decimal(amount.value).modulo(1).isZero() || new Decimal(amount.value).lessThan(0)) {
     transactionResult.value = {
       status: 'warning',
-      message: 'Please enter a positive integer (>0) to repeat the mint process.',
+      message: 'Please enter a positive integer (>0) to repeat the minting process.',
     }
     isOpenResultModal.value = true
     return

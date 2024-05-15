@@ -13,9 +13,7 @@ defineProps({
   <div class="mt-[60px] w-full flex flex-col items-center justify-center">
     <img :src="NO_NFT_DATA_PNG" alt="No NFT data" />
     <span class="text-gray-primary text-sm mt-4 w-72 text-center">
-      <span v-if="url">No NFTs available at the moment,</span>
-      <span v-else>No NFTs available at the moment.</span>
-      <span v-if="url">Let's check the trading market.</span>
+      <span>No NFTs are available.</span>
     </span>
     <a v-if="url" target="_blank" :href="url" class="bg-blue-primary text-white py-2 px-6 mt-9 rounded-3xl">
       Explore NFT

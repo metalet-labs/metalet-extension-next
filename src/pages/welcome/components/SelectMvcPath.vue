@@ -145,8 +145,8 @@ const next = () => {
           <div class="flex flex-col gap-y-1.5 w-64">
             <div class="text-sm font-semibold">Default</div>
             <div class="text-xs">
-              The Metalet wallet uses a default address generation strategy. The derivation path will be
-              "m/44'/10001'/0'".
+              The Metalet wallet utilizes a default address generation strategy. The derivation path will be
+              "m/44'/10001'/0".
             </div>
           </div>
           <SuccessIcon v-if="mvcPath === 10001" class="w-5 h-5" />
@@ -159,8 +159,8 @@ const next = () => {
           <div class="flex flex-col gap-y-1.5 w-64">
             <div class="text-sm font-semibold">MVC Custom</div>
             <div class="text-xs">
-              Using the custom derivation path with Metalet Wallet. Mainly used for backward compatibility. When
-              importing old accounts, please carefully select this option and ensure you know the derivation path.
+              Using the custom derivation path with Metalet Wallet, mainly for backward compatibility. When importing
+              old accounts, please carefully select this option and ensure you know the derivation path.
             </div>
           </div>
           <SuccessIcon v-if="mvcPath !== 10001" class="w-5 h-5" />

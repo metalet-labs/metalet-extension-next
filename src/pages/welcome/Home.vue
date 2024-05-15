@@ -23,7 +23,8 @@ getAccounts().then((accounts) => {
           The Entrance to The Web3 Blockchain
         </div>
         <p class="text-gray-primary w-96">
-          Discover the infinite possibilities of blockchain, journey through the future digital realm.
+          Explore the limitless possibilities of blockchain and embark on a journey through the digital realm of the
+          future.
         </p>
       </FlexBox>
       <FlexBox d="col" :gap="4">

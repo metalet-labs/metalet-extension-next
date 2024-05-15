@@ -43,7 +43,7 @@ const goOn = async () => {
       <RadioGroupOption v-slot="{ checked }" value="mvc" class="flex items-center justify-between cursor-pointer">
         <div class="flex items-center gap-x-1.5">
           <img :src="SpaceLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-          <span class="text-[#141416]">Microvisionchain</span>
+          <span class="text-[#141416]">MicrovisionChain</span>
         </div>
         <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
         <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
@@ -54,7 +54,7 @@ const goOn = async () => {
           <span class="text-[#141416]">Bitcoin</span>
           <span>&</span>
           <img :src="SpaceLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-          <span class="text-[#141416]">Microvisionchain</span>
+          <span class="text-[#141416]">MicrovisionChain</span>
         </div>
         <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
         <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>

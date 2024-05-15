@@ -45,8 +45,8 @@ const submit = async () => {
       <div class="text-2xl font-medium">Create Password</div>
     </FlexBox>
     <p class="mt-2 text-sm text-gray-primary">
-      This password is only used to unlock your Metalet wallet on this device. Metalet cannot recover this password for
-      you.
+      This password is solely used for unlocking your Metalet wallet on this device. Metalet cannot recover this
+      password for you.
     </p>
     <FlexBox d="col" class="mt-9 gap-y-10">
       <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />

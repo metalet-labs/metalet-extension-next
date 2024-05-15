@@ -99,9 +99,7 @@ onMounted(async () => {
           Successfully
         </span>
       </h1>
-      <p class="text-sm mt-12 text-gray-primary text-center w-64">
-        Metalet currently supports the following multiple chains
-      </p>
+      <p class="text-sm mt-12 text-gray-primary text-center w-64">Metalet currently supports the following chains</p>
       <div class="flex items-start gap-4 mt-4">
         <div class="flex flex-col gap-2 items-center">
           <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />

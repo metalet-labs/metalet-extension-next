@@ -71,7 +71,7 @@ const toTransferNft = () => {
         <div class="label">Network</div>
         <div class="flex items-center gap-1">
           <MvcIcon class="w-4.5" />
-          <span class="text-sm">Microvisionchain</span>
+          <span class="text-sm">MicrovisionChain</span>
         </div>
       </div>
 

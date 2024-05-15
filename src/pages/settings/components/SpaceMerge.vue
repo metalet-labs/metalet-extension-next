@@ -55,8 +55,9 @@ const { isLoading, data } = useMVCUTXOQuery(address, { enabled: computed(() => !
   <div class="min-h-full flex flex-col">
     <div class="text-2xl font-medium">Space Merge</div>
     <div class="mt-2 text-gray-primary text-xs">
-      Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
-      cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
+      Due to the technical characteristics of UTXO, when there are too many UTXOs for a certain token, problems such as
+      transaction failure loops may occur. The merging tool will automatically assist you in consolidating scattered
+      UTXOs into one.
     </div>
     <div class="space-y-4 grow mt-4">
       <div class="flex gap-3 items-center">

@@ -36,7 +36,7 @@ const network = computed(() => {
   if (symbol === 'BTC' || chain.value === 'btc') {
     return 'Bitcoin'
   } else if (symbol === 'SPACE' || chain.value === 'mvc') {
-    return 'Microvisionchain'
+    return 'MicrovisionChain'
   }
 })
 

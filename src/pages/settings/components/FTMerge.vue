@@ -191,8 +191,8 @@ const hasMergeToken = computed(() => {
   <div class="min-h-full flex flex-col">
     <div class="text-2xl font-medium">FT Merge</div>
     <div class="mt-2 text-gray-primary text-xs">
-      Due to the technical nature of UTXO, when there are too many UTXOs for a token, issues such as failure loops can
-      occur. The merging tool will automatically help you consolidate your scattered UTXOs into one.
+      Due to the technical nature of UTXO, when there are excessive UTXOs for a token, issues such as transaction
+      failure loops may arise. The merging tool will automatically help you consolidate your scattered UTXOs into one.
     </div>
     <div class="py-4 flex gap-3 items-center">
       <Avatar :id="address" />
@@ -270,7 +270,7 @@ const hasMergeToken = computed(() => {
         </div>
       </div>
     </div>
-    <div class="py-16 text-center text-gray-primary" v-else>No Token need to merge.</div>
+    <div class="py-16 text-center text-gray-primary" v-else>No tokens need to be merged.</div>
 
     <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
   </div>

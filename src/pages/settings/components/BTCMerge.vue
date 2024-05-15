@@ -74,8 +74,9 @@ const merge = async () => {
   <div class="min-h-full flex flex-col">
     <div class="text-2xl font-medium">BTC Merge</div>
     <div class="mt-2 text-gray-primary text-xs">
-      Due to the technical characteristics of UTXO, when there are too many UTXOs of a certain token, problems such as
-      cycle failure will occur. The merge tool will automatically help you merge scattered UTXOs into one.
+      Due to the technical nature of UTXO, when there are too many UTXOs for a specific token, problems such as
+      transaction failure loops may occur. The merging tool will automatically assist you in consolidating scattered
+      UTXOs into one.
     </div>
     <div class="space-y-4 grow mt-4">
       <div class="flex gap-3 items-center">

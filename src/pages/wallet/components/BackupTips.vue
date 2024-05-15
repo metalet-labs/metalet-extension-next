@@ -16,7 +16,8 @@ defineProps<{
     <div class="space-y-3">
       <div class="font-medium">Please backup your wallet.</div>
       <div class="text-xs text-gray-primary">
-        In the event of device loss, app reinstall, app data deletion, etc., this wallet and its assets will be lost and cannot be recovered.
+        In the event of device loss, app reinstallation, or data deletion, this wallet, along with its assets, could be
+        permanently lost and they cannot be recovered.
       </div>
       <button
         @click="$router.push('/wallet/backup')"
