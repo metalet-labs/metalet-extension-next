@@ -81,8 +81,8 @@ export async function getNetwork() {
   return await createAction('GetNetwork', 'query')
 }
 
-export async function switchNetwork() {
-  return await createAction('SwitchNetwork')
+export async function switchNetwork(params: { network?: string }) {
+  return await createAction('SwitchNetwork', 'authorize', params)
 }
 
 export async function getAddress(params?: { path: string }) {
