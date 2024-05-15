@@ -8,8 +8,8 @@ import SpaceLogoImg from '@/assets/icons-v3/space.svg?url'
 import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 import NetworkTypeImg from '@/assets/icons/all-network-type.svg?url'
-import { getServiceNetwork, getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
+import { getServiceNetwork, getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 
 const router = useRouter()
 
@@ -19,7 +19,6 @@ getServiceNetwork().then(async (_service) => {
 })
 
 const updateServiceNetwork = async (chain: Chain | 'all') => {
-  console.log(chain)
   const service = await getServiceNetworkStorage()
   const currentAccountId = await getCurrentAccountId()
   if (currentAccountId) {

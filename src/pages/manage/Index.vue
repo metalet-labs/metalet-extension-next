@@ -67,6 +67,7 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
       return
     } else {
       currentAccountId.value = _accountId
+      await setCurrentAccountId(_accountId)
     }
   } else {
     currentWalletId.value = _walletId

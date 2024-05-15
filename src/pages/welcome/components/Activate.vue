@@ -4,15 +4,17 @@ import { Button } from '@/components'
 import { useRouter } from 'vue-router'
 import FailIcon from '@/assets/icons-v3/fail.svg'
 import { WalletsStore } from '@/stores/WalletStore'
-import { setCurrentAccountId } from '@/lib/account'
+import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import MoreIcon from '@/assets/icons-v3/more-crytos.svg'
 import BtcLogoIcon from '@/assets/icons-v3/btc-logo.svg?url'
 import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
-import { genUID, formatIndex } from '@metalet/utxo-wallet-service'
+import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
 import { getBackupV3Wallet, setBackupV3Wallet } from '@/lib/backup'
+import NetworkTypeImg from '@/assets/icons/all-network-type.svg?url'
 import { addV3Wallet, getV3Wallets, setCurrentWalletId } from '@/lib/wallet'
+import { getServiceNetwork, getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
+import { toast } from '@/components/ui/toast'
 
 const loading = ref(true)
 const error = ref<string>()
@@ -29,6 +31,19 @@ const { words, mvcTypes, type } = defineProps<{
 const mnemonic = words.join(' ')
 if (!mnemonic) {
   router.go(0)
+}
+
+const updateServiceNetwork = async (chain: Chain | 'all') => {
+  const service = await getServiceNetworkStorage()
+  const currentAccountId = await getCurrentAccountId()
+  if (currentAccountId) {
+    service[currentAccountId] = chain
+    setServiceNetwork(service)
+    router.replace('/wallet')
+  } else {
+    toast({ title: 'Please select a account', toastType: 'warning' })
+    router.replace('/manage/wallets')
+  }
 }
 
 onMounted(async () => {
@@ -99,30 +114,27 @@ onMounted(async () => {
           Successfully
         </span>
       </h1>
-      <p class="text-sm mt-12 text-gray-primary text-center w-64">Metalet currently supports the following chains</p>
-      <div class="flex items-start gap-4 mt-4">
-        <div class="flex flex-col gap-2 items-center">
-          <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />
-          <span class="text-xs text-gray-primary">Bitcoin</span>
+      <template v-if="!error">
+        <p class="text-sm mt-12 text-gray-primary text-center w-80">
+          Metalet currently supports the following chains.
+          <br />
+          Please select a network:
+        </p>
+        <div class="flex items-start gap-4 mt-4">
+          <div class="flex flex-col gap-2 items-center cursor-pointer" @click="updateServiceNetwork('all')">
+            <img :src="NetworkTypeImg" class="w-11" alt="All Networks" />
+            <span class="text-xs text-gray-primary">All Networks</span>
+          </div>
+          <div class="flex flex-col gap-2 items-center cursor-pointer" @click="updateServiceNetwork(Chain.BTC)">
+            <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />
+            <span class="text-xs text-gray-primary">Bitcoin</span>
+          </div>
+          <div class="flex flex-col gap-2 items-center cursor-pointer" @click="updateServiceNetwork(Chain.MVC)">
+            <img :src="SpaceLogoIcon" class="w-11" alt="MicrovisonChain" />
+            <span class="text-xs text-gray-primary">MicrovisonChain</span>
+          </div>
         </div>
-        <div class="flex flex-col gap-2 items-center">
-          <img :src="SpaceLogoIcon" class="w-11" alt="MVC" />
-          <span class="text-xs text-gray-primary">MVC</span>
-        </div>
-        <MoreIcon />
-      </div>
-      <RouterLink to="/wallet/select-network" class="underline text-xs text-gray-primary mt-6">
-        Customize Network
-      </RouterLink>
-      <Button
-        v-if="!error"
-        type="primary"
-        :disabled="!!error || loading"
-        @click="$router.push('/wallet')"
-        :class="['mt-20 w-61.5', { 'cursor-not-allowed opacity-50': loading || error }]"
-      >
-        Launch Metalet
-      </Button>
+      </template>
       <Button v-else :class="['mt-26 w-61.5']" @click="$router.go(0)">Back To Step 1</Button>
       <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>
     </div>
