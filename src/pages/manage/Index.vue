@@ -19,8 +19,10 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { getCurrentWalletId, setV3WalletsStorage, getV3WalletsStorage, setCurrentWalletId } from '@/lib/wallet'
+import { notifyContent } from '@/lib/notify-content'
+import { Chain } from '@metalet/utxo-wallet-service'
 
-const { updateAllWallets } = useChainWalletsStore()
+const { updateAllWallets, getAddress } = useChainWalletsStore()
 
 const editName = ref()
 const editWalletId = ref()
@@ -32,6 +34,9 @@ const walletObj = ref<Record<string, V3Wallet>>({})
 const currentWalletId = ref<string>()
 const currentAccountId = ref<string>()
 const backupWallets = ref<string[]>([])
+
+const btcAddress = getAddress(Chain.BTC)
+const mvcAddress = getAddress(Chain.MVC)
 
 getV3WalletsStorage().then(async (_wallets) => {
   walletObj.value = _wallets
@@ -77,7 +82,8 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
     await WalletsStore.addWalletOnlyAccount(_walletId, _accountId)
     WalletsStore.loadWalletOtherAccounts(_walletId, _accountId)
   }
-  updateAllWallets()
+  await updateAllWallets()
+  notifyContent('accountsChanged')({ mvcAddress: mvcAddress.value, btcAddress: btcAddress.value })
   goToPage('/wallet')
 }
 

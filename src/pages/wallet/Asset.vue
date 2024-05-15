@@ -34,13 +34,15 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer'
+import { notifyContent } from '@/lib/notify-content'
 
 const isOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const { updataWallet, currentBTCWallet } = useChainWalletsStore()
+const { updataWallet, currentBTCWallet, getAddress } = useChainWalletsStore()
 const address = computed(() => route.params.address as string)
+const mvcAddress = getAddress(Chain.MVC)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
 const { getIcon } = useIconsStore()
@@ -122,6 +124,7 @@ const setAddressType = async (addressType: AddressType, _address: string) => {
   await setV3AddressTypeStorage(chain, addressType)
   await updataWallet(chain)
   isOpen.value = false
+  notifyContent('accountsChanged')({ mvcAddress: mvcAddress.value, btcAddress: _address })
   router.replace(`/wallet/asset/${symbol.value}/${_address}`)
 }
 
