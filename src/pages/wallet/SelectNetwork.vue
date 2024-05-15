@@ -1,23 +1,35 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
+import { toast } from '@/components/ui/toast'
+import { getCurrentAccountId } from '@/lib/account'
+import { Chain } from '@metalet/utxo-wallet-service'
 import SpaceLogoImg from '@/assets/icons-v3/space.svg?url'
+import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 import NetworkTypeImg from '@/assets/icons/all-network-type.svg?url'
+import { getServiceNetwork, getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
-import { type Service, getServiceNetwork, setServiceNetwork } from '@/lib/network'
 
 const router = useRouter()
 
-const service = ref<Service | undefined>()
-getServiceNetwork().then((_service) => {
+const service = ref<Chain | 'all'>('all')
+getServiceNetwork().then(async (_service) => {
   service.value = _service
 })
 
-const updateServiceNetwork = async (_service: Service) => {
-  await setServiceNetwork(_service)
-  router.replace('/wallet')
+const updateServiceNetwork = async (chain: Chain | 'all') => {
+  console.log(chain)
+  const service = await getServiceNetworkStorage()
+  const currentAccountId = await getCurrentAccountId()
+  if (currentAccountId) {
+    service[currentAccountId] = chain
+    setServiceNetwork(service)
+    router.replace('/wallet')
+  } else {
+    toast({ title: 'Please select a account', toastType: 'warning' })
+    router.replace('/manage/wallets')
+  }
 }
 </script>
 
@@ -26,89 +38,25 @@ const updateServiceNetwork = async (_service: Service) => {
     <RadioGroupOption v-slot="{ checked }" value="all" class="flex items-center justify-between cursor-pointer">
       <div class="flex items-center gap-x-1.5">
         <img :src="NetworkTypeImg" alt="All Networks" class="inline-block w-8 h-8" />
-        <span class="text-[#141416]">All Networks</span>
+        <span>All Networks</span>
       </div>
       <SuccessCheckedIcon v-if="checked" class="rounded-full w-5 h-5" />
     </RadioGroupOption>
     <RadioGroupOption v-slot="{ checked }" value="btc" class="flex items-center justify-between cursor-pointer">
       <div class="flex items-center gap-x-1.5">
         <img :src="BtcLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-        <span class="text-[#141416]">Bitcoin</span>
+        <span>Bitcoin</span>
       </div>
       <SuccessCheckedIcon v-if="checked" class="rounded-full w-5 h-5" />
     </RadioGroupOption>
     <RadioGroupOption v-slot="{ checked }" value="mvc" class="flex items-center justify-between cursor-pointer">
       <div class="flex items-center gap-x-1.5">
         <img :src="SpaceLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-        <span class="text-[#141416]">Microvisionchain</span>
+        <span>Microvisionchain</span>
       </div>
       <SuccessCheckedIcon v-if="checked" class="rounded-full w-5 h-5" />
     </RadioGroupOption>
   </RadioGroup>
-  <!-- <TabGroup>
-    <TabList>
-      <Tab>Mainnet</Tab>
-      <Tab>Testnet</Tab>
-    </TabList>
-    <TabPanels>
-      <TabPanel>
-        <RadioGroup v-model="service" class="w-full space-y-[28.5px]">
-          <RadioGroupOption v-slot="{ checked }" value="all" class="flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-x-1.5">
-              <img :src="NetworkTypeImg" alt="All Networks" class="inline-block w-8 h-8" />
-              <span class="text-[#141416]">All Networks</span>
-            </div>
-            <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-            <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
-          </RadioGroupOption>
-          <RadioGroupOption v-slot="{ checked }" value="btc" class="flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-x-1.5">
-              <img :src="BtcLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-              <span class="text-[#141416]">Bitcoin</span>
-            </div>
-            <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-            <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
-          </RadioGroupOption>
-          <RadioGroupOption v-slot="{ checked }" value="mvc" class="flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-x-1.5">
-              <img :src="SpaceLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-              <span class="text-[#141416]">Microvisionchain</span>
-            </div>
-            <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-            <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
-          </RadioGroupOption>
-        </RadioGroup>
-      </TabPanel>
-      <TabPanel>
-        <RadioGroup v-model="service" class="w-full space-y-[28.5px]">
-          <RadioGroupOption v-slot="{ checked }" value="all" class="flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-x-1.5">
-              <img :src="NetworkTypeImg" alt="All Networks" class="inline-block w-8 h-8" />
-              <span class="text-[#141416]">All Networks</span>
-            </div>
-            <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-            <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
-          </RadioGroupOption>
-          <RadioGroupOption v-slot="{ checked }" value="btc" class="flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-x-1.5">
-              <img :src="BtcLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-              <span class="text-[#141416]">Bitcoin</span>
-            </div>
-            <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-            <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
-          </RadioGroupOption>
-          <RadioGroupOption v-slot="{ checked }" value="mvc" class="flex items-center justify-between cursor-pointer">
-            <div class="flex items-center gap-x-1.5">
-              <img :src="SpaceLogoImg" alt="Bitcoin" class="inline-block w-8 h-8" />
-              <span class="text-[#141416]">Microvisionchain</span>
-            </div>
-            <CheckIcon v-if="checked" class="rounded-full w-5 h-5" />
-            <div v-else class="rounded-full bg-[#D8D8D8] w-5 h-5"></div>
-          </RadioGroupOption>
-        </RadioGroup>
-      </TabPanel>
-    </TabPanels>
-  </TabGroup> -->
 </template>
 
 <style scoped lang="css">

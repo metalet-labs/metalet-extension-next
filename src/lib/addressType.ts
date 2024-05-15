@@ -3,8 +3,8 @@ import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import { getCurrentAccountId } from './account'
 
 const storage = useStorage()
-const V3_BTC_ADDRESS_TYPE_RECORD__KEY = 'v3_btc_address_type_record_key'
-const V3_MVC_ADDRESS_TYPE_RECORD_KEY = 'v3_mvc_address_type_record_key'
+const V3_BTC_ADDRESS_TYPE_RECORD__KEY = 'v3_btc_address_type_record'
+const V3_MVC_ADDRESS_TYPE_RECORD_KEY = 'v3_mvc_address_type_record'
 
 interface AddressTypeRecord {
   [accountId: string]: AddressType

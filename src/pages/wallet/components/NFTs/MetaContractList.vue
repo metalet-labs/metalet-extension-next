@@ -57,7 +57,7 @@ const toNftDetail = (metaContract: {
       Load more MetaContracts
     </div>
   </div>
-  <NO_NFT_DATA url="https://www.show3.io/nft/index" v-else />
+  <NO_NFT_DATA v-else />
 </template>
 
 <style lang="less" scoped></style>

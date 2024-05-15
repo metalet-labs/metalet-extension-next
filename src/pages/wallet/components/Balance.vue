@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getNet } from '@/lib/network'
+import { network, getServiceNetwork } from '@/lib/network'
 import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
@@ -8,14 +8,29 @@ import NetworkIcon from '@/assets/icons-v3/network.svg'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { ArrowUpRightIcon, QrCodeIcon } from '@heroicons/vue/20/solid'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const router = useRouter()
 
-function toSelectAsset(purpose: 'receive' | 'send') {
-  router.push({ name: 'select-asset', params: { purpose } })
-}
+const { getAddress } = useChainWalletsStore()
+const btcAddress = getAddress(Chain.BTC)
+const mvcAddress = getAddress(Chain.MVC)
 
-const network = getNet()
+async function toSelectAsset(purpose: 'receive' | 'send') {
+  const service = await getServiceNetwork()
+  if (service === 'all') {
+    router.push({ name: 'select-asset', params: { purpose } })
+  } else {
+    const symbol = service === Chain.BTC ? 'BTC' : service === Chain.MVC ? 'SPACE' : ''
+    const address = service === Chain.BTC ? btcAddress.value : service === Chain.MVC ? mvcAddress.value : ''
+    if (purpose === 'receive') {
+      router.push({ name: 'receive', params: { symbol, address } })
+    } else if (purpose === 'send') {
+      router.push({ name: 'send', params: { symbol, address } })
+    }
+  }
+}
 </script>
 
 <template>
@@ -27,7 +42,7 @@ const network = getNet()
         class="bg-[#CCD0FF] bg-opacity-20 py-2 px-3 rounded-lg text-[#1D28FE] flex items-center gap-1"
       >
         <NetworkIcon class="w-2.5" />
-        <span class="text-xs">{{ network }}</span>
+        <span class="text-xs">{{ network.replace(/(^\w{1})/, match => match.toUpperCase()) }}</span>
       </div>
     </div>
 

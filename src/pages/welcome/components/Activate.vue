@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
+import { Button } from '@/components'
 import { useRouter } from 'vue-router'
-import { FlexBox, Button } from '@/components'
 import FailIcon from '@/assets/icons-v3/fail.svg'
 import { WalletsStore } from '@/stores/WalletStore'
 import { setCurrentAccountId } from '@/lib/account'
@@ -70,7 +70,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <FlexBox d="col" class="w-82">
+  <div class="flex flex-col w-82">
     <!-- TODO: Add a loading screen -->
     <div
       v-if="loading"
@@ -82,7 +82,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <FlexBox d="col" ai="center">
+    <div class="flex flex-col items-center">
       <img :src="SuccessPNG" alt="Send Success" class="w-30" v-if="!error" />
       <FailIcon class="w-30" v-else />
       <h1 class="text-2xl mt-6 font-medium">
@@ -102,23 +102,31 @@ onMounted(async () => {
       <p class="text-sm mt-12 text-gray-primary text-center w-64">
         Metalet currently supports the following multiple chains
       </p>
-      <FlexBox ai="center" :gap="4" class="mt-4">
-        <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />
-        <img :src="SpaceLogoIcon" class="w-11" alt="Space" />
+      <div class="flex items-start gap-4 mt-4">
+        <div class="flex flex-col gap-2 items-center">
+          <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />
+          <span class="text-xs text-gray-primary">Bitcoin</span>
+        </div>
+        <div class="flex flex-col gap-2 items-center">
+          <img :src="SpaceLogoIcon" class="w-11" alt="MVC" />
+          <span class="text-xs text-gray-primary">MVC</span>
+        </div>
         <MoreIcon />
-      </FlexBox>
+      </div>
+      <RouterLink to="/wallet/select-network" class="underline text-xs text-gray-primary mt-6">
+        Customize Network
+      </RouterLink>
       <Button
         v-if="!error"
         type="primary"
         :disabled="!!error || loading"
         @click="$router.push('/wallet')"
-        :class="['mt-26 w-61.5', { 'cursor-not-allowed opacity-50': loading || error }]"
+        :class="['mt-20 w-61.5', { 'cursor-not-allowed opacity-50': loading || error }]"
       >
         Launch Metalet
       </Button>
       <Button v-else :class="['mt-26 w-61.5']" @click="$router.go(0)">Back To Step 1</Button>
-      <!-- error -->
       <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>
-    </FlexBox>
-  </FlexBox>
+    </div>
+  </div>
 </template>

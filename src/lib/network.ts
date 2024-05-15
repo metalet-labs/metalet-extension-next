@@ -1,14 +1,14 @@
 import { ref } from 'vue'
 import useStorage from './storage'
 import { networks } from 'bitcoinjs-lib'
-import { type Chain } from '@/lib/types'
 import { notifyBg } from '@/lib/notify-bg'
+import { getCurrentAccountId } from './account'
 import { notifyContent } from '@/lib/notify-content'
-import { type Net } from '@metalet/utxo-wallet-service'
+import { Chain, type Net } from '@metalet/utxo-wallet-service'
 
 // TODO: refactor to use global state
 
-export type Service = Chain | 'all'
+export type Service = { [accountId: string]: Chain | 'all' }
 
 export type Network = 'mainnet' | 'testnet' | 'regtest'
 
@@ -20,8 +20,17 @@ export async function setServiceNetwork(_service: Service) {
   await storage.set(Service_Network_Key, _service)
 }
 
-export async function getServiceNetwork(): Promise<Service> {
-  return await storage.get(Service_Network_Key, { defaultValue: 'all' })
+export async function getServiceNetworkStorage(): Promise<Service> {
+  return await storage.get(Service_Network_Key, { defaultValue: {} })
+}
+
+export async function getServiceNetwork(): Promise<Chain | 'all'> {
+  const currentAccountId = await getCurrentAccountId()
+  if (!currentAccountId) {
+    return 'all'
+  }
+  const service = await getServiceNetworkStorage()
+  return service[currentAccountId] || 'all'
 }
 
 export async function hasServiceNetwork(): Promise<boolean> {

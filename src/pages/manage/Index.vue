@@ -109,13 +109,13 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       <ArrowLeftIcon @click="$router.back()" class="w-3.5 cursor-pointer" />
       <RouterLink to="/edit/wallets" class="text-sm">Edit wallet</RouterLink>
     </div>
-    <div class="flex flex-col grow overflow-y-auto pr-4 -mr-4 overflow-hidden nicer-scrollbar">
-      <div class="flex flex-col items-start justify-center gap-2 w-full py-6">
+    <div class="flex flex-col grow overflow-hidden -mx-2">
+      <div class="flex flex-col items-start justify-center gap-2 w-full py-6 px-2">
         <div class="text-gray-primary">Current Account Asset</div>
         <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }}</div>
       </div>
       <Divider />
-      <div class="flex flex-col w-full py-6">
+      <div class="flex flex-col py-6 grow overflow-y-auto pl-2 pr-4 nicer-scrollbar">
         <Accordion
           collapsible
           type="single"

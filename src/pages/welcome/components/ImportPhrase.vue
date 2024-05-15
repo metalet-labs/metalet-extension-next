@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+import { ref, computed, watch } from 'vue'
 import BrushIcon from '@/assets/icons-v3/brush.svg'
-import { ref, computed, watch, defineProps } from 'vue'
 import { FlexBox, Button, SeedPhrase } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
