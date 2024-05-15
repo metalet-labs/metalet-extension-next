@@ -502,7 +502,7 @@ export async function process({
       await sleep(1000)
       const [...revealTxIds] = await Promise.all([...revealTxs.map((revealTx) => broadcastBTCTx(revealTx))])
       metaIdPinUnspentOutputs.push(`${commitTxId}:${Transaction.fromHex(commitTx).outs.length - 1}`)
-      await setMetaIdPinUnspentOutputsObj(metaIdPinUnspentOutputsObj)
+      await setMetaIdPinUnspentOutputsObj({ ...metaIdPinUnspentOutputsObj, [address]: metaIdPinUnspentOutputs })
       return { commitTxId, revealTxIds, commitCost, revealCost, totalCost }
     }
     return { commitTxHex: commitTx, revealTxsHex: revealTxs, commitCost, revealCost, totalCost }

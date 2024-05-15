@@ -40,6 +40,18 @@ metaidDataList.sort((a, b) => {
   }
 })
 
+const categorizedMetaidDataList: { [key: string]: MetaidData[] } = metaidDataList.reduce(
+  (acc, curr) => {
+    const { operation } = curr
+    if (!acc[operation]) {
+      acc[operation] = []
+    }
+    acc[operation].push(curr)
+    return acc
+  },
+  {} as { [key: string]: MetaidData[] }
+)
+
 getCurrentWallet(Chain.BTC).then((wallet) => {
   address.value = wallet.getAddress()
 })
@@ -125,19 +137,22 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
     <h3 class="text-base">{{ action.title }}</h3>
     <div class="value">{{ params.message }}</div>
 
-    <div class="value grid grid-cols-3 gap-4 justify-items-center">
-      <template v-for="metaidData in metaidDataList">
-        <template v-if="metaidData.body">
-          <img
-            alt=""
-            class="max-w-full"
-            v-if="metaidData.contentType?.includes('image')"
-            :src="`data:image/jepg;base64,${metaidData.body}`"
-          />
+    <div class="flex flex-col gap-2">
+      <div class="flex flex-col gap-2" v-for="categorizedMetaidData in Object.values(categorizedMetaidDataList)">
+        <div>operation:{{ categorizedMetaidData[0].operation }}</div>
+        <div class="value grid grid-cols-3 gap-4 justify-items-center" v-for="metaidData in categorizedMetaidData">
+          <template v-if="metaidData.body">
+            <img
+              alt=""
+              class="max-w-full"
+              v-if="metaidData.contentType?.includes('image')"
+              :src="`data:image/jepg;base64,${metaidData.body}`"
+            />
 
-          <div v-else class="col-span-3 text-sm">{{ metaidData.body }}</div>
-        </template>
-      </template>
+            <div v-else class="col-span-3 text-sm">{{ metaidData.body }}</div>
+          </template>
+        </div>
+      </div>
     </div>
 
     <div v-if="loading" class="flex items-center justify-center gap-x-2">
