@@ -67,9 +67,6 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
       return
     } else {
       currentAccountId.value = _accountId
-      updateAllWallets()
-      goToPage('/wallet')
-      return
     }
   } else {
     currentWalletId.value = _walletId
@@ -78,8 +75,9 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
     await setCurrentAccountId(_accountId)
     await WalletsStore.addWalletOnlyAccount(_walletId, _accountId)
     WalletsStore.loadWalletOtherAccounts(_walletId, _accountId)
-    goToPage('/wallet')
   }
+  updateAllWallets()
+  goToPage('/wallet')
 }
 
 const updataWalletName = (walletId: string, walletName: string) => {
@@ -99,7 +97,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
 </script>
 
 <template>
-  <div class="flex flex-col w-full -my-3 relative min-h-full">
+  <div class="flex flex-col w-full -mt-3 relative h-full">
     <EditName
       v-model:open="editNameOpen"
       :type="editNameType"
@@ -107,11 +105,11 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
       :walletId="editWalletId"
       :accountId="editAccountId"
     />
-    <div class="flex items-center justify-between w-full h-15">
+    <div class="flex items-center justify-between w-full h-15 shrink-0">
       <ArrowLeftIcon @click="$router.back()" class="w-3.5 cursor-pointer" />
       <RouterLink to="/edit/wallets" class="text-sm">Edit wallet</RouterLink>
     </div>
-    <div class="flex flex-col grow overflow-y-auto pr-4 -mr-4">
+    <div class="flex flex-col grow overflow-y-auto pr-4 -mr-4 overflow-hidden nicer-scrollbar">
       <div class="flex flex-col items-start justify-center gap-2 w-full py-6">
         <div class="text-gray-primary">Current Account Asset</div>
         <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }}</div>
@@ -178,7 +176,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
         </Accordion>
       </div>
     </div>
-    <Button type="primary" @click="goToTab('/welcome', true)" class="my-12 y-6 w-61.5 mx-auto">Add Wallet</Button>
+    <Button type="primary" @click="goToTab('/welcome', true)" class="w-61.5 mx-auto shrink-0 mt-3">Add Wallet</Button>
   </div>
 </template>
 

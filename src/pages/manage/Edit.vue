@@ -5,21 +5,13 @@ import { EditName } from '@/components'
 import { DeleteWallet } from '@/components'
 import { type V3Wallet } from '@/lib/types'
 import Avatar from '@/components/Avatar.vue'
-import { toast } from '@/components/ui/toast'
 import { getBackupV3Wallet } from '@/lib/backup'
-import { WalletsStore } from '@/stores/WalletStore'
 import RemoveIcon from '@/assets/icons-v3/remove.svg'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
-import {
-  deleteV3Wallet,
-  getCurrentWalletId,
-  setCurrentWalletId,
-  setV3WalletsStorage,
-  getV3WalletsStorage,
-} from '@/lib/wallet'
+import { deleteV3Wallet, getCurrentWalletId, setCurrentWalletId, getV3WalletsStorage } from '@/lib/wallet'
 
 const { updateAllWallets } = useChainWalletsStore()
 
@@ -84,19 +76,19 @@ const deleteWallet = async (walletId: string) => {
 </script>
 
 <template>
-  <div class="flex flex-col w-full -my-3 pb-24 relative h-full">
+  <div class="flex flex-col w-full -mt-3 relative h-full">
     <DeleteWallet v-model:open="deleteWalletOpen" :name="editName" :confirm="() => deleteWallet(editWalletId)" />
     <EditName
-      v-model:open="editNameOpen"
-      :type="editNameType"
       :name="editName"
+      :type="editNameType"
       :walletId="editWalletId"
       :accountId="editAccountId"
+      v-model:open="editNameOpen"
     />
-    <div class="flex items-center justify-end w-full h-15">
+    <div class="flex items-center justify-end w-full h-15 shrink-0">
       <div @click="$router.go(-1)" class="text-sm cursor-pointer text-blue-primary">Done</div>
     </div>
-    <div class="flex flex-col grow overflow-y-auto pr-4 -mr-4">
+    <div class="flex flex-col grow pr-4 -mr-4 overflow-hidden overflow-y-auto nicer-scrollbar -mb-3">
       <div class="flex flex-col w-full">
         <div class="w-full" v-for="wallet in Object.values(walletObj)">
           <div class="flex items-center gap-2 w-full h-15" :key="wallet.id" :value="wallet.id">
