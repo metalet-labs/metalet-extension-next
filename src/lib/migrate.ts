@@ -26,6 +26,7 @@ import {
   getCurrentAccountId,
 } from './account'
 import { AddressTypeRecord, migrateV3AddressTypeStorage } from './addressType'
+import { getBackupV3Wallet, setBackupV3Wallet } from './backup'
 
 export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
 export const ACCOUNT_V1_Migrated_KEY = 'accounts_v1_migrated'
@@ -350,6 +351,7 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
   }
 
   const v2AddressTypeRecord: AddressTypeRecord = {}
+  const backupWalletIdList = await getBackupV3Wallet()
 
   for (const v2Account of v2Accounts.values()) {
     try {
@@ -378,6 +380,8 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
           },
         ],
       }
+
+      backupWalletIdList.push(id)
 
       let btcAddressType: AddressType | null = null
 
@@ -411,7 +415,9 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
     }
   }
 
-  await migrateV3AddressTypeStorage(Chain.BTC,v2AddressTypeRecord)
+  await migrateV3AddressTypeStorage(Chain.BTC, v2AddressTypeRecord)
+
+  await setBackupV3Wallet(backupWalletIdList)
 
   if (successfulMigrations > 0) {
     await setV3WalletsStorage(v3WalletsStorage)
