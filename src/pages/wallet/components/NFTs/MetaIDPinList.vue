@@ -3,12 +3,12 @@ import { ref, computed } from 'vue'
 import MetaPin from './MetaPin.vue'
 import { useRouter } from 'vue-router'
 import NO_NFT_DATA from './NoNFTData.vue'
+import { LoadingText } from '@/components'
 import { formatTimestamp } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { useMetaPinsInfiniteQuery } from '@/queries/metaPin'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { LoadingText } from '@/components'
 
 const size = ref(10)
 const router = useRouter()
@@ -45,6 +45,7 @@ const toMetaPinDetail = (metaPinId: string) => {
             :value="metaPin.outputValue"
             :contentType="metaPin.contentType"
             :contentSummary="metaPin.contentSummary"
+            :contentTypeDetect="metaPin.contentTypeDetect"
           />
           <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number"># {{ metaPin.number }}</span>
           <span class="text-xs text-center mt-1 h-[30px]">{{ formatTimestamp(metaPin.timestamp) }}</span>

@@ -27,6 +27,7 @@ export interface MetaIDPin {
   contentBody: string
   contentLength: number
   contentSummary: string
+  contentTypeDetect: string
 }
 
 export async function fetchMetaPins(

@@ -42,7 +42,7 @@ const chains = [
 const formSchema = toTypedSchema(
   z.object({
     chains: z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: 'Please select at least one network service.',
+      message: 'Please select at least one network service before launching.',
     }),
   })
 )
@@ -201,7 +201,7 @@ onMounted(async () => {
                 </FormItem>
               </FormField>
             </FormItem>
-            <FormMessage class="text-red-500 text-ss text-center absolute bottom-[80px] w-full" />
+            <FormMessage class="text-red-500 text-ss text-center absolute bottom-[60px] w-full" />
           </FormField>
 
           <button
@@ -215,7 +215,7 @@ onMounted(async () => {
           </button>
         </form>
       </template>
-      <Button v-else :class="['mt-26 w-61.5']" @click="$router.go(0)">Back To Step 1</Button>
+      <Button v-else :class="['mt-26 w-61.5']" @click="$router.replace('/welcome')">Back To Welcome</Button>
       <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>
     </div>
   </div>

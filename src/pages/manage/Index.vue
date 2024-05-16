@@ -10,6 +10,8 @@ import AddIcon from '@/assets/icons-v3/add.svg'
 import { goToTab, goToPage } from '@/lib/utils'
 import { getBackupV3Wallet } from '@/lib/backup'
 import { WalletsStore } from '@/stores/WalletStore'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { notifyContent } from '@/lib/notify-content'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { FlexBox, Divider, Button } from '@/components'
 import { ArrowRightIcon } from '@heroicons/vue/20/solid'
@@ -19,8 +21,6 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { getCurrentWalletId, setV3WalletsStorage, getV3WalletsStorage, setCurrentWalletId } from '@/lib/wallet'
-import { notifyContent } from '@/lib/notify-content'
-import { Chain } from '@metalet/utxo-wallet-service'
 
 const { updateAllWallets, getAddress } = useChainWalletsStore()
 

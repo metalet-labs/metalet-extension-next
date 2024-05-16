@@ -43,6 +43,7 @@ const toMetaPinDetail = (metaPinId: string) => {
             :value="metaPin.outputValue"
             :contentType="metaPin.contentType"
             :contentSummary="metaPin.contentSummary"
+            :contentTypeDetect="metaPin.contentTypeDetect"
           />
           <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number"># {{ metaPin.number }}</span>
           <span class="text-xs text-center mt-1 h-[30px]">{{ formatTimestamp(metaPin.timestamp) }}</span>

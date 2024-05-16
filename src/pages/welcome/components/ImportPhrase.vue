@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
+import { getV3Wallets } from '@/lib/wallet'
 import BrushIcon from '@/assets/icons-v3/brush.svg'
 import { FlexBox, Button, SeedPhrase } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
@@ -21,6 +22,7 @@ const finished = computed(() => props.words.every((word) => word.length > 0))
 const emit = defineEmits(['nextStep'])
 
 const clearWords = () => {
+  error.value = ''
   props.words.splice(0, props.words.length, ...Array(Number(wordsLen.value)).fill(''))
 }
 
@@ -35,6 +37,16 @@ const onPasteWords = (e: ClipboardEvent) => {
       error.value = 'Invalid secret phrase. Please check and try again.'
     }
   }
+}
+
+const next = async () => {
+  const wallets = await getV3Wallets()
+  const hasWallet = wallets.find((wallet) => wallet.mnemonic === props.words.join(' '))
+  if (hasWallet) {
+    error.value = 'Wallet already exists.'
+    return
+  }
+  emit('nextStep')
 }
 
 watch(
@@ -76,9 +88,10 @@ watch(
           <SeedPhrase :onPasteWords="onPasteWords" :words="words" />
 
           <Button
+            @click="next"
             type="primary"
-            @click="emit('nextStep')"
-            :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': !finished }]"
+            :disabled="!finished || !!error"
+            :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': !finished || error }]"
           >
             Next
           </Button>

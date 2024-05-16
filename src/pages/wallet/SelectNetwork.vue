@@ -31,7 +31,7 @@ const chains = [
 const formSchema = toTypedSchema(
   z.object({
     chains: z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: 'Please select at least one network service.',
+      message: 'Please select at least one network service before launching.',
     }),
   })
 )

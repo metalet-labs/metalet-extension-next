@@ -21,7 +21,7 @@ const toSendNFT = (id: string) => {
     query: {
       satoshis: metaPin.value?.outputValue,
       content: metaPin.value?.contentSummary,
-      imgUrl: metaPin.value?.contentType === 'image/jpeg' ? metaPin.value?.content : undefined,
+      imgUrl: metaPin.value?.contentTypeDetect.includes('image') ? metaPin.value?.content : undefined,
     },
   })
 }
@@ -33,14 +33,14 @@ const toSendNFT = (id: string) => {
     <div class="w-full flex items-center justify-center">
       <div
         :class="[
-          metaPin.contentType !== 'image/jpeg' ? 'p-2 bg-blue-primary' : undefined,
+          { 'p-2 bg-blue-primary': !metaPin.contentTypeDetect.includes('image') },
           'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white',
         ]"
       >
         <img
           alt=""
           :src="metaPin.content"
-          v-if="metaPin.contentType === 'image/jpeg'"
+          v-if="metaPin.contentTypeDetect.includes('image')"
           class="w-full h-full border-2 border-gray-soft rounded-xl"
         />
         <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
@@ -48,7 +48,7 @@ const toSendNFT = (id: string) => {
           :title="`${metaPin.outputValue} sat`"
           :class="[
             'absolute rounded right-3 bottom-3 py-3px px-1.5 text-xs',
-            metaPin.contentType === 'image/jpeg'
+            metaPin.contentTypeDetect.includes('image')
               ? 'bg-[#EBECFF] text-[#787FFF]'
               : 'bg-[rgb(235,236,255,0.2) text-[#EBECFF]',
           ]"

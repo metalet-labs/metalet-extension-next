@@ -128,8 +128,8 @@ const back = () => {
 
       <div v-else-if="phase === 3">
         <div class="pt-4 space-y-2">
-          <h3 class="text-2xl font-medium">Please enter your mnemonic phrase according to the sequence number.</h3>
-          <!-- <p class="text-sm text-gray-primary">Please fill in your mnemonic phrase according to the sequence number.</p> -->
+          <h3 class="text-2xl font-medium">Please Reconfirm Your Mnemonic Phrase</h3>
+          <p class="text-sm text-gray-primary">Please enter your mnemonic phrase according to the sequence number.</p>
         </div>
         <VerifySeedPhrase ref="verifySeedPhrase" :randomNum="4" :words="mnemonic.split(' ')" class="mt-8" />
       </div>
