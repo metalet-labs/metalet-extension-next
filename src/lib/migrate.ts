@@ -358,7 +358,7 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
 
       const coinType = getCoinTypeFromHDPath(v2Account.mvc.path)
 
-      const mvcTypes = coinType === 10001 ? [10001] : [10001, coinType]
+      const mvcTypes = coinType === 10001 ? [10001] : [coinType]
       const id = generateRandomString(32)
 
       const wallet = {
