@@ -8,7 +8,7 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { useMetaPinsInfiniteQuery } from '@/queries/metaPin'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
-const size = ref(2)
+const size = ref(10)
 const router = useRouter()
 
 const { getAddress } = useChainWalletsStore()
