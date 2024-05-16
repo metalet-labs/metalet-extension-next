@@ -148,7 +148,26 @@ const addWalletOnlyAccount = async (walletId: string, accountId: string) => {
   })
 }
 
+const getWallets = async () => {
+  const manager = await getWalletManager()
+  return manager.getWallets()
+}
+
+const loadAccount = async (
+  walletId: string,
+  account: {
+    id: string
+    name: string
+    addressIndex: number
+  }
+) => {
+  const manager = await getWalletManager()
+  manager.addAccount(walletId, account)
+}
+
 export const WalletsStore = reactive({
+  getWallets,
+  loadAccount,
   getWalletManager,
   hasWalletManager,
   initWalletManager,

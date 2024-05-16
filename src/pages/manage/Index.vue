@@ -64,6 +64,8 @@ const addAccount = async (wallet: V3Wallet) => {
   wallet.accounts.push(account)
   setV3WalletsStorage(walletObj.value)
   toast({ title: 'New account created', toastType: 'success' })
+  currentAccountId.value = account.id
+  await setCurrentAccountId(account.id)
 }
 
 const relaodAccout = async (_walletId: string, _accountId: string) => {
@@ -75,12 +77,16 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
       await setCurrentAccountId(_accountId)
     }
   } else {
+    const wallets = await WalletsStore.getWallets()
+    const wallet = wallets.find((wallet) => wallet.id === _walletId)
+    if (!wallet) {
+      await WalletsStore.addWalletOnlyAccount(_walletId, _accountId)
+      WalletsStore.loadWalletOtherAccounts(_walletId, _accountId)
+    }
     currentWalletId.value = _walletId
     currentAccountId.value = _accountId
     await setCurrentWalletId(_walletId)
     await setCurrentAccountId(_accountId)
-    await WalletsStore.addWalletOnlyAccount(_walletId, _accountId)
-    WalletsStore.loadWalletOtherAccounts(_walletId, _accountId)
   }
   await updateAllWallets()
   notifyContent('accountsChanged')({ mvcAddress: mvcAddress.value, btcAddress: btcAddress.value })
@@ -154,7 +160,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                   <Avatar :id="account.id" />
                   <span>{{ account.name }}</span>
                   <PencilIcon
-                    class="w-3.5 hover:text-blue-primary"
+                    class="w-3.5 hover:text-blue-primary cursor-pointer"
                     @click.stop="updataAccountName(wallet.id, account.id, account.name)"
                   />
                 </FlexBox>
