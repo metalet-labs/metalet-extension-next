@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import useStorage from '@/lib/storage'
+import { useRouter } from 'vue-router'
+import { Chain } from '@metalet/utxo-wallet-service'
 import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
 import CheckIcon from '@/assets/icons/check.svg?component'
 import SpaceLogoImg from '@/assets/icons-v3/space.svg?url'
@@ -9,7 +10,7 @@ import NetworkIcon from '@/assets/icons/network.svg?component'
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 import { type Service, Service_Network_Key } from '@/lib/network'
 
-const service = ref<Service>('all')
+const service = ref<Service>(Object.values(Chain))
 
 const router = useRouter()
 

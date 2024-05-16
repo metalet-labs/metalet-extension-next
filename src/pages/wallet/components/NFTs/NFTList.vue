@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import NO_NFT_DATA from './NoNFTData.vue'
 import MetaIDPinList from './MetaIDPinList.vue'
 import InscriptionList from './InscriptionList.vue'
+import { Chain } from '@metalet/utxo-wallet-service'
 import MetaContractList from './MetaContractList.vue'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { Service, getServiceNetwork } from '@/lib/network'
@@ -10,7 +11,7 @@ import { type NFTType, getNftType, setNftType, nfts } from '@/lib/nft'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const nftType = ref<NFTType>()
-const service = ref<Service>('all')
+const service = ref<Service>(Object.values(Chain))
 
 getNftType().then((_nftType) => {
   nftType.value = _nftType
@@ -18,14 +19,14 @@ getNftType().then((_nftType) => {
 
 getServiceNetwork().then((_service) => {
   service.value = _service
-  if (_service === 'all') {
+  if (_service.length === Object.values(Chain).length) {
     return
   }
   const nft = nfts.find((nft) => nft.name === nftType.value)
-  if (nft && nft.chain !== _service) {
-    const nft = nfts.find((nft) => nft.chain === _service)
-    if (nft) {
-      nftTypeOnchange(nft.name as NFTType)
+  if (nft && !_service.includes(nft.chain)) {
+    const _nft = nfts.find((_nft) => _nft.chain === _service[0])
+    if (_nft) {
+      nftTypeOnchange(_nft.name as NFTType)
     }
   }
 })
@@ -45,13 +46,13 @@ const nftTypeOnchange = (_nftType: NFTType) => {
           <SelectorIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="bg-white">
-          <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')" v-if="service !== 'mvc'">
+          <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')" v-if="service.includes(Chain.BTC)">
             BTC Oridinals
           </DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaContract')" v-if="service !== 'btc'">
+          <DropdownMenuItem @select="nftTypeOnchange('MetaContract')" v-if="service.includes(Chain.MVC)">
             MetaContract
           </DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')" v-if="service !== 'mvc'">
+          <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')" v-if="service.includes(Chain.BTC)">
             MetaID PIN
           </DropdownMenuItem>
         </DropdownMenuContent>

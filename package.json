@@ -36,6 +36,7 @@
     "@scure/bip39": "^1.2.2",
     "@sentry/vue": "^7.81.1",
     "@tanstack/vue-query": "^4.26.1",
+    "@vee-validate/zod": "^4.12.8",
     "@vueuse/components": "^10.9.0",
     "@vueuse/core": "^10.3.0",
     "@vueuse/integrations": "^10.4.1",
@@ -64,8 +65,10 @@
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",
     "vaul-vue": "0.1.0",
+    "vee-validate": "^4.12.8",
     "vue": "^3.2.45",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@rollup/plugin-inject": "^5.0.3",

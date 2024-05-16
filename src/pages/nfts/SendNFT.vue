@@ -20,10 +20,10 @@ const queryClient = useQueryClient()
 const { currentBTCWallet } = useChainWalletsStore()
 
 const id = ref(route.params.id as string)
+const nftType = route.params.nftType as string
 const imgUrl = ref(route.query.imgUrl as string)
 const content = ref(route.query.content as string)
 const satoshis = ref(route.query.satoshis as string)
-const nftType = route.params.nftType as string
 const address = ref<string>(route.params.address as string)
 
 const symbol = 'BTC'
@@ -181,7 +181,10 @@ async function send() {
                 {{ content }}
               </div>
               <span
-                class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[rgb(235,236,255,0.2)] text-[#EBECFF] text-xs scale-75"
+                :class="[
+                  'absolute rounded right-0 bottom-1 py-3px px-1.5 text-xs scale-75',
+                  imgUrl ? 'bg-[#EBECFF] text-[#787FFF]' : 'bg-[rgb(235,236,255,0.2) text-[#EBECFF]',
+                ]"
               >
                 {{ satoshis }} sat
               </span>

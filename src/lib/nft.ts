@@ -9,7 +9,7 @@ const NFTType_Key = 'NFTTabType'
 const storage = useStorage()
 
 export const nfts = [
-  { id: 1, name: 'BTC Ordinals', disabled: false, chain: Chain.BTC },
+  { id: 1, name: 'BTC Oridinals', disabled: false, chain: Chain.BTC },
   // { id: 2, name: 'Atomicals', disabled: true },
   { id: 3, name: 'MetaContract', disabled: false, chain: Chain.MVC },
   { id: 4, name: 'MetaID PIN', disabled: false, chain: Chain.BTC },

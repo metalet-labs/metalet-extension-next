@@ -1,13 +1,25 @@
 <script setup>
+import { ref } from 'vue'
 import AssetList from './AssetList.vue'
 import NFTList from './NFTs/NFTList.vue'
 import RuneList from './Runes/RuneList.vue'
+import { getServiceNetwork } from '@/lib/network'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { walletTabStore } from '@/stores/walletTabTypeStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+const service = ref(Object.values(Chain))
+
+getServiceNetwork().then((_service) => {
+  service.value = _service
+  if (walletTabStore.selectedTab.name === 'Runes' && !service.value.includes(Chain.BTC)) {
+    walletTabStore.selectedTab = walletTabStore.tabs[0]
+  }
+})
 </script>
 
 <template>
-  <Tabs :default-value="walletTabStore.selectedTab.name" class="w-full">
+  <Tabs :modelValue="walletTabStore.selectedTab.name" class="w-full">
     <TabsList class="p-0 gap-6">
       <TabsTrigger
         :key="tab.id"
@@ -15,13 +27,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
         v-for="tab in walletTabStore.tabs"
         @click="walletTabStore.selectedTab = tab"
       >
-        {{ tab.name }}
-        <span
-          v-if="tab.isNew"
-          class="bg-[#FFEBE7] text-red-primary px-1 py-0.5 rounded-t rounded-e text-xs font-semibold scale-[0.7] ml-16 -mt-5 absolute"
-        >
-          NEW
-        </span>
+        <template v-if="tab.name !== 'Runes' || service.includes(Chain.BTC)">
+          <span>{{ tab.name }}</span>
+          <span
+            v-if="tab.isNew"
+            class="bg-[#FFEBE7] text-red-primary px-1 py-0.5 rounded-t rounded-e text-xs font-semibold scale-[0.7] ml-16 -mt-5 absolute"
+          >
+            NEW
+          </span>
+        </template>
       </TabsTrigger>
     </TabsList>
     <TabsContent value="Cypto">

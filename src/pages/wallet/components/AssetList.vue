@@ -14,7 +14,7 @@ import { type Asset, BTCAsset, MVCAsset, FTAsset } from '@/data/assets'
 const router = useRouter()
 const { getAddress } = useChainWalletsStore()
 
-const serviceNetwork = ref<Service>()
+const serviceNetwork = ref<Service>([])
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
 
@@ -64,7 +64,7 @@ function toToken(token: FTAsset, address: string) {
 
 <template>
   <div class="mt-2 space-y-5 text-black divide-y divide-gray-light">
-    <template v-if="!!serviceNetwork && ['all', 'btc'].includes(serviceNetwork)">
+    <template v-if="serviceNetwork.includes(Chain.BTC)">
       <div class="space-y-2 divide-y divide-gray-light">
         <AssetItem
           :asset="BTCAsset"
@@ -83,7 +83,7 @@ function toToken(token: FTAsset, address: string) {
       </div>
     </template>
 
-    <template v-if="!!serviceNetwork && ['all', 'mvc'].includes(serviceNetwork)">
+    <template v-if="serviceNetwork.includes(Chain.MVC)">
       <div class="space-y-2 divide-y divide-gray-light">
         <AssetItem
           :asset="MVCAsset"

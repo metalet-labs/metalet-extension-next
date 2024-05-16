@@ -14,7 +14,7 @@ const route = useRoute()
 const assetSearch = ref()
 const router = useRouter()
 const { purpose } = route.params
-const serviceNetwork = ref<Service>()
+const serviceNetwork = ref<Service>([])
 
 const { getAddress } = useChainWalletsStore()
 const btcAddress = getAddress(Chain.BTC)
@@ -38,7 +38,7 @@ const selectAddress = (chain: ChainType) => {
 const assets = computed(() => {
   return allAssets.filter(
     (asset) =>
-      (asset.chain === serviceNetwork.value || serviceNetwork.value === 'all') &&
+      serviceNetwork.value.includes(asset.chain as Chain) &&
       (!assetSearch.value ||
         asset.symbol.toLocaleLowerCase().includes(assetSearch.value) ||
         asset.tokenName.toLocaleLowerCase().includes(assetSearch.value))

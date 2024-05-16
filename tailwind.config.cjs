@@ -27,6 +27,7 @@ module.exports = {
         'orange-primary': '#FF8F1F',
         'slate-light': '#606266',
         'red-primary': '#FA5151',
+        'green-success': '#00B578',
       },
       fontSize: {
         ss: ['0.8125rem', '1.125rem'],

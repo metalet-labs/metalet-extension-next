@@ -46,7 +46,12 @@ const toSendNFT = (id: string) => {
         <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
         <span
           :title="`${metaPin.outputValue} sat`"
-          class="absolute rounded right-3 bottom-3 py-3px px-1.5 bg-[rgb(235,236,255,0.2)] text-[#EBECFF] text-xs"
+          :class="[
+            'absolute rounded right-3 bottom-3 py-3px px-1.5 text-xs',
+            metaPin.contentType === 'image/jpeg'
+              ? 'bg-[#EBECFF] text-[#787FFF]'
+              : 'bg-[rgb(235,236,255,0.2) text-[#EBECFF]',
+          ]"
         >
           {{ metaPin.outputValue }} sat
         </span>

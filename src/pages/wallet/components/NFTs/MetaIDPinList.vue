@@ -10,7 +10,7 @@ import { useMetaPinsInfiniteQuery } from '@/queries/metaPin'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { LoadingText } from '@/components'
 
-const size = ref(2)
+const size = ref(10)
 const router = useRouter()
 
 const { getAddress } = useChainWalletsStore()

@@ -1,24 +1,86 @@
 <script lang="ts" setup>
+import * as z from 'zod'
 import { onMounted, ref } from 'vue'
 import { Button } from '@/components'
 import { useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
+import { toast } from '@/components/ui/toast'
+import { toTypedSchema } from '@vee-validate/zod'
 import FailIcon from '@/assets/icons-v3/fail.svg'
+import { Checkbox } from '@/components/ui/checkbox'
 import { WalletsStore } from '@/stores/WalletStore'
-import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import BtcLogoIcon from '@/assets/icons-v3/btc-logo.svg?url'
 import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
-import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
 import { getBackupV3Wallet, setBackupV3Wallet } from '@/lib/backup'
-import NetworkTypeImg from '@/assets/icons/all-network-type.svg?url'
+import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
+import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
+import { getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 import { addV3Wallet, getV3Wallets, setCurrentWalletId } from '@/lib/wallet'
-import { getServiceNetwork, getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
-import { toast } from '@/components/ui/toast'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 
 const loading = ref(true)
 const error = ref<string>()
 const router = useRouter()
+
+const selectedChains = ref<Chain[]>(Object.values(Chain))
+
+const chains = [
+  {
+    id: Chain.BTC,
+    name: 'Bitcoin',
+    logo: BtcLogoIcon,
+  },
+  {
+    id: Chain.MVC,
+    name: 'MicrovisionChain',
+    logo: SpaceLogoIcon,
+  },
+]
+
+const formSchema = toTypedSchema(
+  z.object({
+    chains: z.array(z.string()).refine((value) => value.some((item) => item), {
+      message: 'Please select at least one network service.',
+    }),
+  })
+)
+
+const { handleSubmit, setFieldValue } = useForm({
+  validationSchema: formSchema,
+  initialValues: {
+    chains: Object.values(Chain),
+  },
+})
+
+const updateServiceNetwork = async (chains: Chain[]) => {
+  const service = await getServiceNetworkStorage()
+  const currentAccountId = await getCurrentAccountId()
+  if (currentAccountId) {
+    service[currentAccountId] = chains
+    setServiceNetwork(service)
+    router.replace('/wallet')
+  } else {
+    toast({ title: 'Please select a account', toastType: 'warning' })
+    router.replace('/manage/wallets')
+  }
+}
+
+const selectChain = (chain: Chain) => {
+  console.log('start', chain, selectedChains.value)
+
+  if (selectedChains.value.includes(chain)) {
+    selectedChains.value = selectedChains.value.filter((item) => item !== chain)
+  } else {
+    selectedChains.value.push(chain)
+  }
+  console.log('end', chain, selectedChains.value)
+}
+
+const onSubmit = handleSubmit(({ chains }) => {
+  updateServiceNetwork(chains as Chain[])
+})
 
 type ActivateType = 'create' | 'import'
 
@@ -31,19 +93,6 @@ const { words, mvcTypes, type } = defineProps<{
 const mnemonic = words.join(' ')
 if (!mnemonic) {
   router.go(0)
-}
-
-const updateServiceNetwork = async (chain: Chain | 'all') => {
-  const service = await getServiceNetworkStorage()
-  const currentAccountId = await getCurrentAccountId()
-  if (currentAccountId) {
-    service[currentAccountId] = chain
-    setServiceNetwork(service)
-    router.replace('/wallet')
-  } else {
-    toast({ title: 'Please select a account', toastType: 'warning' })
-    router.replace('/manage/wallets')
-  }
 }
 
 onMounted(async () => {
@@ -115,25 +164,56 @@ onMounted(async () => {
         </span>
       </h1>
       <template v-if="!error">
-        <p class="text-sm mt-12 text-gray-primary text-center w-80">
-          Metalet currently supports the following chains.
-          <br />
-          Please select a network:
+        <p class="mt-6">Please select a network:</p>
+        <p class="text-sm mt-2 text-gray-primary text-center w-96">
+          Metalet currently supports the following blockchain networks. (Supports multiple selections)
         </p>
-        <div class="flex items-start gap-4 mt-4">
-          <div class="flex flex-col gap-2 items-center cursor-pointer" @click="updateServiceNetwork('all')">
-            <img :src="NetworkTypeImg" class="w-11" alt="All Networks" />
-            <span class="text-xs text-gray-primary">All Networks</span>
-          </div>
-          <div class="flex flex-col gap-2 items-center cursor-pointer" @click="updateServiceNetwork(Chain.BTC)">
-            <img :src="BtcLogoIcon" class="w-11" alt="Bitcoin" />
-            <span class="text-xs text-gray-primary">Bitcoin</span>
-          </div>
-          <div class="flex flex-col gap-2 items-center cursor-pointer" @click="updateServiceNetwork(Chain.MVC)">
-            <img :src="SpaceLogoIcon" class="w-11" alt="MicrovisonChain" />
-            <span class="text-xs text-gray-primary">MicrovisonChain</span>
-          </div>
-        </div>
+        <form @submit="onSubmit" class="mt-9 relative">
+          <FormField name="chains">
+            <FormItem class="flex items-center gap-8">
+              <FormField
+                name="chains"
+                :key="chain.id"
+                type="checkbox"
+                :value="chain.id"
+                v-for="chain in chains"
+                :unchecked-value="false"
+                v-slot="{ value, handleChange }"
+              >
+                <FormItem
+                  :class="[
+                    'flex flex-col items-center justify-center cursor-pointer bg-[#F8F8FA] w-30 h-[130px] rounded-lg gap-2',
+                    { 'border border-blue-primary': selectedChains.includes(chain.id) },
+                  ]"
+                >
+                  <FormLabel class="flex flex-col items-center gap-2 cursor-pointer">
+                    <img :src="chain.logo" alt="Bitcoin" class="inline-block w-[38px] h-[38px]" />
+                    <span class="text-xs">{{ chain.name }}</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Checkbox
+                      @click="selectChain(chain.id)"
+                      @update:checked="handleChange"
+                      :checked="value.includes(chain.id)"
+                      class="rounded-full data-[state=checked]:bg-green-success data-[state=checked]:border-none w-5 h-5 text-xs"
+                    />
+                  </FormControl>
+                </FormItem>
+              </FormField>
+            </FormItem>
+            <FormMessage class="text-red-500 text-ss text-center absolute bottom-[80px] w-full" />
+          </FormField>
+
+          <button
+            type="submit"
+            :class="[
+              'w-full rounded-3xl py-4 text-center text-ss text-white bg-blue-primary mt-16',
+              { 'opacity-50 cursor-not-allowed': !selectedChains.length },
+            ]"
+          >
+            Launch Metalet
+          </button>
+        </form>
       </template>
       <Button v-else :class="['mt-26 w-61.5']" @click="$router.go(0)">Back To Step 1</Button>
       <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>

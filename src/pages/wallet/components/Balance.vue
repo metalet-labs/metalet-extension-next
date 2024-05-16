@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { network, getServiceNetwork } from '@/lib/network'
 import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
+import { Chain } from '@metalet/utxo-wallet-service'
 import BridgeIcon from '@/assets/icons-v3/bridge.svg'
 import NetworkIcon from '@/assets/icons-v3/network.svg'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
+import { network, getServiceNetwork } from '@/lib/network'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
-import { ArrowUpRightIcon, QrCodeIcon } from '@heroicons/vue/20/solid'
-import { Chain } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { ArrowUpRightIcon, QrCodeIcon } from '@heroicons/vue/20/solid'
 
 const router = useRouter()
 
@@ -19,11 +19,11 @@ const mvcAddress = getAddress(Chain.MVC)
 
 async function toSelectAsset(purpose: 'receive' | 'send') {
   const service = await getServiceNetwork()
-  if (service === 'all') {
+  if (service.length === Object.values(Chain).length) {
     router.push({ name: 'select-asset', params: { purpose } })
   } else {
-    const symbol = service === Chain.BTC ? 'BTC' : service === Chain.MVC ? 'SPACE' : ''
-    const address = service === Chain.BTC ? btcAddress.value : service === Chain.MVC ? mvcAddress.value : ''
+    const symbol = service.includes(Chain.BTC) ? 'BTC' : service.includes(Chain.MVC) ? 'SPACE' : ''
+    const address = service.includes(Chain.BTC) ? btcAddress.value : service.includes(Chain.MVC) ? mvcAddress.value : ''
     if (purpose === 'receive') {
       router.push({ name: 'receive', params: { symbol, address } })
     } else if (purpose === 'send') {
@@ -42,7 +42,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         class="bg-[#CCD0FF] bg-opacity-20 py-2 px-3 rounded-lg text-[#1D28FE] flex items-center gap-1"
       >
         <NetworkIcon class="w-2.5" />
-        <span class="text-xs">{{ network.replace(/(^\w{1})/, match => match.toUpperCase()) }}</span>
+        <span class="text-xs">{{ network.replace(/(^\w{1})/, (match) => match.toUpperCase()) }}</span>
       </div>
     </div>
 

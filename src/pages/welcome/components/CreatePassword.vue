@@ -5,7 +5,6 @@ import passwordManager from '@/lib/password'
 import { Checkbox } from '@/components/ui/checkbox'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import { FlexBox, Button, PasswordInput } from '@/components'
-import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
 
 const { callback } = defineProps<{ callback?: Function }>()
 

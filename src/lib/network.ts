@@ -8,8 +8,8 @@ import { Chain, type Net } from '@metalet/utxo-wallet-service'
 
 // TODO: refactor to use global state
 
-export type Service = Chain | 'all'
-export type ServiceStorage = { [accountId: string]: Chain | 'all' }
+export type Service = Chain[] 
+export type ServiceStorage = { [accountId: string]: Chain[] }
 
 export type Network = 'mainnet' | 'testnet' | 'regtest'
 
@@ -25,13 +25,13 @@ export async function getServiceNetworkStorage(): Promise<ServiceStorage> {
   return await storage.get(Service_Network_Key, { defaultValue: {} })
 }
 
-export async function getServiceNetwork(): Promise<Chain | 'all'> {
+export async function getServiceNetwork(): Promise<Chain[]> {
   const currentAccountId = await getCurrentAccountId()
   if (!currentAccountId) {
-    return 'all'
+    return Object.values(Chain)
   }
   const service = await getServiceNetworkStorage()
-  return service[currentAccountId] || 'all'
+  return service[currentAccountId] || Object.values(Chain)
 }
 
 export async function hasServiceNetwork(): Promise<boolean> {
