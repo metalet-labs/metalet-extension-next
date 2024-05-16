@@ -4,7 +4,8 @@ import { encrypt, decrypt } from './crypto'
 import { toast } from '@/components/ui/toast'
 import { generateRandomString } from './helpers'
 import { type DerivedAccountDetail } from '@/lib/types'
-import { AddressType, deriveAllAddresses } from './bip32-deriver'
+import { AddressType as ScriptType, deriveAllAddresses } from './bip32-deriver'
+import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import {
   getV3Wallets,
   hasV3Wallets,
@@ -24,6 +25,7 @@ import {
   getLegacyAccounts,
   getCurrentAccountId,
 } from './account'
+import { AddressTypeRecord, migrateV3AddressTypeStorage } from './addressType'
 
 export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
 export const ACCOUNT_V1_Migrated_KEY = 'accounts_v1_migrated'
@@ -146,13 +148,13 @@ async function migrateSyncToV2(): Promise<MigrateResult> {
           assetsDisplay: ['SPACE', 'BTC'],
           mvc: {
             path: fullPath,
-            addressType: 'P2PKH' as AddressType,
+            addressType: 'P2PKH' as ScriptType,
             mainnetAddress: allAddresses.mvcMainnetAddress,
             testnetAddress: allAddresses.mvcTestnetAddress,
           },
           btc: {
             path: fullPath,
-            addressType: 'P2PKH' as AddressType,
+            addressType: 'P2PKH' as ScriptType,
             mainnetAddress: allAddresses.btcMainnetAddress,
             testnetAddress: allAddresses.btcTestnetAddress,
           },
@@ -347,6 +349,8 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
     return Number(coinTypePart)
   }
 
+  const v2AddressTypeRecord: AddressTypeRecord = {}
+
   for (const v2Account of v2Accounts.values()) {
     try {
       const accountHasMigrated = v3Wallets.some((wallet) => wallet.mnemonic === v2Account.mnemonic)
@@ -375,6 +379,29 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
         ],
       }
 
+      let btcAddressType: AddressType | null = null
+
+      switch (v2Account.btc.addressType) {
+        case 'P2PKH':
+          if (v2Account.btc.path === "m/44'/0'/0'/0/0") {
+            btcAddressType = AddressType.Legacy
+          } else {
+            btcAddressType = AddressType.LegacyMvc
+          }
+          break
+        case 'P2WPKH':
+          btcAddressType = AddressType.NativeSegwit
+          break
+        case 'P2SH-P2WPKH':
+          btcAddressType = AddressType.NestedSegwit
+          break
+        case 'P2TR':
+          btcAddressType = AddressType.Taproot
+          break
+      }
+      if (btcAddressType) {
+        v2AddressTypeRecord[v2Account.id] = btcAddressType
+      }
       v3WalletsStorage[id] = wallet
       successfulMigrations++
     } catch (e: any) {
@@ -383,6 +410,8 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
       continue
     }
   }
+
+  await migrateV3AddressTypeStorage(Chain.BTC,v2AddressTypeRecord)
 
   if (successfulMigrations > 0) {
     await setV3WalletsStorage(v3WalletsStorage)

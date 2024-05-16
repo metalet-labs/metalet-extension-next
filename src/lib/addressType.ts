@@ -6,7 +6,7 @@ const storage = useStorage()
 const V3_BTC_ADDRESS_TYPE_RECORD__KEY = 'v3_btc_address_type_record'
 const V3_MVC_ADDRESS_TYPE_RECORD_KEY = 'v3_mvc_address_type_record'
 
-interface AddressTypeRecord {
+export interface AddressTypeRecord {
   [accountId: string]: AddressType
 }
 
@@ -39,6 +39,19 @@ export async function setV3AddressTypeStorage(chain: Chain, addressType: Address
   }
   const addressTypeRecord = await getV3AddressTypeRecordStorage(chain)
   addressTypeRecord[currentAccountId] = addressType
+  if (chain === Chain.BTC) {
+    return await storage.set(V3_BTC_ADDRESS_TYPE_RECORD__KEY, addressTypeRecord)
+  } else if (chain === Chain.MVC) {
+    return await storage.set(V3_MVC_ADDRESS_TYPE_RECORD_KEY, addressTypeRecord)
+  }
+  throw new Error('Unsupported chain')
+}
+
+export async function migrateV3AddressTypeStorage(chain: Chain, v2AddressTypeRecord: AddressTypeRecord) {
+  const addressTypeRecord = await getV3AddressTypeRecordStorage(chain)
+  for (const [accountId, addressType] of Object.entries(v2AddressTypeRecord)) {
+    addressTypeRecord[accountId] = addressType
+  }
   if (chain === Chain.BTC) {
     return await storage.set(V3_BTC_ADDRESS_TYPE_RECORD__KEY, addressTypeRecord)
   } else if (chain === Chain.MVC) {
