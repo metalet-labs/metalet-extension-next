@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
 import { useBRCInscriptionInfoQuery } from '@/queries/inscribe'
 import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
+import { LoadingText } from '@/components'
 
 const router = useRouter()
 const { params } = useRoute()
@@ -39,7 +40,7 @@ const toSendNFT = (id: string) => {
 </script>
 
 <template>
-  <div class="w-full text-gray-primary text-center" v-if="isLoading">Inscription Info Loading...</div>
+  <LoadingText text="Inscription Detail Loading..." v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="inscriptionDetail">
     <div class="w-full flex items-center justify-center">
       <div class="w-[220px] h-[220px] bg-blue-primary flex items-center justify-center rounded-xl relative p-2">

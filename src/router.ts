@@ -341,7 +341,7 @@ const routes = [
       },
       {
         name: 'metaPinDetail',
-        path: '/nft/metaPin/detail',
+        path: '/nft/metaPin/detail/:address/:metaPinId',
         component: () => import('./pages/nfts/MetaPinDetail.vue'),
         meta: {
           secondaryHeader: true,

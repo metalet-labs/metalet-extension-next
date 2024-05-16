@@ -5,13 +5,29 @@ import MetaIDPinList from './MetaIDPinList.vue'
 import InscriptionList from './InscriptionList.vue'
 import MetaContractList from './MetaContractList.vue'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
-import { type NFTType, getNftType, setNftType } from '@/lib/nft'
+import { Service, getServiceNetwork } from '@/lib/network'
+import { type NFTType, getNftType, setNftType, nfts } from '@/lib/nft'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const nftType = ref<NFTType>()
+const service = ref<Service>('all')
 
 getNftType().then((_nftType) => {
   nftType.value = _nftType
+})
+
+getServiceNetwork().then((_service) => {
+  service.value = _service
+  if (_service === 'all') {
+    return
+  }
+  const nft = nfts.find((nft) => nft.name === nftType.value)
+  if (nft && nft.chain !== _service) {
+    const nft = nfts.find((nft) => nft.chain === _service)
+    if (nft) {
+      nftTypeOnchange(nft.name as NFTType)
+    }
+  }
 })
 
 const nftTypeOnchange = (_nftType: NFTType) => {
@@ -29,9 +45,15 @@ const nftTypeOnchange = (_nftType: NFTType) => {
           <SelectorIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="bg-white">
-          <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')">BTC Oridinals</DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaContract')">MetaContract</DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')">MetaID PIN</DropdownMenuItem>
+          <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')" v-if="service !== 'mvc'">
+            BTC Oridinals
+          </DropdownMenuItem>
+          <DropdownMenuItem @select="nftTypeOnchange('MetaContract')" v-if="service !== 'btc'">
+            MetaContract
+          </DropdownMenuItem>
+          <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')" v-if="service !== 'mvc'">
+            MetaID PIN
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

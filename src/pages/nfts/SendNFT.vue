@@ -169,9 +169,12 @@ async function send() {
     <div v-show="!isShowComfirm" class="space-y-4 w-full min-h-full pb-4 flex flex-col">
       <div class="grow space-y-4">
         <div class="flex items-center gap-3 rounded-md">
-          <div class="grid grid-cols-3 gap-3">
+          <div class="grid grid-cols-3 gap-3 w-full">
             <div
-              class="flex items-center justify-center rounded-md p-2 bg-blue-primary relative aspect-square w-full overflow-hidden"
+              :class="[
+                'flex items-center justify-center rounded-md p-2 relative aspect-square w-full overflow-hidden',
+                { 'bg-blue-primary ': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
+              ]"
             >
               <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
               <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>

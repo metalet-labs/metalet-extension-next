@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { LoadingText } from '@/components'
 import { useRoute, useRouter } from 'vue-router'
-import { formatTimestamp } from '@/lib/formatters'
-import { shortestAddress } from '@/lib/formatters'
 import { useMetaPinQuery } from '@/queries/metaPin'
+import BtcIcon from '@/assets/icons-v3/network_btc.svg'
+import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
 
 const router = useRouter()
 const { params } = useRoute()
@@ -27,13 +28,13 @@ const toSendNFT = (id: string) => {
 </script>
 
 <template>
-  <div class="w-full text-gray-primary text-center" v-if="isLoading">MetaID PIN Info Loading...</div>
-  <div class="w-full" v-else-if="metaPin">
+  <LoadingText text="MetaID PIN Detail Loading..." v-if="isLoading" />
+  <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
       <div
         :class="[
-          metaPin.contentType !== 'image/jpeg' ? 'p-2 bg-[#1E2BFF]' : undefined,
-          'w-64 h-64  flex items-center justify-center rounded-xl relative text-white',
+          metaPin.contentType !== 'image/jpeg' ? 'p-2 bg-blue-primary' : undefined,
+          'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white',
         ]"
       >
         <img
@@ -46,72 +47,99 @@ const toSendNFT = (id: string) => {
         <span
           :title="`${metaPin.outputValue} sat`"
           class="absolute rounded right-3 bottom-3 py-3px px-1.5 bg-[rgb(235,236,255,0.2)] text-[#EBECFF] text-xs"
-          >{{ metaPin.outputValue }} sat</span
         >
+          {{ metaPin.outputValue }} sat
+        </span>
       </div>
     </div>
-    <div class="flex flex-col p-4 gap-y-4">
-      <h4 class="text-xl text-[#303133]"># {{ metaPin.number }}</h4>
-      <div class="text-xs text-[#999999]">{{ formatTimestamp(metaPin.timestamp) }}</div>
-      <hr />
-      <div class="flex items-center justify-between">
-        <span class="title">ID:</span>
-        <div class="w-60 truncate" :title="metaPin.id">{{ metaPin.id }}</div>
+    <div class="flex items-center justify-center text-lg">
+      <span v-if="metaPin.number !== -1"># {{ metaPin.number }}</span>
+      <span v-else>Uncomfirmed</span>
+    </div>
+
+    <div class="flex justify-center">
+      <button
+        @click="toSendNFT(metaPin!.id)"
+        class="w-30 rounded-3xl py-4 text-center text-ss text-blue-primary bg-blue-light mx-auto"
+      >
+        Transfer
+      </button>
+    </div>
+    <div class="space-y-4 border-t border-gray-secondary pt-4">
+      <div class="row">
+        <div class="label">Network</div>
+        <div class="flex items-center gap-1">
+          <BtcIcon class="w-4.5" />
+          <span class="text-sm">Bitcoin</span>
+        </div>
       </div>
-      <div class="flex items-center justify-between">
-        <span class="title">Address:</span>
-        <div :title="address">{{ shortestAddress(address) }}</div>
+      <div class="row">
+        <span class="label">ID</span>
+        <div :title="metaPin.id">
+          {{ prettifyTxId(metaPin.id) }}
+        </div>
       </div>
-      <div class="flex items-center justify-between">
-        <span class="title">Output value:</span>
-        <div>{{ metaPin.outputValue }}</div>
+      <div class="row">
+        <span class="label">Address</span>
+        <div :title="address">
+          {{ shortestAddress(address) }}
+        </div>
       </div>
-      <div class="flex items-start justify-between">
-        <span class="title">Preview</span>
+      <div class="row">
+        <span class="label">Output value:</span>
+        <div>
+          {{ metaPin.outputValue }}
+        </div>
+      </div>
+      <div class="row">
+        <span class="label">Preview</span>
         <a
           target="_blank"
           :href="metaPin.preview"
           :title="metaPin.preview"
-          class="max-w-52 truncate text-[#5173B9] underline"
-          >{{ metaPin.preview }}</a
+          class="w-52 truncate text-[#5173B9] underline"
         >
+          {{ metaPin.preview }}
+        </a>
       </div>
-      <div class="flex items-start justify-between">
-        <span class="title">Content:</span>
+      <div class="row">
+        <span class="label">Content</span>
         <a
           target="_blank"
           :href="metaPin.content"
           :title="metaPin.content"
-          class="max-w-52 truncate text-[#5173B9] underline"
-          >{{ metaPin.content }}</a
+          class="w-52 truncate text-[#5173B9] underline"
         >
+          {{ metaPin.content }}
+        </a>
       </div>
-      <div class="flex items-center justify-between">
-        <span class="title">Content Length:</span>
+      <div class="row">
+        <span class="label">Content Length</span>
         <span>{{ metaPin.contentLength }}</span>
       </div>
-      <div class="flex items-center justify-between">
-        <span class="title">Content Type:</span>
+      <div class="row">
+        <span class="label">Content Type</span>
         <span>{{ metaPin.contentType }}</span>
       </div>
-      <div class="flex items-start justify-between">
-        <span class="title">Timestamp:</span>
+      <div class="row">
+        <span class="label">Timestamp</span>
         <div>{{ formatTimestamp(metaPin.timestamp) }}</div>
       </div>
-      <div class="flex items-start justify-between">
-        <div class="title">Genesis Transaction:</div>
-        <div class="w-44 truncate" :title="metaPin.genesisTransaction">{{ metaPin.genesisTransaction }}</div>
+      <div class="row">
+        <span class="label">Genesis Transaction</span>
+        <div :title="metaPin.genesisTransaction">
+          {{ prettifyTokenGenesis(metaPin.genesisTransaction) }}
+        </div>
       </div>
     </div>
-
-    <button @click="toSendNFT(metaPin!.id)" class="main-btn-bg w-full rounded-lg py-3 text-sm text-sky-100">
-      Transfers
-    </button>
   </div>
-  <div v-else></div>
 </template>
 
 <style lang="css" scoped>
+.row {
+  @apply flex items-center justify-between;
+}
+
 .title {
   font-size: 14px;
   color: #909399;

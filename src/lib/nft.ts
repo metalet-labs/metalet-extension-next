@@ -1,14 +1,22 @@
-import nfts from '../data/nfts'
+import { Chain } from '@metalet/utxo-wallet-service'
+import nftGenesiss from '../data/nfts'
 import useStorage from './storage'
 
 export type NFTType = 'BTC Oridinals' | 'MetaContract' | 'MetaID PIN'
 
-const NFTType_Key = 'NFTType'
+const NFTType_Key = 'NFTTabType'
 
 const storage = useStorage()
 
+export const nfts = [
+  { id: 1, name: 'BTC Ordinals', disabled: false, chain: Chain.BTC },
+  // { id: 2, name: 'Atomicals', disabled: true },
+  { id: 3, name: 'MetaContract', disabled: false, chain: Chain.MVC },
+  { id: 4, name: 'MetaID PIN', disabled: false, chain: Chain.BTC },
+]
+
 export function isOfficialNft(genesis: string) {
-  return nfts.some((nft) => nft.genesis === genesis)
+  return nftGenesiss.some((nftGenesis) => nftGenesis.genesis === genesis)
 }
 
 export function getNftType() {
