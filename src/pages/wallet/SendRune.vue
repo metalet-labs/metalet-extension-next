@@ -223,7 +223,7 @@ async function send() {
         <span>Amount</span>
         <span class="text-gray-primary text-xs">
           <span>Balance:</span>
-          <span v-if="balance">{{ prettifyBalanceFixed(balance, asset.symbol, asset.decimal) }}</span>
+          <span v-if="balance">{{ prettifyBalanceFixed(balance, asset.symbol, asset.decimal, asset.decimal) }}</span>
           <span v-else>--</span>
         </span>
       </FlexBox>
