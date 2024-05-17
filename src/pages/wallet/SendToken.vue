@@ -27,11 +27,7 @@ const logo = computed(() => getIcon(CoinCategory.MetaContract, route.params.gene
 
 const { currentMVCWallet } = useChainWalletsStore()
 
-const tags = computed(() => {
-  if (asset.value) {
-    return getTags(asset.value)
-  }
-})
+const tags = getTags('MetaContract')
 
 const queryClient = useQueryClient()
 

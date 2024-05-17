@@ -289,9 +289,9 @@ const routes = [
         },
       },
       {
-        path: '/wallet/rune/:name/:runeId/:address',
+        path: '/wallet/rune/:name/:symbol/:runeId/:address',
         component: () => import('./pages/wallet/Rune.vue'),
-        name: 'rune',
+        name: 'rune-detail',
         props: true,
         meta: {
           secondaryHeader: true,

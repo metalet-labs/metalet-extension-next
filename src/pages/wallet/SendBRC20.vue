@@ -41,11 +41,7 @@ const {
   data: asset,
 } = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
 
-const tags = computed(() => {
-  if (asset.value) {
-    return getTags(asset.value)
-  }
-})
+const tags = getTags('BRC-20')
 
 const recipient = ref('')
 const operationLock = ref(false)

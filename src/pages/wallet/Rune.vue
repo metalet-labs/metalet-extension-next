@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
 import { calcBalance } from '@/lib/formatters'
 import { useRoute, useRouter } from 'vue-router'
+import { Chain } from '@metalet/utxo-wallet-service'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import Activities from './components/Activities.vue'
@@ -19,6 +20,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 
 const route = useRoute()
 const router = useRouter()
+const symbol = route.params.symbol as string
 const runeId = ref<string>(route.params.runeId as string)
 const address = computed(() => route.params.address as string)
 
@@ -26,11 +28,7 @@ const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(addre
   enabled: computed(() => !!address.value && !!runeId.value),
 })
 
-const tags = computed(() => {
-  if (asset.value) {
-    return getTags(asset.value)
-  }
-})
+const tags = getTags('Runes')
 
 const assetUSD = computed(() => {
   const usdRate = new Decimal(0)
@@ -61,14 +59,13 @@ const toSend = () => {
 </script>
 
 <template>
-  <LoadingText text="Rune Asset Loading..." v-if="isRuneDetailLoading" />
-  <div class="flex flex-col items-center space-y-6 w-full" v-else-if="asset">
+  <div class="flex flex-col items-center space-y-6 w-full">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="logo" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
-        <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
-        <span v-else>-- {{ asset.symbol }}</span>
+        <span v-if="asset?.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
+        <span v-else>-- {{ symbol }}</span>
         <span class="text-gray-primary ml-2" v-if="assetUSD !== undefined">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
         </span>
@@ -87,8 +84,8 @@ const toSend = () => {
     <div class="flex items-center justify-center gap-x-2">
       <button
         @click="toMint"
-        :disabled="!asset.mintable"
-        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !asset.mintable }]"
+        :disabled="!asset?.mintable || false"
+        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !asset?.mintable || false }]"
       >
         <PencilIcon class="w-3" />
         <span>Mint</span>
@@ -116,15 +113,16 @@ const toSend = () => {
         </DropdownMenu>
       </div>
       <Activities
+        v-if="asset"
         class="mt-8 self-stretch"
         :asset="asset"
         :exchangeRate="0"
         :address="address"
         :coinCategory="CoinCategory.Rune"
       />
+      <LoadingText text="Activities Loading..." v-else />
     </div>
   </div>
-  <LoadingText text="No Rune Asset Found." v-else />
 </template>
 
 <style scoped lang="css">

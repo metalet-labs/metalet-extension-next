@@ -57,27 +57,24 @@ const tags: Tag[] = [
     bg: 'rgba(153,159,255,0.2)',
     color: '#787FFF',
   },
+  {
+    name: 'Runes',
+    bg: 'rgb(247, 147, 26, 0.2)',
+    color: '#FF981C',
+  },
 ]
 
 function getTagInfo(name: string): Tag | undefined {
   return tags.find((tag) => tag.name === name)
 }
 
-function getTags(asset: Asset): Tag[] {
+type Protocol = 'BRC-20' | 'MetaContract' | 'Runes'
+
+function getTags(protocol: Protocol): Tag[] {
   const tagList: Tag[] = []
-  if (asset?.contract) {
-    const contractTag = getTagInfo(asset.contract)
-    if (contractTag) {
-      tagList.push(contractTag)
-    }
-  } else if ((asset as RuneAsset)?.runeId) {
-    ;[
-      {
-        name: 'Runes',
-        bg: 'rgb(247, 147, 26, 0.2)',
-        color: '#FF981C',
-      },
-    ]
+  const contractTag = getTagInfo(protocol)
+  if (contractTag) {
+    tagList.push(contractTag)
   }
   return tagList
 }

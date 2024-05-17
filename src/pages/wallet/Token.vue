@@ -2,12 +2,14 @@
 import Decimal from 'decimal.js'
 import { computed, ref } from 'vue'
 import { getTags } from '@/data/assets'
+import { LoadingText } from '@/components'
 import { useRoute, useRouter } from 'vue-router'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useMVCTokenQuery } from '@/queries/tokens'
 import Activities from './components/Activities.vue'
+import { Chain } from '@metalet/utxo-wallet-service'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import { toast } from '@/components/ui/toast/use-toast'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
@@ -26,11 +28,7 @@ const enabled = computed(() => !!address && !!symbol && !!genesis)
 const { getIcon } = useIconsStore()
 const icon = computed(() => getIcon(CoinCategory.MetaContract, route.params.genesis as string) || '')
 
-const tags = computed(() => {
-  if (asset.value) {
-    return getTags(asset.value)
-  }
-})
+const tags = getTags('MetaContract')
 
 const { data: asset } = useMVCTokenQuery(ref(address), ref(genesis), { enabled })
 
@@ -79,13 +77,13 @@ const copyGenesis = () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center space-y-6 w-full" v-if="asset">
+  <div class="flex flex-col items-center space-y-6 w-full">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+      <AssetLogo :logo="icon" :chain="Chain.MVC" :symbol="symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
-        <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
-        <span v-else>-- {{ asset.symbol }}</span>
+        <span v-if="asset?.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
+        <span v-else>-- {{ symbol }}</span>
         <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
         </span>
@@ -112,11 +110,11 @@ const copyGenesis = () => {
       </button>
     </div>
 
-    <div class="mt-8 self-stretch">
+    <div class="mt-8 self-stretch" v-if="asset?.genesis">
       <div class="text-xs text-gray-500">Token Contract ID</div>
       <div class="flex items-center hover:text-blue-primary">
         <CheckBadgeIcon class="mr-1 h-5 w-5 text-blue-500" />
-        <div class="text-base">{{ prettifyTokenGenesis(asset.genesis!) }}</div>
+        <div class="text-base">{{ prettifyTokenGenesis(asset.genesis) }}</div>
         <CopyIcon class="ml-2 cursor-pointer w-[22px]" @click.stop="copyGenesis" />
       </div>
     </div>
@@ -137,16 +135,18 @@ const copyGenesis = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
       <Activities
+        v-if="asset"
         class="mt-8 self-stretch"
         :asset="asset"
         :exchangeRate="Number(exchangeRate)"
         :address="address"
         :coinCategory="CoinCategory.MetaContract"
       />
+      <LoadingText v-else text="Activities Loading..." />
     </div>
   </div>
-  <Loading v-else text="Asset Loading..." />
 </template>
 
 <style scoped lang="css">

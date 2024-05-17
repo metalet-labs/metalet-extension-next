@@ -66,12 +66,6 @@ const balaceEnabled = computed(() => {
 
 const { isLoading, data: balance } = useBalanceQuery(address, symbol, { enabled: balaceEnabled })
 
-const tags = computed(() => {
-  if (asset.value) {
-    return getTags(asset.value)
-  }
-})
-
 const rateEnabled = computed(() => {
   if (asset.value) {
     return !!address.value && !!symbol.value
@@ -193,15 +187,6 @@ const toReceive = () => {
         <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
         </span>
-      </div>
-
-      <div
-        :key="tag.name"
-        v-for="tag in tags"
-        :style="`background-color:${tag.bg};color:${tag.color};`"
-        :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
-      >
-        {{ tag.name }}
       </div>
     </div>
 

@@ -23,8 +23,8 @@ const runes = computed(() => (data.value ? data.value.pages.flatMap((page) => pa
 
 function toRune(asset: RuneAsset, address: string) {
   router.push({
-    name: 'rune',
-    params: { runeId: asset.runeId, address, name: asset.tokenName },
+    name: 'rune-detail',
+    params: { runeId: asset.runeId, address, name: asset.tokenName, symbol: asset.symbol },
   })
 }
 </script>

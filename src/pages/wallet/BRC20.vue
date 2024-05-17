@@ -12,6 +12,7 @@ import { SymbolTicker } from '@/lib/asset-symbol'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
+import { Chain } from '@metalet/utxo-wallet-service'
 import Activities from './components/Activities.vue'
 import TickerList from './components/TickerList.vue'
 import { useBRC20AseetQuery } from '@/queries/brc20'
@@ -56,11 +57,7 @@ const availableBalanceSafe = computed(() => asset.value?.balance.availableBalanc
 
 const availableBalanceUnSafe = computed(() => asset.value?.balance.availableBalanceUnSafe)
 
-const tags = computed(() => {
-  if (asset.value) {
-    return getTags(asset.value)
-  }
-})
+const tags = getTags('BRC-20')
 
 const rateEnabled = computed(() => {
   if (asset.value) {
@@ -104,13 +101,13 @@ watch(assetUSD, (_assetUSD) => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center space-y-6 w-full" v-if="asset">
+  <div class="flex flex-col items-center space-y-6 w-full">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+      <AssetLogo :logo="icon" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
-        <span v-if="asset.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
-        <span v-else>-- {{ asset.symbol }}</span>
+        <span v-if="asset?.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
+        <span v-else>-- {{ symbol }}</span>
         <span class="text-gray-primary ml-2" v-if="assetUSD !== undefined">≈ ${{ assetUSD.toFixed(2) }}</span>
       </div>
 
@@ -129,7 +126,7 @@ watch(assetUSD, (_assetUSD) => {
         <img :src="MintPNG" alt="Mint" />
         <span>Mint</span>
       </RouterLink>
-      <RouterLink :to="`/wallet/transfer/${asset.symbol}/${address}`" class="btn-blue-primary">
+      <RouterLink :to="`/wallet/transfer/${symbol}/${address}`" class="btn-blue-primary">
         <img :src="TransferPNG" alt="Transfer" />
         <span>Transfer</span>
       </RouterLink>
@@ -161,7 +158,7 @@ watch(assetUSD, (_assetUSD) => {
         </TabsContent>
         <TabsContent value="Available">
           <div v-if="availableBalanceUnSafe" class="grid grid-cols-3 gap-x-2 gap-y-4">
-            <Ticker :ticker="asset.symbol" :amount="availableBalanceUnSafe" />
+            <Ticker :ticker="symbol" :amount="availableBalanceUnSafe" />
           </div>
           <div v-else class="pt-6 pb-8">
             <EmptyIcon class="mx-auto" />
@@ -187,15 +184,16 @@ watch(assetUSD, (_assetUSD) => {
         </DropdownMenu>
       </div>
       <Activities
+        v-if="asset"
         class="mt-8 self-stretch"
         :asset="asset"
         :exchangeRate="Number(exchangeRate)"
         :address="address"
         :coinCategory="CoinCategory.BRC20"
       />
+      <LoadingText text="Activities Loading..." v-else />
     </div>
   </div>
-  <LoadingText v-else :text="`${symbol} details Loading...`" />
 </template>
 
 <style scoped lang="css">
