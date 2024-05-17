@@ -351,11 +351,8 @@ export async function getBalance(chain: UtxoChain) {
 }
 
 export async function getUtxos(chain: Chain = 'mvc', params?: { path?: string }) {
-  const activeWallet = await getActiveWalletOnlyAccount()
-  if (!activeWallet || !!activeWallet.accounts.length) {
-    return null
-  }
-  const address = await getAddress(chain, params?.path)
+  const wallet = await getCurrentWallet(chain as UtxoChain)
+  const address = wallet.getAddress()
   return await fetchUtxos(chain, address)
 }
 
