@@ -115,7 +115,7 @@ const getAccountChainWallets = async () => {
     }
 
     const walletManager = await getWalletManager()
-    return walletManager.getAccountChainWallets(currentWalletId, currentAccountId)
+    return walletManager.getAccountChainWallets(currentWalletId, currentAccountId) || []
   } catch (error) {
     console.error('Error getting account chain wallets:', error)
     throw error

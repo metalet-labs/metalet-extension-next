@@ -390,7 +390,7 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
           if (v2Account.btc.path === "m/44'/0'/0'/0/0") {
             btcAddressType = AddressType.Legacy
           } else {
-            btcAddressType = AddressType.LegacyMvc
+            btcAddressType = AddressType.SameAsMvc
           }
           break
         case 'P2WPKH':
