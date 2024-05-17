@@ -42,12 +42,12 @@ const chains = [
 const formSchema = toTypedSchema(
   z.object({
     chains: z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: 'Please select at least one network service before launching.',
+      message: 'Choose at least one network.',
     }),
   })
 )
 
-const { handleSubmit, setFieldValue } = useForm({
+const { handleSubmit } = useForm({
   validationSchema: formSchema,
   initialValues: {
     chains: Object.values(Chain),
@@ -164,10 +164,7 @@ onMounted(async () => {
         </span>
       </h1>
       <template v-if="!error">
-        <p class="mt-6">Please select a network:</p>
-        <p class="text-sm mt-2 text-gray-primary text-center w-96">
-          Metalet currently supports the following blockchain networks. (Supports multiple selections)
-        </p>
+        <p class="mt-6">Choose Networks</p>
         <form @submit="onSubmit" class="mt-9 relative">
           <FormField name="chains">
             <FormItem class="flex items-center gap-8">

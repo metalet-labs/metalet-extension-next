@@ -60,27 +60,27 @@ const close = () => {
             <div class="flex flex-col gap-2 text-ss">
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked1" />
-                <p>We neither retain nor furnish assistance in the retrieval of your password.</p>
+                <p>Metalet Wallet doesn't store your password andcan't help you retrieve it.</p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked2" />
                 <p>
-                  Should you misplace your password, you have the option to reset the wallet. Alternatively,
-                  re-importation of the wallet utilizing the mnemonic phrase or private key is also feasible.
+                  If you forget your password, you can reset it byresetting your wallet. You can re-import your wallet
+                  with its seed phrase or private keywithout affecting your assets.
                 </p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked3" />
                 <p>
-                  Please be advised that the resetting of the wallet without a prior backup will result in the permanent
-                  loss of all assets. Prior to undertaking the reset process, ensure to create backups of all wallets.
+                  If you reset the wallet without backing it up,you'll permanently lose it and all assets. Be sureto
+                  back up all wallets and keep your seed phraseor private key safe before resetting.
                 </p>
               </div>
             </div>
 
             <div class="space-y-2">
               <p class="text-sm">
-                Should you affirm your intent to reset your wallet, kindly input the following below:
+                To confirm wallet reset, please enter:
                 <span class="text-red-500">RESET</span>
               </p>
               <input

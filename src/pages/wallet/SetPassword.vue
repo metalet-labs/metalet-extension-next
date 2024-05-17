@@ -56,14 +56,14 @@ const next = async () => {
 
 <template>
   <div class="flex h-full flex-col">
-    <div class="h-15 -my-3 flex items-center">
+    <div class="h-15 -my-3 flex items-center gap-3">
       <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="back" />
     </div>
     <div class="space-y-2 pt-4">
-      <h3 class="mt-4 text-2xl font-medium">Change Password</h3>
+      <h3 class="text-2xl font-medium">Change Password</h3>
       <p class="mt-2 text-sm text-gray-primary">
-        This password is exclusively applicable for unlocking your Metalet wallet on this specific device, and please be
-        advised that Metalet does not possess the capability to retrieve it on your behalf.
+        Set a password to manage your wallet. Note thatwe don't store your password and can't restore itfor you. lf you
+        forget your password, you can set anew one by resetting your wallet and re-importing it.
       </p>
     </div>
     <div class="grow">
@@ -76,8 +76,8 @@ const next = async () => {
       />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
-        <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
-        <PasswordInput v-model:password="confirmPassword" title="Confirm Password" v-model:error="error" />
+        <PasswordInput v-model:password="password" title="New Password" :validate="true" />
+        <PasswordInput v-model:password="confirmPassword" title="Confirm" v-model:error="error" />
       </div>
     </div>
     <div class="flex items-center justify-center gap-2 my-6">

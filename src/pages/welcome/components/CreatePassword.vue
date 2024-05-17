@@ -41,11 +41,14 @@ const submit = async () => {
   <FlexBox d="col" class="w-82">
     <FlexBox ai="center" :gap="3">
       <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer w-3.5" />
-      <div class="text-2xl font-medium">Create Password</div>
+      <div class="text-2xl font-medium">Set Password</div>
     </FlexBox>
+    <p class="mt-2 font-medium">
+      Set a password to manage your wallet.
+    </p>
     <p class="mt-2 text-sm text-gray-primary">
-      This password is solely used for unlocking your Metalet wallet on this device. Metalet cannot recover this
-      password for you.
+      It's important to note that we do not retain your password, thus if it is forgotten, you will need to reset your
+      wallet and re-import it to establish a new one.
     </p>
     <FlexBox d="col" class="mt-9 gap-y-10">
       <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />

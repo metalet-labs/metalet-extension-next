@@ -67,7 +67,7 @@ const levelColors = computed(() => {
           <div :class="['w-8 h-1.5 rounded-md', bgColor]" v-for="(bgColor, index) in levelColors" :key="index"></div>
         </div>
         <div v-if="password">
-          <span :class="[securityColor]">Password strength: {{ securityLevel }}</span>
+          <span :class="[securityColor]">{{ securityLevel }}</span>
         </div>
       </div>
       <p v-if="error" class="absolute -bottom-8 left-0 text-sm text-red-500">{{ error }}</p>

@@ -133,34 +133,32 @@ const next = () => {
         @click="!selectedMvcPath ? emit('preStep') : (selectedMvcPath = false)"
         class="cursor-pointer w-3.5"
       />
-      <div class="text-2xl font-medium">MVC Management</div>
+      <div class="text-2xl font-medium">MVC</div>
     </div>
     <div v-if="!selectedMvcPath">
-      <div class="h-[416px] space-y-4">
-        <div class="text-xs font-semibold">Select MVC Address Type</div>
+      <div class="h-[416px]">
+        <div class="text-xs font-semibold">Choose MVC Address Type</div>
+        <p class="text-xs text-gray-primary mt-2">If you're unsure what this is, keep the default.</p>
         <div
-          class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer"
+          class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer mt-[22px]"
           @click="mvcPath = 10001"
         >
           <div class="flex flex-col gap-y-1.5 w-64">
             <div class="text-sm font-semibold">Default</div>
-            <div class="text-xs">
-              The Metalet wallet utilizes a default address generation strategy. The derivation path will be
-              "m/44'/10001'/0".
-            </div>
+            <div class="text-xs">It's default strategy of MVC Address. Using "m/44'/10001'/0'" as derivation path.</div>
           </div>
           <SuccessIcon v-if="mvcPath === 10001" class="w-5 h-5" />
           <div v-else class="w-4 h-4 border border-[#C5C5C5] rounded-full"></div>
         </div>
         <div
-          class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer"
+          class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer mt-4"
           @click="mvcPath = 236"
         >
           <div class="flex flex-col gap-y-1.5 w-64">
-            <div class="text-sm font-semibold">MVC Custom</div>
+            <div class="text-sm font-semibold">Custom</div>
             <div class="text-xs">
-              Using the custom derivation path with Metalet Wallet, mainly for backward compatibility. When importing
-              old accounts, please carefully select this option and ensure you know the derivation path.
+              The custom option is mostly used for backward compatibility. Make sure you know what a derivation path is
+              if you choose this.
             </div>
           </div>
           <SuccessIcon v-if="mvcPath !== 10001" class="w-5 h-5" />
@@ -179,9 +177,9 @@ const next = () => {
     <div class="flex flex-col gap-4" v-else>
       <div class="flex flex-col gap-6 h-[416px]">
         <div class="flex flex-col gap-3">
+          <div class="text-xs font-semibold">Customize your MVC address</div>
           <div class="flex items-center justify-between gap-5">
             <template v-if="mvcPath !== 10001">
-              <div class="text-xs font-semibold">MVC Custom</div>
               <div class="text-sm tracking-wide">
                 <span>m/44'/</span>
                 <input type="text" class="pit-input mx-2 w-16" v-model="mvcPath" />
@@ -189,7 +187,7 @@ const next = () => {
               </div>
               <DeleteIcon class="cursor-pointer" v-if="false" />
             </template>
-            <div v-else class="text-xs font-semibold">Default</div>
+            <div v-else class="text-xs font-semibold">Address for MVC</div>
           </div>
           <div class="flex items-center gap-2 bg-gray-secondary p-3 rounded-lg text-xs">
             <Avatar :id="customAddress" />

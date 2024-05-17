@@ -59,9 +59,6 @@ const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
         <div class="text-xs px-1.5 py-0.5 rounded inline-block bg-gray-light text-gray-primary" v-if="tag">
           {{ tag }}
         </div>
-        <div class="text-gray-primary text-xs text-center w-56">
-          Only supports receiving assets from the {{ network }} network.
-        </div>
         <Divider class="w-[232px] my-4" />
         <img :src="qrcode" alt="" class="w-[232px] h-[232px] rounded-lg" />
         <div
