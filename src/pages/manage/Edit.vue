@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { goToPage } from '@/lib/utils'
 import { EditName } from '@/components'
 import { DeleteWallet } from '@/components'
 import { type V3Wallet } from '@/lib/types'
 import Avatar from '@/components/Avatar.vue'
+import { goToPage, goToTab } from '@/lib/utils'
 import { getBackupV3Wallet } from '@/lib/backup'
 import RemoveIcon from '@/assets/icons-v3/remove.svg'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
-import { deleteV3Wallet, getCurrentWalletId, setCurrentWalletId, getV3WalletsStorage } from '@/lib/wallet'
+import { deleteV3Wallet, getCurrentWalletId, setCurrentWalletId, getV3WalletsStorage, getV3Wallets } from '@/lib/wallet'
 
 const { updateAllWallets } = useChainWalletsStore()
 
@@ -71,7 +71,15 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
 
 const deleteWallet = async (walletId: string) => {
   await deleteV3Wallet(walletId)
-  window.location.reload()
+  const wallets = await getV3Wallets()
+  if (wallets.length) {
+    await setCurrentWalletId(wallets[0].id)
+    await setCurrentAccountId(wallets[0].accounts[0].id)
+    getWallets()
+    deleteWalletOpen.value = false
+  } else {
+    goToTab('/welcome', true)
+  }
 }
 </script>
 

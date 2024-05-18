@@ -26,13 +26,15 @@ const clearWords = () => {
   props.words.splice(0, props.words.length, ...Array(Number(wordsLen.value)).fill(''))
 }
 
-const onPasteWords = (e: ClipboardEvent) => {
+const onPasteWords = (e: ClipboardEvent, index: number) => {
   error.value = ''
   const text = e.clipboardData?.getData('text')
   if (text) {
     const wordsArr = text.split(' ')
     if (wordsArr.length === Number(wordsLen.value)) {
       props.words.splice(0, props.words.length, ...wordsArr)
+    } else if (wordsArr.length === 1) {
+      props.words[index] = wordsArr[0]
     } else {
       error.value = 'Invalid secret phrase. Please check and try again.'
     }

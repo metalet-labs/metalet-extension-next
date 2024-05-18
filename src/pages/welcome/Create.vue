@@ -41,7 +41,7 @@ passwordManager.has().then((_hasPassword) => {
           }
         "
       />
-      <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="[10001]" type="create" />
+      <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="[10001]" type="Create" />
     </FlexBox>
   </FlexBox>
 </template>

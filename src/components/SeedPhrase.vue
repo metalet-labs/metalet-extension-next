@@ -30,7 +30,7 @@ defineProps({
         type="text"
         v-if="edit"
         v-model="words[index]"
-        @paste.prevent="onPasteWords!"
+        @paste.prevent="(e) => onPasteWords!(e, index)"
         class="h-full font-medium w-full p-3 rounded-lg focus:outline-none focus:ring-0"
       />
       <div v-else class="h-full font-medium w-full p-3 rounded-lg focus:outline-none focus:ring-0 leading-4">

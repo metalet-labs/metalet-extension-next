@@ -10,15 +10,26 @@ import FailIcon from '@/assets/icons-v3/fail.svg'
 import { Checkbox } from '@/components/ui/checkbox'
 import { WalletsStore } from '@/stores/WalletStore'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import BtcLogoIcon from '@/assets/icons-v3/btc-logo.svg?url'
-import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
+import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
+import BtcLogoIcon from '@/assets/icons-v3/btc-logo.svg?url'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getBackupV3Wallet, setBackupV3Wallet } from '@/lib/backup'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
 import { getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 import { addV3Wallet, getV3Wallets, setCurrentWalletId } from '@/lib/wallet'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+
+const { updateAllWallets } = useChainWalletsStore()
+
+type ActivateType = 'Create' | 'Import'
+
+const { words, mvcTypes, type } = defineProps<{
+  words: string[]
+  mvcTypes: number[]
+  type: ActivateType
+}>()
 
 const loading = ref(true)
 const error = ref<string>()
@@ -68,27 +79,16 @@ const updateServiceNetwork = async (chains: Chain[]) => {
 }
 
 const selectChain = (chain: Chain) => {
-  console.log('start', chain, selectedChains.value)
-
   if (selectedChains.value.includes(chain)) {
     selectedChains.value = selectedChains.value.filter((item) => item !== chain)
   } else {
     selectedChains.value.push(chain)
   }
-  console.log('end', chain, selectedChains.value)
 }
 
 const onSubmit = handleSubmit(({ chains }) => {
   updateServiceNetwork(chains as Chain[])
 })
-
-type ActivateType = 'create' | 'import'
-
-const { words, mvcTypes, type } = defineProps<{
-  words: string[]
-  mvcTypes: number[]
-  type: ActivateType
-}>()
 
 const mnemonic = words.join(' ')
 if (!mnemonic) {
@@ -121,10 +121,12 @@ onMounted(async () => {
     error.value = err.message
     return
   })
+  await WalletsStore.getWalletManager()
+  await WalletsStore.addWalletOnlyAccount(walletId, accountId)
   await setCurrentWalletId(walletId)
   await setCurrentAccountId(accountId)
-  await WalletsStore.initWalletManager()
-  if (type === 'import') {
+  await updateAllWallets()
+  if (type === 'Import') {
     const walletIds = await getBackupV3Wallet()
     walletIds.push(walletId)
     setBackupV3Wallet(walletIds)
@@ -152,14 +154,14 @@ onMounted(async () => {
       <h1 class="text-2xl mt-6 font-medium">
         <span v-if="error">
           Wallet
-          <span v-if="$props.type === 'create'">Created</span>
-          <span v-if="$props.type === 'import'">Imported</span>
+          <span v-if="$props.type === 'Create'">Created</span>
+          <span v-if="$props.type === 'Import'">Imported</span>
           Failed
         </span>
         <span v-else>
           Wallet
-          <span v-if="$props.type === 'create'">Created</span>
-          <span v-if="$props.type === 'import'">Imported</span>
+          <span v-if="$props.type === 'Create'">Created</span>
+          <span v-if="$props.type === 'Import'">Imported</span>
           Successfully
         </span>
       </h1>
@@ -212,7 +214,7 @@ onMounted(async () => {
           </button>
         </form>
       </template>
-      <Button v-else :class="['mt-26 w-61.5']" @click="$router.replace('/welcome')">Back To Welcome</Button>
+      <Button v-else :class="['mt-26 w-61.5']" @click="$router.replace('/welcome')">Back To Welcome Page</Button>
       <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>
     </div>
   </div>
