@@ -17,7 +17,11 @@ getAccounts().then((accounts) => {
   <FlexBox ai="center" jc="center" :gap="12" class="w-full h-full">
     <FlexBox d="col" class="gap-y-15">
       <FlexBox d="col" :gap="3">
-        <div class="text-2xl font-semibold w-80">The Entrance to The Web3 Blockchain</div>
+        <h3 class="text-2xl font-semibold w-80">
+          The Entrance
+          <br />
+          to the Web3 Blockchain
+        </h3>
         <p class="text-gray-primary w-96">Metalet is the way to explore your crypto journey.</p>
       </FlexBox>
       <FlexBox d="col" :gap="4">
