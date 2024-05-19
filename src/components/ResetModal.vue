@@ -60,20 +60,20 @@ const close = () => {
             <div class="flex flex-col gap-2 text-ss">
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked1" />
-                <p>Metalet Wallet doesn't store your password andcan't help you retrieve it.</p>
+                <p>Metalet Wallet doesn't store your password and can't help you retrieve it.</p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked2" />
                 <p>
-                  If you forget your password, you can reset it byresetting your wallet. You can re-import your wallet
-                  with its seed phrase or private keywithout affecting your assets.
+                  If you forget your password, you can reset it by resetting your wallet. You can re-import your wallet
+                  with its seed phrase or private key without affecting your assets.
                 </p>
               </div>
               <div class="p-3.5 bg-gray-secondary rounded-lg flex items-center gap-x-3">
                 <Checkbox id="tips1" v-model:checked="checked3" />
                 <p>
-                  If you reset the wallet without backing it up,you'll permanently lose it and all assets. Be sureto
-                  back up all wallets and keep your seed phraseor private key safe before resetting.
+                  If you reset the wallet without backing it up,you'll permanently lose it and all assets. Be sure to
+                  back up all wallets and keep your seed phrase or private key safe before resetting.
                 </p>
               </div>
             </div>

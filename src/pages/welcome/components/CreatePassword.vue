@@ -43,16 +43,14 @@ const submit = async () => {
       <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer w-3.5" />
       <div class="text-2xl font-medium">Set Password</div>
     </FlexBox>
-    <p class="mt-2 font-medium">
-      Set a password to manage your wallet.
-    </p>
+    <p class="mt-2 font-medium">Set a password to manage your wallet</p>
     <p class="mt-2 text-sm text-gray-primary">
       It's important to note that we do not retain your password, thus if it is forgotten, you will need to reset your
       wallet and re-import it to establish a new one.
     </p>
     <FlexBox d="col" class="mt-9 gap-y-10">
       <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
-      <PasswordInput v-model:password="confirmPassword" title="Confirm Password" v-model:error="error" />
+      <PasswordInput v-model:password="confirmPassword" title="Confirm" v-model:error="error" />
     </FlexBox>
     <FlexBox d="col" ai="center" jc="center" class="mt-16" :gap="4">
       <FlexBox ai="center" :gap="1.5">

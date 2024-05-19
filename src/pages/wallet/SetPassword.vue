@@ -62,8 +62,8 @@ const next = async () => {
     <div class="space-y-2 pt-4">
       <h3 class="text-2xl font-medium">Change Password</h3>
       <p class="mt-2 text-sm text-gray-primary">
-        Set a password to manage your wallet. Note thatwe don't store your password and can't restore it for you. If you
-        forget your password, you can set anew one by resetting your wallet and re-importing it.
+        Set a password to manage your wallet. Note that we don't store your password and can't restore it for you. If
+        you forget your password, you can set a new one by resetting your wallet and re-importing it.
       </p>
     </div>
     <div class="grow">
