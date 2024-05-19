@@ -5,6 +5,7 @@ import { getCurrentAccountId } from './account'
 import { getV3AddressTypeStorage } from './addressType'
 import { Chain, MvcWallet, BtcWallet, AddressType, CoinType } from '@metalet/utxo-wallet-service'
 
+const Wallet_Num = 'wallet_num'
 const CURRENT_WALLET_ID = 'currentWalletId'
 export const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
 
@@ -22,6 +23,17 @@ export async function getV3WalletsStorage() {
 
 export async function getV3Wallets() {
   return Object.values(await getV3WalletsStorage())
+}
+
+export async function getV3WalletsNum() {
+  const wallets = await getV3Wallets()
+  return await storage.get<number>(Wallet_Num, {
+    defaultValue: wallets.length,
+  })
+}
+
+export async function setV3WalletsNum(num: number) {
+  return await storage.set(Wallet_Num, num)
 }
 
 export async function addV3Wallet(wallet: V3Wallet) {

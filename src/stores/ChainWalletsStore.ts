@@ -1,7 +1,9 @@
 import { FEEB } from '@/data/config'
 import { network } from '@/lib/network'
 import { createGlobalState } from '@vueuse/core'
+import { getCurrentWalletId } from '@/lib/wallet'
 import { WalletsStore } from '@/stores/WalletStore'
+import { getCurrentAccountId } from '@/lib/account'
 import { onMounted, ref, toRaw, computed } from 'vue'
 import { API_NET, API_TARGET, Wallet } from 'meta-contract'
 import { BtcWallet, Chain, MvcWallet } from '@metalet/utxo-wallet-service'
@@ -48,8 +50,12 @@ export const useChainWalletsStore = createGlobalState(() => {
   }
 
   onMounted(async () => {
-    currentBTCWallet.value = await WalletsStore.getCurrentChainWallet(Chain.BTC)
-    currentMVCWallet.value = await WalletsStore.getCurrentChainWallet(Chain.MVC)
+    const currentWalletId = await getCurrentWalletId()
+    const currentAccountId = await getCurrentAccountId()
+    if (currentWalletId && currentAccountId) {
+      currentBTCWallet.value = await WalletsStore.getCurrentChainWallet(Chain.BTC)
+      currentMVCWallet.value = await WalletsStore.getCurrentChainWallet(Chain.MVC)
+    }
   })
 
   return {

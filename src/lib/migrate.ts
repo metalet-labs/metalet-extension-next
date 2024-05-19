@@ -4,14 +4,15 @@ import { encrypt, decrypt } from './crypto'
 import { toast } from '@/components/ui/toast'
 import { generateRandomString } from './helpers'
 import { type DerivedAccountDetail } from '@/lib/types'
-import { AddressType as ScriptType, deriveAllAddresses } from './bip32-deriver'
+import { getBackupV3Wallet, setBackupV3Wallet } from './backup'
 import { AddressType, Chain } from '@metalet/utxo-wallet-service'
+import { AddressTypeRecord, migrateV3AddressTypeStorage } from './addressType'
+import { AddressType as ScriptType, deriveAllAddresses } from './bip32-deriver'
 import {
   getV3Wallets,
-  hasV3Wallets,
+  setV3WalletsNum,
   getV3WalletsStorage,
   setV3WalletsStorage,
-  getCurrentWalletId,
   setCurrentWalletId,
 } from '@/lib/wallet'
 import {
@@ -25,8 +26,6 @@ import {
   getLegacyAccounts,
   getCurrentAccountId,
 } from './account'
-import { AddressTypeRecord, migrateV3AddressTypeStorage } from './addressType'
-import { getBackupV3Wallet, setBackupV3Wallet } from './backup'
 
 export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
 export const ACCOUNT_V1_Migrated_KEY = 'accounts_v1_migrated'
@@ -444,6 +443,7 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
   } else if (successfulMigrations > 0 && failedMigrations === 0) {
     code = MigrateResultCode.SUCCESS
   }
+  await setV3WalletsNum(successfulMigrations)
   return {
     code,
     message: `

@@ -18,8 +18,8 @@ import { getBackupV3Wallet, setBackupV3Wallet } from '@/lib/backup'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
 import { getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
-import { addV3Wallet, getV3Wallets, setCurrentWalletId } from '@/lib/wallet'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { addV3Wallet, getCurrentWalletId, getV3Wallets, getV3WalletsNum, setCurrentWalletId, setV3WalletsNum } from '@/lib/wallet'
 
 const { updateAllWallets } = useChainWalletsStore()
 
@@ -86,7 +86,7 @@ const selectChain = (chain: Chain) => {
   }
 }
 
-const onSubmit = handleSubmit(({ chains }) => {
+const onSubmit = handleSubmit(async ({ chains }) => {
   updateServiceNetwork(chains as Chain[])
 })
 
@@ -105,9 +105,10 @@ onMounted(async () => {
   }
   const walletId = genUID()
   const accountId = genUID()
+  const walletNum = await getV3WalletsNum()
   await addV3Wallet({
     id: walletId,
-    name: `Wallet ${formatIndex(wallets.length + 1)}`,
+    name: `Wallet ${formatIndex(walletNum + 1)}`,
     mnemonic,
     mvcTypes,
     accounts: [
@@ -121,10 +122,14 @@ onMounted(async () => {
     error.value = err.message
     return
   })
-  await WalletsStore.getWalletManager()
-  await WalletsStore.addWalletOnlyAccount(walletId, accountId)
+  await setV3WalletsNum(walletNum + 1)
   await setCurrentWalletId(walletId)
   await setCurrentAccountId(accountId)
+  if (WalletsStore.hasWalletManager()) {
+    await WalletsStore.addWalletOnlyAccount(walletId, accountId)
+  } else {
+    await WalletsStore.initWalletManager()
+  }
   await updateAllWallets()
   if (type === 'Import') {
     const walletIds = await getBackupV3Wallet()
@@ -140,7 +145,7 @@ onMounted(async () => {
     <!-- TODO: Add a loading screen -->
     <div
       v-if="loading"
-      class="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center"
+      class="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-10"
     >
       <div class="w-[108px] h-[108px] bg-white rounded-lg flex flex-col items-center justify-center gap-4">
         <LoadingIcon class="text-blue-primary" />

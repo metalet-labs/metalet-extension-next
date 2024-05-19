@@ -1,13 +1,11 @@
 import { reactive } from 'vue'
 import { getNet } from '@/lib/network'
 import { toast } from '@/components/ui/toast'
-import { goToPage, goToTab } from '@/lib/utils'
 import { getCurrentAccountId } from '@/lib/account'
 import { getV3AddressTypeStorage } from '@/lib/addressType'
 import { WalletManager } from '@metalet/utxo-wallet-service'
 import { Chain, type Net } from '@metalet/utxo-wallet-service'
 import {
-  hasV3Wallets,
   getCurrentWalletId,
   getWalletOnlyAccount,
   getWalletOtherAccounts,
@@ -39,17 +37,16 @@ const initWalletManager = async (): Promise<WalletManager> => {
     return walletManager
   } catch (err) {
     toast({ title: (err as Error).message, toastType: 'fail' })
-    if (await hasV3Wallets()) {
-      goToPage('/manage/wallets')
-    } else {
-      goToTab('/welcome', true)
-    }
     throw err
   }
 }
 
 const hasWalletManager = () => {
   return walletManager !== null
+}
+
+const resetManager = () => {
+  walletManager = null
 }
 
 const getWalletManager = async (): Promise<WalletManager> => {
@@ -64,12 +61,7 @@ const loadActiveWalletOtherAccounts = async () => {
   const manager = await getWalletManager()
   const activeWallet = await getActiveWalletOtherAccounts()
   if (!activeWallet) {
-    if (await hasV3Wallets()) {
-      goToPage('/manage/wallets')
-    } else {
-      goToTab('/welcome', true)
-    }
-    return
+    throw new Error('No active wallet found. Please select a wallet.')
   }
   for (let account of activeWallet.accounts) {
     manager.addAccount(activeWallet.id, {
@@ -84,12 +76,7 @@ const loadWalletOtherAccounts = async (walletId: string, accountId: string) => {
   const manager = await getWalletManager()
   const wallet = await getWalletOtherAccounts(walletId, accountId)
   if (!wallet) {
-    if (await hasV3Wallets()) {
-      goToPage('/manage/wallets')
-    } else {
-      goToTab('/welcome', true)
-    }
-    return
+    throw new Error('No wallet found. Please select a wallet.')
   }
   for (let account of wallet.accounts) {
     manager.addAccount(wallet.id, {
@@ -104,13 +91,11 @@ const getAccountChainWallets = async () => {
   try {
     const currentWalletId = await getCurrentWalletId()
     if (!currentWalletId) {
-      goToPage('/manage/wallets')
       throw new Error('No current wallet found. Please select a wallet.')
     }
 
     const currentAccountId = await getCurrentAccountId()
     if (!currentAccountId) {
-      goToPage('/manage/wallets')
       throw new Error('No current account found. Please select an account.')
     }
 
@@ -168,6 +153,7 @@ const loadAccount = async (
 export const WalletsStore = reactive({
   getWallets,
   loadAccount,
+  resetManager,
   getWalletManager,
   hasWalletManager,
   initWalletManager,

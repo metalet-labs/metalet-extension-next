@@ -6,6 +6,7 @@ import { type V3Wallet } from '@/lib/types'
 import Avatar from '@/components/Avatar.vue'
 import { goToPage, goToTab } from '@/lib/utils'
 import { getBackupV3Wallet } from '@/lib/backup'
+import { WalletsStore } from '@/stores/WalletStore'
 import RemoveIcon from '@/assets/icons-v3/remove.svg'
 import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
@@ -78,6 +79,7 @@ const deleteWallet = async (walletId: string) => {
     getWallets()
     deleteWalletOpen.value = false
   } else {
+    WalletsStore.resetManager()
     goToTab('/welcome', true)
   }
 }
