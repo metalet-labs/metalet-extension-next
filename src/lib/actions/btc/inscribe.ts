@@ -219,7 +219,7 @@ export class InscriptionTool {
       const feeWithoutChange = Math.floor(txForEstimate.virtualSize() * commitFeeRate)
       if (totalSenderAmount - totalRevealPrevOutputValue - feeWithoutChange < 0) {
         throw new Error(
-          `Required amount: ${new Decimal(totalRevealPrevOutputValue + feeWithoutChange).div(1e8).toFixed(8)} BTC`
+          `Insufficient balance. Required amount: ${new Decimal(totalRevealPrevOutputValue + feeWithoutChange).div(1e8).toFixed(8)} BTC`
         )
         this.mustCommitTxFee = fee
         return true
