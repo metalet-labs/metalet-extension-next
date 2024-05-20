@@ -9,6 +9,7 @@ import { toast } from '@/components/ui/toast'
 import AddIcon from '@/assets/icons-v3/add.svg'
 import { goToTab, goToPage } from '@/lib/utils'
 import { getBackupV3Wallet } from '@/lib/backup'
+import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import { WalletsStore } from '@/stores/WalletStore'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { notifyContent } from '@/lib/notify-content'
@@ -133,9 +134,10 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
           collapsible
           type="single"
           class="w-full"
+          v-if="Object.values(walletObj).length"
+          v-for="wallet in Object.values(walletObj)"
           :defaultValue="IS_DEV ? currentWalletId : undefined"
           :modelValue="IS_DEV ? undefined : currentWalletId"
-          v-for="wallet in Object.values(walletObj)"
         >
           <AccordionItem :key="wallet.id" :value="wallet.id">
             <AccordionTrigger>
@@ -187,6 +189,9 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
             </AccordionContent>
           </AccordionItem>
         </Accordion>
+        <div v-else class="pt-6 pb-8">
+          <EmptyIcon class="mx-auto" />
+        </div>
       </div>
     </div>
     <Button type="primary" @click="goToTab('/welcome', true)" class="w-61.5 mx-auto shrink-0 mt-3">Add Wallet</Button>

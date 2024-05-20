@@ -229,11 +229,11 @@ export async function hasWallets() {
   return !!wallets.length
 }
 
-export async function getCurrentWallet(chain: Chain) {
+export async function getCurrentWallet(chain: Chain, _addressIndex?: number) {
   const network = getNet()
   const activeWallet = await getActiveWalletOnlyAccount()
   const mnemonic = activeWallet.mnemonic
-  const addressIndex = activeWallet.accounts[0].addressIndex
+  const addressIndex = _addressIndex ?? activeWallet.accounts[0].addressIndex
   const addressType = await getV3AddressTypeStorage(chain)
   if (chain === Chain.BTC) {
     const coinType = addressType === AddressType.SameAsMvc ? activeWallet.mvcTypes[0] : CoinType.BTC

@@ -221,26 +221,9 @@ async function getAccountProperty(chain: Chain, key: keyof ChainDetail[Chain]): 
 }
 
 export async function getAddress(chain: Chain = 'mvc', path?: string): Promise<string> {
-  const network = await getNetwork()
-  const activeWallet = await getActiveWalletOnlyAccount()
-
-  if (chain === 'btc' || !path) {
-    return getAccountProperty(chain, network === 'mainnet' ? 'mainnetAddress' : 'testnetAddress')
-  }
-
-  // derive mvc address by path
-  try {
-    const rootPath = await getMvcRootPath()
-    const concatPath = `${rootPath}/${path}`
-
-    const mneObj = mvc.Mnemonic.fromString(activeWallet!.mnemonic)
-    const hdpk = mneObj.toHDPrivateKey('', network)
-    const privateKey = hdpk.deriveChild(concatPath).privateKey
-
-    return privateKey.toAddress(network === 'regtest' ? 'testnet' : network).toString()
-  } catch (e: any) {
-    throw new Error(e.message)
-  }
+  const addressIndex = path ? Number(path.charAt(path.length - 1)) : undefined
+  const wallet = await getCurrentWallet(chain as UtxoChain, addressIndex)
+  return wallet.getAddress()
 }
 
 export async function getAddressType(chain: Chain = 'mvc'): Promise<string> {
@@ -351,8 +334,7 @@ export async function getBalance(chain: UtxoChain) {
 }
 
 export async function getUtxos(chain: Chain = 'mvc', params?: { path?: string }) {
-  const wallet = await getCurrentWallet(chain as UtxoChain)
-  const address = wallet.getAddress()
+  const address = await getAddress(chain, params?.path)
   return await fetchUtxos(chain, address)
 }
 
