@@ -146,7 +146,7 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
             <template v-if="metaidData.body">
               <img
                 alt=""
-                class="w-full aspect-square object-contain"
+                class="w-full aspect-square object-cover"
                 v-if="metaidData.contentType?.includes('image')"
                 :src="`data:image/jepg;base64,${metaidData.body}`"
               />
