@@ -35,6 +35,7 @@ export type MetaidData = {
   version?: string
   encoding?: BufferEncoding
   revealAddr: string
+  flag?: 'metaid' | 'testid'
 }
 
 export type PrevOutput = {
@@ -345,7 +346,7 @@ function createMetaIdTxCtxData(
   inscriptionBuilder.push(ops.OP_CHECKSIG)
   inscriptionBuilder.push(ops.OP_FALSE)
   inscriptionBuilder.push(ops.OP_IF)
-  inscriptionBuilder.push(Buffer.from('testid'))
+  inscriptionBuilder.push(Buffer.from(metaidData?.flag || 'metaid'))
   inscriptionBuilder.push(Buffer.from(metaidData.operation))
 
   if (metaidData.operation !== 'init') {

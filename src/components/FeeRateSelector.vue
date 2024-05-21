@@ -87,7 +87,7 @@ const selectCustom = () => {
             >
               <div class="text-xs">{{ rate.title }}</div>
               <div class="text-sm">{{ rate.feeRate }} sat/vB</div>
-              <div class="text-xs text-gray-primary">{{ rate.desc }}</div>
+              <div class="text-xs text-gray-primary text-center px-2">{{ rate.desc }}</div>
               <SelectIcon class="absolute top-0 right-0" v-if="index === selectedIndex" />
             </FlexBox>
           </div>

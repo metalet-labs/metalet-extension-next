@@ -1,6 +1,6 @@
 import useStorage from '@/lib/storage'
-import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import { getCurrentAccountId } from './account'
+import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 
 const storage = useStorage()
 const V3_BTC_ADDRESS_TYPE_RECORD__KEY = 'v3_btc_address_type_record'

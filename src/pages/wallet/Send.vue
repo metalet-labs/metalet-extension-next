@@ -261,8 +261,8 @@ async function send() {
   <div v-if="asset" class="flex flex-col items-center w-full relative min-h-full">
     <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
 
-    <div class="grow w-full space-y-4">
-      <div class="space-y-4 w-full">
+    <div class="grow w-full space-y-3">
+      <div class="space-y-3 w-full">
         <FlexBox d="col" ai="center" :gap="3">
           <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
           <div class="text-base">{{ symbol }}</div>
@@ -394,7 +394,7 @@ async function send() {
       type="primary"
       @click="popConfirm"
       :disabled="btnDisabled"
-      :class="[{ 'opacity-50 cursor-not-allowed': btnDisabled }, 'my-12 mt-12 w-61.5 h-12']"
+      :class="[{ 'opacity-50 cursor-not-allowed': btnDisabled }, 'my-6 w-61.5 h-12']"
     >
       <div class="flex items-center gap-2" v-if="operationLock">
         <LoadingIcon />
