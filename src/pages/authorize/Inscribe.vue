@@ -141,16 +141,18 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
     <div class="flex flex-col gap-2">
       <div class="flex flex-col gap-2" v-for="categorizedMetaidData in Object.values(categorizedMetaidDataList)">
         <div>operation:{{ categorizedMetaidData[0].operation }}</div>
-        <div class="value grid grid-cols-3 gap-4 justify-items-center" v-for="metaidData in categorizedMetaidData">
-          <template v-if="metaidData.body">
-            <img
-              alt=""
-              class="max-w-full"
-              v-if="metaidData.contentType?.includes('image')"
-              :src="`data:image/jepg;base64,${metaidData.body}`"
-            />
+        <div class="grid grid-cols-3 gap-4 justify-items-center">
+          <template v-for="metaidData in categorizedMetaidData">
+            <template v-if="metaidData.body">
+              <img
+                alt=""
+                class="w-full aspect-square object-contain"
+                v-if="metaidData.contentType?.includes('image')"
+                :src="`data:image/jepg;base64,${metaidData.body}`"
+              />
 
-            <div v-else class="col-span-3 text-sm">{{ metaidData.body }}</div>
+              <div v-else class="col-span-3 text-sm aspect-square">{{ metaidData.body }}</div>
+            </template>
           </template>
         </div>
       </div>
