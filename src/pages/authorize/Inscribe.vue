@@ -17,6 +17,10 @@ const props = defineProps<{
     data: {
       feeRate: number
       metaidDataList: MetaidData[]
+      service?: {
+        address: string
+        satoshis: string
+      }
     }
     message: string
   }
@@ -31,6 +35,7 @@ const totalCost = ref<number>(0)
 const commitTxHex = ref<string>()
 const revealTxsHex = ref<string[]>([])
 const metaidDataList = props.params.data.metaidDataList
+const dappCost = Number(props.params.data.service?.satoshis) || 0
 metaidDataList.sort((a, b) => {
   if (a.contentType?.includes('image') && !b.contentType?.includes('image')) {
     return -1
@@ -114,6 +119,10 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
       <div class="flex justify-between">
         <div class="label">Reveal Cost</div>
         <div class="text-xs flex gap-2">{{ revealCost / 1e8 }} BTC</div>
+      </div>
+      <div class="flex justify-between">
+        <div class="label">Dapps Cost</div>
+        <div class="text-xs flex gap-2">{{ dappCost / 1e8 }} BTC</div>
       </div>
       <div class="flex justify-between">
         <div class="label">Total Cost</div>

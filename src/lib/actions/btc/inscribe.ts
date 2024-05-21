@@ -12,8 +12,8 @@ import { base, signUtil } from '@okxweb3/crypto-lib'
 import BIP32Factory, { BIP32Interface } from 'bip32'
 import { broadcastBTCTx } from '@/queries/transaction'
 import { vectorSize } from './bitcoinjs-lib/transaction'
-import { BtcWallet, Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { getAddressType, private2public, sign } from './txBuild'
+import { BtcWallet, Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { getMetaIdPinUnspentOutputsObj, setMetaIdPinUnspentOutputsObj } from '@/lib/metaIdPin'
 
 const schnorr = signUtil.schnorr.secp256k1.schnorr
@@ -60,6 +60,10 @@ export type InscriptionRequest = {
   chainCode?: string
   commitTx?: string
   signatureList?: string[]
+  service?: {
+    address: string
+    satoshis: string
+  }
 }
 
 export type InscribeTxs = {
@@ -127,7 +131,8 @@ export class InscriptionTool {
       totalRevealPrevOutputValue,
       request.feeRate,
       minChangeValue,
-      keyPairs.privateKey!
+      keyPairs.privateKey!,
+      request.service
     )
 
     if (insufficient) {
@@ -186,7 +191,11 @@ export class InscriptionTool {
     totalRevealPrevOutputValue: number,
     commitFeeRate: number,
     minChangeValue: number,
-    privateKey: Buffer
+    privateKey: Buffer,
+    service?: {
+      address: string
+      satoshis: string
+    }
   ): boolean {
     let totalSenderAmount = 0
 
@@ -204,6 +213,14 @@ export class InscriptionTool {
       tx.addOutput(inscriptionTxCtxData.revealTxPrevOutput.pkScript, inscriptionTxCtxData.revealTxPrevOutput.value)
     })
 
+    if (service) {
+      let _satoshis = new Decimal(service.satoshis)
+      if (_satoshis.lt(546)) {
+        throw new Error(`Platform fee must be greater than 0.000546 BTC`)
+      }
+      tx.addOutput(bitcoin.address.toOutputScript(service.address, network), _satoshis.toNumber())
+    }
+
     const changePkScript = bitcoin.address.toOutputScript(changeAddress, network)
     tx.addOutput(changePkScript, 0)
 
@@ -218,7 +235,13 @@ export class InscriptionTool {
       tx.outs = tx.outs.slice(0, tx.outs.length - 1)
       txForEstimate.outs = txForEstimate.outs.slice(0, txForEstimate.outs.length - 1)
       const feeWithoutChange = Math.floor(txForEstimate.virtualSize() * commitFeeRate)
-      if (totalSenderAmount - totalRevealPrevOutputValue - feeWithoutChange < 0) {
+      if (
+        totalSenderAmount -
+          totalRevealPrevOutputValue -
+          feeWithoutChange -
+          (service ? new Decimal(service.satoshis).toNumber() : 0) <
+        0
+      ) {
         throw new Error(
           `Insufficient balance. Required amount: ${new Decimal(totalRevealPrevOutputValue + feeWithoutChange).div(1e8).toFixed(8)} BTC`
         )
