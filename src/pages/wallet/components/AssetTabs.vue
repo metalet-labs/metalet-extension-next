@@ -38,7 +38,7 @@ getServiceNetwork().then((_service) => {
         </template>
       </TabsTrigger>
     </TabsList>
-    <TabsContent value="Cypto">
+    <TabsContent value="Crypto">
       <AssetList />
     </TabsContent>
     <TabsContent value="NFTs">

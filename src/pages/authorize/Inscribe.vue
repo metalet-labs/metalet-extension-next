@@ -197,7 +197,7 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
                 :src="`data:image/jepg;base64,${metaidData.body}`"
               />
 
-              <div v-else class="col-span-3 text-sm aspect-square">{{ metaidData.body }}</div>
+              <div v-else class="col-span-3 text-sm break-all w-full">{{ metaidData.body }}</div>
             </template>
           </template>
         </div>
