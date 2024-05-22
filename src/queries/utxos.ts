@@ -100,7 +100,6 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
     return utxos.filter((utxo) => utxo.confirmed)
   }
   let utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
-  console.log(utxos)
 
   if (!useUnconfirmed) {
     utxos = utxos.filter((utxo) => utxo.confirmed)
@@ -108,7 +107,6 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
   if (needRawTx) {
     for (let utxo of utxos) {
       utxo.rawTx = await fetchBtcTxHex(utxo.txId)
-      utxo.rawTx
     }
   }
   return utxos.sort((a, b) => {
@@ -149,9 +147,13 @@ export async function getRuneUtxos(address: string, runeId: string, needRawTx = 
 //   return utxos.map((utxo) => formatUnisatUTXO(utxo))
 // }
 
-export async function getInscriptionUtxo(inscriptionId: string): Promise<UTXO> {
+export async function getInscriptionUtxo(inscriptionId: string, needRawTx: boolean = false): Promise<UTXO> {
   const net = getNet()
-  return await metaletApiV3<UTXO>('/inscription/utxo').get({ net, inscriptionId })
+  const utxo = await metaletApiV3<UTXO>('/inscription/utxo').get({ net, inscriptionId })
+  if (needRawTx) {
+    utxo.rawTx = await fetchBtcTxHex(utxo.txId)
+  }
+  return utxo
 }
 
 export interface MempoolUtxo {

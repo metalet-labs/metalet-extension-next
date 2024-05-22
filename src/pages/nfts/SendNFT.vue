@@ -2,8 +2,6 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Copy from '@/components/Copy.vue'
-import type { Psbt } from 'bitcoinjs-lib'
-import { BtcWallet } from '@/lib/wallets/btc'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getMetaPin } from '@/queries/metaPin'
 import { FeeRateSelector } from '@/components'
@@ -60,9 +58,10 @@ async function next() {
   operationLock.value = true
 
   let utxo: UTXO
+  const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
 
   if (nftType === 'brc20') {
-    utxo = await getInscriptionUtxo(id.value)
+    utxo = await getInscriptionUtxo(id.value, needRawTx)
   } else if (nftType === 'metaPin') {
     const metaPin = await getMetaPin(id.value)
     const [txId, outputIndex] = metaPin.output.split(':')
@@ -80,7 +79,8 @@ async function next() {
   amount.value = utxo.satoshis
 
   try {
-    const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+    console.log('needRawTx', needRawTx)
+
     const utxos = await getBtcUtxos(address.value, needRawTx)
     const { fee, rawTx: _rawTx } = currentBTCWallet.value!.sendBRC20(
       recipient.value,

@@ -37,9 +37,7 @@ const { currentBTCWallet } = useChainWalletsStore()
 
 const tickerEnabled = computed(() => !!address.value && !!symbol.value)
 
-const {
-  data: asset,
-} = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
+const { data: asset } = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
 
 const tags = getTags('BRC-20')
 
@@ -68,8 +66,8 @@ async function next() {
   operationLock.value = true
 
   try {
-    const utxo = await getInscriptionUtxo(inscriptionId.value)
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+    const utxo = await getInscriptionUtxo(inscriptionId.value, needRawTx)
     const utxos = await getBtcUtxos(address.value, needRawTx)
     const {
       fee,
