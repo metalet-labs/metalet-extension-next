@@ -213,6 +213,8 @@ export class InscriptionTool {
       tx.addOutput(inscriptionTxCtxData.revealTxPrevOutput.pkScript, inscriptionTxCtxData.revealTxPrevOutput.value)
     })
 
+    const serviceFee = service ? new Decimal(service.satoshis).toNumber() : 0
+
     if (service) {
       let _satoshis = new Decimal(service.satoshis)
       if (_satoshis.lt(546)) {
@@ -228,22 +230,16 @@ export class InscriptionTool {
     signTx(txForEstimate, commitTxPrevOutputList, this.network, privateKey)
 
     const fee = Math.floor(txForEstimate.virtualSize() * commitFeeRate)
-    const changeAmount = totalSenderAmount - totalRevealPrevOutputValue - fee
+    const changeAmount = totalSenderAmount - totalRevealPrevOutputValue - fee - serviceFee
     if (changeAmount >= minChangeValue) {
       tx.outs[tx.outs.length - 1].value = changeAmount
     } else {
       tx.outs = tx.outs.slice(0, tx.outs.length - 1)
       txForEstimate.outs = txForEstimate.outs.slice(0, txForEstimate.outs.length - 1)
       const feeWithoutChange = Math.floor(txForEstimate.virtualSize() * commitFeeRate)
-      if (
-        totalSenderAmount -
-          totalRevealPrevOutputValue -
-          feeWithoutChange -
-          (service ? new Decimal(service.satoshis).toNumber() : 0) <
-        0
-      ) {
+      if (totalSenderAmount - totalRevealPrevOutputValue - feeWithoutChange - serviceFee < 0) {
         throw new Error(
-          `Insufficient balance. Required amount: ${new Decimal(totalRevealPrevOutputValue + feeWithoutChange).div(1e8).toFixed(8)} BTC`
+          `Insufficient balance. Required amount: ${new Decimal(totalRevealPrevOutputValue + feeWithoutChange + serviceFee).div(1e8).toFixed(8)} BTC`
         )
         this.mustCommitTxFee = fee
         return true
