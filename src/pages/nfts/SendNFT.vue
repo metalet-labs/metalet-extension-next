@@ -8,9 +8,9 @@ import { getBtcUtxos } from '@/queries/utxos'
 import { getMetaPin } from '@/queries/metaPin'
 import { FeeRateSelector } from '@/components'
 import { useQueryClient } from '@tanstack/vue-query'
+import { broadcastBTCTx } from '@/queries/transaction'
 import { ScriptType } from '@metalet/utxo-wallet-service'
 import { UTXO, getInscriptionUtxo } from '@/queries/utxos'
-import BTCRateList from '../wallet/components/BTCRateList.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
 import TransactionResultModal, { type TransactionResult } from '../wallet/components/TransactionResultModal.vue'
@@ -34,7 +34,7 @@ const recipient = ref('')
 const operationLock = ref(false)
 const currentRateFee = ref<number>()
 const calcFee = ref<number>()
-const txPsbt = ref<Psbt>()
+const rawTx = ref<string>()
 
 const isOpenResultModal = ref(false)
 const isShowComfirm = ref(false)
@@ -79,29 +79,17 @@ async function next() {
 
   amount.value = utxo.satoshis
 
-  // const wallet = await BtcWallet.create()
-  // const info = await wallet.getBRCFeeAndPsbt(recipient.value, utxo, currentRateFee.value).catch((err: Error) => {
-  //   transactionResult.value = {
-  //     status: 'failed',
-  //     message: err.message,
-  //   }
-  //   isOpenResultModal.value = true
-  //   operationLock.value = false
-  // })
-
-  // if (info) {
-  //   const { fee, psbt } = info
-  //   calcFee.value = fee
-  //   txPsbt.value = psbt
-  //   operationLock.value = false
-  //   isShowComfirm.value = true
-  // }
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxos = await getBtcUtxos(address.value, needRawTx)
-    const { fee, psbt } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
+    const { fee, rawTx: _rawTx } = currentBTCWallet.value!.sendBRC20(
+      recipient.value,
+      [utxo],
+      currentRateFee.value!,
+      utxos
+    )
 
-    txPsbt.value = psbt
+    rawTx.value = _rawTx
     calcFee.value = fee
     isShowComfirm.value = true
   } catch (error) {
@@ -117,7 +105,7 @@ async function next() {
 }
 
 async function send() {
-  if (!txPsbt.value) {
+  if (!rawTx.value) {
     transactionResult.value = {
       status: 'warning',
       message: 'No Psbt.',
@@ -126,39 +114,45 @@ async function send() {
     return
   }
 
-  const wallet = await BtcWallet.create()
-  const sentRes = await wallet.broadcast(txPsbt.value).catch((err: Error) => {
+  const txId = await broadcastBTCTx(rawTx.value).catch((err: Error) => {
+    isShowComfirm.value = false
     transactionResult.value = {
       status: 'failed',
       message: err.message,
     }
     isOpenResultModal.value = true
+    throw err
   })
-
-  if (sentRes) {
+  if (!txId) {
     transactionResult.value = {
-      chain: 'btc',
-      status: 'success',
-      txId: sentRes.txId,
-      fromAddress: address.value,
-      toAdddress: recipient.value,
-      amount: amount.value,
-      token: {
-        symbol: symbol,
-        decimal: symbol === 'BTC' ? 8 : 0,
-      },
+      status: 'failed',
+      message: 'Send failed',
     }
-
-    isOpenResultModal.value = true
-
-    // 刷新query
-    queryClient.invalidateQueries({
-      queryKey: ['balance', { address: address.value, symbol }],
-    })
+    return
   }
 
-  operationLock.value = false
+  transactionResult.value = {
+    chain: 'btc',
+    status: 'success',
+    txId: txId,
+    fromAddress: address.value,
+    toAdddress: recipient.value,
+    amount: amount.value,
+    token: {
+      symbol,
+      decimal: 8,
+    },
+  }
+
+  isOpenResultModal.value = true
+
+  // 刷新query
+  queryClient.invalidateQueries({
+    queryKey: ['balance', { address: address.value, symbol }],
+  })
 }
+
+operationLock.value = false
 </script>
 
 <template>
@@ -172,8 +166,8 @@ async function send() {
           <div class="grid grid-cols-3 gap-3 w-full">
             <div
               :class="[
-                'flex items-center justify-center rounded-md p-2 relative aspect-square w-full overflow-hidden',
-                { 'bg-blue-primary ': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
+                'flex items-center justify-center rounded-md relative aspect-square w-full overflow-hidden',
+                { 'bg-blue-primary p-2': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
               ]"
             >
               <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
@@ -221,7 +215,10 @@ async function send() {
       <div class="grow space-y-[30px]">
         <div class="grid grid-cols-3 gap-3">
           <div
-            class="flex items-center justify-center rounded-md p-2 bg-blue-primary relative aspect-square w-full overflow-hidden"
+            :class="[
+              'flex items-center justify-center rounded-md relative aspect-square w-full overflow-hidden',
+              { 'bg-blue-primary p-2': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
+            ]"
           >
             <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
             <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>

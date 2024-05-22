@@ -21,7 +21,10 @@ const toSendNFT = (id: string) => {
     query: {
       satoshis: metaPin.value?.outputValue,
       content: metaPin.value?.contentSummary,
-      imgUrl: metaPin.value?.contentTypeDetect.includes('image') ? metaPin.value?.content : undefined,
+      imgUrl:
+        metaPin.value?.contentType.includes('image') || metaPin.value?.contentTypeDetect.includes('image')
+          ? metaPin.value?.content
+          : undefined,
     },
   })
 }
@@ -33,14 +36,18 @@ const toSendNFT = (id: string) => {
     <div class="w-full flex items-center justify-center">
       <div
         :class="[
-          { 'p-2 bg-blue-primary': !metaPin.contentTypeDetect.includes('image') },
+          {
+            'p-2 bg-blue-primary': !(
+              metaPin.contentType.includes('image') || metaPin.contentTypeDetect.includes('image')
+            ),
+          },
           'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white',
         ]"
       >
         <img
           alt=""
           :src="metaPin.content"
-          v-if="metaPin.contentTypeDetect.includes('image')"
+          v-if="metaPin.contentType.includes('image') || metaPin.contentTypeDetect.includes('image')"
           class="w-full h-full border-2 border-gray-soft rounded-xl"
         />
         <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>

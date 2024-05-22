@@ -10,7 +10,11 @@ const { value, content } = defineProps<{
 
 <template>
   <div
-    class="flex items-center justify-center rounded-md xs:p-2 bg-[#F5F5F5] relative aspect-square w-full overflow-hidden"
+    :class="[
+      'flex items-center justify-center rounded-md relative aspect-square w-full overflow-hidden',
+      { 'bg-[#F5F5F5] xs:p-2': !(contentType.includes('image') || contentTypeDetect.includes('image')) },
+      { 'border border-[#f5f5f5]': contentType.includes('image') || contentTypeDetect.includes('image') },
+    ]"
   >
     <img :src="content" :alt="contentSummary" v-if="contentTypeDetect.includes('image')" class="w-full h-full" />
     <div

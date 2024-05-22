@@ -16,6 +16,8 @@ const { getAddress } = useChainWalletsStore()
 
 const serviceNetwork = ref<Service>([])
 const btcAddress = getAddress(Chain.BTC)
+console.log('btcAddress', btcAddress.value);
+
 const mvcAddress = getAddress(Chain.MVC)
 
 getServiceNetwork().then((_serviceNetwork) => {
