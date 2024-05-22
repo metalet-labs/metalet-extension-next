@@ -134,6 +134,10 @@ const toSendNFT = (id: string) => {
         <span>{{ metaPin.contentType }}</span>
       </div>
       <div class="row">
+        <span class="label">Path</span>
+        <div>{{ metaPin.path }}</div>
+      </div>
+      <div class="row">
         <span class="label">Timestamp</span>
         <div>{{ formatTimestamp(metaPin.timestamp) }}</div>
       </div>

@@ -4,7 +4,7 @@ import MetaPin from './MetaPin.vue'
 import { useRouter } from 'vue-router'
 import NO_NFT_DATA from './NoNFTData.vue'
 import { LoadingText } from '@/components'
-import { formatTimestamp } from '@/lib/formatters'
+import { formatDate } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { useMetaPinsInfiniteQuery } from '@/queries/metaPin'
@@ -48,7 +48,8 @@ const toMetaPinDetail = (metaPinId: string) => {
             :contentTypeDetect="metaPin.contentTypeDetect"
           />
           <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number"># {{ metaPin.number }}</span>
-          <span class="text-xs text-center mt-1 h-[30px]">{{ formatTimestamp(metaPin.timestamp) }}</span>
+          <span class="text-xs text-center mt-1 truncate w-16" :title="metaPin.path">{{ metaPin.path }}</span>
+          <span class="text-xs text-center mt-1 break-all">{{ formatDate(metaPin.timestamp) }}</span>
         </div>
       </div>
       <div

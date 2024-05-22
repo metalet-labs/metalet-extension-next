@@ -75,3 +75,16 @@ export const formatTimestamp = (timestamp: number | string) => {
   }
   return dayjs(timestamp).format('YYYY/MM/DD HH:mm:ss')
 }
+
+export const formatDate = (timestamp: number | string) => {
+  timestamp = Number(timestamp)
+
+  if (timestamp === 0 || isNaN(timestamp)) {
+    return '--'
+  }
+
+  if (String(timestamp).length === 10) {
+    timestamp *= 1000
+  }
+  return dayjs(timestamp).format('YYYY/MM/DD')
+}
