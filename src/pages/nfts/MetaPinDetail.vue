@@ -135,7 +135,7 @@ const toSendNFT = (id: string) => {
       </div>
       <div class="row">
         <span class="label">Path</span>
-        <div>{{ metaPin.path }}</div>
+        <div class="w-52 truncate text-right" :title="metaPin.path">{{ metaPin.path }}</div>
       </div>
       <div class="row">
         <span class="label">Timestamp</span>
