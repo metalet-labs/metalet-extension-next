@@ -25,7 +25,7 @@ getAccounts().then((accounts) => {
         <p class="text-gray-primary w-96">Metalet is the way to explore your crypto journey.</p>
       </FlexBox>
       <FlexBox d="col" :gap="4">
-        <FlexBox :gap="2">
+        <div class="flex gap-2">
           <Button
             type="light"
             :disabled="!checked"
@@ -42,7 +42,7 @@ getAccounts().then((accounts) => {
           >
             Create Wallet
           </Button>
-        </FlexBox>
+        </div>
         <FlexBox :gap="1.5" ai="center">
           <Checkbox id="terms" v-model:checked="checked" />
           <span class="text-slate-light">

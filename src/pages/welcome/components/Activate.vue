@@ -19,7 +19,7 @@ import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
 import { getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { addV3Wallet, getCurrentWalletId, getV3Wallets, getV3WalletsNum, setCurrentWalletId, setV3WalletsNum } from '@/lib/wallet'
+import { addV3Wallet, getV3Wallets, getV3WalletsNum, setCurrentWalletId, setV3WalletsNum } from '@/lib/wallet'
 
 const { updateAllWallets } = useChainWalletsStore()
 

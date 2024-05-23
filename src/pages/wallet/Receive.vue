@@ -13,7 +13,6 @@ import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
 
 const route = useRoute()
 const tag = route.query.tag as string
-console.log(tag)
 
 const address = ref(route.params.address as string)
 const qrcode = useQRCode(address.value)

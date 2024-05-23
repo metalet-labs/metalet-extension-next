@@ -1,26 +1,28 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
+import { toast } from '@/components/ui/toast'
 import { calcBalance } from '@/lib/formatters'
+import { Copy, LoadingText } from '@/components'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyAddress } from '@/lib/formatters'
+import { BTCAsset, MVCAsset } from '@/data/assets'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { WalletsStore } from '@/stores/WalletStore'
-import CloseIcon from '@/assets/icons-v3/close.svg'
+import CloseIcon from '@/assets/icons-v3/close.svg?url'
 import Activities from './components/Activities.vue'
-import FilterIcon from '@/assets/icons-v3/filter.svg'
-import ToggleIcon from '@/assets/icons-v3/toggle.svg'
+import { notifyContent } from '@/lib/notify-content'
+import FilterIcon from '@/assets/icons-v3/filter.svg?url'
+import ToggleIcon from '@/assets/icons-v3/toggle.svg?url'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
-import SelectorIcon from '@/assets/icons-v3/selector.svg'
+import SelectorIcon from '@/assets/icons-v3/selector.svg?url'
 import { setV3AddressTypeStorage } from '@/lib/addressType'
-import { getTags, BTCAsset, MVCAsset } from '@/data/assets'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
-import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
+import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg?url'
 import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
@@ -34,7 +36,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from '@/components/ui/drawer'
-import { notifyContent } from '@/lib/notify-content'
+import Divider from '@/components/Divider.vue'
 
 const isOpen = ref(false)
 const route = useRoute()
@@ -138,10 +140,10 @@ const toReceive = () => {
 <template>
   <div class="flex flex-col items-center space-y-6 w-full" v-if="asset">
     <div class="w-full h-15 -my-3 flex items-center justify-between">
-      <ArrowLeftIcon class="w-3.5 cursor-pointer" @click="router.push('/wallet')" />
+      <img :src="ArrowLeftIcon" alt="" class="w-3.5 cursor-pointer" @click="router.push('/wallet')" />
       <span>{{ symbol }}</span>
       <div class="w-3.5 cursor-pointer" @click="isOpen = true" title="Set Default Address" v-if="asset.chain === 'btc'">
-        <ToggleIcon />
+        <img :src="ToggleIcon" alt="" />
       </div>
       <div v-else></div>
       <Drawer v-model:open="isOpen" activeSnapPoint="#chainWallets">
@@ -150,7 +152,7 @@ const toReceive = () => {
             <DrawerTitle class="text-center relative">
               <span>Set Default Address</span>
               <DrawerClose>
-                <CloseIcon class="absolute right-0 top-0" />
+                <img :src="CloseIcon" alt="" class="absolute right-0 top-0" />
               </DrawerClose>
             </DrawerTitle>
             <DrawerDescription></DrawerDescription>
@@ -201,15 +203,30 @@ const toReceive = () => {
       </button>
     </div>
 
+    <Divider class="w-full -mx-4" />
+    <div class="space-y-2 text-xs w-full border-gray-primary">
+      <div>{{ currentBTCWallet?.getAddressType() }}</div>
+      <div class="flex items-center justify-between text-gray-primary">
+        <div>{{ currentBTCWallet?.getAddress() }}</div>
+        <Copy
+          :text="address"
+          class="w-[22px]"
+          @click="toast({ title: `${address}  Address Copied`, toastType: 'success', description: address })"
+        />
+        <!-- <Copy :text="address" class="hover:text-blue-primary cursor-pointer w-[22px] text-gray-primary " /> -->
+      </div>
+    </div>
+    <Divider class="w-full -mx-4" />
+
     <div class="w-full">
       <div class="-mx-4 h-11 bg-gray-light px-4 py-[13px] text-ss" v-if="false">
         <DropdownMenu>
           <DropdownMenuTrigger class="flex items-center justify-between w-full">
             <div class="flex items-center gap-x-2">
               <span>Time</span>
-              <SelectorIcon />
+              <img :src="SelectorIcon" alt="" />
             </div>
-            <FilterIcon />
+            <img :src="FilterIcon" alt="" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" class="bg-white">
             <DropdownMenuItem @select="null">Time</DropdownMenuItem>

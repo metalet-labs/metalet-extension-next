@@ -18,11 +18,11 @@ const securityLevel = computed(() => passwordStrength(props.password).value)
 
 const securityColor = computed(() => {
   if (['Too weak', 'Weak'].includes(securityLevel.value)) {
-    return '#FA5151'
+    return 'text-[#FA5151]'
   } else if (securityLevel.value === 'Medium') {
-    return '#FF8F1F'
+    return 'text-[#FF8F1F]'
   } else if (securityLevel.value === 'Strong') {
-    return '#07C28C'
+    return 'text-[#07C28C]'
   }
 })
 
@@ -67,7 +67,7 @@ const levelColors = computed(() => {
           <div :class="['w-8 h-1.5 rounded-md', bgColor]" v-for="(bgColor, index) in levelColors" :key="index"></div>
         </div>
         <div v-if="password">
-          <span :class="[securityColor]">{{ securityLevel }}</span>
+          <span :class="securityColor">{{ securityLevel }}</span>
         </div>
       </div>
       <p v-if="error" class="absolute -bottom-8 left-0 text-sm text-red-500">{{ error }}</p>

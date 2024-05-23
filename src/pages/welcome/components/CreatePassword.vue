@@ -11,11 +11,7 @@ const { callback } = defineProps<{ callback?: Function }>()
 const error = ref()
 const password = ref()
 const checked = ref(false)
-const isCovered = ref(true)
 const confirmPassword = ref()
-const isConfirmCovered = ref(true)
-const passwordInputType = computed(() => (isCovered.value ? 'password' : 'text'))
-const passwordConfirmInputType = computed(() => (isConfirmCovered.value ? 'password' : 'text'))
 const btnDisabled = computed(
   () => !checked.value || !password.value || password.value.length < 8 || !confirmPassword.value
 )

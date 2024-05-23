@@ -29,7 +29,7 @@ export async function getV3AddressTypeStorage(chain: Chain) {
     throw new Error('No account selected')
   }
   const addressTypeRecord = await getV3AddressTypeRecordStorage(chain)
-  return addressTypeRecord[currentAccountId] || (chain === Chain.MVC ? AddressType.LegacyMvc : AddressType.Legacy)
+  return addressTypeRecord[currentAccountId] || (chain === Chain.MVC ? AddressType.LegacyMvc : AddressType.SameAsMvc)
 }
 
 export async function setV3AddressTypeStorage(chain: Chain, addressType: AddressType) {
