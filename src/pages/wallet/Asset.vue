@@ -206,8 +206,8 @@ const toReceive = () => {
     <Divider class="w-full -mx-4" />
     <div class="space-y-2 text-xs w-full border-gray-primary">
       <div>{{ currentBTCWallet?.getAddressType() }}</div>
-      <div class="flex items-center justify-between text-gray-primary">
-        <div>{{ currentBTCWallet?.getAddress() }}</div>
+      <div class="flex items-center justify-between text-gray-primary gap-4">
+        <div class="break-all">{{ currentBTCWallet?.getAddress() }}</div>
         <Copy
           :text="address"
           class="w-[22px]"
