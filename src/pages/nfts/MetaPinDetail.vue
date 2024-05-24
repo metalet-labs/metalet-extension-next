@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { toTx } from '@/lib/helpers'
+import { PopCard } from '@/components'
 import { LoadingText } from '@/components'
+import { getBrowserHost } from '@/lib/host'
 import { useRoute, useRouter } from 'vue-router'
 import { useMetaPinQuery } from '@/queries/metaPin'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
@@ -28,6 +31,11 @@ const toSendNFT = (id: string) => {
     },
   })
 }
+
+const getHostAndToTx = async (txid: string) => {
+  const host = await getBrowserHost('btc')
+  toTx(txid, host as string)
+}
 </script>
 
 <template>
@@ -48,7 +56,7 @@ const toSendNFT = (id: string) => {
           alt=""
           :src="metaPin.content"
           v-if="metaPin.contentType.includes('image') || metaPin.contentTypeDetect.includes('image')"
-          class="w-full h-full border-2 border-gray-soft rounded-xl"
+          class="w-full h-full border-2 border-gray-soft rounded-xl object-contain"
         />
         <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
         <span
@@ -78,6 +86,16 @@ const toSendNFT = (id: string) => {
       </button>
     </div>
     <div class="space-y-4 border-t border-gray-secondary pt-4">
+      <div class="row">
+        <div class="label">Level</div>
+        <PopCard :level="metaPin.popLv" />
+      </div>
+      <div class="row">
+        <div class="label">Pop</div>
+        <div :title="metaPin.id">
+          {{ prettifyTxId(metaPin.pop) }}
+        </div>
+      </div>
       <div class="row">
         <div class="label">Network</div>
         <div class="flex items-center gap-1">
@@ -143,7 +161,11 @@ const toSendNFT = (id: string) => {
       </div>
       <div class="row">
         <span class="label">Genesis Transaction</span>
-        <div :title="metaPin.genesisTransaction">
+        <div
+          @click="getHostAndToTx(metaPin!.genesisTransaction)"
+          class="text-right w-52 truncate text-[#5173B9] underline cursor-pointer"
+          :title="metaPin.genesisTransaction"
+        >
           {{ prettifyTokenGenesis(metaPin.genesisTransaction) }}
         </div>
       </div>

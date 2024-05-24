@@ -7,6 +7,8 @@ interface Storage {
   delete(key: string): Promise<void>
 }
 
+let globalStorage: Storage
+
 type StorageType = 'local' | 'session' | 'sync'
 
 function getDevStorage(storageType: StorageType) {
@@ -20,7 +22,11 @@ function getDevStorage(storageType: StorageType) {
   }
 }
 
+// TODO: Implement a real hook, useStorage should be named createStorage
 function useStorage(storageType: StorageType = 'local'): Storage {
+  if (globalStorage) {
+    return globalStorage
+  }
   let storage: {
     get: <T>(key: string) => Promise<T | string | undefined>
     set: (key: string, value: string) => Promise<void>
@@ -66,7 +72,7 @@ function useStorage(storageType: StorageType = 'local'): Storage {
     }
   }
 
-  return {
+  globalStorage = {
     async get<T>(key: string, option?: { defaultValue: T }): Promise<T | string | undefined> {
       const value = await storage.get<T>(key)
       if (value === undefined) {
@@ -91,6 +97,8 @@ function useStorage(storageType: StorageType = 'local'): Storage {
       return await storage.remove(key)
     },
   }
+
+  return globalStorage
 }
 
 export default useStorage

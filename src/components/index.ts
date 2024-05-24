@@ -1,6 +1,7 @@
 import Copy from './Copy.vue'
 import Avatar from './Avatar.vue'
 import Button from './Button.vue'
+import PopCard from './PopCard.vue'
 import FlexBox from './FlexBox.vue'
 import Divider from './Divider.vue'
 import EditName from './EditName.vue'
@@ -15,6 +16,7 @@ import VerifySeedPhrase from './VerifySeedPhrase.vue'
 import AddressTypeSelector from './AddressTypeSelector.vue'
 
 export {
+  PopCard,
   FlexBox,
   Divider,
   LoadingText,

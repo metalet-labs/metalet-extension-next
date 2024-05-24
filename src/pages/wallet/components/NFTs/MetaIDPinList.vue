@@ -41,15 +41,18 @@ const toMetaPinDetail = (metaPinId: string) => {
           class="flex flex-col items-center justify-center rounded-md cursor-pointer text-[#999999]"
         >
           <MetaPin
+            :pop="metaPin.pop"
+            :popLv="metaPin.popLv"
             :content="metaPin.content"
             :value="metaPin.outputValue"
             :contentType="metaPin.contentType"
             :contentSummary="metaPin.contentSummary"
             :contentTypeDetect="metaPin.contentTypeDetect"
           />
+
           <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number"># {{ metaPin.number }}</span>
           <span class="text-xs text-center mt-1 truncate w-16" :title="metaPin.path">{{ metaPin.path }}</span>
-          <span class="text-xs text-center mt-1 break-all">{{ formatDate(metaPin.timestamp) }}</span>
+          <span class="text-xs text-center mt-1 break-all">{{ metaPin.pop }}</span>
         </div>
       </div>
       <div

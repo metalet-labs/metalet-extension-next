@@ -5,6 +5,8 @@ import { useInfiniteQuery, useQuery } from '@tanstack/vue-query'
 
 export interface MetaIDPin {
   id: string
+  pop: string
+  popLv: number
   number: number
   rootTxId: string
   address: string
