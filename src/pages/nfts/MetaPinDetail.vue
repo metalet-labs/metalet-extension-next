@@ -80,7 +80,12 @@ const getHostAndToTx = async (txid: string) => {
     <div class="flex justify-center">
       <button
         @click="toSendNFT(metaPin!.id)"
-        class="w-30 rounded-3xl py-4 text-center text-ss text-blue-primary bg-blue-light mx-auto"
+        :disabled="metaPin.status === -9"
+        :class="[
+          'w-30 rounded-3xl py-4 text-center text-ss text-blue-primary bg-blue-light mx-auto ',
+          { 'cursor-pointer': metaPin.status === 0 },
+          { 'opacity-50 cursor-not-allowed': metaPin.status === -9 },
+        ]"
       >
         Transfer
       </button>

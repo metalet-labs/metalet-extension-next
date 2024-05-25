@@ -211,9 +211,14 @@ const toReceive = () => {
         <Copy
           :text="address"
           class="w-[22px]"
-          @click="toast({ title: `${address}  Address Copied`, toastType: 'success', description: address })"
+          @click="
+            toast({
+              title: `${currentBTCWallet?.getAddressType()}  Address Copied`,
+              toastType: 'success',
+              description: address,
+            })
+          "
         />
-        <!-- <Copy :text="address" class="hover:text-blue-primary cursor-pointer w-[22px] text-gray-primary " /> -->
       </div>
     </div>
     <Divider class="w-full -mx-4" />
