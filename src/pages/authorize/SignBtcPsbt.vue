@@ -65,7 +65,7 @@ getNetwork().then(async (networkType) => {
       <div class="grid grid-cols-11 items-center mt-1">
         <div class="col-span-5 bg-sky-50 border-2 border-sky-300 border-dashed py-2 px-1 rounded-lg">
           <div class="text-center text-sm text-sky-900">Inputs</div>
-          <div class="mt-2 space-2 text-xs">
+          <div class="mt-2 space-y-2 text-xs">
             <div class="border-2 border-sky-300 bg-sky-300 rounded p-1 space-y-2" v-for="input in inputs">
               <div>Address</div>
               <div class="text-xs text-gray-500 break-all">
@@ -85,7 +85,7 @@ getNetwork().then(async (networkType) => {
 
         <div class="col-span-5 bg-teal-50 border-2 border-teal-300 border-dashed py-2 px-1 rounded-lg">
           <div class="text-center text-sm text-teal-900">Outputs</div>
-          <div class="mt-2 space-2 text-xs">
+          <div class="mt-2 space-y-2 text-xs">
             <div class="border-2 border-teal-300 bg-teal-100 rounded p-1 space-y-2" v-for="output in outputs">
               <div>Address</div>
               <div class="text-xs text-gray-500 break-all">
