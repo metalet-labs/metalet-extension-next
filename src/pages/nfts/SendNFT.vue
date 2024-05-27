@@ -79,8 +79,6 @@ async function next() {
   amount.value = utxo.satoshis
 
   try {
-    console.log('needRawTx', needRawTx)
-
     const utxos = await getBtcUtxos(address.value, needRawTx)
     const { fee, rawTx: _rawTx } = currentBTCWallet.value!.sendBRC20(
       recipient.value,

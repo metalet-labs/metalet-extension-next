@@ -1,6 +1,7 @@
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { metaletApiV3 } from './request'
+import { fetchBtcTxHex } from '@/queries/transaction'
 import { useInfiniteQuery, useQuery } from '@tanstack/vue-query'
 
 export interface MetaIDPin {
@@ -31,6 +32,7 @@ export interface MetaIDPin {
   contentSummary: string
   contentTypeDetect: string
   status: number
+  rawTx?: string
 }
 
 export async function fetchMetaPins(
@@ -69,12 +71,17 @@ export const useMetaPinsInfiniteQuery = (
   )
 }
 
-export async function getMetaPin(pinId: string): Promise<MetaIDPin> {
+export async function getMetaPin(pinId: string, needRawTx: boolean = false): Promise<MetaIDPin> {
   const net = getNet()
-  return await metaletApiV3<MetaIDPin>('/pin/utxo').get({
+  const metaIdPin = await metaletApiV3<MetaIDPin>('/pin/utxo').get({
     net,
     pinId,
   })
+  if (needRawTx) {
+    const txId = metaIdPin.output.split(':')[0]
+    metaIdPin.rawTx = await fetchBtcTxHex(txId)
+  }
+  return metaIdPin
 }
 
 export const useMetaPinQuery = (pinId: Ref<string>, options: { enabled: ComputedRef<boolean> }) => {
