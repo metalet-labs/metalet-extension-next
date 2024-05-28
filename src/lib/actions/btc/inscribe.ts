@@ -368,7 +368,7 @@ function createMetaIdTxCtxData(
   inscriptionBuilder.push(Buffer.from(metaidData?.flag || 'metaid'))
   inscriptionBuilder.push(Buffer.from(metaidData.operation))
 
-  if (metaidData.operation !== 'init') {
+  if (!['init', 'revoke'].includes(metaidData.operation)) {
     inscriptionBuilder.push(Buffer.from(metaidData.path!))
     inscriptionBuilder.push(Buffer.from(metaidData?.encryption ?? '0'))
     inscriptionBuilder.push(Buffer.from(metaidData?.version ?? '1.0.0'))
@@ -385,6 +385,13 @@ function createMetaIdTxCtxData(
       }
       inscriptionBuilder.push(body.slice(i, end))
     }
+  }
+  if (metaidData.operation === 'revoke') {
+    inscriptionBuilder.push(Buffer.from(metaidData.path!))
+    inscriptionBuilder.push(ops.OP_0)
+    inscriptionBuilder.push(ops.OP_0)
+    inscriptionBuilder.push(ops.OP_0)
+    inscriptionBuilder.push(ops.OP_0)
   }
   inscriptionBuilder.push(ops.OP_ENDIF)
   const inscriptionScript = bitcoin.script.compile(inscriptionBuilder)
