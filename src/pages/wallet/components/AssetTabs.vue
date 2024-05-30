@@ -32,7 +32,7 @@ getServiceNetwork().then((_service) => {
           <span>{{ tab.name }}</span>
           <span
             v-if="tab.isNew"
-            class="bg-[#FFEBE7] text-red-primary px-1 py-0.5 rounded-t rounded-e text-xs font-semibold scale-[0.7] ml-16 -mt-5 absolute"
+            class="bg-[#FFEBE7] text-red-primary px-1 py-0.5 rounded-t rounded-e text-xs font-semibold scale-[0.7] ml-[70px] -mt-5 absolute"
           >
             NEW
           </span>
