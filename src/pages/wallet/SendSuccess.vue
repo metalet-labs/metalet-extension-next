@@ -12,15 +12,16 @@ import { CoinCategory } from '@/queries/exchange-rates'
 
 const route = useRoute()
 
+const txId = route.params.txId as string
 const chain = route.params.chain as Chain
 const symbol = route.params.symbol as string
 const amount = route.params.amount as string
+const genesis = route.query.genesis as string
 const receiver = route.params.address as string
-const txId = route.params.txId as string
 const coinCategory = route.params.coinCategory as CoinCategory
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(coinCategory, route.params.symbol as string) || '')
+const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
 
 // const logo = getLogo(symbol, chain)
 

@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import AssetList from './AssetList.vue'
 import NFTList from './NFTs/NFTList.vue'
 import RuneList from './Runes/RuneList.vue'
+import MetaIDList from './MetaID/MetaIDList.vue'
 import { getServiceNetwork } from '@/lib/network'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { walletTabStore } from '@/stores/walletTabTypeStore'
@@ -27,7 +28,7 @@ getServiceNetwork().then((_service) => {
         v-for="tab in walletTabStore.tabs"
         @click="walletTabStore.selectedTab = tab"
       >
-        <template v-if="tab.name !== 'Runes' || service.includes(Chain.BTC)">
+        <template v-if="!['Runes', 'MetaID'].includes(tab.name) || service.includes(Chain.BTC)">
           <span>{{ tab.name }}</span>
           <span
             v-if="tab.isNew"
@@ -46,6 +47,9 @@ getServiceNetwork().then((_service) => {
     </TabsContent>
     <TabsContent value="Runes">
       <RuneList />
+    </TabsContent>
+    <TabsContent value="MetaID">
+      <MetaIDList />
     </TabsContent>
     <TabsContent value="Activity"></TabsContent>
   </Tabs>

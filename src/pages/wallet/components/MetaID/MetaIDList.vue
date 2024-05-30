@@ -1,19 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import NO_NFT_DATA from './NoNFTData.vue'
-import InscriptionList from './InscriptionList.vue'
+import MetaIDPinList from './MetaIDPinList.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
-import MetaContractList from './MetaContractList.vue'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { Service, getServiceNetwork } from '@/lib/network'
-import { type NFTType, getNftType, setNftType, nfts } from '@/lib/nft'
+import { type MetaIDTabType, getMetaIDType, setMetaIdType, metaIds } from '@/lib/metaId'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
-const nftType = ref<NFTType>()
+const metaIDType = ref<MetaIDTabType>()
 const service = ref<Service>(Object.values(Chain))
 
-getNftType().then((_nftType) => {
-  nftType.value = _nftType
+getMetaIDType().then((_metaIDType) => {
+  metaIDType.value = _metaIDType
 })
 
 getServiceNetwork().then((_service) => {
@@ -21,18 +20,18 @@ getServiceNetwork().then((_service) => {
   if (_service.length === Object.values(Chain).length) {
     return
   }
-  const nft = nfts.find((nft) => nft.name === nftType.value)
-  if (nft && !_service.includes(nft.chain)) {
-    const _nft = nfts.find((_nft) => _nft.chain === _service[0])
-    if (_nft) {
-      nftTypeOnchange(_nft.name as NFTType)
+  const metaId = metaIds.find((metaId) => metaId.name === metaIDType.value)
+  if (metaId && !_service.includes(metaId.chain)) {
+    const _metaId = metaIds.find((_metaId) => _metaId.chain === _service[0])
+    if (_metaId) {
+      metaIDTypeOnchange(_metaId.name as MetaIDTabType)
     }
   }
 })
 
-const nftTypeOnchange = (_nftType: NFTType) => {
-  nftType.value = _nftType
-  setNftType(_nftType)
+const metaIDTypeOnchange = (_metaId: MetaIDTabType) => {
+  metaIDType.value = _metaId
+  setMetaIdType(_metaId)
 }
 </script>
 
@@ -41,21 +40,17 @@ const nftTypeOnchange = (_nftType: NFTType) => {
     <div class="py-3 text-sm cursor-pointer -mx-4 bg-gray-light px-4">
       <DropdownMenu>
         <DropdownMenuTrigger class="flex items-center gap-x-2">
-          <span>{{ nftType }}</span>
+          <span>{{ metaIDType }}</span>
           <SelectorIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="bg-white">
-          <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')" v-if="service.includes(Chain.BTC)">
-            BTC Oridinals
-          </DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaContract')" v-if="service.includes(Chain.MVC)">
-            MetaContract
+          <DropdownMenuItem @select="metaIDTypeOnchange('MetaID PIN')" v-if="service.includes(Chain.BTC)">
+            MetaID PIN
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    <InscriptionList v-if="nftType === 'BTC Oridinals'" />
-    <MetaContractList v-else-if="nftType === 'MetaContract'" />
+    <MetaIDPinList v-if="metaIDType === 'MetaID PIN'" />
     <NO_NFT_DATA v-else />
   </div>
 </template>

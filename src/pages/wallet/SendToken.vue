@@ -29,8 +29,6 @@ const { currentMVCWallet } = useChainWalletsStore()
 
 const tags = getTags('MetaContract')
 
-const queryClient = useQueryClient()
-
 // 用户拥有的代币资产
 const { isLoading, data: asset } = useMVCTokenQuery(address, genesis, {
   enabled: computed(() => !!address.value && !!genesis.value),
@@ -137,10 +135,13 @@ async function send() {
       params: {
         txId: transferRes.txid,
         chain: 'mvc',
-        symbol: genesis.value,
+        symbol: symbol.value,
         amount: amount.value,
         address: recipient.value,
         coinCategory: CoinCategory.MetaContract,
+      },
+      query: {
+        genesis: genesis.value,
       },
     })
   }

@@ -10,8 +10,8 @@ interface TabType {
 const tabs: TabType[] = [
   { id: 1, name: 'Crypto', disabled: false, isNew: false },
   { id: 2, name: 'NFTs', disabled: false, isNew: false },
-  { id: 3, name: 'Runes', disabled: false, isNew: true },
-  // { id: 4, name: 'Activity', disabled: false ,isNew:false},
+  { id: 3, name: 'Runes', disabled: false, isNew: false },
+  { id: 3, name: 'MetaID', disabled: false, isNew: true },
 ]
 
 interface WalletStore {
