@@ -34,7 +34,7 @@ export const signMessage = (
   privateKey: mvc.PrivateKey,
   encoding?: 'utf-8' | 'base64' | 'hex' | 'utf8'
 ) => {
-  const messageHash = mvc.crypto.Hash.sha256(Buffer.from('MVC Signed Message:\n' + message))
+  const messageHash = mvc.crypto.Hash.sha256(Buffer.from('Bitcoin Signed Message:\n' + message))
 
   let sigBuf = mvc.crypto.ECDSA.sign(messageHash, privateKey).toBuffer()
 
