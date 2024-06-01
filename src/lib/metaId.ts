@@ -8,7 +8,7 @@ const MetaID_Tab_Type_Key = 'MetaIDTabType'
 const storage = useStorage()
 
 export const metaIds = [
-  { id: 1, name: 'MRC20', disabled: false, chain: Chain.BTC },
+  // { id: 1, name: 'MRC20', disabled: true, chain: Chain.BTC },
   { id: 2, name: 'MetaID PIN', disabled: false, chain: Chain.BTC },
 ]
 

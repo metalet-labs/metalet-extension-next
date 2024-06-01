@@ -13,7 +13,7 @@ const service = ref(Object.values(Chain))
 
 getServiceNetwork().then((_service) => {
   service.value = _service
-  if (walletTabStore.selectedTab.name === 'Runes' && !service.value.includes(Chain.BTC)) {
+  if (['Runes', 'MetaID'].includes(walletTabStore.selectedTab.name) && !service.value.includes(Chain.BTC)) {
     walletTabStore.selectedTab = walletTabStore.tabs[0]
   }
 })

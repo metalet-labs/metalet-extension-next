@@ -42,7 +42,7 @@ const isOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const { updataWallet, currentBTCWallet, getAddress } = useChainWalletsStore()
+const { updataWallet, currentBTCWallet, currentMVCWallet, getAddress } = useChainWalletsStore()
 const address = computed(() => route.params.address as string)
 const mvcAddress = getAddress(Chain.MVC)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
@@ -204,7 +204,7 @@ const toReceive = () => {
     </div>
 
     <Divider class="w-full -mx-4" />
-    <div class="space-y-2 text-xs w-full border-gray-primary">
+    <div class="space-y-2 text-xs w-full border-gray-primary" v-if="asset.chain === 'btc'">
       <div>{{ currentBTCWallet?.getAddressType() }}</div>
       <div class="flex items-center justify-between text-gray-primary gap-4">
         <div class="break-all">{{ currentBTCWallet?.getAddress() }}</div>
@@ -221,6 +221,24 @@ const toReceive = () => {
         />
       </div>
     </div>
+    <div class="space-y-2 text-xs w-full border-gray-primary" v-else-if="asset.chain === 'mvc'">
+      <div>{{ currentMVCWallet?.getAddressType() }}</div>
+      <div class="flex items-center justify-between text-gray-primary gap-4">
+        <div class="break-all">{{ currentMVCWallet?.getAddress() }}</div>
+        <Copy
+          :text="address"
+          class="w-[22px]"
+          @click="
+            toast({
+              title: `${currentMVCWallet?.getAddressType()}  Address Copied`,
+              toastType: 'success',
+              description: address,
+            })
+          "
+        />
+      </div>
+    </div>
+
     <Divider class="w-full -mx-4" />
 
     <div class="w-full">
