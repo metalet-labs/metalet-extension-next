@@ -63,7 +63,7 @@ async function next() {
   if (nftType === 'brc20') {
     utxo = await getInscriptionUtxo(id.value, needRawTx)
   } else if (nftType === 'metaPin') {
-    const metaPin = await getMetaPin(id.value)
+    const metaPin = await getMetaPin(id.value, needRawTx)
     const [txId, outputIndex] = metaPin.output.split(':')
     utxo = {
       txId,
@@ -71,6 +71,7 @@ async function next() {
       satoshis: metaPin.outputValue,
       confirmed: metaPin.genesisHeight > 0,
       inscriptions: null,
+      rawTx: metaPin.rawTx,
     }
   } else {
     throw new Error('Unknown nft type')
