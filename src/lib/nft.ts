@@ -2,7 +2,7 @@ import { Chain } from '@metalet/utxo-wallet-service'
 import nftGenesiss from '../data/nfts'
 import useStorage from './storage'
 
-export type NFTType = 'BTC Oridinals' | 'MetaContract' | 'MetaID PIN'
+export type NFTType = 'Ordinals' | 'MetaContract' | 'MetaID PIN'
 
 const NFTType_Key = 'NFTTabType'
 

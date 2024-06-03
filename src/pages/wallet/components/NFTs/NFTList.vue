@@ -45,8 +45,8 @@ const nftTypeOnchange = (_nftType: NFTType) => {
           <SelectorIcon />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" class="bg-white">
-          <DropdownMenuItem @select="nftTypeOnchange('BTC Oridinals')" v-if="service.includes(Chain.BTC)">
-            BTC Oridinals
+          <DropdownMenuItem @select="nftTypeOnchange('Ordinals')" v-if="service.includes(Chain.BTC)">
+            Ordinals
           </DropdownMenuItem>
           <DropdownMenuItem @select="nftTypeOnchange('MetaContract')" v-if="service.includes(Chain.MVC)">
             MetaContract
@@ -54,7 +54,7 @@ const nftTypeOnchange = (_nftType: NFTType) => {
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-    <InscriptionList v-if="nftType === 'BTC Oridinals'" />
+    <InscriptionList v-if="nftType === 'Ordinals'" />
     <MetaContractList v-else-if="nftType === 'MetaContract'" />
     <NO_NFT_DATA v-else />
   </div>
