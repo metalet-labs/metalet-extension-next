@@ -1,7 +1,9 @@
+import Decimal from "decimal.js"
+
 export interface Balance {
-  total: number
-  confirmed: number
-  unconfirmed: number
+  total: Decimal
+  confirmed: Decimal
+  unconfirmed: Decimal
 }
 
 export interface BRC20Balance extends Balance {

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import Decimal from 'decimal.js'
 import { Button } from '@/components'
 import { getNet } from '@/lib/network'
 import { ref, watch, computed } from 'vue'
@@ -72,20 +73,20 @@ const customLoading = computed(() => {
 
 //TODO: USD Aggregation Hook
 const customSpaceUSD = computed(() => {
-  let total = 0
+  let total = new Decimal(0)
   if (customBalance.value && spaceRate.value?.price !== undefined) {
-    total = (customBalance.value.total / 1e8) * spaceRate.value.price
+    total = total.add(customBalance.value.total.dividedBy(1e8).mul(spaceRate.value.price))
   }
   return total
 })
 
 const customftUSD = computed(() => {
-  let total = 0
+  let total = new Decimal(0)
   if (ftRates.value && customAssets.value) {
     Object.entries(ftRates.value).forEach(([symbol, rate = 0]) => {
       const asset = customAssets.value.find((a) => a.symbol === symbol)
       if (asset && asset.balance) {
-        total += rate * (asset.balance.total / 10 ** asset.decimal)
+        total = total.add(asset.balance.total.dividedBy(10 ** asset.decimal).mul(rate))
       }
     })
   }
@@ -93,7 +94,7 @@ const customftUSD = computed(() => {
 })
 
 const customUSD = computed(() => {
-  return `$${(customSpaceUSD.value + customftUSD.value).toFixed(2)}`
+  return `$${customSpaceUSD.value.add(customftUSD.value).toFixed(2)}`
 })
 
 const debouncedMvcPath = useDebounce(mvcPath, 300)

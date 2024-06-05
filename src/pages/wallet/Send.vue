@@ -285,7 +285,7 @@ async function send() {
           <span class="text-gray-primary text-xs">
             <span>Max:</span>
             <span v-if="balance !== undefined">
-              {{ prettifyBalanceFixed(balanceData?.confirmed || 0, symbol, asset.decimal) }}
+              {{ prettifyBalanceFixed(balanceData?.confirmed.toNumber() || 0, symbol, asset.decimal) }}
             </span>
             <span v-else>--</span>
           </span>
@@ -303,13 +303,7 @@ async function send() {
         <div class="flex items-center justify-between w-full">
           <span class="text-sm">Total</span>
           <span class="text-xs text-gray-primary">
-            {{
-              prettifyBalanceFixed(
-                (balanceData?.unconfirmed || 0) + (balanceData?.confirmed || 0),
-                symbol,
-                asset.decimal
-              )
-            }}
+            {{ prettifyBalanceFixed(balanceData?.total.toNumber() || 0, symbol, asset.decimal) }}
           </span>
         </div>
         <div class="flex items-center justify-between w-full">
@@ -324,13 +318,13 @@ async function send() {
             </span>
           </span>
           <span class="text-xs text-gray-primary">
-            {{ prettifyBalanceFixed(balanceData?.unconfirmed || 0, symbol, asset.decimal) }}
+            {{ prettifyBalanceFixed(balanceData?.unconfirmed.toNumber() || 0, symbol, asset.decimal) }}
           </span>
         </div>
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary">Available</span>
           <span class="text-xs text-gray-primary">
-            {{ prettifyBalanceFixed(balanceData?.confirmed || 0, symbol, asset.decimal) }}
+            {{ prettifyBalanceFixed(balanceData?.confirmed.toNumber() || 0, symbol, asset.decimal) }}
           </span>
         </div>
       </div>

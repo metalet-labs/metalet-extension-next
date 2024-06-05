@@ -1,10 +1,11 @@
-import { mvcApi } from './request'
 import { ComputedRef, Ref } from 'vue'
 import { Balance } from './types/balance'
 import type { FTAsset } from '@/data/assets'
 import { useQuery } from '@tanstack/vue-query'
+import { mvcApi, metaletApiV3 } from './request'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
+import Decimal from 'decimal.js'
 
 export type Token = {
   codeHash: string
@@ -45,9 +46,9 @@ export const useMVCAssetsQuery = (
             codeHash: token.codeHash,
             genesis: token.genesis,
             balance: {
-              total: token.confirmed + token.unconfirmed,
-              confirmed: token.confirmed,
-              unconfirmed: token.unconfirmed,
+              confirmed: new Decimal(token.confirmedString),
+              unconfirmed: new Decimal(token.unconfirmedString),
+              total: new Decimal(token.confirmedString).add(token.unconfirmedString),
             },
           }) as FTAsset
       ),
@@ -78,9 +79,9 @@ export const useMVCTokenQuery = (
           codeHash: token.codeHash,
           genesis: token.genesis,
           balance: {
-            confirmed: token.confirmed,
-            unconfirmed: token.unconfirmed,
-            total: token.confirmed + token.unconfirmed,
+            confirmed: new Decimal(token.confirmedString),
+            unconfirmed: new Decimal(token.unconfirmedString),
+            total: new Decimal(token.confirmedString).add(token.unconfirmedString),
           },
         } as FTAsset
       }
@@ -105,11 +106,17 @@ export const fetchTokenBalance = async (address: string, genesis: string): Promi
   const tokens = await mvcApi<Token[]>(`/contract/ft/address/${address}/balance`).get()
 
   const token = tokens.find((token) => token.genesis === genesis)
-  const confirmed = token?.confirmed || 0
-  const unconfirmed = token?.unconfirmed || 0
+  const confirmed = new Decimal(token?.confirmedString || 0)
+  const unconfirmed = new Decimal(token?.unconfirmedString || 0)
   return {
     confirmed,
     unconfirmed,
-    total: confirmed + unconfirmed,
+    total: confirmed.add(unconfirmed),
   }
+}
+
+export async function getFtOfficialToken(): Promise<string[]> {
+  return (
+    (await metaletApiV3<{ ftContractOfficialList: string[] }>('/coin/official').get())?.ftContractOfficialList || []
+  )
 }

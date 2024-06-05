@@ -1,4 +1,5 @@
 import { Ref } from 'vue'
+import Decimal from 'decimal.js'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
 import { useQuery } from '@tanstack/vue-query'
@@ -64,9 +65,9 @@ export const fetchBRC20List = async (address: string): Promise<BRC20Asset[]> => 
           decimal: 0,
           contract: 'BRC-20',
           balance: {
-            total: Number(brc20.overallBalance),
-            confirmed: Number(brc20.transferableBalance) + Number(brc20.availableBalanceSafe),
-            unconfirmed: Number(brc20.availableBalanceUnSafe),
+            total: new Decimal(brc20.overallBalance),
+            confirmed: new Decimal(brc20.transferableBalance).add(brc20.availableBalanceSafe),
+            unconfirmed: new Decimal(brc20.availableBalanceUnSafe),
             availableBalance: Number(brc20.availableBalance),
             transferableBalance: Number(brc20.transferableBalance),
             availableBalanceSafe: Number(brc20.availableBalanceSafe),
@@ -88,9 +89,9 @@ export const fetchBRC20List = async (address: string): Promise<BRC20Asset[]> => 
         decimal: 0,
         contract: 'BRC-20',
         balance: {
-          total: Number(brc20.overallBalance),
-          confirmed: Number(brc20.transferableBalance) + Number(brc20.availableBalanceSafe),
-          unconfirmed: Number(brc20.availableBalanceUnSafe),
+          total: new Decimal(brc20.overallBalance),
+          confirmed: new Decimal(brc20.transferableBalance).add(brc20.availableBalanceSafe),
+          unconfirmed: new Decimal(brc20.availableBalanceUnSafe),
           availableBalance: Number(brc20.availableBalance),
           transferableBalance: Number(brc20.transferableBalance),
           availableBalanceSafe: Number(brc20.availableBalanceSafe),
@@ -117,10 +118,11 @@ export async function fetchBRC20Detail(address: string, symbol: string): Promise
       decimal: 0,
       transferableList: brc20Detail.transferableList,
       balance: {
-        confirmed:
-          Number(brc20Detail.tokenBalance.availableBalanceSafe) + Number(brc20Detail.tokenBalance.transferableBalance),
-        unconfirmed: Number(brc20Detail.tokenBalance.availableBalanceUnSafe),
-        total: Number(brc20Detail.tokenBalance.availableBalance) + Number(brc20Detail.tokenBalance.transferableBalance),
+        confirmed: new Decimal(brc20Detail.tokenBalance.availableBalanceSafe).add(
+          brc20Detail.tokenBalance.transferableBalance
+        ),
+        unconfirmed: new Decimal(brc20Detail.tokenBalance.availableBalanceUnSafe),
+        total: new Decimal(brc20Detail.tokenBalance.availableBalance).add(brc20Detail.tokenBalance.transferableBalance),
         availableBalance: Number(brc20Detail.tokenBalance.availableBalance),
         availableBalanceSafe: Number(brc20Detail.tokenBalance.availableBalanceSafe),
         availableBalanceUnSafe: Number(brc20Detail.tokenBalance.availableBalanceUnSafe),
@@ -143,10 +145,11 @@ export async function fetchBRC20Detail(address: string, symbol: string): Promise
     decimal: 0,
     transferableList: brc20Detail.transferableList,
     balance: {
-      confirmed:
-        Number(brc20Detail.tokenBalance.availableBalanceSafe) + Number(brc20Detail.tokenBalance.transferableBalance),
-      unconfirmed: Number(brc20Detail.tokenBalance.availableBalanceUnSafe),
-      total: Number(brc20Detail.tokenBalance.availableBalance) + Number(brc20Detail.tokenBalance.transferableBalance),
+      confirmed: new Decimal(brc20Detail.tokenBalance.availableBalanceSafe).add(
+        brc20Detail.tokenBalance.transferableBalance
+      ),
+      unconfirmed: new Decimal(brc20Detail.tokenBalance.availableBalanceUnSafe),
+      total: new Decimal(brc20Detail.tokenBalance.availableBalance).add(brc20Detail.tokenBalance.transferableBalance),
       availableBalance: Number(brc20Detail.tokenBalance.availableBalance),
       availableBalanceSafe: Number(brc20Detail.tokenBalance.availableBalanceSafe),
       availableBalanceUnSafe: Number(brc20Detail.tokenBalance.availableBalanceUnSafe),

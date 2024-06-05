@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
@@ -43,9 +44,9 @@ export async function fetchRunesList(
       queryable: true,
       decimal: data.divisibility,
       balance: {
-        confirmed: Number(data.amount),
-        unconfirmed: 0,
-        total: Number(data.amount),
+        confirmed: new Decimal(data.amount),
+        unconfirmed: new Decimal(0),
+        total: new Decimal(data.amount),
       },
       runeId: data.runeid,
     })) as RuneAsset[]
@@ -73,9 +74,9 @@ export async function fetchRunesList(
     queryable: true,
     decimal: data.divisibility,
     balance: {
-      confirmed: Number(data.amount),
-      unconfirmed: 0,
-      total: Number(data.amount),
+      confirmed: new Decimal(data.amount),
+      unconfirmed: new Decimal(0),
+      total: new Decimal(data.amount),
     },
     runeId: data.runeId,
   })) as RuneAsset[]
@@ -105,9 +106,9 @@ export async function fetchRuneDetail(address: string, runeId: string) {
       queryable: true,
       decimal: runeDetail.runeInfo.divisibility,
       balance: {
-        confirmed: Number(runeDetail.runeBalance.amount),
-        unconfirmed: 0,
-        total: Number(runeDetail.runeBalance.amount),
+        confirmed: new Decimal(runeDetail.runeBalance.amount),
+        unconfirmed: new Decimal(0),
+        total: new Decimal(runeDetail.runeBalance.amount),
       },
       runeId,
     } as RuneAsset
@@ -126,9 +127,9 @@ export async function fetchRuneDetail(address: string, runeId: string) {
     queryable: true,
     decimal: runeDetail.divisibility,
     balance: {
-      confirmed: Number(runeDetail.amount),
-      unconfirmed: 0,
-      total: Number(runeDetail.amount),
+      confirmed: new Decimal(runeDetail.amount),
+      unconfirmed: new Decimal(0),
+      total: new Decimal(runeDetail.amount),
     },
     runeId,
     mintable: runeDetail.mintable,

@@ -7,6 +7,7 @@ import { isOfficialToken } from '@/lib/assets'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
+import { useOfficeGenesisStore } from '@/stores/FtTokenStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset } from '@/data/assets'
 
@@ -23,6 +24,8 @@ const coinCategory = computed(() => props.coinCategory)
 const tag = ref<Tag>()
 
 const { getIcon } = useIconsStore()
+const { isOfficeGenesis } = useOfficeGenesisStore()
+
 const icon = computed(
   () =>
     getIcon(
@@ -51,9 +54,9 @@ const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRate
 
 const assetPrice = computed(() => {
   if (asset.value?.balance) {
-    return `${new Decimal(asset.value.balance.total).dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
+    return `${asset.value.balance.total.dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
   } else if (balance.value) {
-    return `${new Decimal(balance.value.total).dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
+    return `${balance.value.total.dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
   }
   return `-- ${asset.value.symbol}`
 })
@@ -66,10 +69,10 @@ const assetUSD = computed(() => {
   }
   const usdRate = new Decimal(exchangeRate.value?.price || 0)
   if (asset.value?.balance) {
-    const balanceInStandardUnit = new Decimal(asset.value.balance?.total || 0).dividedBy(10 ** asset.value.decimal)
+    const balanceInStandardUnit = asset.value.balance.total.dividedBy(10 ** asset.value.decimal)
     return usdRate.mul(balanceInStandardUnit)
   } else if (balance.value && exchangeRate.value) {
-    const balanceInStandardUnit = new Decimal(balance.value.total).dividedBy(10 ** asset.value.decimal)
+    const balanceInStandardUnit = balance.value.total.dividedBy(10 ** asset.value.decimal)
     return usdRate.mul(balanceInStandardUnit)
   }
 })
@@ -112,7 +115,7 @@ watch(
             </span>
             <CheckBadgeIcon
               class="h-4 w-4 shrink-0 text-blue-500"
-              v-if="(asset as FTAsset)?.genesis && isOfficialToken((asset as FTAsset).genesis)"
+              v-if="(asset as FTAsset)?.genesis && isOfficeGenesis((asset as FTAsset).genesis)"
             />
           </div>
 

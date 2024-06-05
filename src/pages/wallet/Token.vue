@@ -54,7 +54,7 @@ const assetUSD = computed(() => {
   const usdRate = new Decimal(exchangeRate.value?.price || 0)
   if (asset.value) {
     if (asset.value?.balance) {
-      const balanceInStandardUnit = new Decimal(asset.value.balance?.total || 0).dividedBy(10 ** asset.value.decimal)
+      const balanceInStandardUnit = asset.value.balance.total.dividedBy(10 ** asset.value.decimal)
       return usdRate.mul(balanceInStandardUnit)
     }
   }
@@ -82,7 +82,9 @@ const copyGenesis = () => {
       <AssetLogo :logo="icon" :chain="Chain.MVC" :symbol="symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
-        <span v-if="asset?.balance">{{ calcBalance(asset.balance.total, asset.decimal, asset.symbol) }}</span>
+        <span v-if="asset?.balance">
+          {{ calcBalance(asset.balance.total.toNumber(), asset.decimal, asset.symbol) }}
+        </span>
         <span v-else>-- {{ symbol }}</span>
         <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}

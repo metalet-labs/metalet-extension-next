@@ -329,7 +329,7 @@ export async function getBalance(chain: UtxoChain) {
     case UtxoChain.BTC:
       return fetchBtcBalance(address)
     default: {
-      return doNothing(address)
+      return doNothing()
     }
   }
 }

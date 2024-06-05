@@ -54,7 +54,7 @@ const merge = async () => {
       txId,
       fromAddress: address.value,
       toAdddress: address.value,
-      amount: balance.total,
+      amount: balance.total.toNumber(),
       token: {
         symbol: 'BTC',
         decimal: 8,

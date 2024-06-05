@@ -90,10 +90,10 @@ const assetUSD = computed(() => {
   const usdRate = new Decimal(exchangeRate.value?.price || 0)
   if (asset.value) {
     if (asset.value?.balance) {
-      const balanceInStandardUnit = new Decimal(asset.value.balance?.total || 0).dividedBy(10 ** asset.value.decimal)
+      const balanceInStandardUnit = asset.value.balance.total.dividedBy(10 ** asset.value.decimal)
       return usdRate.mul(balanceInStandardUnit)
     } else if (balance.value && exchangeRate.value) {
-      const balanceInStandardUnit = new Decimal(balance.value.total).dividedBy(10 ** asset.value.decimal)
+      const balanceInStandardUnit = balance.value.total.dividedBy(10 ** asset.value.decimal)
       return usdRate.mul(balanceInStandardUnit)
     }
   }
@@ -184,7 +184,7 @@ const toReceive = () => {
       <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
       <div class="mt-3 text-2xl">
-        <span v-if="balance">{{ calcBalance(balance.total, asset.decimal, asset.symbol) }}</span>
+        <span v-if="balance">{{ calcBalance(balance.total.toNumber(), asset.decimal, asset.symbol) }}</span>
         <span v-else>-- {{ asset.symbol }}</span>
         <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}

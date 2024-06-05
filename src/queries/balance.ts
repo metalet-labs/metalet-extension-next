@@ -11,9 +11,9 @@ import { Balance, BitcoinBalance, BTCBalance } from './types/balance'
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
   const balance = await mvcApi<Omit<Balance, 'total'>>(`/address/${address}/balance`).get()
   return {
-    confirmed: balance.confirmed,
-    unconfirmed: balance.unconfirmed,
-    total: new Decimal(balance.confirmed).add(balance.unconfirmed).toNumber(),
+    confirmed: new Decimal(balance.confirmed),
+    unconfirmed: new Decimal(balance.unconfirmed),
+    total: new Decimal(balance.confirmed).add(balance.unconfirmed),
   }
 }
 
@@ -22,25 +22,25 @@ export const fetchBtcBalance = async (address: string): Promise<Balance> => {
   if (UNISAT_ENABLED) {
     const data = await unisatApi<BitcoinBalance>(`/address/balance`).get({ net, address })
     return {
-      total: new Decimal(data.amount).mul(1e8).toNumber(),
-      confirmed: new Decimal(data.confirm_amount).mul(1e8).toNumber(),
-      unconfirmed: new Decimal(data.pending_amount).mul(1e8).toNumber(),
+      total: new Decimal(data.amount).mul(1e8),
+      confirmed: new Decimal(data.confirm_amount).mul(1e8),
+      unconfirmed: new Decimal(data.pending_amount).mul(1e8),
     }
   }
   const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`).get({ net, address })
 
   return {
-    total: new Decimal(data.balance || 0).mul(1e8).toNumber(),
-    confirmed: new Decimal(data.safeBalance || 0).mul(1e8).toNumber(),
-    unconfirmed: new Decimal(data.pendingBalance || 0).mul(1e8).toNumber(),
+    total: new Decimal(data.balance || 0).mul(1e8),
+    confirmed: new Decimal(data.safeBalance || 0).mul(1e8),
+    unconfirmed: new Decimal(data.pendingBalance || 0).mul(1e8),
   }
 }
 
-export const doNothing = async (address: string): Promise<Balance> => {
+export const doNothing = async (): Promise<Balance> => {
   return {
-    confirmed: 0,
-    unconfirmed: 0,
-    total: 0,
+    total: new Decimal(0),
+    confirmed: new Decimal(0),
+    unconfirmed: new Decimal(0),
   }
 }
 
@@ -58,7 +58,7 @@ export const useBalanceQuery = (
         case 'BTC':
           return fetchBtcBalance(address.value)
         default: {
-          return doNothing(address.value)
+          return doNothing()
         }
       }
     },

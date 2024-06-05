@@ -193,8 +193,8 @@ async function send() {
         min="0"
         type="number"
         step="0.00001"
-        :max="asset.balance!.total"
         v-model="amount"
+        :max="asset.balance!.total.toNumber()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
     </div>

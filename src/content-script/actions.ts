@@ -211,7 +211,7 @@ export const btcKeys: Omit<Keys, 'event'> = {
   query: [
     { name: 'getBalance', action: 'GetBTCBalance' },
     { name: 'getAddress', action: 'GetBTCAddress' },
-    { name: 'getAddresType', action: 'GetBTCAddressType' },
+    { name: 'getAddressType', action: 'GetBTCAddressType' },
     { name: 'getPublicKey', action: 'GetBTCPublicKey' },
     { name: 'getUtxos', action: 'GetBTCUtxos' },
     { name: 'pushPsbt', action: 'PushPsbt' },
