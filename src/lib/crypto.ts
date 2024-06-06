@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js'
 import { getNetwork } from '@/lib/network'
 import { parseLocalTransaction } from './metadata'
 import { BN, TxComposer, mvc } from 'meta-contract'
-import { getMvcRootPath, type Account } from './account'
+import { getMvcRootPath, getMvcSubPath } from './account'
 import { type MvcUtxo, fetchUtxos } from '@/queries/utxos'
 import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import { DERIVE_MAX_DEPTH, FEEB, P2PKH_UNLOCK_SIZE } from '@/data/config'
@@ -86,17 +86,18 @@ type ToSignTransaction = {
   dataDependsOn?: number
 }
 export const signTransaction = async (
-  { txHex, scriptHex, inputIndex, satoshis, sigtype, path }: ToSignTransaction,
+  { txHex, scriptHex, inputIndex, satoshis, sigtype }: ToSignTransaction,
   returnsTransaction: boolean = false
 ) => {
   const network = await getNetwork()
   const activeWallet = await getActiveWalletOnlyAccount()
   const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
+  const mvcWallet = await getCurrentWallet(Chain.MVC)
   const hdpk = mneObj.toHDPrivateKey('', network)
-  const rootPath = await getMvcRootPath()
+  // const rootPath = await getMvcRootPath()
   // find out priv / pub according to path
-  const subPath = path || '0/0'
-  const privateKey = hdpk.deriveChild(`${rootPath}/${subPath}`).privateKey
+  // const subPath = path || '0/0'
+  const privateKey = hdpk.deriveChild(`${mvcWallet.getPath()}`).privateKey
   const publicKey = privateKey.toPublicKey()
 
   if (!sigtype) sigtype = mvc.crypto.Signature.SIGHASH_ALL | mvc.crypto.Signature.SIGHASH_FORKID
@@ -138,7 +139,8 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
   const activeWallet = await getActiveWalletOnlyAccount()
   const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
   const hdpk = mneObj.toHDPrivateKey('', network)
-  const rootPath = await getMvcRootPath()
+  // const rootPath = await getMvcRootPath()
+  const wallet = await getCurrentWallet(Chain.MVC)
 
   // find out if transactions other than the first one are dependent on previous ones
   // if so, we need to sign them in order, and sequentially update the prevTxId of the later ones
@@ -227,8 +229,8 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
     }
 
     // find out priv / pub according to path
-    const subPath = toSign.path || '0/0'
-    const privateKey = hdpk.deriveChild(`${rootPath}/${subPath}`).privateKey
+    // const subPath = toSign.path || '0/0'
+    const privateKey = hdpk.deriveChild(`${wallet.getPath()}`).privateKey
     const publicKey = privateKey.toPublicKey()
 
     // Build signature of this input
