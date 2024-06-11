@@ -379,7 +379,8 @@ export const payTransactions = async (
 
     const rootPath = await getMvcRootPath()
     const basePrivateKey = hdpk.deriveChild(rootPath)
-    const rootPrivateKey = hdpk.deriveChild(`${rootPath}/0/0`).privateKey
+    // const rootPrivateKey = hdpk.deriveChild(`${rootPath}/0/0`).privateKey
+    const rootPrivateKey = mvc.PrivateKey.fromWIF(wallet.getPrivateKey())
 
     // we have to find out the private key of existing inputs
     const toUsePrivateKeys = new Map<number, mvc.PrivateKey>()
@@ -400,7 +401,7 @@ export const payTransactions = async (
       let toUsePrivateKey: mvc.PrivateKey | undefined = undefined
       while (deriver < DERIVE_MAX_DEPTH) {
         const childPk = basePrivateKey.deriveChild(0).deriveChild(deriver)
-        const childAddress = childPk.publicKey.toAddress('mainnet' as any).toString()
+        const childAddress = childPk.publicKey.toAddress(network === 'regtest' ? 'testnet' : network).toString()
 
         if (childAddress === inputAddress.toString()) {
           toUsePrivateKey = childPk.privateKey
