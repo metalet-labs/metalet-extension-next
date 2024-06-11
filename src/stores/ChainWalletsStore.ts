@@ -12,7 +12,7 @@ export const useChainWalletsStore = createGlobalState(() => {
   const currentBTCWallet = ref<BtcWallet>()
   const currentMVCWallet = ref<MvcWallet>()
 
-  const updataWallet = async (chain: Chain) => {
+  const updateWallet = async (chain: Chain) => {
     if (chain === Chain.BTC) {
       currentBTCWallet.value = await WalletsStore.getCurrentChainWallet(Chain.BTC)
     } else if (chain === Chain.MVC) {
@@ -60,7 +60,7 @@ export const useChainWalletsStore = createGlobalState(() => {
 
   return {
     getAddress,
-    updataWallet,
+    updateWallet,
     initMvcWallet,
     updateAllWallets,
     currentBTCWallet: computed(() => toRaw(currentBTCWallet.value)),

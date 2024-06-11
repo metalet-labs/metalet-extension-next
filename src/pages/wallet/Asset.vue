@@ -42,7 +42,7 @@ const isOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const { updataWallet, currentBTCWallet, currentMVCWallet, getAddress } = useChainWalletsStore()
+const { updateWallet, currentBTCWallet, currentMVCWallet, getAddress } = useChainWalletsStore()
 const address = computed(() => route.params.address as string)
 const mvcAddress = getAddress(Chain.MVC)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
@@ -118,7 +118,7 @@ const toSend = () => {
 const setAddressType = async (addressType: AddressType, _address: string) => {
   const chain = asset.value!.chain as Chain
   await setV3AddressTypeStorage(chain, addressType)
-  await updataWallet(chain)
+  await updateWallet(chain)
   isOpen.value = false
   notifyContent('accountsChanged')({ mvcAddress: mvcAddress.value, btcAddress: _address })
   router.replace(`/wallet/asset/${symbol.value}/${_address}`)

@@ -59,17 +59,22 @@ const addAccount = async (wallet: V3Wallet) => {
   const addressIndices = wallet.accounts.map((account) => account.addressIndex)
   const maxAddressIndex = Math.max(...addressIndices)
   const walletManager = await WalletsStore.getWalletManager()
-  const account = walletManager!.addAccount(wallet.id, {
+  const account = walletManager.addAccount(wallet.id, {
     addressIndex: maxAddressIndex + 1,
   })
   wallet.accounts.push(account)
   setV3WalletsStorage(walletObj.value)
   toast({ title: 'New account created', toastType: 'success' })
+  // TODO: put into function
+  currentWalletId.value = wallet.id
   currentAccountId.value = account.id
+  await setCurrentWalletId(wallet.id)
   await setCurrentAccountId(account.id)
+  await updateAllWallets()
+  notifyContent('accountsChanged')({ mvcAddress: mvcAddress.value, btcAddress: btcAddress.value })
 }
 
-const relaodAccout = async (_walletId: string, _accountId: string) => {
+const reloadAccount = async (_walletId: string, _accountId: string) => {
   if (currentWalletId.value === _walletId) {
     if (currentAccountId.value === _accountId) {
       return
@@ -94,14 +99,14 @@ const relaodAccout = async (_walletId: string, _accountId: string) => {
   goToPage('/wallet')
 }
 
-const updataWalletName = (walletId: string, walletName: string) => {
+const updateWalletName = (walletId: string, walletName: string) => {
   editName.value = walletName
   editNameOpen.value = true
   editNameType.value = 'Wallet'
   editWalletId.value = walletId
 }
 
-const updataAccountName = (walletId: string, accountId: string, accountName: string) => {
+const updateAccountName = (walletId: string, accountId: string, accountName: string) => {
   editName.value = accountName
   editNameOpen.value = true
   editNameType.value = 'Account'
@@ -145,7 +150,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                 <span>{{ wallet.name }}</span>
                 <PencilIcon
                   class="w-3.5 hover:text-blue-primary"
-                  @click.stop="updataWalletName(wallet.id, wallet.name)"
+                  @click.stop="updateWalletName(wallet.id, wallet.name)"
                 />
               </div>
             </AccordionTrigger>
@@ -155,7 +160,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                 jc="between"
                 :key="account.id"
                 v-for="account in wallet.accounts"
-                @click="relaodAccout(wallet.id, account.id)"
+                @click="reloadAccount(wallet.id, account.id)"
                 :class="['h-15', account.id === currentAccountId ? 'cursor-not-allowed' : 'cursor-pointer']"
               >
                 <FlexBox ai="center" :gap="3">
@@ -163,7 +168,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
                   <span>{{ account.name }}</span>
                   <PencilIcon
                     class="w-3.5 hover:text-blue-primary cursor-pointer"
-                    @click.stop="updataAccountName(wallet.id, account.id, account.name)"
+                    @click.stop="updateAccountName(wallet.id, account.id, account.name)"
                   />
                 </FlexBox>
                 <SuccessIcon v-show="account.id === currentAccountId" class="w-5 h-5" />

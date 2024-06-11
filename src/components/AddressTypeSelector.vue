@@ -5,7 +5,7 @@ import { Chain, AddressType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { setV3AddressTypeStorage, getV3AddressTypeStorage } from '@/lib/addressType'
 
-const { updataWallet } = useChainWalletsStore()
+const { updateWallet } = useChainWalletsStore()
 
 const { chain } = defineProps<{
   chain: Chain
@@ -22,7 +22,7 @@ WalletsStore.getAccountChainWallets().then((chainWallets) => {
 const setAddressType = async (addressType: AddressType) => {
   currentType.value = addressType
   await setV3AddressTypeStorage(chain, addressType)
-  updataWallet(chain)
+  updateWallet(chain)
 }
 
 getV3AddressTypeStorage(chain).then((addressType) => {
