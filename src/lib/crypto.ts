@@ -86,7 +86,7 @@ type ToSignTransaction = {
   dataDependsOn?: number
 }
 export const signTransaction = async (
-  { txHex, scriptHex, inputIndex, satoshis, sigtype }: ToSignTransaction,
+  { txHex, scriptHex, inputIndex, satoshis, sigtype, path }: ToSignTransaction,
   returnsTransaction: boolean = false
 ) => {
   const network = await getNetwork()
@@ -94,10 +94,10 @@ export const signTransaction = async (
   const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
   const mvcWallet = await getCurrentWallet(Chain.MVC)
   const hdpk = mneObj.toHDPrivateKey('', network)
-  // const rootPath = await getMvcRootPath()
+  const rootPath = await getMvcRootPath()
   // find out priv / pub according to path
-  // const subPath = path || '0/0'
-  const privateKey = hdpk.deriveChild(`${mvcWallet.getPath()}`).privateKey
+  const derivePath = path ? `${rootPath}/${path}` : mvcWallet.getPath()
+  const privateKey = hdpk.deriveChild(derivePath).privateKey
   const publicKey = privateKey.toPublicKey()
 
   if (!sigtype) sigtype = mvc.crypto.Signature.SIGHASH_ALL | mvc.crypto.Signature.SIGHASH_FORKID
@@ -139,7 +139,7 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
   const activeWallet = await getActiveWalletOnlyAccount()
   const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
   const hdpk = mneObj.toHDPrivateKey('', network)
-  // const rootPath = await getMvcRootPath()
+  const rootPath = await getMvcRootPath()
   const wallet = await getCurrentWallet(Chain.MVC)
 
   // find out if transactions other than the first one are dependent on previous ones
@@ -229,8 +229,8 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
     }
 
     // find out priv / pub according to path
-    // const subPath = toSign.path || '0/0'
-    const privateKey = hdpk.deriveChild(`${wallet.getPath()}`).privateKey
+    const path = toSign.path ? `${rootPath}/${toSign.path}` : wallet.getPath()
+    const privateKey = hdpk.deriveChild(path).privateKey
     const publicKey = privateKey.toPublicKey()
 
     // Build signature of this input

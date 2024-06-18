@@ -1,7 +1,9 @@
+import { getPublicKey } from '../account'
 import { getCurrentWallet } from '../wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
+getPublicKey
 
-export async function process() {
-  const wallet = await getCurrentWallet(Chain.MVC)
+export async function process({ path }: { path?: string }) {
+  const wallet = await getCurrentWallet(Chain.MVC, path ? Number(path.charAt(path.length - 1)) : undefined)
   return wallet.getPublicKeyHex()
 }
