@@ -5,6 +5,7 @@ import { Ref, ComputedRef } from 'vue'
 import { type RuneAsset } from '@/data/assets'
 import { UNISAT_ENABLED } from '@/data/config'
 import { metaletApiV3, unisatApi } from './request'
+import { Balance_QUERY_INTERVAL } from './constants'
 import { AddressRunesTokenSummary } from './types/rune'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 
@@ -49,6 +50,7 @@ export async function fetchRunesList(
         total: new Decimal(data.amount),
       },
       runeId: data.runeid,
+      contract: 'Runes',
     })) as RuneAsset[]
 
     cursor += size
@@ -79,6 +81,7 @@ export async function fetchRunesList(
       total: new Decimal(data.amount),
     },
     runeId: data.runeId,
+    contract: 'Runes',
   })) as RuneAsset[]
 
   cursor += size
@@ -163,4 +166,14 @@ export const useRunesInfiniteQuery = (
       ...options,
     }
   )
+}
+
+export const useRunesAssetsQuery = (address: Ref<string>, options: { enabled: Ref<boolean> }) => {
+  return useQuery({
+    queryKey: ['RuneAssets', { address }],
+    queryFn: () => fetchRunesList(address.value, 0, 1000),
+    select: (data) => data.list,
+    refetchInterval: Balance_QUERY_INTERVAL,
+    ...options,
+  })
 }

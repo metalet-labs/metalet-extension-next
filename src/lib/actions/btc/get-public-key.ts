@@ -3,5 +3,5 @@ import { Chain } from '@metalet/utxo-wallet-service'
 
 export async function process(): Promise<string> {
   const wallet = await getCurrentWallet(Chain.BTC)
-  return wallet.getPublicKeyHex()
+  return wallet.getPublicKey().toString('hex')
 }

@@ -6,10 +6,11 @@ import { getAssetsDisplay } from '@/lib/assets'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useMVCAssetsQuery } from '@/queries/tokens'
 import { useBRC20AssetsQuery } from '@/queries/brc20'
+import { useRunesAssetsQuery } from '@/queries/runes'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { type Asset, BTCAsset, MVCAsset, FTAsset } from '@/data/assets'
+import { type Asset, BTCAsset, MVCAsset, type FTAsset, type RuneAsset } from '@/data/assets'
 
 const router = useRouter()
 const { getAddress } = useChainWalletsStore()
@@ -30,6 +31,10 @@ getAssetsDisplay().then((display) => {
 })
 
 const { data: btcAssets } = useBRC20AssetsQuery(btcAddress, {
+  enabled: computed(() => !!btcAddress.value),
+})
+
+const { data: runeAssets } = useRunesAssetsQuery(btcAddress, {
   enabled: computed(() => !!btcAddress.value),
 })
 
@@ -62,6 +67,13 @@ function toToken(token: FTAsset, address: string) {
     params: { genesis: token.genesis, symbol: token.symbol, address },
   })
 }
+
+function toRune(asset: RuneAsset, address: string) {
+  router.push({
+    name: 'rune-detail',
+    params: { runeId: asset.runeId, address, name: asset.tokenName, symbol: asset.symbol },
+  })
+}
 </script>
 
 <template>
@@ -81,6 +93,14 @@ function toToken(token: FTAsset, address: string) {
           v-for="asset in btcAssets"
           :coinCategory="CoinCategory.BRC20"
           @click="toBRC20(asset, btcAddress)"
+        />
+        <AssetItem
+          :asset="asset"
+          :key="asset.symbol"
+          :address="btcAddress"
+          v-for="asset in runeAssets"
+          :coinCategory="CoinCategory.Rune"
+          @click="toRune(asset, btcAddress)"
         />
       </div>
     </template>

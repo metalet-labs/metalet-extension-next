@@ -149,6 +149,16 @@ const routes = [
         },
       },
       {
+        path: '/wallet/sendMRC20/:name/:mrc20Id/:address',
+        component: () => import('./pages/wallet/SendMRC20.vue'),
+        name: 'SendMRC20',
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Send MRC20',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/mintRune/:name/:runeId/:address',
         component: () => import('./pages/wallet/MintRune.vue'),
         name: 'MintRune',
@@ -296,6 +306,18 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Rune',
+          noFooter: true,
+          backRouter: '/wallet',
+        },
+      },
+      {
+        path: '/wallet/mrc20/:name/:symbol/:mrc20Id/:address',
+        component: () => import('./pages/wallet/MRC20.vue'),
+        name: 'mrc20-detail',
+        props: true,
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'MRC20',
           noFooter: true,
           backRouter: '/wallet',
         },

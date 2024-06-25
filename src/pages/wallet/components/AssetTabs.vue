@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import AssetList from './AssetList.vue'
 import NFTList from './NFTs/NFTList.vue'
-import RuneList from './Runes/RuneList.vue'
+// import RuneList from './Runes/RuneList.vue'
+import MRC20List from './MRC20/MRC20List.vue'
 import MetaIDList from './MetaID/MetaIDList.vue'
 import { getServiceNetwork } from '@/lib/network'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -13,8 +14,8 @@ const service = ref(Object.values(Chain))
 
 getServiceNetwork().then((_service) => {
   service.value = _service
-  if (['Runes', 'MetaID'].includes(walletTabStore.selectedTab.name) && !service.value.includes(Chain.BTC)) {
-    walletTabStore.selectedTab = walletTabStore.tabs[0]
+  if (walletTabStore.selectedTab.chain === Chain.BTC && !service.value.includes(Chain.BTC)) {
+    walletTabStore.selectedTab = walletTabStore.tabs.find((tab) => tab.chain !== Chain.BTC)
   }
 })
 </script>
@@ -28,7 +29,7 @@ getServiceNetwork().then((_service) => {
         v-for="tab in walletTabStore.tabs"
         @click="walletTabStore.selectedTab = tab"
       >
-        <template v-if="!['Runes', 'MetaID'].includes(tab.name) || service.includes(Chain.BTC)">
+        <template v-if="!tab.chain || service.includes(tab.chain)">
           <span>{{ tab.name }}</span>
           <span
             v-if="tab.isNew"
@@ -39,16 +40,19 @@ getServiceNetwork().then((_service) => {
         </template>
       </TabsTrigger>
     </TabsList>
-    <TabsContent value="Crypto">
+    <TabsContent value="Crypto" key="Crypto">
       <AssetList />
     </TabsContent>
-    <TabsContent value="NFTs">
+    <TabsContent value="NFTs" key="NFTs">
       <NFTList />
     </TabsContent>
-    <TabsContent value="Runes">
+    <!-- <TabsContent value="Runes" key="Runes">
       <RuneList />
+    </TabsContent> -->
+    <TabsContent value="MRC20" key="MRC20">
+      <MRC20List />
     </TabsContent>
-    <TabsContent value="MetaID">
+    <TabsContent value="MetaID" key="MetaID">
       <MetaIDList />
     </TabsContent>
     <TabsContent value="Activity"></TabsContent>

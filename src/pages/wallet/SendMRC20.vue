@@ -1,50 +1,71 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
-import { sleep } from '@/lib/helpers'
+import { Psbt } from 'bitcoinjs-lib'
+import { transferToNumber } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
-import { useRuneDetailQuery } from '@/queries/runes'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { broadcastBTCTx } from '@/queries/transaction'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import type { TransactionResult } from '@/global-types'
-import { getBtcUtxos, getRuneUtxos } from '@/queries/utxos'
+import { getBtcUtxos } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
+import { useMRC20DetailQuery, getMRC20Utxos } from '@/queries/mrc20'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import { network } from '@/lib/network'
 
 const route = useRoute()
+const recipient = ref('')
+const error = ref<Error>()
+const commitTxHex = ref('')
+const revealTxHex = ref('')
 const router = useRouter()
 const totalFee = ref<number>()
-const baseRawTx = ref<string>()
-const leftRawTxs = ref<string[]>([])
 const currentRateFee = ref<number>()
 const isOpenConfirmModal = ref(false)
 const transactionResult = ref<TransactionResult>()
 
-const runeId = ref(route.params.runeId as string)
+const size = ref(10)
+
+const mrc20Id = ref(route.params.mrc20Id as string)
 const address = ref(route.params.address as string)
+
+const { getIcon } = useIconsStore()
+const logo = computed(() => getIcon(CoinCategory.MRC20, mrc20Id.value) || '')
+
+const { data: asset } = useMRC20DetailQuery(address, size, mrc20Id, {
+  enabled: computed(() => !!address.value && !!mrc20Id.value),
+})
 
 const { currentBTCWallet } = useChainWalletsStore()
 
-const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
-
-const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(address, runeId, {
-  enabled: computed(() => !!address.value && !!runeId.value),
-})
-
+// amount
 const amount = ref<number>()
 
+const balance = computed(() => {
+  if (asset.value?.balance) {
+    return new Decimal(asset.value.balance.total).toNumber()
+  }
+})
+
 const btnDisabled = computed(() => {
-  return !amount.value || operationLock.value || !currentRateFee.value
+  return !recipient.value || !amount.value || operationLock.value || !currentRateFee.value
 })
 
 const popConfirm = async () => {
+  if (!recipient.value) {
+    transactionResult.value = {
+      status: 'warning',
+      message: "Please input recipient's address.",
+    }
+    isOpenResultModal.value = true
+    return
+  }
   if (!amount.value) {
     transactionResult.value = {
       status: 'warning',
@@ -53,10 +74,13 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
-  if (!new Decimal(amount.value).modulo(1).isZero() || new Decimal(amount.value).lessThan(0)) {
+
+  const parts = transferToNumber(amount.value).split('.')
+
+  if (!(parts.length < 2 || parts[1].length <= (asset.value?.decimal || 0))) {
     transactionResult.value = {
       status: 'warning',
-      message: 'Please enter a positive integer (>0) to repeat the minting process.',
+      message: `The minimum decimal unit is ${transferToNumber(new Decimal(1).div(10 ** (asset.value?.decimal || 0)).toNumber())}`,
     }
     isOpenResultModal.value = true
     return
@@ -89,22 +113,31 @@ const popConfirm = async () => {
   }
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-    // TODO: test it
     const utxos = await getBtcUtxos(address.value, needRawTx)
-    const { baseTx, leftTxs } = currentBTCWallet.value!.signTx(SignType.RUNE_MINT, {
+    const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, needRawTx)
+    const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_TRANSFER, {
       utxos,
-      runeId: runeId.value,
-      mintNum: amount.value,
-      feeRate: currentRateFee.value,
-    }) as {
-      baseTx: any
-      leftTxs: { rawTx: string; fee: string }[]
-    }
+      flag: network.value === 'mainnet' ? 'metaid' : 'testid',
+      // metaIdPinUtxos,
+      commitFeeRate: 1,
+      revealFeeRate: 1,
+      // @ts-ignore
+      mrc20Utxos,
+      body: JSON.stringify([
+        {
+          amount: amount.value.toString(),
+          vout: 1,
+          id: mrc20Id.value,
+        },
+      ]),
+      revealAddr: recipient.value,
+    })
 
-    baseRawTx.value = baseTx.rawTx
-    leftRawTxs.value = leftTxs.map(({ rawTx }: { rawTx: string }) => rawTx)
-    totalFee.value =
-      Number(baseTx.fee) + leftTxs.reduce((total, leftTx) => total.add(leftTx.fee), new Decimal(0)).toNumber()
+    console.log('commitTx:', commitTx, 'revealTx:', revealTx)
+
+    commitTxHex.value = commitTx.rawTx
+    revealTxHex.value = revealTx.rawTx
+    totalFee.value = Number(commitTx.fee) + Number(revealTx.fee)
     isOpenConfirmModal.value = true
   } catch (error) {
     console.error('Error in BTC transaction:', error)
@@ -123,8 +156,8 @@ const isOpenResultModal = ref(false)
 const operationLock = ref(false)
 
 async function sendBTC() {
-  if (baseRawTx.value) {
-    const txId = await broadcastBTCTx(baseRawTx.value).catch((err: Error) => {
+  if (commitTxHex.value && revealTxHex.value) {
+    const commitTxId = await broadcastBTCTx(commitTxHex.value).catch((err: Error) => {
       isOpenConfirmModal.value = false
       transactionResult.value = {
         status: 'failed',
@@ -134,29 +167,25 @@ async function sendBTC() {
       operationLock.value = false
       throw err
     })
-    sleep(2000)
-    await sleep(1000)
-    const [...leftTxIds] = await Promise.all([
-      ...leftRawTxs.value.map((leftRawTx) =>
-        broadcastBTCTx(leftRawTx).catch((err: Error) => {
-          isOpenConfirmModal.value = false
-          transactionResult.value = {
-            status: 'failed',
-            message: err.message,
-          }
-          isOpenResultModal.value = true
-          operationLock.value = false
-          throw err
-        })
-      ),
-    ])
-    console.log(leftTxIds)
-    return { txId }
+
+    const revealTxId = await broadcastBTCTx(revealTxHex.value).catch((err: Error) => {
+      isOpenConfirmModal.value = false
+      transactionResult.value = {
+        status: 'failed',
+        message: err.message,
+      }
+      isOpenResultModal.value = true
+      operationLock.value = false
+      throw err
+    })
+    console.log('commitTxId:', commitTxId, 'revealTxId:', revealTxId)
+
+    return { commitTxId, revealTxId }
   } else {
     isOpenConfirmModal.value = false
     transactionResult.value = {
       status: 'failed',
-      message: 'No baseRawTx',
+      message: 'No Psbt',
     }
     isOpenResultModal.value = true
   }
@@ -169,7 +198,7 @@ async function send() {
 
   const sendProcessor = sendBTC
   const sendRes = await sendProcessor()
-  if (!sendRes || !sendRes.txId) {
+  if (!sendRes || !sendRes.revealTxId) {
     transactionResult.value = {
       status: 'failed',
       message: 'Send failed',
@@ -183,11 +212,11 @@ async function send() {
   router.replace({
     name: 'SendSuccess',
     params: {
-      txId: sendRes.txId,
+      txId: sendRes.revealTxId,
       chain: 'btc',
-      symbol: asset.value!.tokenName,
-      amount: 'Mint ' + amount.value,
-      address: address.value,
+      symbol: asset.value!.symbol,
+      amount: amount.value,
+      address: recipient.value,
       coinCategory: CoinCategory.Rune,
     },
   })
@@ -208,20 +237,28 @@ async function send() {
     </div>
 
     <div class="space-y-2 w-full">
+      <div>Receiver</div>
+      <textarea
+        v-model="recipient"
+        class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
+      />
+    </div>
+
+    <div class="space-y-2 w-full">
       <FlexBox ai="center" jc="between">
-        <span>Repeat Mint</span>
+        <span>Amount</span>
         <span class="text-gray-primary text-xs">
-          <span>Remaining Mint:</span>
-          <span v-if="asset.remainingMint">{{ asset.remainingMint }}</span>
+          <span>Balance:</span>
+          <span v-if="balance">{{ prettifyBalanceFixed(balance, asset.symbol, asset.decimal, asset.decimal) }}</span>
           <span v-else>--</span>
         </span>
       </FlexBox>
       <input
         min="0"
-        step="1"
         type="number"
+        :max="balance"
         v-model="amount"
-        :max="asset.remainingMint"
+        :step="new Decimal(1).div(10 ** asset.decimal).toNumber()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
     </div>
@@ -247,19 +284,24 @@ async function send() {
     <Drawer v-model:open="isOpenConfirmModal">
       <DrawerContent class="bg-white">
         <DrawerHeader>
-          <FlexBox d="col" ai="center">
+          <FlexBox d="col" ai="center" :gap="4">
             <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
+            <div class="text-base">{{ transferToNumber(amount || 0) }} {{ asset.symbol }}</div>
           </FlexBox>
         </DrawerHeader>
         <Divider class="mt-2" />
         <div class="p-4 space-y-4 text-ss">
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Amount</div>
-            <div class="break-all">{{ (amount || 0) * (Number(asset.termsAmount) || 0) }}</div>
+            <div class="text-gray-primary">From</div>
+            <div class="break-all w-[228px]">{{ address }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Repeat Mint</div>
-            <div class="break-all">{{ amount }}</div>
+            <div class="text-gray-primary">To</div>
+            <div class="break-all w-[228px]">{{ recipient }}</div>
+          </FlexBox>
+          <FlexBox ai="center" jc="between">
+            <div class="text-gray-primary">Amount</div>
+            <div class="break-all">{{ transferToNumber(amount || 0) }} {{ asset.symbol }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Fees (Estimated)</div>

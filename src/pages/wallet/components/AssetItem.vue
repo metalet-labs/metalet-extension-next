@@ -3,7 +3,6 @@ import Decimal from 'decimal.js'
 import { ref, computed, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
 import { UseImage } from '@vueuse/components'
-import { isOfficialToken } from '@/lib/assets'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
@@ -38,9 +37,9 @@ if (props.asset?.contract) {
   tag.value = getTagInfo(props.asset.contract)
 }
 
-const balaceEnabled = computed(() => !!address.value && !!asset.value.symbol && !asset.value.balance)
+const balanceEnabled = computed(() => !!address.value && !!asset.value.symbol && !asset.value.balance)
 const { isLoading: isBalanceLoading, data: balance } = useBalanceQuery(address, ref(asset.value.symbol), {
-  enabled: balaceEnabled,
+  enabled: balanceEnabled,
 })
 
 const rateEnabled = computed(() => !!address && !!asset.value.symbol)

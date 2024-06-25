@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { UNISAT_ENABLED } from '@/data/config'
 import { fetchBtcTxHex } from '@/queries/transaction'
 import { mvcApi, mempoolApi, metaletApiV3, unisatApi } from './request'
+import { MRC20UTXO } from './mrc20'
 
 export interface UTXO {
   txId: string
@@ -104,6 +105,35 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
   if (!useUnconfirmed) {
     utxos = utxos.filter((utxo) => utxo.confirmed)
   }
+  if (needRawTx) {
+    for (let utxo of utxos) {
+      utxo.rawTx = await fetchBtcTxHex(utxo.txId)
+    }
+  }
+  return utxos.sort((a, b) => {
+    if (a.confirmed !== b.confirmed) {
+      return b.confirmed ? 1 : -1
+    }
+    return a.satoshis - b.satoshis
+  })
+}
+
+export async function getMRC20Utxos(
+  address: string,
+  mrc20TickId: string,
+  needRawTx = false,
+): Promise<MRC20UTXO[]> {
+  const net = getNet()
+
+  const { list: utxos } = await metaletApiV3<{
+    total: number
+    list: MRC20UTXO[]
+  }>(`/mrc20/address/utxo`).get({
+    net,
+    address,
+    tickId: mrc20TickId,
+  })
+
   if (needRawTx) {
     for (let utxo of utxos) {
       utxo.rawTx = await fetchBtcTxHex(utxo.txId)

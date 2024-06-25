@@ -34,6 +34,7 @@ export enum CoinCategory {
   BRC20 = 'BRC-20',
   MetaContract = 'MetaContract',
   Rune = 'Rune',
+  MRC20 = 'MRC20',
 }
 
 export const useExchangeRatesQuery = (

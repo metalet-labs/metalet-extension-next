@@ -25,6 +25,7 @@ import SignBTCMessage from './SignBTCMessage.vue'
 import Merge from './Merge.vue'
 import Inscribe from './Inscribe.vue'
 import BTCTransfer from './BTCTransfer.vue'
+import MRC20Deploy from './MRC20Deploy.vue'
 
 // 从query中获取数据
 const route = useRoute()
@@ -193,6 +194,7 @@ const cancelAction = async () => {
       <SignBTCMessage v-if="actionName === 'SignBTCMessage'" :params="params" />
       <Inscribe v-if="actionName === 'Inscribe'" :params="params" />
       <BTCTransfer v-if="actionName === 'BTCTransfer'" :params="params" />
+      <!-- <MRC20Deploy v-if="actionName === 'MRC20Deploy'" :params="params" /> -->
     </div>
 
     <!-- buttons -->

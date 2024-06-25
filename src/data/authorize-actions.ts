@@ -17,8 +17,10 @@ import * as SignBTCPsbt from '../lib/actions/btc/sign-psbt'
 import * as SignBTCMessage from '../lib/actions/btc/sign-message'
 import * as Inscribe from '../lib/actions/btc/inscribe'
 import * as BTCTransfer from '../lib/actions/btc/transfer'
+import * as MRC20Deploy from '../lib/actions/btc/mrc20-deploy'
+import * as MRC20Transfer from '../lib/actions/btc/mrc20-transfer'
 
-function doNothing() { }
+function doNothing() {}
 
 type AuthorizeAction = {
   name: string
@@ -171,6 +173,22 @@ export default {
     title: 'Inscribe',
     description: '',
     process: Inscribe.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  MRC20Deploy: {
+    name: 'MRC20Deploy',
+    title: 'MRC20 Deploy',
+    description: '',
+    process: MRC20Deploy.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  MRC20Transfer: {
+    name: 'MRC20Transfer',
+    title: 'MRC20 Transfer',
+    description: '',
+    process: MRC20Transfer.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

@@ -5,5 +5,5 @@ getPublicKey
 
 export async function process({ path }: { path?: string }) {
   const wallet = await getCurrentWallet(Chain.MVC, path ? Number(path.charAt(path.length - 1)) : undefined)
-  return wallet.getPublicKeyHex()
+  return wallet.getPublicKey().toString('hex')
 }
