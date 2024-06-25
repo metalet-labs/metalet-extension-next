@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
-import { Psbt } from 'bitcoinjs-lib'
+import { network } from '@/lib/network'
+import { getBtcUtxos } from '@/queries/utxos'
 import { transferToNumber } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
@@ -10,14 +11,12 @@ import { broadcastBTCTx } from '@/queries/transaction'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import type { TransactionResult } from '@/global-types'
-import { getBtcUtxos } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import { useMRC20DetailQuery, getMRC20Utxos } from '@/queries/mrc20'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
-import { network } from '@/lib/network'
 
 const route = useRoute()
 const recipient = ref('')
@@ -44,7 +43,6 @@ const { data: asset } = useMRC20DetailQuery(address, size, mrc20Id, {
 
 const { currentBTCWallet } = useChainWalletsStore()
 
-// amount
 const amount = ref<number>()
 
 const balance = computed(() => {
@@ -126,7 +124,7 @@ const popConfirm = async () => {
         {
           vout: 1,
           id: mrc20Id.value,
-          amount: amount.value.toString(),
+          amount: new Decimal(amount.value).toFixed(),
         },
       ]),
       revealAddr: recipient.value,
@@ -253,11 +251,11 @@ async function send() {
         </span>
       </FlexBox>
       <input
-        min="1"
-        step="1"
+        min="0"
         type="number"
         :max="balance"
         v-model="amount"
+        :step="new Decimal(1).div(10 ** asset.decimal).toNumber()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
     </div>

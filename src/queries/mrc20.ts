@@ -67,11 +67,11 @@ export async function fetchMRC20List(
     isNative: false,
     chain: 'btc',
     queryable: true,
-    decimal: 0,
+    decimal: Number(data.decimals),
     balance: {
-      confirmed: new Decimal(data.balance),
       unconfirmed: new Decimal(0),
-      total: new Decimal(data.balance),
+      total: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
+      confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
   })) as MRC20Asset[]
@@ -110,11 +110,11 @@ export async function fetchMRC20Detail(
     isNative: false,
     chain: 'btc',
     queryable: true,
-    decimal: 0,
+    decimal: Number(data.decimals),
     balance: {
-      confirmed: new Decimal(data.balance),
       unconfirmed: new Decimal(0),
-      total: new Decimal(data.balance),
+      total: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
+      confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
   } as MRC20Asset
