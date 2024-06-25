@@ -13,12 +13,12 @@ export interface UTXO {
   satoshis: number
   confirmed: boolean
   rawTx?: string
-  inscriptions:
-    | {
-        id: string
-        num: number
-      }[]
-    | null
+  // inscriptions:
+  //   | {
+  //       id: string
+  //       num: number
+  //     }[]
+  //   | null
 }
 
 export type MvcUtxo = {
@@ -118,11 +118,7 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
   })
 }
 
-export async function getMRC20Utxos(
-  address: string,
-  mrc20TickId: string,
-  needRawTx = false,
-): Promise<MRC20UTXO[]> {
+export async function getMRC20Utxos(address: string, mrc20TickId: string, needRawTx = false): Promise<MRC20UTXO[]> {
   const net = getNet()
 
   const { list: utxos } = await metaletApiV3<{
@@ -204,7 +200,6 @@ function formatMempoolUTXO(utxo: MempoolUtxo): UTXO {
     outputIndex: utxo.vout,
     satoshis: utxo.value,
     confirmed: utxo.status.confirmed,
-    inscriptions: [],
   }
 }
 
@@ -214,7 +209,6 @@ function formatUnisatUTXO(utxo: UnisatUTXO): UTXO {
     outputIndex: utxo.vout,
     satoshis: utxo.satoshis,
     confirmed: true,
-    inscriptions: [],
   }
 }
 

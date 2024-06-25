@@ -1,28 +1,21 @@
 import Decimal from 'decimal.js'
+import { type UTXO } from './utxos'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { metaletApiV3 } from './request'
+import { fetchBtcTxHex } from './transaction'
 import { type MRC20Asset } from '@/data/assets'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
-import { StringOrVNode } from '@/components/ui/toast/use-toast'
-import { fetchBtcTxHex } from './transaction'
 
-export interface MRC20UTXO {
+export interface MRC20UTXO extends UTXO {
   chain: Chain
-  blockHeight: number
   address: string
-  satoshi: number
-  satoshis: number
   scriptPk: string
-  txId: string
-  vout: number
-  outputIndex: number
-  mrc20s: MRC20Info[]
   timestamp: number
-  confirmed: true
-  rawTx?: StringOrVNode
+  mrc20s: MRC20Info[]
+  blockHeight: number
 }
 
 interface MRC20Info {
@@ -74,7 +67,7 @@ export async function fetchMRC20List(
     isNative: false,
     chain: 'btc',
     queryable: true,
-    decimal: Number(data.decimals),
+    decimal: 0,
     balance: {
       confirmed: new Decimal(data.balance),
       unconfirmed: new Decimal(0),
@@ -117,7 +110,7 @@ export async function fetchMRC20Detail(
     isNative: false,
     chain: 'btc',
     queryable: true,
-    decimal: Number(data.decimals),
+    decimal: 0,
     balance: {
       confirmed: new Decimal(data.balance),
       unconfirmed: new Decimal(0),

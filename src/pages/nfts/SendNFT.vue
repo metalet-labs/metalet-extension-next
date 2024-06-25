@@ -70,7 +70,6 @@ async function next() {
       outputIndex: Number(outputIndex),
       satoshis: metaPin.outputValue,
       confirmed: metaPin.genesisHeight > 0,
-      inscriptions: null,
       rawTx: metaPin.rawTx,
     }
   } else {

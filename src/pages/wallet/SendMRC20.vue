@@ -121,13 +121,12 @@ const popConfirm = async () => {
       // metaIdPinUtxos,
       commitFeeRate: 1,
       revealFeeRate: 1,
-      // @ts-ignore
       mrc20Utxos,
       body: JSON.stringify([
         {
-          amount: amount.value.toString(),
           vout: 1,
           id: mrc20Id.value,
+          amount: amount.value.toString(),
         },
       ]),
       revealAddr: recipient.value,
@@ -254,11 +253,11 @@ async function send() {
         </span>
       </FlexBox>
       <input
-        min="0"
+        min="1"
+        step="1"
         type="number"
         :max="balance"
         v-model="amount"
-        :step="new Decimal(1).div(10 ** asset.decimal).toNumber()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
     </div>

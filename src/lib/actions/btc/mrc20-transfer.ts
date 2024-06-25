@@ -37,7 +37,6 @@ export async function process(params: MRC20TransferParams): Promise<
 
   return wallet.signTx(SignType.MRC20_TRANSFER, {
     ...params,
-    // @ts-ignore
     mrc20Utxos,
     utxos,
   })
