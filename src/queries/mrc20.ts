@@ -5,9 +5,63 @@ import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { metaletApiV3 } from './request'
 import { fetchBtcTxHex } from './transaction'
+import { COMMON_INTERVAL } from './constants'
 import { type MRC20Asset } from '@/data/assets'
+import { CoinCategory } from './exchange-rates'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+
+interface ShovelMetaIdPin {
+  id: string
+  number: number
+  metaid: string
+  address: string
+  creator: string
+  initialOwner: string
+  output: string
+  outputValue: number
+  timestamp: number
+  genesisFee: number
+  genesisHeight: number
+  genesisTransaction: string
+  txIndex: number
+  txInIndex: number
+  offset: number
+  location: string
+  operation: string
+  path: string
+  parentPath: string
+  originalPath: string
+  encryption: string
+  version: string
+  contentType: string
+  contentTypeDetect: string
+  contentBody: string
+  contentLength: number
+  contentSummary: string
+  status: number
+  originalId: string
+  transfer: string
+  isTransfered: boolean
+  preview: string
+  content: string
+  pop: string
+  popLv: number
+  chainName: string
+  dataValue: number
+  mrc20Minted: boolean
+  mrc20MintPin: string
+}
+
+export interface MetaIdPinUTXO extends UTXO {
+  id: string
+  pop: string
+  popLv: number
+  content: string
+  contentType: string
+  contentSummary: string
+  contentTypeDetect: string
+}
 
 export interface MRC20UTXO extends UTXO {
   chain: Chain
@@ -74,6 +128,7 @@ export async function fetchMRC20List(
       confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
+    contract: CoinCategory.MRC20,
   })) as MRC20Asset[]
 
   cursor += size
@@ -86,9 +141,9 @@ export async function fetchMRC20List(
 
 export async function fetchMRC20Detail(
   address: string,
-  cursor: number,
-  size: number,
-  mrc20Id: string
+  mrc20Id: string,
+  cursor = 0,
+  size = 10000
 ): Promise<MRC20Asset | null> {
   const net = getNet()
 
@@ -120,15 +175,72 @@ export async function fetchMRC20Detail(
   } as MRC20Asset
 }
 
+export async function fetchShovelMetaIdPinUtxos(
+  address: string,
+  tickId: string,
+  needRawTx = false,
+  cursor = 0,
+  size = 10000
+): Promise<MetaIdPinUTXO[]> {
+  const net = getNet()
+
+  const { list } = await metaletApiV3<PageResult<ShovelMetaIdPin>>('/mrc20/address/shovel').get({
+    net,
+    tickId,
+    address,
+    size: size.toString(),
+    cursor: cursor.toString(),
+  })
+
+  const utxos = list.map((item) => {
+    const [txId, outputIndex] = item.location.split(':')
+    return {
+      txId,
+      id: item.id,
+      chain: 'btc',
+      pop: item.pop,
+      confirmed: true,
+      popLv: item.popLv,
+      content: item.content,
+      satoshis: item.outputValue,
+      contentType: item.contentType,
+      outputIndex: Number(outputIndex),
+      contentSummary: item.contentSummary,
+      contentTypeDetect: item.contentTypeDetect,
+    } as MetaIdPinUTXO
+  })
+
+  if (needRawTx) {
+    for (let utxo of utxos) {
+      utxo.rawTx = await fetchBtcTxHex(utxo.txId)
+    }
+  }
+
+  return utxos
+}
+
+export const useShovelMetaIdPinUtxosQuery = (
+  address: Ref<string>,
+  mrc20Id: Ref<string>,
+  needRawTx: Ref<boolean>,
+  options: { enabled: ComputedRef<boolean> }
+) => {
+  return useQuery({
+    queryKey: ['ShovelMetaIdPinUtxos', { address, mrc20Id }],
+    queryFn: () => fetchShovelMetaIdPinUtxos(address.value, mrc20Id.value, needRawTx.value),
+    refetchInterval: COMMON_INTERVAL,
+    ...options,
+  })
+}
+
 export const useMRC20DetailQuery = (
   address: Ref<string>,
-  size: Ref<number>,
   mrc20Id: Ref<string>,
   options: { enabled: ComputedRef<boolean> }
 ) => {
   return useQuery({
-    queryKey: ['MRC20List', { address, size, mrc20Id }],
-    queryFn: () => fetchMRC20Detail(address.value, 0, size.value, mrc20Id.value),
+    queryKey: ['MRC20List', { address, mrc20Id }],
+    queryFn: () => fetchMRC20Detail(address.value, mrc20Id.value),
     ...options,
   })
 }

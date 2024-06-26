@@ -3,6 +3,7 @@ import { PageResult } from './types'
 import { getNet } from '@/lib/network'
 import { metaletApiV3 } from './request'
 import { useQuery } from '@tanstack/vue-query'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 export const fetchBtcTxHex = async (txId: string): Promise<string> => {
   const net = getNet()
@@ -14,6 +15,11 @@ export const fetchBtcTxHex = async (txId: string): Promise<string> => {
 export const broadcastBTCTx = async (rawTx: string) => {
   const net = getNet()
   return await metaletApiV3<string>(`/tx/broadcast`).post({ chain: 'btc', net, rawTx })
+}
+
+export const broadcastTx = async (rawTx: string, chain: Chain) => {
+  const net = getNet()
+  return await metaletApiV3<string>(`/tx/broadcast`).post({ chain, net, rawTx })
 }
 
 export interface FeeRate {

@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import AssetList from './AssetList.vue'
 import NFTList from './NFTs/NFTList.vue'
-// import RuneList from './Runes/RuneList.vue'
 import MRC20List from './MRC20/MRC20List.vue'
 import MetaIDList from './MetaID/MetaIDList.vue'
 import { getServiceNetwork } from '@/lib/network'
@@ -46,9 +45,6 @@ getServiceNetwork().then((_service) => {
     <TabsContent value="NFTs" key="NFTs">
       <NFTList />
     </TabsContent>
-    <!-- <TabsContent value="Runes" key="Runes">
-      <RuneList />
-    </TabsContent> -->
     <TabsContent value="MRC20" key="MRC20">
       <MRC20List />
     </TabsContent>

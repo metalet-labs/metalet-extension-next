@@ -23,7 +23,7 @@ hasWallets().then(async (_hasWallets) => {
     <AccountHeader />
 
     <Balance />
-
+ 
     <AssetTabs />
 
     <BackupTips v-model:open="noBackup" />

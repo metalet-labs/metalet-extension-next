@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { allAssets } from '@/data/assets'
-import { mvcApi } from '@/queries/request'
 import { ref, computed, watch } from 'vue'
 import { Transaction } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
@@ -10,12 +9,12 @@ import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { useQueryClient } from '@tanstack/vue-query'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import { broadcastBTCTx } from '@/queries/transaction'
+import { broadcastTx } from '@/queries/transaction'
 import { type SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import { CoinCategory } from '@/queries/exchange-rates'
 import type { TransactionResult } from '@/global-types'
-import { ScriptType } from '@metalet/utxo-wallet-service'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import TransactionResultModal from './components/TransactionResultModal.vue'
@@ -52,11 +51,11 @@ const amountInSats = computed(() => {
 })
 
 // balance
-const balaceQueryEnabled = computed(() => {
+const balanceQueryEnabled = computed(() => {
   return !asset.value.balance && !!address.value && !!symbol.value
 })
 
-const { data: balanceData } = useBalanceQuery(address, symbol, { enabled: balaceQueryEnabled })
+const { data: balanceData } = useBalanceQuery(address, symbol, { enabled: balanceQueryEnabled })
 
 const balance = computed(() => {
   if (balanceData.value) {
@@ -180,27 +179,10 @@ const isOpenResultModal = ref(false)
 
 const operationLock = ref(false)
 
-async function sendSpace() {
+async function sendBTC(chain: Chain) {
   operationLock.value = true
   if (txHex.value) {
-    const { txid: txId } = await mvcApi<{ txid: string }>('/tx/broadcast').post({ hex: txHex.value })
-    operationLock.value = false
-    return { txId }
-  } else {
-    isOpenConfirmModal.value = false
-    transactionResult.value = {
-      status: 'failed',
-      message: 'No Psbt',
-    }
-    isOpenResultModal.value = true
-    operationLock.value = false
-  }
-}
-
-async function sendBTC() {
-  operationLock.value = true
-  if (txHex.value) {
-    const txId = await broadcastBTCTx(txHex.value).catch((err: Error) => {
+    const txId = await broadcastTx(txHex.value, chain).catch((err: Error) => {
       isOpenConfirmModal.value = false
       transactionResult.value = {
         status: 'failed',
@@ -227,8 +209,7 @@ async function send() {
 
   operationLock.value = true
 
-  const sendProcessor = asset.value.symbol === 'SPACE' ? sendSpace : sendBTC
-  const sendRes = await sendProcessor()
+  const sendRes = await sendBTC(asset.value.chain as Chain)
   if (!sendRes || !sendRes.txId) {
     transactionResult.value = {
       status: 'failed',

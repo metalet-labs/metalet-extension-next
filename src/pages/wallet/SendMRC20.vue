@@ -18,9 +18,9 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
+const size = ref(10)
 const route = useRoute()
 const recipient = ref('')
-const error = ref<Error>()
 const commitTxHex = ref('')
 const revealTxHex = ref('')
 const router = useRouter()
@@ -29,15 +29,13 @@ const currentRateFee = ref<number>()
 const isOpenConfirmModal = ref(false)
 const transactionResult = ref<TransactionResult>()
 
-const size = ref(10)
-
 const mrc20Id = ref(route.params.mrc20Id as string)
 const address = ref(route.params.address as string)
 
 const { getIcon } = useIconsStore()
 const logo = computed(() => getIcon(CoinCategory.MRC20, mrc20Id.value) || '')
 
-const { data: asset } = useMRC20DetailQuery(address, size, mrc20Id, {
+const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
   enabled: computed(() => !!address.value && !!mrc20Id.value),
 })
 
@@ -116,9 +114,8 @@ const popConfirm = async () => {
     const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_TRANSFER, {
       utxos,
       flag: network.value === 'mainnet' ? 'metaid' : 'testid',
-      // metaIdPinUtxos,
-      commitFeeRate: 1,
-      revealFeeRate: 1,
+      commitFeeRate: currentRateFee.value,
+      revealFeeRate: currentRateFee.value,
       mrc20Utxos,
       body: JSON.stringify([
         {
@@ -129,8 +126,6 @@ const popConfirm = async () => {
       ]),
       revealAddr: recipient.value,
     })
-
-    console.log('commitTx:', commitTx, 'revealTx:', revealTx)
 
     commitTxHex.value = commitTx.rawTx
     revealTxHex.value = revealTx.rawTx

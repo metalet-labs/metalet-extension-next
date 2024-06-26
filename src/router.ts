@@ -169,6 +169,16 @@ const routes = [
         },
       },
       {
+        path: '/wallet/mintMRC20/:name/:mrc20Id/:address',
+        component: () => import('./pages/wallet/MintMRC20.vue'),
+        name: 'MintRune',
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Mint MRC20',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/sendSuccess/:chain/:coinCategory/:symbol/:amount/:address/:txId',
         component: () => import('./pages/wallet/SendSuccess.vue'),
         name: 'SendSuccess',
