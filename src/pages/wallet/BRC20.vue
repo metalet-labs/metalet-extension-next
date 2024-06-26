@@ -105,8 +105,8 @@ watch(assetUSD, (_assetUSD) => {
     <div class="flex flex-col items-center">
       <AssetLogo :logo="icon" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
-      <div class="mt-3 text-2xl">
-        <span v-if="asset?.balance">
+      <div class="mt-3 text-2xl text-balance max-w-full text-center">
+        <span v-if="asset?.balance" class="break-all">
           {{ calcBalance(asset.balance.total.toNumber(), asset.decimal, asset.symbol) }}
         </span>
         <span v-else>-- {{ symbol }}</span>

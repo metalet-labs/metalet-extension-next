@@ -183,8 +183,10 @@ const toReceive = () => {
     <div class="flex flex-col items-center">
       <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
-      <div class="mt-3 text-2xl">
-        <span v-if="balance">{{ calcBalance(balance.total.toNumber(), asset.decimal, asset.symbol) }}</span>
+      <div class="mt-3 text-2xl text-balance max-w-full text-center">
+        <span v-if="balance" class="break-all">
+          {{ calcBalance(balance.total.toNumber(), asset.decimal, asset.symbol) }}
+        </span>
         <span v-else>-- {{ asset.symbol }}</span>
         <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
