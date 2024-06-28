@@ -1,7 +1,6 @@
 import { getCurrentWallet } from '../../wallet'
+import { getBtcUtxos, getMRC20Utxos } from '@/queries/utxos'
 import { Chain, ScriptType, SignType } from '@metalet/utxo-wallet-service'
-import { type AddressType } from '@/lib/bip32-deriver'
-import { UTXO, getBtcUtxos, getMRC20Utxos } from '@/queries/utxos'
 
 export interface MRC20TransferParams {
   body: string
@@ -18,14 +17,7 @@ export interface MRC20TransferParams {
   }
 }
 
-export async function process(params: MRC20TransferParams): Promise<
-  | {
-      name: string
-      path: string
-      addressType: AddressType
-    }
-  | undefined
-> {
+export async function process(params: MRC20TransferParams){
   const wallet = await getCurrentWallet(Chain.BTC)
   const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH)
 

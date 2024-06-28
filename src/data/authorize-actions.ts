@@ -18,6 +18,7 @@ import * as SignBTCMessage from '../lib/actions/btc/sign-message'
 import * as Inscribe from '../lib/actions/btc/inscribe'
 import * as BTCTransfer from '../lib/actions/btc/transfer'
 import * as MRC20Deploy from '../lib/actions/btc/mrc20-deploy'
+import * as MRC20Mint from '../lib/actions/btc/mrc20-mint'
 import * as MRC20Transfer from '../lib/actions/btc/mrc20-transfer'
 
 function doNothing() {}
@@ -189,6 +190,14 @@ export default {
     title: 'MRC20 Transfer',
     description: '',
     process: MRC20Transfer.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  MRC20Mint: {
+    name: 'MRC20Mint',
+    title: 'MRC20 Mint',
+    description: '',
+    process: MRC20Mint.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

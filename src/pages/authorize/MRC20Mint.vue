@@ -2,12 +2,12 @@
 import { computed } from 'vue'
 import actions from '@/data/authorize-actions'
 import { useBTCRateQuery } from '@/queries/transaction'
-import { MRC20DeployParams } from '@/lib/actions/btc/mrc20-deploy'
+import { MRC20MintParams } from '@/lib/actions/btc/mrc20-mint'
 
-const action = actions.MRC20Deploy
+const action = actions.MRC20Mint
 
 const props = defineProps<{
-  params: MRC20DeployParams
+  params: MRC20MintParams
 }>()
 
 const { data: rateList } = useBTCRateQuery()
@@ -43,7 +43,7 @@ const currentRevealFeeRate = computed(() => {
     <div class="space-y-2">
       <div class="label">Commit Fee Rate: {{ currentCommitFeeRate }}</div>
       <div class="label">Reveal Fee Rate: {{ currentRevealFeeRate }}</div>
-      <div class="label break-all">Content: {{ params.body }}</div>
+      <div class="label">MRC20 ID: {{ params.id }}</div>
     </div>
   </div>
 </template>

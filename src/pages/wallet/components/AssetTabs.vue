@@ -20,8 +20,9 @@ getServiceNetwork().then((_service) => {
 </script>
 
 <template>
-  <Tabs :modelValue="walletTabStore.selectedTab.name" class="w-full">
-    <TabsList class="p-0 gap-6">
+  <Tabs :modelValue="walletTabStore.selectedTab.name" class="h-full flex flex-col items-start">
+    <!-- TODO: fix crypto trigger height is not 40px -->
+    <TabsList class="p-0 gap-6 px-4">
       <TabsTrigger
         :key="tab.id"
         :value="tab.name"
@@ -39,19 +40,19 @@ getServiceNetwork().then((_service) => {
         </template>
       </TabsTrigger>
     </TabsList>
-    <TabsContent value="Crypto" key="Crypto">
+    <TabsContent value="Crypto" key="Crypto" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <AssetList />
     </TabsContent>
-    <TabsContent value="NFTs" key="NFTs">
+    <TabsContent value="NFTs" key="NFTs" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <NFTList />
     </TabsContent>
-    <TabsContent value="MRC20" key="MRC20">
+    <TabsContent value="MRC20" key="MRC20" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <MRC20List />
     </TabsContent>
-    <TabsContent value="MetaID" key="MetaID">
+    <TabsContent value="MetaID" key="MetaID" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <MetaIDList />
     </TabsContent>
-    <TabsContent value="Activity"></TabsContent>
+    <TabsContent value="Activity" class="overflow-y-auto w-full nicer-scrollbar px-4"></TabsContent>
   </Tabs>
 </template>
 

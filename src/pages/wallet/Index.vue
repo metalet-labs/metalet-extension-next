@@ -19,12 +19,12 @@ hasWallets().then(async (_hasWallets) => {
 </script>
 
 <template>
-  <div class="nicer-scrollbar space-y-6 relative min-h-full">
+  <div class="relative flex flex-col gap-y-6 w-full h-full">
     <AccountHeader />
 
     <Balance />
- 
-    <AssetTabs />
+
+    <AssetTabs class="grow overflow-y-hidden -mx-4" />
 
     <BackupTips v-model:open="noBackup" />
   </div>
