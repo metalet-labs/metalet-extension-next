@@ -21,8 +21,7 @@ getServiceNetwork().then((_service) => {
 
 <template>
   <Tabs :modelValue="walletTabStore.selectedTab.name" class="h-full flex flex-col items-start">
-    <!-- TODO: fix crypto trigger height is not 40px -->
-    <TabsList class="p-0 gap-6 px-4">
+    <TabsList class="p-0 gap-6 px-4 shrink-0">
       <TabsTrigger
         :key="tab.id"
         :value="tab.name"

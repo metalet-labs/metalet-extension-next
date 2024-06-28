@@ -117,7 +117,7 @@ const getHostAndToTx = async (txid: string) => {
       <div class="row">
         <span class="label">Address</span>
         <div :title="address">
-          {{ shortestAddress(address) }}
+          {{ shortestAddress(address, 6) }}
         </div>
       </div>
       <div class="row">

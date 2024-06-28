@@ -1,4 +1,5 @@
-import { computed, ref } from 'vue'
+import gsap from 'gsap'
+import { ref, watch } from 'vue'
 import { type Chain } from './types'
 
 // refactor to global state
@@ -11,7 +12,18 @@ interface Asset {
 
 export const assetList = ref<Asset[]>([])
 
-export const totalBalance = computed(() => assetList.value.reduce((sum, asset) => sum + (asset.value || 0), 0))
+export const totalBalance = ref(0)
+
+watch(
+  assetList,
+  (newAssetList) => {
+    gsap.to(totalBalance, {
+      value: newAssetList.reduce((sum, asset) => sum + (asset.value || 0), 0),
+      duration: 0.3,
+    })
+  },
+  { deep: true }
+)
 
 export const resetAssetList = () => {
   assetList.value = []

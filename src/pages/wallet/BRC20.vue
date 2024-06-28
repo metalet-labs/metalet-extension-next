@@ -15,16 +15,13 @@ import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import { Chain } from '@metalet/utxo-wallet-service'
 import Activities from './components/Activities.vue'
 import TickerList from './components/TickerList.vue'
-import { useBRC20AseetQuery } from '@/queries/brc20'
-import FilterIcon from '@/assets/icons-v3/filter.svg'
+import { useBRC20AssetQuery } from '@/queries/brc20'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import TransferPNG from '@/assets/icons-v3/transfer.png'
-import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
 const router = useRouter()
@@ -34,7 +31,7 @@ const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 const { currentBTCWallet } = useChainWalletsStore()
 
 const { getIcon } = useIconsStore()
-const icon = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as SymbolTicker) || '')
+const icon = computed(() => getIcon(CoinCategory.BRC20, symbol.value) || '')
 
 const tickerEnabled = computed(() => !!address.value && !!symbol.value)
 
@@ -43,7 +40,7 @@ const {
   refetch,
   data: asset,
   isLoading: tickersLoading,
-} = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
+} = useBRC20AssetQuery(address, symbol, { enabled: tickerEnabled })
 
 if (route.query.refresh) {
   refetch()
@@ -101,7 +98,7 @@ watch(assetUSD, (_assetUSD) => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center space-y-6 w-full">
+  <div class="flex flex-col items-center gap-y-6 w-full h-full">
     <div class="flex flex-col items-center">
       <AssetLogo :logo="icon" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
@@ -123,75 +120,60 @@ watch(assetUSD, (_assetUSD) => {
       </div>
     </div>
 
-    <div class="flex items-center justify-center gap-x-2">
-      <RouterLink to="javascript:void(0);" class="btn-blue-light" v-if="false">
-        <img :src="MintPNG" alt="Mint" />
-        <span>Mint</span>
-      </RouterLink>
-      <RouterLink :to="`/wallet/transfer/${symbol}/${address}`" class="btn-blue-primary">
-        <img :src="TransferPNG" alt="Transfer" />
-        <span>Transfer</span>
-      </RouterLink>
-      <button @click="toReceive" class="btn-blue-primary">
-        <ArrowDownIcon class="w-3" />
-        <span>Receive</span>
-      </button>
-    </div>
-
-    <div class="border border-gray-soft rounded-lg w-full">
-      <Tabs default-value="Transferable">
-        <TabsList class="grid grid-cols-2">
-          <TabsTrigger value="Transferable">
-            <LoadingIcon class="mb-1" v-if="tickersLoading" />
-            <span class="text-lg" v-else>{{ transferableBalance }}</span>
-            <span class="text-sm text-gray-primary">Transferable</span>
-          </TabsTrigger>
-          <TabsTrigger value="Available">
-            <LoadingIcon class="mb-1" v-if="tickersLoading" />
-            <div class="text-lg" v-else>
-              <span>{{ availableBalanceSafe }}</span>
-              <span v-if="availableBalanceUnSafe" class="text-gray-primary">+ {{ availableBalanceUnSafe }}</span>
-            </div>
-            <span class="text-sm text-gray-primary">Available</span>
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="Transferable">
-          <TickerList :list="transferableList" :loading="tickersLoading" />
-        </TabsContent>
-        <TabsContent value="Available">
-          <div v-if="availableBalanceUnSafe" class="grid grid-cols-3 gap-x-2 gap-y-4">
-            <Ticker :ticker="symbol" :amount="availableBalanceUnSafe" />
-          </div>
-          <div v-else class="pt-6 pb-8">
-            <EmptyIcon class="mx-auto" />
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
-
-    <div class="w-full">
-      <div class="-mx-4 h-11 bg-gray-light px-4 py-[13px] text-ss" v-if="false">
-        <DropdownMenu>
-          <DropdownMenuTrigger class="flex items-center justify-between w-full">
-            <div class="flex items-center gap-x-2">
-              <span>Time</span>
-              <SelectorIcon />
-            </div>
-            <FilterIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" class="bg-white">
-            <DropdownMenuItem @select="null">Time</DropdownMenuItem>
-            <DropdownMenuItem @select="null">Other</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+    <div class="w-full flex flex-col gap-y-6 grow overflow-y-hidden">
+      <div class="flex items-center justify-center gap-x-2">
+        <RouterLink to="javascript:void(0);" class="btn-blue-light" v-if="false">
+          <img :src="MintPNG" alt="Mint" />
+          <span>Mint</span>
+        </RouterLink>
+        <RouterLink :to="`/wallet/transfer/${symbol}/${address}`" class="btn-blue-primary">
+          <img :src="TransferPNG" alt="Transfer" />
+          <span>Transfer</span>
+        </RouterLink>
+        <button @click="toReceive" class="btn-blue-primary">
+          <ArrowDownIcon class="w-3" />
+          <span>Receive</span>
+        </button>
       </div>
+
+      <div class="border border-gray-soft rounded-lg w-full max-h-90">
+        <Tabs default-value="Transferable" class="flex flex-col h-full overflow-y-hidden">
+          <TabsList class="grid grid-cols-2">
+            <TabsTrigger value="Transferable">
+              <LoadingIcon class="mb-1" v-if="tickersLoading" />
+              <span class="text-lg" v-else>{{ transferableBalance }}</span>
+              <span class="text-sm text-gray-primary">Transferable</span>
+            </TabsTrigger>
+            <TabsTrigger value="Available">
+              <LoadingIcon class="mb-1" v-if="tickersLoading" />
+              <div class="text-lg" v-else>
+                <span>{{ availableBalanceSafe }}</span>
+                <span v-if="availableBalanceUnSafe" class="text-gray-primary">+ {{ availableBalanceUnSafe }}</span>
+              </div>
+              <span class="text-sm text-gray-primary">Available</span>
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="Transferable">
+            <TickerList :list="transferableList" :loading="tickersLoading" />
+          </TabsContent>
+          <TabsContent value="Available">
+            <div v-if="availableBalanceUnSafe" class="grid grid-cols-3 gap-x-2 gap-y-4">
+              <Ticker :ticker="symbol" :amount="availableBalanceUnSafe" />
+            </div>
+            <div v-else class="pt-6 pb-8">
+              <EmptyIcon class="mx-auto" />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+
       <Activities
         v-if="asset"
-        class="mt-8 self-stretch"
         :asset="asset"
-        :exchangeRate="Number(exchangeRate)"
         :address="address"
         :coinCategory="CoinCategory.BRC20"
+        :exchangeRate="Number(exchangeRate)"
+        class="flex-1 nicer-scrollbar w-full -mr-3 pr-3 overflow-y-auto"
       />
       <LoadingText text="Activities Loading..." v-else />
     </div>

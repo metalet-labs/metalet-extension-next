@@ -54,6 +54,7 @@
     "dayjs": "^1.11.7",
     "decimal.js": "^10.4.3",
     "ecpair": "^2.1.0",
+    "gsap": "^3.12.5",
     "lucide-vue-next": "^0.341.0",
     "memfs": "^4.5.0",
     "meta-contract": "^0.4.4",

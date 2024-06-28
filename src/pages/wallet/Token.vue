@@ -140,7 +140,6 @@ const copyGenesis = () => {
 
       <Activities
         v-if="asset"
-        class="mt-8 self-stretch"
         :asset="asset"
         :exchangeRate="Number(exchangeRate)"
         :address="address"

@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import { type TokenTransfer } from '@/queries/brc20'
 import { LoadingText, Divider, FlexBox } from '@/components'
-import ArrowDwonIcon from '@/assets/icons-v3/arrow_down.svg'
+import ArrowDownIcon from '@/assets/icons-v3/arrow_down.svg'
 
 const props = defineProps<{
   loading: boolean
@@ -26,7 +26,7 @@ const tickerList = computed(() => {
 </script>
 
 <template>
-  <div>
+  <div class="overflow-y-auto">
     <LoadingText v-if="props.loading" text="Transferable Token Loading..." />
     <template v-else-if="tickerList?.length">
       <div :class="['grid grid-cols-3 gap-x-2 gap-y-4', props.clickEvent ? 'cursor-pointer' : undefined]">
@@ -41,15 +41,17 @@ const tickerList = computed(() => {
       </div>
       <template v-if="!showAll">
         <Divider :w="2" class="mt-4 mb-3 border-gray-soft" />
+
+        <!-- TODO: Add show all -->
+        <!-- @click="showAll = true" -->
         <FlexBox
           :w="2"
           ai="center"
           jc="center"
-          @click="showAll = true"
           class="text-xs cursor-pointer text-gray-primary gap-x-0.5"
         >
           <span>All</span>
-          <ArrowDwonIcon />
+          <ArrowDownIcon />
         </FlexBox>
       </template>
     </template>

@@ -59,14 +59,14 @@ const asset = computed(() => {
   }
 })
 
-const balaceEnabled = computed(() => {
+const balanceEnabled = computed(() => {
   if (asset.value) {
     return !!address.value && !!symbol.value && !asset.value.balance
   }
   return false
 })
 
-const { isLoading, data: balance } = useBalanceQuery(address, symbol, { enabled: balaceEnabled })
+const { isLoading, data: balance } = useBalanceQuery(address, symbol, { enabled: balanceEnabled })
 
 const rateEnabled = computed(() => {
   if (asset.value) {
@@ -138,8 +138,8 @@ const toReceive = () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center space-y-6 w-full" v-if="asset">
-    <div class="w-full h-15 -my-3 flex items-center justify-between">
+  <div class="flex flex-col items-center gap-y-6 w-full h-full" v-if="asset">
+    <div class="w-full h-15 -my-3 flex items-center justify-between shrink-0">
       <img :src="ArrowLeftIcon" alt="" class="w-3.5 cursor-pointer" @click="router.push('/wallet')" />
       <span>{{ symbol }}</span>
       <div class="w-3.5 cursor-pointer" @click="isOpen = true" title="Set Default Address" v-if="asset.chain === 'btc'">
@@ -180,92 +180,95 @@ const toReceive = () => {
         </DrawerContent>
       </Drawer>
     </div>
-    <div class="flex flex-col items-center">
-      <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
-      <div class="mt-3 text-2xl text-balance max-w-full text-center">
-        <span v-if="balance" class="break-all">
-          {{ calcBalance(balance.total.toNumber(), asset.decimal, asset.symbol) }}
-        </span>
-        <span v-else>-- {{ asset.symbol }}</span>
-        <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
-          ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
-        </span>
+    <div class="grow w-full flex flex-col gap-y-6 px-4 overflow-y-hidden">
+      <div class="flex flex-col items-center">
+        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+
+        <div class="mt-3 text-2xl text-balance max-w-full text-center">
+          <span v-if="balance" class="break-all">
+            {{ calcBalance(balance.total.toNumber(), asset.decimal, asset.symbol) }}
+          </span>
+          <span v-else>-- {{ asset.symbol }}</span>
+          <span v-if="assetUSD !== undefined" class="text-gray-primary ml-2">
+            ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
+          </span>
+        </div>
       </div>
-    </div>
-
-    <div class="flex items-center justify-center gap-x-2">
-      <button @click="toSend" class="btn-blue-light">
-        <ArrowUpIcon class="w-3" />
-        <span>Send</span>
-      </button>
-      <button @click="toReceive" class="btn-blue-primary">
-        <ArrowDownIcon class="w-3" />
-        <span>Receive</span>
-      </button>
-    </div>
-
-    <Divider class="w-full -mx-4" />
-    <div class="space-y-2 text-xs w-full border-gray-primary" v-if="asset.chain === 'btc'">
-      <div>{{ currentBTCWallet?.getAddressType() }}</div>
-      <div class="flex items-center justify-between text-gray-primary gap-4">
-        <div class="break-all">{{ currentBTCWallet?.getAddress() }}</div>
-        <Copy
-          :text="address"
-          class="w-[22px]"
-          @click="
-            toast({
-              title: `${currentBTCWallet?.getAddressType()}  Address Copied`,
-              toastType: 'success',
-              description: address,
-            })
-          "
-        />
+      <div class="flex items-center justify-center gap-x-2">
+        <button @click="toSend" class="btn-blue-light">
+          <ArrowUpIcon class="w-3" />
+          <span>Send</span>
+        </button>
+        <button @click="toReceive" class="btn-blue-primary">
+          <ArrowDownIcon class="w-3" />
+          <span>Receive</span>
+        </button>
       </div>
-    </div>
-    <div class="space-y-2 text-xs w-full border-gray-primary" v-else-if="asset.chain === 'mvc'">
-      <div>{{ currentMVCWallet?.getAddressType() }}</div>
-      <div class="flex items-center justify-between text-gray-primary gap-4">
-        <div class="break-all">{{ currentMVCWallet?.getAddress() }}</div>
-        <Copy
-          :text="address"
-          class="w-[22px]"
-          @click="
-            toast({
-              title: `${currentMVCWallet?.getAddressType()}  Address Copied`,
-              toastType: 'success',
-              description: address,
-            })
-          "
-        />
-      </div>
-    </div>
 
-    <Divider class="w-full -mx-4" />
+      <Divider class="w-full" />
 
-    <div class="w-full">
-      <div class="-mx-4 h-11 bg-gray-light px-4 py-[13px] text-ss" v-if="false">
-        <DropdownMenu>
-          <DropdownMenuTrigger class="flex items-center justify-between w-full">
-            <div class="flex items-center gap-x-2">
-              <span>Time</span>
-              <img :src="SelectorIcon" alt="" />
-            </div>
-            <img :src="FilterIcon" alt="" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" class="bg-white">
-            <DropdownMenuItem @select="null">Time</DropdownMenuItem>
-            <DropdownMenuItem @select="null">Other</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div class="space-y-2 text-xs w-full border-gray-primary" v-if="asset.chain === 'btc'">
+        <div>{{ currentBTCWallet?.getAddressType() }}</div>
+        <div class="flex items-center justify-between text-gray-primary gap-4">
+          <div class="break-all">{{ currentBTCWallet?.getAddress() }}</div>
+          <Copy
+            :text="address"
+            class="w-[22px]"
+            @click="
+              toast({
+                title: `${currentBTCWallet?.getAddressType()}  Address Copied`,
+                toastType: 'success',
+                description: address,
+              })
+            "
+          />
+        </div>
       </div>
+
+      <div class="space-y-2 text-xs w-full border-gray-primary" v-else-if="asset.chain === 'mvc'">
+        <div>{{ currentMVCWallet?.getAddressType() }}</div>
+        <div class="flex items-center justify-between text-gray-primary gap-4">
+          <div class="break-all">{{ currentMVCWallet?.getAddress() }}</div>
+          <Copy
+            :text="address"
+            class="w-[22px]"
+            @click="
+              toast({
+                title: `${currentMVCWallet?.getAddressType()}  Address Copied`,
+                toastType: 'success',
+                description: address,
+              })
+            "
+          />
+        </div>
+      </div>
+
+      <Divider class="w-full" />
+
       <Activities
-        class="mt-8 self-stretch"
+        class="grow nicer-scrollbar -mr-3 pr-3 overflow-y-auto"
         :asset="asset"
-        :exchangeRate="Number(exchangeRate)"
         :address="address"
         :coinCategory="CoinCategory.Native"
+        :exchangeRate="Number(exchangeRate)"
       />
+    </div>
+
+    <div class="-mx-4 h-11 bg-gray-light px-4 py-[13px] text-ss" v-if="false">
+      <DropdownMenu>
+        <DropdownMenuTrigger class="flex items-center justify-between w-full">
+          <div class="flex items-center gap-x-2">
+            <span>Time</span>
+            <img :src="SelectorIcon" alt="" />
+          </div>
+          <img :src="FilterIcon" alt="" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" class="bg-white">
+          <DropdownMenuItem @select="null">Time</DropdownMenuItem>
+          <DropdownMenuItem @select="null">Other</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   </div>
   <LoadingText v-else text="Asset Loading..." />

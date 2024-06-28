@@ -59,8 +59,8 @@ export const prettifyTokenGenesis = (genesis: string) => {
   return `${genesis.slice(0, 6)}...${genesis.slice(-6)}`
 }
 
-export const shortestAddress = (address: string) => {
-  return `${address.slice(0, 4)}...${address.slice(-4)}`
+export const shortestAddress = (address: string, num = 4) => {
+  return `${address.slice(0, num)}...${address.slice(-num)}`
 }
 
 export const formatTimestamp = (timestamp: number | string) => {
