@@ -4,7 +4,7 @@ import { LoadingText } from '@/components'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import TickerList from './components/TickerList.vue'
-import { useBRC20AseetQuery } from '@/queries/brc20'
+import { useBRC20AssetQuery } from '@/queries/brc20'
 import { FlexBox, Divider, Button } from '@/components'
 
 const route = useRoute()
@@ -13,7 +13,7 @@ const router = useRouter()
 const address = ref<string>(route.params.address as string)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
-const { isLoading, data: asset } = useBRC20AseetQuery(address, symbol, {
+const { isLoading, data: asset } = useBRC20AssetQuery(address, symbol, {
   enabled: computed(() => !!address.value),
 })
 

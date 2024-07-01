@@ -8,7 +8,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
 import { commitInscribe } from '@/queries/inscribe'
-import { useBRC20AseetQuery } from '@/queries/brc20'
+import { useBRC20AssetQuery } from '@/queries/brc20'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
@@ -45,7 +45,7 @@ const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 const { getIcon } = useIconsStore()
 const icon = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as SymbolTicker) || '')
 
-const { data: asset } = useBRC20AseetQuery(address, symbol, {
+const { data: asset } = useBRC20AssetQuery(address, symbol, {
   enabled: computed(() => !!address.value),
 })
 

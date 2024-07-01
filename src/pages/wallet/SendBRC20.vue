@@ -6,7 +6,6 @@ import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { useQueryClient } from '@tanstack/vue-query'
-import { useBRC20AseetQuery } from '@/queries/brc20'
 import { getInscriptionUtxo } from '@/queries/utxos'
 import { broadcastBTCTx } from '@/queries/transaction'
 import LoadingIcon from '@/components/LoadingIcon.vue'
@@ -22,7 +21,7 @@ import { CoinCategory } from '@/queries/exchange-rates'
 const cost = ref()
 const route = useRoute()
 const router = useRouter()
-const isShowComfirm = ref(false)
+const isShowConfirm = ref(false)
 const queryClient = useQueryClient()
 
 const amount = ref(Number(route.params.amount))
@@ -34,10 +33,6 @@ const { getIcon } = useIconsStore()
 const logo = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as SymbolTicker) || '')
 
 const { currentBTCWallet } = useChainWalletsStore()
-
-const tickerEnabled = computed(() => !!address.value && !!symbol.value)
-
-const { data: asset } = useBRC20AseetQuery(address, symbol, { enabled: tickerEnabled })
 
 const tags = getTags('BRC-20')
 
@@ -78,7 +73,7 @@ async function next() {
     cost.value = _cost
     txPsbt.value = psbt
     calcFee.value = fee
-    isShowComfirm.value = true
+    isShowConfirm.value = true
   } catch (error) {
     console.error('Error in BTC transaction:', error)
     transactionResult.value = {
@@ -102,7 +97,7 @@ async function send() {
   }
 
   const txId = await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
-    isShowComfirm.value = false
+    isShowConfirm.value = false
     transactionResult.value = {
       status: 'failed',
       message: err.message,
@@ -118,7 +113,7 @@ async function send() {
     return
   }
 
-  isShowComfirm.value = false
+  isShowConfirm.value = false
   operationLock.value = false
   queryClient.invalidateQueries({
     queryKey: ['balance', { address: address.value, symbol: symbol.value }],
@@ -187,7 +182,7 @@ async function send() {
       <span v-else>Next</span>
     </Button>
 
-    <Drawer v-model:open="isShowComfirm">
+    <Drawer v-model:open="isShowConfirm">
       <DrawerContent class="bg-white">
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
