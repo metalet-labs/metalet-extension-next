@@ -4,6 +4,7 @@ import { Chain, ScriptType, SignType } from '@metalet/utxo-wallet-service'
 
 export interface MRC20TransferParams {
   body: string
+  amount: string
   mrc20TickId: string
   flag?: 'metaid' | 'testid'
   revealAddr?: string
@@ -17,7 +18,7 @@ export interface MRC20TransferParams {
   }
 }
 
-export async function process(params: MRC20TransferParams){
+export async function process(params: MRC20TransferParams) {
   const wallet = await getCurrentWallet(Chain.BTC)
   const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH)
 

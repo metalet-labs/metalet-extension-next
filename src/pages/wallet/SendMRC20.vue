@@ -113,6 +113,7 @@ const popConfirm = async () => {
     const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, needRawTx)
     const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_TRANSFER, {
       utxos,
+      amount: new Decimal(amount.value).toFixed(),
       flag: network.value === 'mainnet' ? 'metaid' : 'testid',
       commitFeeRate: currentRateFee.value,
       revealFeeRate: currentRateFee.value,
