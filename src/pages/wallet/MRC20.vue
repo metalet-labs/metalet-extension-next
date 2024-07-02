@@ -4,7 +4,7 @@ import { getTags } from '@/data/assets'
 import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
-import { calcBalance } from '@/lib/formatters'
+import CopyIcon from '@/components/Copy.vue'
 import { useRoute, useRouter } from 'vue-router'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
@@ -16,6 +16,7 @@ import { useMRC20DetailQuery } from '@/queries/mrc20'
 import { CoinCategory } from '@/queries/exchange-rates'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
+import { calcBalance, truncateStr } from '@/lib/formatters'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
@@ -93,6 +94,14 @@ const toSend = () => {
         <ArrowUpIcon class="w-3" />
         <span>Send</span>
       </button>
+    </div>
+
+    <div class="mt-8 self-stretch">
+      <div class="text-xs text-gray-500">Token ID</div>
+      <div class="flex items-center hover:text-blue-primary gap-x-2">
+        <div class="text-base">{{ truncateStr(mrc20Id, 6) }}</div>
+        <CopyIcon :text="mrc20Id" :title="'Token ID Copied'" />
+      </div>
     </div>
 
     <div class="w-full">

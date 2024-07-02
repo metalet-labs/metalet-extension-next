@@ -4,11 +4,11 @@ import { getTags } from '@/data/assets'
 import { LoadingText } from '@/components'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
-import { calcBalance } from '@/lib/formatters'
+import CopyIcon from '@/components/Copy.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Chain } from '@metalet/utxo-wallet-service'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
+import { Chain } from '@metalet/utxo-wallet-service'
 import Activities from './components/Activities.vue'
 import { PencilIcon } from '@heroicons/vue/20/solid'
 import { useRuneDetailQuery } from '@/queries/runes'
@@ -16,6 +16,7 @@ import FilterIcon from '@/assets/icons-v3/filter.svg'
 import { CoinCategory } from '@/queries/exchange-rates'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
+import { calcBalance, truncateStr } from '@/lib/formatters'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
@@ -96,6 +97,14 @@ const toSend = () => {
         <ArrowUpIcon class="w-3" />
         <span>Send</span>
       </button>
+    </div>
+
+    <div class="mt-8 self-stretch">
+      <div class="text-xs text-gray-500">Rune ID</div>
+      <div class="flex items-center hover:text-blue-primary gap-x-2">
+        <div class="text-base">{{ truncateStr(runeId, 6) }}</div>
+        <CopyIcon :text="runeId" :title="'Rune ID Copied'" />
+      </div>
     </div>
 
     <div class="w-full">

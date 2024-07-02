@@ -32,9 +32,9 @@ const toSendNFT = (id: string) => {
   })
 }
 
-const getHostAndToTx = async (txid: string) => {
+const getHostAndToTx = async (txId: string) => {
   const host = await getBrowserHost('btc')
-  toTx(txid, host as string)
+  toTx(txId, host as string)
 }
 </script>
 
@@ -74,7 +74,7 @@ const getHostAndToTx = async (txid: string) => {
     </div>
     <div class="flex items-center justify-center text-lg">
       <span v-if="metaPin.number !== -1"># {{ metaPin.number }}</span>
-      <span v-else>Uncomfirmed</span>
+      <span v-else>Unconfirmed</span>
     </div>
 
     <div class="flex justify-center">

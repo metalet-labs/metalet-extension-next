@@ -63,6 +63,10 @@ export const shortestAddress = (address: string, num = 4) => {
   return `${address.slice(0, num)}...${address.slice(-num)}`
 }
 
+export const truncateStr = (str: string, charsPerSide = 4) => {
+  return `${str.slice(0, charsPerSide)}...${str.slice(-charsPerSide)}`;
+}
+
 export const formatTimestamp = (timestamp: number | string) => {
   timestamp = Number(timestamp)
 
