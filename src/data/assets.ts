@@ -63,13 +63,13 @@ const tags: Tag[] = [
   },
   {
     name: 'Runes',
-    bg: 'rgb(247, 147, 26, 0.2)',
-    color: '#FF981C',
+    bg: 'rgba(225, 194, 255, 0.3)',
+    color: '#835AFF',
   },
   {
     name: 'MRC20',
-    bg: 'rgb(247, 147, 26, 0.2)',
-    color: '#FF981C',
+    bg: 'rgba(214, 240, 255, 0.4)',
+    color: '#1472FF',
   },
 ]
 

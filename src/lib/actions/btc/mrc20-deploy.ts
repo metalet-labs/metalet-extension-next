@@ -1,6 +1,8 @@
 import { getBtcUtxos } from '@/queries/utxos'
 import { getCurrentWallet } from '../../wallet'
-import { Chain, ScriptType, SignType } from '@metalet/utxo-wallet-service'
+import { broadcastBTCTx } from '@/queries/transaction'
+import { getSafeUtxos, addSafeUtxo } from '@/lib/utxo'
+import { Chain, ScriptType, SignType, Transaction } from '@metalet/utxo-wallet-service'
 
 export interface MRC20DeployParams {
   body: {
@@ -34,11 +36,27 @@ export interface MRC20DeployParams {
   }
 }
 
-export async function process(params: MRC20DeployParams) {
+interface Options {
+  markSafe?: boolean
+  noBroadcast?: boolean
+}
+
+export async function process({ options, ...params }: MRC20DeployParams & { options?: Options }) {
   const wallet = await getCurrentWallet(Chain.BTC)
-  const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH)
-  return wallet.signTx(SignType.MRC20_DEPLOY, {
+  const address = wallet.getAddress()
+  const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH)
+  const safeUtxos = await getSafeUtxos(address, utxos)
+  const { commitTx, revealTx } = wallet.signTx(SignType.MRC20_DEPLOY, {
     ...params,
-    utxos,
+    utxos: safeUtxos,
   })
+  if (!options?.noBroadcast) {
+    const commitTxId = await broadcastBTCTx(commitTx.rawTx)
+    await addSafeUtxo(address, `${commitTxId}:${Transaction.fromHex(commitTx.rawTx).outs.length - 1}`)
+    await broadcastBTCTx(revealTx.rawTx)
+  } else if (options?.markSafe) {
+    await addSafeUtxo(address, `${commitTx.txId}:${Transaction.fromHex(commitTx.rawTx).outs.length - 1}`)
+  }
+
+  return { commitTx, revealTx }
 }

@@ -11,10 +11,10 @@ import * as bcrypto from './bitcoinjs-lib/crypto'
 import { base, signUtil } from '@okxweb3/crypto-lib'
 import BIP32Factory, { BIP32Interface } from 'bip32'
 import { broadcastBTCTx } from '@/queries/transaction'
+import { getSafeUtxos, addSafeUtxo } from '@/lib/utxo'
 import { vectorSize } from './bitcoinjs-lib/transaction'
 import { getAddressType, private2public, sign } from './txBuild'
 import { BtcWallet, Chain, ScriptType } from '@metalet/utxo-wallet-service'
-import { getMetaIdPinUnspentOutputsObj, setMetaIdPinUnspentOutputsObj } from '@/lib/metaIdPin'
 
 const schnorr = signUtil.schnorr.secp256k1.schnorr
 
@@ -501,12 +501,8 @@ export async function process({
   const wallet = await getCurrentWallet(Chain.BTC)
   const address = wallet.getAddress()
   const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)
-  const metaIdPinUnspentOutputsObj = await getMetaIdPinUnspentOutputsObj()
-  const metaIdPinUnspentOutputs = metaIdPinUnspentOutputsObj[address] || []
-  const btcUnspentOutputs = utxos.map((utxo) => `${utxo.txId}:${utxo.outputIndex}`)
-  metaIdPinUnspentOutputs.filter((unspentOutputs) => btcUnspentOutputs.includes(unspentOutputs))
-  utxos.filter((utxo) => utxo.confirmed || metaIdPinUnspentOutputs.includes(`${utxo.txId}:${utxo.outputIndex}`))
-  const commitTxPrevOutputList = utxos.map((utxo) => ({
+  const safeUtxos = await getSafeUtxos(address, utxos)
+  const commitTxPrevOutputList = safeUtxos.map((utxo) => ({
     txId: utxo.txId,
     vOut: utxo.outputIndex,
     amount: utxo.satoshis,
@@ -529,8 +525,7 @@ export async function process({
       const commitTxId = await broadcastBTCTx(commitTx)
       await sleep(1000)
       const [...revealTxIds] = await Promise.all([...revealTxs.map((revealTx) => broadcastBTCTx(revealTx))])
-      metaIdPinUnspentOutputs.push(`${commitTxId}:${Transaction.fromHex(commitTx).outs.length - 1}`)
-      await setMetaIdPinUnspentOutputsObj({ ...metaIdPinUnspentOutputsObj, [address]: metaIdPinUnspentOutputs })
+      await addSafeUtxo(address, `${commitTxId}:${Transaction.fromHex(commitTx).outs.length - 1}`)
       return { commitTxId, revealTxIds, commitCost, revealCost, totalCost }
     }
     return { commitTxHex: commitTx, revealTxsHex: revealTxs, commitCost, revealCost, totalCost }

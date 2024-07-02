@@ -13,8 +13,7 @@ export const fetchBtcTxHex = async (txId: string): Promise<string> => {
 }
 
 export const broadcastBTCTx = async (rawTx: string) => {
-  const net = getNet()
-  return await metaletApiV3<string>(`/tx/broadcast`).post({ chain: 'btc', net, rawTx })
+  return await broadcastTx(rawTx, Chain.BTC)
 }
 
 export const broadcastTx = async (rawTx: string, chain: Chain) => {
