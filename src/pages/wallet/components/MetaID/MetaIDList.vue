@@ -37,7 +37,7 @@ const metaIDTypeOnchange = (_metaId: MetaIDTabType) => {
 
 <template>
   <div class="w-full">
-    <div class="py-3 text-sm cursor-pointer -mx-4 bg-gray-light px-4">
+    <!-- <div class="py-3 text-sm cursor-pointer -mx-4 bg-gray-light px-4">
       <DropdownMenu>
         <DropdownMenuTrigger class="flex items-center gap-x-2">
           <span>{{ metaIDType }}</span>
@@ -49,7 +49,7 @@ const metaIDTypeOnchange = (_metaId: MetaIDTabType) => {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </div> -->
     <MetaIDPinList v-if="metaIDType === 'MetaID PIN'" />
     <NO_NFT_DATA v-else />
   </div>

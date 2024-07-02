@@ -48,7 +48,7 @@ getServiceNetwork().then((_service) => {
     <TabsContent value="MRC20" key="MRC20" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <MRC20List />
     </TabsContent>
-    <TabsContent value="MetaID" key="MetaID" class="overflow-y-auto w-full nicer-scrollbar px-4">
+    <TabsContent value="MetaID PIN" key="MetaID PIN" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <MetaIDList />
     </TabsContent>
     <TabsContent value="Activity" class="overflow-y-auto w-full nicer-scrollbar px-4"></TabsContent>
