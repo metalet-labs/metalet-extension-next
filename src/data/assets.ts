@@ -32,6 +32,7 @@ export interface RuneAsset extends Asset {
 
 export interface MRC20Asset extends Asset {
   mrc20Id: string
+  icon?: string
 }
 
 export interface Tag {

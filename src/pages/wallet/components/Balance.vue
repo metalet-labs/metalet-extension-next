@@ -46,7 +46,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
       </div>
     </div>
 
-    <div class="text-black-secondary flex justify-between mt-6 text-ss">
+    <div class="text-black-secondary flex justify-between mt-6 text-ss" v-if="false">
       <div
         @click="toSelectAsset('send')"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
@@ -85,6 +85,17 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         </div>
         <span>Bridge</span>
       </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2 mt-6 text-ss">
+      <button class="button" @click="toSelectAsset('send')">
+        <ArrowUpRightIcon class="mr-1 h-4 w-4" />
+        <span>Send</span>
+      </button>
+      <button class="button" @click="toSelectAsset('receive')">
+        <QrCodeIcon class="mr-1 h-4 w-4" />
+        <span>Receive</span>
+      </button>
     </div>
   </div>
 </template>

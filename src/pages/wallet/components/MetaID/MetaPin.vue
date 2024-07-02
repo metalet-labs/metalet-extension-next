@@ -20,7 +20,7 @@ const props = defineProps<{
       { 'border border-[#f5f5f5]': contentType.includes('image') || contentTypeDetect.includes('image') },
     ]"
   >
-    <PopCard :level="popLv" class="absolute left-0 top-0" />
+    <PopCard :level="popLv" class="absolute left-0 top-0 z-10" />
     <img
       :src="content"
       :alt="contentSummary"

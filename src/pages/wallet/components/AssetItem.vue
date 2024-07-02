@@ -8,7 +8,7 @@ import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import { useOfficeGenesisStore } from '@/stores/FtTokenStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
-import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset } from '@/data/assets'
+import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset, MRC20Asset } from '@/data/assets'
 
 const props = defineProps<{
   address: string
@@ -30,7 +30,9 @@ const icon = computed(
     getIcon(
       props.coinCategory,
       props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
-    ) || ''
+    ) ||
+    (asset.value as MRC20Asset)?.icon ||
+    ''
 )
 
 if (props.asset?.contract) {

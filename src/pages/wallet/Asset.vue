@@ -181,7 +181,7 @@ const toReceive = () => {
       </Drawer>
     </div>
 
-    <div class="grow w-full flex flex-col gap-y-6 px-4 overflow-y-hidden">
+    <div class="grow w-full flex flex-col gap-y-6 overflow-y-hidden">
       <div class="flex flex-col items-center">
         <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
 
@@ -237,11 +237,11 @@ const toReceive = () => {
       <Divider class="w-full" />
 
       <Activities
-        class="grow nicer-scrollbar -mr-3 pr-3 overflow-y-auto"
         :asset="asset"
         :address="address"
         :coinCategory="CoinCategory.Native"
         :exchangeRate="Number(exchangeRate)"
+        class="grow nicer-scrollbar overflow-y-auto w-full pr-1 -mr-1"
       />
     </div>
 

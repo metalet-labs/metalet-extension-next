@@ -14,7 +14,7 @@ import { broadcastBTCTx } from '@/queries/transaction'
 import { getSafeUtxos, addSafeUtxo } from '@/lib/utxo'
 import { vectorSize } from './bitcoinjs-lib/transaction'
 import { getAddressType, private2public, sign } from './txBuild'
-import { BtcWallet, Chain, ScriptType } from '@metalet/utxo-wallet-service'
+import { BtcWallet, Chain, ScriptType, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 const schnorr = signUtil.schnorr.secp256k1.schnorr
 
@@ -525,7 +525,13 @@ export async function process({
       const commitTxId = await broadcastBTCTx(commitTx)
       await sleep(1000)
       const [...revealTxIds] = await Promise.all([...revealTxs.map((revealTx) => broadcastBTCTx(revealTx))])
-      await addSafeUtxo(address, `${commitTxId}:${Transaction.fromHex(commitTx).outs.length - 1}`)
+      const tx = Transaction.fromHex(commitTx)
+      if (
+        tx.outs.length > 1 &&
+        getAddressFromScript(tx.outs[tx.outs.length - 1].script, wallet.getNetwork()) === address
+      ) {
+        await addSafeUtxo(address, `${commitTxId}:${tx.outs.length - 1}`)
+      }
       return { commitTxId, revealTxIds, commitCost, revealCost, totalCost }
     }
     return { commitTxHex: commitTx, revealTxsHex: revealTxs, commitCost, revealCost, totalCost }

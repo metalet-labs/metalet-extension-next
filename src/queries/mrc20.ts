@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js'
 import { type UTXO } from './utxos'
 import { PageResult } from './types'
-import { getNet } from '@/lib/network'
+import { getNet, network } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { metaletApiV3 } from './request'
 import { fetchBtcTxHex } from './transaction'
@@ -79,6 +79,7 @@ interface MRC20Info {
   amount: string
   balance: string
   decimals: string
+  metaData: string
   tokenName: string
 }
 
@@ -115,6 +116,9 @@ export async function fetchMRC20List(
     size: size.toString(),
   })
 
+  console.log('list', list);
+  
+
   const mrc20Assets = list.map((data) => ({
     symbol: data.tick,
     tokenName: data.tokenName,
@@ -129,6 +133,12 @@ export async function fetchMRC20List(
     },
     mrc20Id: data.mrc20Id,
     contract: CoinCategory.MRC20,
+    icon: data?.metaData
+      ? JSON.parse(data.metaData).icon.replace(
+          'metafile://',
+          `https://man${network.value === 'testnet' && '-test'}.metaid.io/content/`
+        )
+      : undefined,
   })) as MRC20Asset[]
 
   cursor += size
