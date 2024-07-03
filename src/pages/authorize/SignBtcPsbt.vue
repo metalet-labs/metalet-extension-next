@@ -64,11 +64,19 @@ getNetwork().then(async (networkType) => {
 
   const btcNetwork = getBtcNetwork()
 
-  outputs.value = psbt.txOutputs.map((out) => ({
-    value: out.value,
-    address: out.address || '',
-    script: getAddressFromScript(out.script, btcNetwork) !== out.address ? out.script.toString('hex') : '',
-  }))
+  outputs.value = psbt.txOutputs.map((out) => {
+    let flag = true
+    try {
+      flag = getAddressFromScript(out.script, btcNetwork) !== out.address
+    } catch (error) {
+      flag = true
+    }
+    return {
+      value: out.value,
+      address: out.address || '',
+      script: flag ? out.script.toString('hex') : '',
+    }
+  })
 })
 </script>
 

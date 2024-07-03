@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { Avatar } from '@/components'
+import { toast } from '@/components/ui/toast'
 import { prettifyAddress } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { UTXO, getAllBtcUtxos } from '@/queries/utxos'
@@ -8,10 +9,9 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { addSafeUtxo, getSafeUtxos } from '@/lib/utxo'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
+const isLoading = ref(true)
 const utxos = ref<UTXO[]>([])
 const safeUtxos = ref<UTXO[]>([])
-const isLoading = ref(true)
-const feeRate = ref<number>()
 
 const { getAddress } = useChainWalletsStore()
 
@@ -24,9 +24,9 @@ watch(
       getAllBtcUtxos(newAddress).then((_utxos) => {
         utxos.value = _utxos
         isLoading.value = false
-      })
-      getSafeUtxos(newAddress, utxos.value).then((_safeUtxos) => {
-        safeUtxos.value = _safeUtxos
+        getSafeUtxos(newAddress, _utxos).then((_safeUtxos) => {
+          safeUtxos.value = _safeUtxos
+        })
       })
     }
   },
@@ -53,15 +53,7 @@ watch(
       </div>
 
       <div v-for="utxo in utxos" :key="utxo.txId" class="flex items-center justify-between w-full">
-        <div
-          class="space-y-2"
-          @click="
-            async () => {
-              await addSafeUtxo(address, `${utxo.txId}:${utxo.outputIndex}`)
-              safeUtxos.push(utxo)
-            }
-          "
-        >
+        <div class="space-y-2">
           <div class="label">{{ prettifyAddress(utxo.txId) }}:{{ utxo.outputIndex }}</div>
           <div class="value space-x-2">
             <span>value: {{ utxo.satoshis }}</span>
@@ -74,9 +66,32 @@ watch(
             safeUtxos.findIndex((utxo) => utxo.txId === utxo.txId && utxo.outputIndex === utxo.outputIndex) === -1 &&
             utxo.confirmed === false
           "
+          @click="
+            async () => {
+              await addSafeUtxo(address, `${utxo.txId}:${utxo.outputIndex}`)
+              safeUtxos.push(utxo)
+              toast({ title: 'Added successfully', toastType: 'success' })
+            }
+          "
         >
           Add Safe
         </button>
+        <div
+          v-else
+          :class="[
+            'px-1.5',
+            'py-0.5',
+            'rounded',
+            'text-xs',
+            'inline-block',
+            'scale-75',
+            'origin-left',
+            'bg-green-500',
+            'text-white',
+          ]"
+        >
+          Safe
+        </div>
       </div>
     </div>
   </div>
