@@ -116,12 +116,9 @@ export async function fetchMRC20List(
     size: size.toString(),
   })
 
-  console.log('list', list);
-  
-
   const mrc20Assets = list.map((data) => ({
     symbol: data.tick,
-    tokenName: data.tokenName,
+    tokenName: data.tick,
     isNative: false,
     chain: 'btc',
     queryable: true,
