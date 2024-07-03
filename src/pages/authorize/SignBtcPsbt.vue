@@ -109,8 +109,8 @@ getNetwork().then(async (networkType) => {
                 {{ prettifyBalance(input.value, 'BTC') }}
               </div>
               <template v-if="input.runes.length">
-                <div class="mt-2">Rune Detail</div>
-                <div v-for="rune in input.runes" class="space-y-2">
+                <div class="mt-2">Rune Details</div>
+                <div v-for="rune in input.runes" class="space-y-2 divide-y divide-gray-200">
                   <div>Symbol</div>
                   <div class="text-xs text-gray-500 break-all">
                     {{ rune.tokenName }}
