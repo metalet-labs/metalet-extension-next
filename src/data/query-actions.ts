@@ -18,6 +18,7 @@ import * as GetBTCPublicKey from '../lib/actions/btc/get-public-key'
 import * as GetBTCUtxos from '../lib/actions/btc/get-utxos'
 import * as PushPsbt from '../lib/actions/btc/push-psbt'
 import * as BTCVerifyMessage from '../lib/actions/btc/verify-message'
+import * as AddSafeUtxo from '../lib/actions/btc/add-safe-utxo'
 
 type QueryAction = {
   process: Function
@@ -44,4 +45,5 @@ export default {
   GetBTCUtxos,
   PushPsbt,
   BTCVerifyMessage,
+  AddSafeUtxo,
 } as { [key: string]: QueryAction }
