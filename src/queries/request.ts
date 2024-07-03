@@ -4,10 +4,10 @@ import {
   METASV_TESTNET_HOST,
   METASV_HOST,
   METALET_HOST,
-  ORDERS_HOST,
+  API2_ORDERS_EXCHANGE,
+  API2_ORDERS_EXCHANGE_TESTNET,
   UNISAT_HOST,
   MEMPOOL_HOST,
-  BLOCKSTREAM_HOST,
   ORDINALS_HOST,
   UNISAT_TESTNET_HOST,
 } from '@/data/hosts'
@@ -150,14 +150,6 @@ export const metaletApiV3 = <T>(path: string) => {
   }
 }
 
-export const ordersApi = (path: string) => {
-  const ordersHost = ORDERS_HOST + '/api'
-  return {
-    get: (params?: OptionParams) => request(`${ordersHost}${path}`, { method: 'GET', params }),
-    post: (data?: OptionData) => request(`${ordersHost}${path}`, { method: 'POST', data }),
-  }
-}
-
 export const ordinalsApi = (path: string) => {
   const url = path.includes(ORDINALS_HOST) ? path : `${ORDINALS_HOST}${path}`
   return {
@@ -172,14 +164,6 @@ export const mempoolApi = <T>(path: string) => {
     get: (params?: OptionParams) => request<T>(`${mempoolHost}${path}`, { method: 'GET', params }),
     post: (data?: OptionData | string, headers?: Headers) =>
       request(`${mempoolHost}${path}`, { method: 'POST', headers, data }),
-  }
-}
-
-export const blockstreamApi = (path: string) => {
-  const blockstreamHost = BLOCKSTREAM_HOST + '/api'
-  return {
-    get: (params?: OptionParams) => request(`${blockstreamHost}${path}`, { method: 'GET', params }),
-    post: (data?: OptionData | string) => request(`${blockstreamHost}${path}`, { method: 'POST', data }),
   }
 }
 
@@ -212,6 +196,14 @@ export const unisatApi = <T>(path: string) => {
   return {
     get: (params?: any) => unisatRequest<T>(`${unisatHost}${path}`, { method: 'GET', headers, params, mode: 'cors' }),
     post: (data?: any) => unisatRequest<T>(`${unisatHost}${path}`, { method: 'POST', headers, data, mode: 'cors' }),
+  }
+}
+
+export const ordersApi = <T>(path: string) => {
+  const ordersHost = network.value === 'mainnet' ? API2_ORDERS_EXCHANGE : API2_ORDERS_EXCHANGE_TESTNET
+  return {
+    get: (params?: OptionParams) => metaletV3Request<T>(`${ordersHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) => metaletV3Request<T>(`${ordersHost}${path}`, { method: 'POST', data }),
   }
 }
 

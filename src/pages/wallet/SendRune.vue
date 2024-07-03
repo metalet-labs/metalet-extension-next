@@ -2,6 +2,7 @@
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
 import { Psbt } from 'bitcoinjs-lib'
+import { addSafeUtxo } from '@/lib/utxo'
 import { transferToNumber } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
@@ -13,8 +14,8 @@ import { prettifyBalanceFixed } from '@/lib/formatters'
 import type { TransactionResult } from '@/global-types'
 import { getBtcUtxos, getRuneUtxos } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import TransactionResultModal from './components/TransactionResultModal.vue'
+import { ScriptType, getAddressFromScript, SignType } from '@metalet/utxo-wallet-service'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
@@ -109,7 +110,7 @@ const popConfirm = async () => {
   }
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const runeUtxos = await getRuneUtxos(address.value, asset.value!.runeId, needRawTx)
     const { fee, psbt } = currentBTCWallet.value!.signTx(SignType.RUNE_SEND, {
       utxos,
@@ -154,6 +155,15 @@ async function sendBTC() {
       operationLock.value = false
       throw err
     })
+    if (
+      txPsbt.value.txOutputs.length > 1 &&
+      getAddressFromScript(
+        txPsbt.value.txOutputs[txPsbt.value.txOutputs.length - 1].script,
+        currentBTCWallet.value!.getNetwork()
+      ) === address.value
+    ) {
+      await addSafeUtxo(address.value, `${txId}:${txPsbt.value.txOutputs.length - 1}`)
+    }
     return { txId }
   } else {
     isOpenConfirmModal.value = false

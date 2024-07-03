@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
-import { sleep } from '@/lib/helpers'
+import { addSafeUtxo } from '@/lib/utxo'
+import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useRuneDetailQuery } from '@/queries/runes'
@@ -10,12 +11,11 @@ import { broadcastBTCTx } from '@/queries/transaction'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import type { TransactionResult } from '@/global-types'
-import { getBtcUtxos, getRuneUtxos } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import { Chain, ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 const route = useRoute()
 const router = useRouter()
@@ -90,7 +90,7 @@ const popConfirm = async () => {
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     // TODO: test it
-    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const { baseTx, leftTxs } = currentBTCWallet.value!.signTx(SignType.RUNE_MINT, {
       utxos,
       runeId: runeId.value,
@@ -148,7 +148,13 @@ async function sendBTC() {
         })
       ),
     ])
-    console.log(leftTxIds)
+    const tx = Transaction.fromHex(baseRawTx.value)
+    if (
+      tx.outs.length > 1 &&
+      getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address.value
+    ) {
+      await addSafeUtxo(address.value, `${txId}:${tx.outs.length - 1}`)
+    }
     return { txId }
   } else {
     isOpenConfirmModal.value = false

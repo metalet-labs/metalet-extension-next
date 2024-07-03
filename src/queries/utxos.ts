@@ -1,11 +1,12 @@
 import { Chain } from '@/lib/types'
+import { MRC20UTXO } from './mrc20'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
+import { getSafeUtxos } from '@/lib/utxo'
 import { useQuery } from '@tanstack/vue-query'
 import { UNISAT_ENABLED } from '@/data/config'
 import { fetchBtcTxHex } from '@/queries/transaction'
 import { mvcApi, mempoolApi, metaletApiV3, unisatApi } from './request'
-import { MRC20UTXO } from './mrc20'
 
 export interface UTXO {
   txId: string
@@ -86,6 +87,7 @@ export interface UnisatUTXO {
   }[]
 }
 
+// TODO: add mode
 export async function getBtcUtxos(address: string, needRawTx = false, useUnconfirmed = false): Promise<UTXO[]> {
   const net = getNet()
   if (UNISAT_ENABLED) {
@@ -104,6 +106,8 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
 
   if (!useUnconfirmed) {
     utxos = utxos.filter((utxo) => utxo.confirmed)
+  } else {
+    utxos = await getSafeUtxos(address, utxos)
   }
   if (needRawTx) {
     for (let utxo of utxos) {
@@ -116,6 +120,11 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
     }
     return a.satoshis - b.satoshis
   })
+}
+
+export async function getAllBtcUtxos(address: string): Promise<UTXO[]> {
+  const net = getNet()
+  return (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
 }
 
 export async function getMRC20Utxos(address: string, mrc20TickId: string, needRawTx = false): Promise<MRC20UTXO[]> {

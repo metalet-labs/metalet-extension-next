@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js'
 import { sleep } from '@/lib/helpers'
 import randomBytes from 'randombytes'
+import { addSafeUtxo } from '@/lib/utxo'
 import * as bitcoin from './bitcoinjs-lib'
 import { Transaction } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
@@ -11,7 +12,6 @@ import * as bcrypto from './bitcoinjs-lib/crypto'
 import { base, signUtil } from '@okxweb3/crypto-lib'
 import BIP32Factory, { BIP32Interface } from 'bip32'
 import { broadcastBTCTx } from '@/queries/transaction'
-import { getSafeUtxos, addSafeUtxo } from '@/lib/utxo'
 import { vectorSize } from './bitcoinjs-lib/transaction'
 import { getAddressType, private2public, sign } from './txBuild'
 import { BtcWallet, Chain, ScriptType, getAddressFromScript } from '@metalet/utxo-wallet-service'
@@ -501,8 +501,7 @@ export async function process({
   const wallet = await getCurrentWallet(Chain.BTC)
   const address = wallet.getAddress()
   const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)
-  const safeUtxos = await getSafeUtxos(address, utxos)
-  const commitTxPrevOutputList = safeUtxos.map((utxo) => ({
+  const commitTxPrevOutputList = utxos.map((utxo) => ({
     txId: utxo.txId,
     vOut: utxo.outputIndex,
     amount: utxo.satoshis,

@@ -7,7 +7,6 @@ export const MEMPOOL_TESTNET_HOST = 'https://mempool.space/testnet'
 export const BLOCKSTREAM_HOST = 'https://blockstream.info'
 
 export const METALET_HOST = 'https://www.metalet.space'
-export const ORDERS_HOST = 'https://api2.orders.exchange'
 
 export const ORDINALS_HOST = 'https://ordinals.com'
 
@@ -18,6 +17,7 @@ export const MVC_API_HOST = 'https://api.microvisionchain.com'
 export const METAFILE_API_HOST = 'https://filecdn.showpay.top'
 
 export const API2_ORDERS_EXCHANGE = 'https://api2.orders.exchange/api'
+export const API2_ORDERS_EXCHANGE_TESTNET = 'https://api2-testnet.orders.exchange/api'
 
 export const UNISAT_HOST = 'https://wallet-api.unisat.io/v5'
 export const UNISAT_TESTNET_HOST = 'https://wallet-api-testnet.unisat.io/v5'

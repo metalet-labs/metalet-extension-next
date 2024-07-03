@@ -8,6 +8,10 @@ const toBTCMerge = () => {
   router.push('/settings/toolkit/btc-merge')
 }
 
+const toBTCSafeMark = () => {
+  router.push('/settings/toolkit/btc-safe-mark')
+}
+
 const toSpaceMerge = () => {
   router.push('/settings/toolkit/space-merge')
 }
@@ -21,6 +25,12 @@ const toSpaceMerge = () => {
       <div class="divide-y divide-gray-100">
         <div class="setting-item group cursor-pointer" @click="toBTCMerge">
           <div class="text-gray-500 group-hover:underline">BTC Merge</div>
+          <div class="">
+            <ChevronRightIcon class="link-icon" />
+          </div>
+        </div>
+        <div class="setting-item group cursor-pointer" @click="toBTCSafeMark">
+          <div class="text-gray-500 group-hover:underline">BTC Safe Mark</div>
           <div class="">
             <ChevronRightIcon class="link-icon" />
           </div>

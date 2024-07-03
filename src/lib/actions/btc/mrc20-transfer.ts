@@ -1,6 +1,7 @@
+import { addSafeUtxo } from '@/lib/utxo'
 import { getCurrentWallet } from '../../wallet'
 import { getBtcUtxos, getMRC20Utxos } from '@/queries/utxos'
-import { Chain, ScriptType, SignType } from '@metalet/utxo-wallet-service'
+import { Chain, ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 export interface MRC20TransferParams {
   body: string
@@ -20,7 +21,8 @@ export interface MRC20TransferParams {
 
 export async function process(params: MRC20TransferParams) {
   const wallet = await getCurrentWallet(Chain.BTC)
-  const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH)
+  const address = wallet.getAddress()
+  const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH, true)
 
   const mrc20Utxos = await getMRC20Utxos(
     wallet.getAddress(),
@@ -28,9 +30,16 @@ export async function process(params: MRC20TransferParams) {
     wallet.getScriptType() === ScriptType.P2PKH
   )
 
-  return wallet.signTx(SignType.MRC20_TRANSFER, {
+  const { commitTx, revealTx } = wallet.signTx(SignType.MRC20_TRANSFER, {
     ...params,
     mrc20Utxos,
     utxos,
   })
+
+  const tx = Transaction.fromHex(commitTx.rawTx)
+  if (tx.outs.length > 1 && getAddressFromScript(tx.outs[tx.outs.length - 1].script, wallet.getNetwork()) === address) {
+    await addSafeUtxo(address, `${commitTx.commitTxId}:${tx.outs.length - 1}`)
+  }
+
+  return { commitTx, revealTx }
 }

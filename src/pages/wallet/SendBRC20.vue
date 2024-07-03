@@ -1,22 +1,23 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { getTags } from '@/data/assets'
+import { addSafeUtxo } from '@/lib/utxo'
 import type { Psbt } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { useIconsStore } from '@/stores/IconsStore'
 import { useQueryClient } from '@tanstack/vue-query'
 import { getInscriptionUtxo } from '@/queries/utxos'
 import { broadcastBTCTx } from '@/queries/transaction'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { prettifyBalanceFixed } from '@/lib/formatters'
-import { ScriptType } from '@metalet/utxo-wallet-service'
+import { CoinCategory } from '@/queries/exchange-rates'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { ScriptType, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
-import { useIconsStore } from '@/stores/IconsStore'
-import { CoinCategory } from '@/queries/exchange-rates'
 
 const cost = ref()
 const route = useRoute()
@@ -63,7 +64,7 @@ async function next() {
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxo = await getInscriptionUtxo(inscriptionId.value, needRawTx)
-    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const {
       fee,
       psbt,
@@ -111,6 +112,16 @@ async function send() {
       message: 'Send failed',
     }
     return
+  }
+
+  if (
+    txPsbt.value.txOutputs.length > 1 &&
+    getAddressFromScript(
+      txPsbt.value.txOutputs[txPsbt.value.txOutputs.length - 1].script,
+      currentBTCWallet.value!.getNetwork()
+    ) === address.value
+  ) {
+    await addSafeUtxo(address.value, `${txId}:${txPsbt.value.txOutputs.length - 1}`)
   }
 
   isShowConfirm.value = false

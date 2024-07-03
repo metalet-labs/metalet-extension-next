@@ -6,12 +6,13 @@ import { ClipboardStore } from '@/stores/ClipboardStore'
 const { text, title } = defineProps<{
   text: string
   title?: string
+  showContent?: boolean
 }>()
 </script>
 
 <template>
   <CopyIcon
-    @click="ClipboardStore.copy(text, title)"
+    @click="ClipboardStore.copy(text, title, showContent)"
     :class="
       twMerge(
         'hover:text-blue-primary cursor-pointer w-[22px]',

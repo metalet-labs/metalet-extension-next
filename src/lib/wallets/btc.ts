@@ -10,6 +10,7 @@ import { fetchBtcTxHex, broadcastBTCTx } from '@/queries/transaction'
 import { Account, getCurrentAccount, getAddressType, getAddress, getSigner } from '@/lib/account'
 import { getCurrentWallet } from '../wallet'
 
+// TODO: add safe utxo
 export class BtcWallet {
   private account?: Account = undefined
 
@@ -29,7 +30,7 @@ export class BtcWallet {
     const address = wallet.getAddress()
     const addressType = await getAddressType('btc')
     const payment = await createPayment(addressType)
-    const utxos = (await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH)) || []
+    const utxos = (await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)) || []
 
     const buildPsbt = async (utxos: UTXO[], amount: Decimal) => {
       const psbt = new Psbt({ network: btcNetwork }).addOutput({

@@ -43,7 +43,7 @@ watch(
       try {
         const wallet = await getCurrentWallet(Chain.BTC)
         const address = wallet.getAddress()
-        const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH)
+        const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)
         const { txInputs, txOutputs } = wallet.send(
           props.params.toAddress,
           new Decimal(props.params.satoshis).div(1e8).toString(),

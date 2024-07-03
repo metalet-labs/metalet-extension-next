@@ -2,16 +2,17 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Copy from '@/components/Copy.vue'
+import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getMetaPin } from '@/queries/metaPin'
 import { FeeRateSelector } from '@/components'
 import { useQueryClient } from '@tanstack/vue-query'
 import { broadcastBTCTx } from '@/queries/transaction'
-import { ScriptType } from '@metalet/utxo-wallet-service'
 import { UTXO, getInscriptionUtxo } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
 import TransactionResultModal, { type TransactionResult } from '../wallet/components/TransactionResultModal.vue'
+import { ScriptType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 const route = useRoute()
 const queryClient = useQueryClient()
@@ -127,6 +128,14 @@ async function send() {
       message: 'Send failed',
     }
     return
+  }
+
+  const tx = Transaction.fromHex(rawTx.value)
+  if (
+    tx.outs.length > 1 &&
+    getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address.value
+  ) {
+    await addSafeUtxo(address.value, `${txId}:${tx.outs.length - 1}`)
   }
 
   transactionResult.value = {

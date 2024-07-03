@@ -2,6 +2,7 @@
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
 import { network } from '@/lib/network'
+import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -13,9 +14,9 @@ import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import type { TransactionResult } from '@/global-types'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
+import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { useMRC20DetailQuery, useShovelMetaIdPinUtxosQuery, type MetaIdPinUTXO } from '@/queries/mrc20'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
@@ -96,7 +97,7 @@ const popConfirm = async () => {
   }
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_MINT, {
       utxos,
       id: mrc20Id.value,
@@ -147,6 +148,13 @@ async function next() {
       operationLock.value = false
       throw err
     })
+    const tx = Transaction.fromHex(commitTxHex.value)
+    if (
+      tx.outs.length > 1 &&
+      getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address.value
+    ) {
+      await addSafeUtxo(address.value, `${commitTxId}:${tx.outs.length - 1}`)
+    }
     return { commitTxId, revealTxId }
   } else {
     isOpenConfirmModal.value = false

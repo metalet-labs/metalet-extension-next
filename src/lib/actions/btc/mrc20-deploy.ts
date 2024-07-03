@@ -1,7 +1,7 @@
+import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getCurrentWallet } from '../../wallet'
 import { broadcastBTCTx } from '@/queries/transaction'
-import { getSafeUtxos, addSafeUtxo } from '@/lib/utxo'
 import { Chain, ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 export interface MRC20DeployParams {
@@ -45,10 +45,9 @@ export async function process({ options, ...params }: MRC20DeployParams & { opti
   const wallet = await getCurrentWallet(Chain.BTC)
   const address = wallet.getAddress()
   const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)
-  const safeUtxos = await getSafeUtxos(address, utxos)
   const { commitTx, revealTx } = wallet.signTx(SignType.MRC20_DEPLOY, {
     ...params,
-    utxos: safeUtxos,
+    utxos,
   })
   if (!options?.noBroadcast) {
     const commitTxId = await broadcastBTCTx(commitTx.rawTx)

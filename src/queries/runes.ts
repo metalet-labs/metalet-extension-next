@@ -4,9 +4,9 @@ import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { type RuneAsset } from '@/data/assets'
 import { UNISAT_ENABLED } from '@/data/config'
-import { metaletApiV3, unisatApi } from './request'
 import { Balance_QUERY_INTERVAL } from './constants'
 import { AddressRunesTokenSummary } from './types/rune'
+import { metaletApiV3, unisatApi, ordersApi } from './request'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 
 export interface RuneBalance {
@@ -176,4 +176,26 @@ export const useRunesAssetsQuery = (address: Ref<string>, options: { enabled: Re
     refetchInterval: Balance_QUERY_INTERVAL,
     ...options,
   })
+}
+
+export async function fetchRuneUtxoDetail(txid: string, index: number) {
+  const runeDetailList = await ordersApi<(Omit<RuneBalance, 'runeId'> & { runeid: string })[]>(
+    '/runes/utxo-balance'
+  ).get({
+    txid,
+    index,
+  })
+
+  console.log('runeDetailList', runeDetailList)
+
+  return runeDetailList.map((runeDetail) => ({
+    chain: 'btc',
+    isNative: false,
+    queryable: true,
+    symbol: runeDetail.symbol,
+    amount: runeDetail.amount,
+    runeId: runeDetail.runeid,
+    tokenName: runeDetail.spacedRune,
+    decimal: runeDetail.divisibility,
+  }))
 }

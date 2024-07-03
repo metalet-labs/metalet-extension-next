@@ -1,23 +1,24 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { addSafeUtxo } from '@/lib/utxo'
 import { allAssets } from '@/data/assets'
 import { ref, computed, watch } from 'vue'
 import { Transaction } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
+import { broadcastTx } from '@/queries/transaction'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { useQueryClient } from '@tanstack/vue-query'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import { broadcastTx } from '@/queries/transaction'
 import { type SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import { CoinCategory } from '@/queries/exchange-rates'
 import type { TransactionResult } from '@/global-types'
-import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import TransactionResultModal from './components/TransactionResultModal.vue'
+import { Chain, ScriptType, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
@@ -124,7 +125,7 @@ const popConfirm = async () => {
     }
     try {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-      const utxos = await getBtcUtxos(address.value, needRawTx)
+      const utxos = await getBtcUtxos(address.value, needRawTx, true)
       const { fee, psbt } = currentBTCWallet.value!.send(
         recipient.value,
         amount.value.toString(),
@@ -182,6 +183,7 @@ const operationLock = ref(false)
 async function sendBTC(chain: Chain) {
   operationLock.value = true
   if (txHex.value) {
+    const address = currentBTCWallet.value!.getAddress()
     const txId = await broadcastTx(txHex.value, chain).catch((err: Error) => {
       isOpenConfirmModal.value = false
       transactionResult.value = {
@@ -192,6 +194,13 @@ async function sendBTC(chain: Chain) {
       operationLock.value = false
       throw err
     })
+    const tx = Transaction.fromHex(txHex.value)
+    if (
+      tx.outs.length > 1 &&
+      getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address
+    ) {
+      await addSafeUtxo(address, `${txId}:${tx.outs.length - 1}`)
+    }
     return { txId }
   } else {
     isOpenConfirmModal.value = false

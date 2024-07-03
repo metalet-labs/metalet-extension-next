@@ -27,7 +27,7 @@ watch(
   (newAddress) => {
     if (newAddress) {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-      getBtcUtxos(newAddress, needRawTx).then((_utxos) => {
+      getBtcUtxos(newAddress, needRawTx, true).then((_utxos) => {
         utxos.value = _utxos
         isLoading.value = false
       })
@@ -119,12 +119,3 @@ const merge = async () => {
   @apply text-sm text-gray-700;
 }
 </style>
-
-{"ab61352c3fea9f802dd0465e0bdc28d4":{"id":"ab61352c3fea9f802dd0465e0bdc28d4","name":"Wallet 01","mnemonic":"attend
-cattle blanket flower before nose scare sweet someone spider kiss
-boil","mvcTypes":[10001,236],"accounts":[{"id":"961f962c63a1942e8900e892090a27ae","name":"Account
-01","addressIndex":0},{"id":"6d3573ec75b1ca1228ddaccba8d975a7","name":"Account
-02","addressIndex":1},{"id":"7fc414c0c39befd62cce714fca57f326","name":"Account
-03","addressIndex":2}]},"40bbaca19806d54f4aed0643b612ef34":{"id":"40bbaca19806d54f4aed0643b612ef34","name":"Wallet
-02","mnemonic":"tumble deposit bird brush sponsor limit play destroy truly hat lazy
-icon","mvcTypes":[10001],"accounts":[{"id":"455c1bc18ba14e23593c51d7d75ae103","name":"Account 01","addressIndex":0}]}}

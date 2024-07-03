@@ -17,11 +17,11 @@ const setSafeUnspentOutputsObj = async (safeUnspentOutputsObj: { [address: strin
 
 export const getSafeUtxos = async (address: string, utxos: UTXO[]) => {
   const safeUnspentOutputsObj = await getSafeUnspentOutputsObj()
-  const btcUnspentOutputs = utxos.map((utxo) => `${utxo.txId}:${utxo.outputIndex}`)
+  // const btcUnspentOutputs = utxos.map((utxo) => `${utxo.txId}:${utxo.outputIndex}`)
   let safeUnspentOutputs = safeUnspentOutputsObj[address] || []
-  safeUnspentOutputs = safeUnspentOutputs.filter((unspentOutputs) => btcUnspentOutputs.includes(unspentOutputs))
-  safeUnspentOutputsObj[address] = safeUnspentOutputs
-  await setSafeUnspentOutputsObj(safeUnspentOutputsObj)
+  // safeUnspentOutputs = safeUnspentOutputs.filter((unspentOutputs) => btcUnspentOutputs.includes(unspentOutputs))
+  // safeUnspentOutputsObj[address] = safeUnspentOutputs
+  // await setSafeUnspentOutputsObj(safeUnspentOutputsObj)
   return utxos.filter((utxo) => utxo.confirmed || safeUnspentOutputs.includes(`${utxo.txId}:${utxo.outputIndex}`))
 }
 

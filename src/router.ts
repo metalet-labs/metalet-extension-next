@@ -489,6 +489,15 @@ const routes = [
         },
       },
       {
+        path: '/settings/toolkit/btc-safe-mark',
+        component: () => import('./pages/settings/components/BTCSafeMark.vue'),
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'BTC Safe Mark',
+          noFooter: true,
+        },
+      },
+      {
         path: '/settings/toolkit/space-merge',
         component: () => import('./pages/settings/components/SpaceMerge.vue'),
         meta: {

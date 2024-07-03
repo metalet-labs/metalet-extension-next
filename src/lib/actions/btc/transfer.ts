@@ -1,8 +1,9 @@
 import Decimal from 'decimal.js'
+import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getCurrentWallet } from '@/lib/wallet'
-import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { broadcastBTCTx, getBTCTRate } from '@/queries/transaction'
+import { Chain, ScriptType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 interface TransferParameters {
   toAddress: string
@@ -12,7 +13,7 @@ interface TransferParameters {
 
 export async function process(params: TransferParameters): Promise<{ txId: string } | { txHex: string }> {
   const wallet = await getCurrentWallet(Chain.BTC)
-  console.log(wallet.getAddress())
+  const address = wallet.getAddress()
 
   let feeRate = params.options?.feeRate
 
@@ -23,10 +24,8 @@ export async function process(params: TransferParameters): Promise<{ txId: strin
   }
 
   feeRate = Number(feeRate)
-  console.log({ feeRate })
 
-  const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH)
-  console.log({ utxos })
+  const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH, true)
 
   const { psbt, rawTx } = wallet.send(
     params.toAddress,
@@ -34,9 +33,15 @@ export async function process(params: TransferParameters): Promise<{ txId: strin
     feeRate,
     utxos
   )
+
   if (params.options?.noBroadcast) {
     return { txHex: psbt.extractTransaction().toHex() }
   }
+
   const txId = await broadcastBTCTx(rawTx)
+  const tx = Transaction.fromHex(rawTx)
+  if (tx.outs.length > 1 && getAddressFromScript(tx.outs[tx.outs.length - 1].script, wallet.getNetwork()) === address) {
+    await addSafeUtxo(address, `${txId}:${tx.outs.length - 1}`)
+  }
   return { txId }
 }

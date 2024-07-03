@@ -2,6 +2,7 @@
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
 import { network } from '@/lib/network'
+import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
 import { transferToNumber } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
@@ -12,10 +13,10 @@ import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import type { TransactionResult } from '@/global-types'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import { useMRC20DetailQuery, getMRC20Utxos } from '@/queries/mrc20'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
+import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
 const size = ref(10)
@@ -109,7 +110,7 @@ const popConfirm = async () => {
   }
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, needRawTx)
     const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_TRANSFER, {
       utxos,
@@ -172,6 +173,14 @@ async function sendBTC() {
       throw err
     })
     console.log('commitTxId:', commitTxId, 'revealTxId:', revealTxId)
+
+    const tx = Transaction.fromHex(commitTxHex.value)
+    if (
+      tx.outs.length > 1 &&
+      getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address.value
+    ) {
+      await addSafeUtxo(address.value, `${commitTxId}:${tx.outs.length - 1}`)
+    }
 
     return { commitTxId, revealTxId }
   } else {

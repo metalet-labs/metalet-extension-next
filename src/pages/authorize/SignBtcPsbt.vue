@@ -1,11 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import { getNetwork } from '@/lib/network'
+import Copy from '@/components/Copy.vue'
+import { getBtcNetwork, getNetwork } from '@/lib/network'
+import actions from '@/data/authorize-actions'
+import { fetchRuneUtxoDetail } from '@/queries/runes'
+import { getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { Psbt, networks, address as btcAddress, Transaction } from 'bitcoinjs-lib'
+import { prettifyTxId, prettifyBalance, prettifyBalanceFixed } from '@/lib/formatters'
 import { CheckBadgeIcon, ChevronDoubleRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/solid'
 
-import actions from '@/data/authorize-actions'
-import { prettifyTxId, prettifyBalance } from '@/lib/formatters'
 const action = actions.SignBTCPsbt
 
 const props = defineProps<{
@@ -18,12 +21,32 @@ const props = defineProps<{
 const isShowingDetails = ref(false)
 
 const psbtHex = props.params.psbtHex
-const inputs = ref<{ address: string; value: number }[]>([])
-const outputs = ref<{ address: string; value: number }[]>([])
+const inputs = ref<
+  {
+    address: string
+    value: number
+    runes: {
+      chain: string
+      isNative: boolean
+      queryable: boolean
+      symbol: string
+      amount: string
+      runeId: string
+      tokenName: string
+      decimal: number
+    }[]
+  }[]
+>([])
+const outputs = ref<{ address: string; value: number; script: string }[]>([])
 getNetwork().then(async (networkType) => {
   const psbtNetwork = networkType === 'mainnet' ? networks.bitcoin : networks.testnet
   const psbt = Psbt.fromHex(psbtHex, { network: psbtNetwork })
-  psbt.data.inputs.forEach((inputData, index) => {
+  for (let index = 0; index < psbt.data.inputs.length; index++) {
+    const inputData = psbt.data.inputs[index]
+    const runes = await fetchRuneUtxoDetail(
+      Buffer.from(psbt.txInputs[index].hash).reverse().toString('hex'),
+      psbt.txInputs[index].index
+    )
     let address = ''
     let value = 0
     if (inputData?.witnessUtxo?.script) {
@@ -36,18 +59,21 @@ getNetwork().then(async (networkType) => {
       address = btcAddress.fromOutputScript(output.script, psbtNetwork)
       value = output.value
     }
-    inputs.value.push({ address, value })
-  })
+    inputs.value.push({ address, value, runes })
+  }
+
+  const btcNetwork = getBtcNetwork()
 
   outputs.value = psbt.txOutputs.map((out) => ({
     value: out.value,
     address: out.address || '',
+    script: getAddressFromScript(out.script, btcNetwork) !== out.address ? out.script.toString('hex') : '',
   }))
 })
 </script>
 
 <template>
-  <div class="bg-white absolute inset-0 p-4 flex flex-col" v-if="isShowingDetails">
+  <div class="bg-white absolute inset-0 p-4 flex flex-col gap-y-4" v-if="isShowingDetails">
     <!-- detail header -->
     <div class="grid grid-cols-6 items-center">
       <div class="col-span-1">
@@ -60,9 +86,8 @@ getNetwork().then(async (networkType) => {
     </div>
 
     <!-- detail body -->
-    <div class="py-4 grow">
-      <div class="label mt-4">PSBT Structure</div>
-      <div class="grid grid-cols-11 items-center mt-1">
+    <div class="grow overflow-y-auto -mx-4 px-4 pr-2 nicer-scrollbar">
+      <div class="grid grid-cols-11 items-center mt-1 overflow-y-auto">
         <div class="col-span-5 bg-sky-50 border-2 border-sky-300 border-dashed py-2 px-1 rounded-lg">
           <div class="text-center text-sm text-sky-900">Inputs</div>
           <div class="mt-2 space-y-2 text-xs">
@@ -75,6 +100,19 @@ getNetwork().then(async (networkType) => {
               <div class="text-xs text-gray-500 break">
                 {{ prettifyBalance(input.value, 'BTC') }}
               </div>
+              <template v-if="input.runes.length">
+                <div class="mt-2">Rune Detail</div>
+                <div v-for="rune in input.runes" class="space-y-2">
+                  <div>Symbol</div>
+                  <div class="text-xs text-gray-500 break-all">
+                    {{ rune.tokenName }}
+                  </div>
+                  <div class="mt-2">Amount</div>
+                  <div class="text-xs text-gray-500 break">
+                    {{ prettifyBalanceFixed(Number(rune.amount), rune.symbol, rune.decimal) }}
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -87,14 +125,24 @@ getNetwork().then(async (networkType) => {
           <div class="text-center text-sm text-teal-900">Outputs</div>
           <div class="mt-2 space-y-2 text-xs">
             <div class="border-2 border-teal-300 bg-teal-100 rounded p-1 space-y-2" v-for="output in outputs">
-              <div>Address</div>
-              <div class="text-xs text-gray-500 break-all">
-                {{ prettifyTxId(output.address, 4) }}
-              </div>
-              <div class="mt-2">Amount</div>
-              <div class="text-xs text-gray-500 break">
-                {{ prettifyBalance(output.value, 'BTC') }}
-              </div>
+              <template v-if="output.address">
+                <div>Address</div>
+                <div class="text-xs text-gray-500 break-all">
+                  {{ prettifyTxId(output.address, 4) }}
+                </div>
+              </template>
+              <template v-if="output.value">
+                <div class="mt-2">Amount</div>
+                <div class="text-xs text-gray-500 break-all">
+                  {{ prettifyBalance(output.value, 'BTC') }}
+                </div>
+              </template>
+              <template v-if="output.script">
+                <div class="mt-2">Script</div>
+                <div class="text-xs text-gray-500 break-all">
+                  {{ output.script }}
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -111,6 +159,11 @@ getNetwork().then(async (networkType) => {
         <div class="text-sm text-gray-700">{{ access }}</div>
       </li>
     </ul>
+
+    <div class="w-full flex items-center justify-between mt-2">
+      <span>PSBT</span>
+      <Copy :text="psbtHex" title="PSBT Hex copied" :showContent="false" />
+    </div>
 
     <!-- a button to view detail -->
     <div class="mt-2 flex items-center justify-center">

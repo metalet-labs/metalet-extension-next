@@ -128,7 +128,7 @@ const popConfirm = async () => {
   }
   try {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-    const utxos = await getBtcUtxos(address.value, needRawTx)
+    const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const {
       fee,
       psbt,
@@ -166,6 +166,7 @@ function toConfirm() {
   nextStep.value = 2
 }
 
+// TODO: add safe utxo
 async function send() {
   if (operationLock.value) return
   operationLock.value = true
