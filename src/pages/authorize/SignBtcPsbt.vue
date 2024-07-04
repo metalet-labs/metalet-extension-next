@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { Psbt } from 'bitcoinjs-lib'
 import Copy from '@/components/Copy.vue'
-import { getBtcNetwork, getNetwork } from '@/lib/network'
+import { getBtcNetwork } from '@/lib/network'
 import actions from '@/data/authorize-actions'
-import { fetchRuneUtxoDetail } from '@/queries/runes'
-import { getAddressFromScript } from '@metalet/utxo-wallet-service'
-import { Psbt, networks, address as btcAddress, Transaction } from 'bitcoinjs-lib'
+import { fetchRuneUtxoDetail, decipherRuneScript } from '@/queries/runes'
+import { getAddressFromScript, Transaction } from '@metalet/utxo-wallet-service'
 import { prettifyTxId, prettifyBalance, prettifyBalanceFixed } from '@/lib/formatters'
 import { CheckBadgeIcon, ChevronDoubleRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/solid'
 
@@ -38,9 +38,10 @@ const inputs = ref<
   }[]
 >([])
 const outputs = ref<{ address: string; value: number; script: string }[]>([])
-getNetwork().then(async (networkType) => {
-  const psbtNetwork = networkType === 'mainnet' ? networks.bitcoin : networks.testnet
-  const psbt = Psbt.fromHex(psbtHex, { network: psbtNetwork })
+
+onMounted(async () => {
+  const btcNetwork = getBtcNetwork()
+  const psbt = Psbt.fromHex(psbtHex, { network: btcNetwork })
   for (let index = 0; index < psbt.data.inputs.length; index++) {
     const inputData = psbt.data.inputs[index]
     const runes = await fetchRuneUtxoDetail(
@@ -50,33 +51,44 @@ getNetwork().then(async (networkType) => {
     let address = ''
     let value = 0
     if (inputData?.witnessUtxo?.script) {
-      address = btcAddress.fromOutputScript(inputData.witnessUtxo.script, psbtNetwork)
+      // TODO: getAddressFromScript exception handling
+      address = getAddressFromScript(inputData.witnessUtxo.script, btcNetwork)
       value = inputData.witnessUtxo?.value || 0
     }
     if (inputData?.nonWitnessUtxo) {
       const tx = Transaction.fromBuffer(inputData.nonWitnessUtxo)
       const output = tx.outs[psbt.txInputs[index].index]
-      address = btcAddress.fromOutputScript(output.script, psbtNetwork)
+      address = getAddressFromScript(output.script, btcNetwork)
       value = output.value
     }
     inputs.value.push({ address, value, runes })
   }
 
-  const btcNetwork = getBtcNetwork()
-
-  outputs.value = psbt.txOutputs.map((out) => {
-    let flag = true
+  for (let index = 0; index < psbt.txOutputs.length; index++) {
+    const out = psbt.txOutputs[index]
+    let script = out.script.toString('hex')
     try {
-      flag = getAddressFromScript(out.script, btcNetwork) !== out.address
+      if (getAddressFromScript(out.script, btcNetwork) === out.address) {
+        script = ''
+      }
     } catch (error) {
-      flag = true
+      console.log('No address script:', error)
     }
-    return {
+
+    if (script) {
+      try {
+        script = await decipherRuneScript(out.script.toString('hex'))
+      } catch (error) {
+        console.log('No rune script:', error)
+      }
+    }
+
+    outputs.value.push({
+      script,
       value: out.value,
       address: out.address || '',
-      script: flag ? out.script.toString('hex') : '',
-    }
-  })
+    })
+  }
 })
 </script>
 
@@ -110,13 +122,13 @@ getNetwork().then(async (networkType) => {
               </div>
               <template v-if="input.runes.length">
                 <div class="mt-2">Rune Details</div>
-                <div v-for="rune in input.runes" class="space-y-2 divide-y divide-gray-200">
+                <div v-for="rune in input.runes" class="space-y-2 border border-dashed border-white p-2">
                   <div>Symbol</div>
                   <div class="text-xs text-gray-500 break-all">
                     {{ rune.tokenName }}
                   </div>
-                  <div class="mt-2">Amount</div>
-                  <div class="text-xs text-gray-500 break">
+                  <div>Amount</div>
+                  <div class="text-xs text-gray-500 break-all">
                     {{ prettifyBalanceFixed(Number(rune.amount), rune.symbol, rune.decimal) }}
                   </div>
                 </div>

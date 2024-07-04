@@ -4,6 +4,7 @@ import { toTx } from '@/lib/helpers'
 import { PopCard } from '@/components'
 import { LoadingText } from '@/components'
 import { getBrowserHost } from '@/lib/host'
+import { UseImage } from '@vueuse/components'
 import { useRoute, useRouter } from 'vue-router'
 import { useMetaPinQuery } from '@/queries/metaPin'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
@@ -91,6 +92,27 @@ const getHostAndToTx = async (txId: string) => {
       </button>
     </div>
     <div class="space-y-4 border-t border-gray-secondary pt-4">
+      <div class="row">
+        <div class="label">Creator</div>
+        <div class="flex items-center gap-1">
+          <UseImage :src="metaPin.avatar" class="h-10 w-10 rounded-md">
+            <template #loading>
+              <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+                {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+              </div>
+            </template>
+            <template #error>
+              <div class="text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+                {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+              </div>
+            </template>
+          </UseImage>
+          <div class="flex flex-col gap-1">
+            <span class="text-sm">{{ metaPin.creator || 'User' }}</span>
+            <span class="text-xs">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
+          </div>
+        </div>
+      </div>
       <div class="row">
         <div class="label">Level</div>
         <PopCard :level="metaPin.popLv" />

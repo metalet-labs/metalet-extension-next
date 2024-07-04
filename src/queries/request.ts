@@ -202,8 +202,8 @@ export const unisatApi = <T>(path: string) => {
 export const ordersApi = <T>(path: string) => {
   const ordersHost = network.value === 'mainnet' ? API2_ORDERS_EXCHANGE : API2_ORDERS_EXCHANGE_TESTNET
   return {
-    get: (params?: OptionParams) => metaletV3Request<T>(`${ordersHost}${path}`, { method: 'GET', params }),
-    post: (data?: OptionData) => metaletV3Request<T>(`${ordersHost}${path}`, { method: 'POST', data }),
+    get: (params?: OptionParams) => request<T>(`${ordersHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) => request<T>(`${ordersHost}${path}`, { method: 'POST', data }),
   }
 }
 

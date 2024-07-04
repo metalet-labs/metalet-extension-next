@@ -179,14 +179,12 @@ export const useRunesAssetsQuery = (address: Ref<string>, options: { enabled: Re
 }
 
 export async function fetchRuneUtxoDetail(txid: string, index: number) {
-  const runeDetailList = await ordersApi<(Omit<RuneBalance, 'runeId'> & { runeid: string })[]>(
+  const { data: runeDetailList } = await ordersApi<{ data: (Omit<RuneBalance, 'runeId'> & { runeid: string })[] }>(
     '/runes/utxo-balance'
   ).get({
     txid,
     index,
   })
-
-  console.log('runeDetailList', runeDetailList)
 
   return runeDetailList.map((runeDetail) => ({
     chain: 'btc',
@@ -198,4 +196,11 @@ export async function fetchRuneUtxoDetail(txid: string, index: number) {
     tokenName: runeDetail.spacedRune,
     decimal: runeDetail.divisibility,
   }))
+}
+
+export async function decipherRuneScript(script: string) {
+  const { spec } = await ordersApi<{ spec: object }>('/runes/decipher').post({
+    script,
+  })
+  return JSON.stringify(spec)
 }

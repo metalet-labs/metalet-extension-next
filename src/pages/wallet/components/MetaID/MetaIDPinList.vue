@@ -34,7 +34,7 @@ const toMetaPinDetail = (metaPinId: string) => {
   <div class="space-y-4">
     <LoadingText v-if="isLoading" text="MetaID Pins loading..." />
     <div v-else-if="metaPins?.length">
-      <div class="px-3 py-4 grid grid-cols-3 gap-x-3 gap-y-7">
+      <div class="px-3 py-4 grid grid-cols-3 gap-x-3 gap-y-7 items-start">
         <div
           v-for="metaPin in metaPins"
           @click="toMetaPinDetail(metaPin.id)"
@@ -50,7 +50,12 @@ const toMetaPinDetail = (metaPinId: string) => {
             :contentTypeDetect="metaPin.contentTypeDetect"
           />
 
-          <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number"># {{ metaPin.number }}</span>
+          <span class="text-xs text-center mt-3 truncate" title="Unconfirmed" v-if="metaPin.number === -1">
+            Unconfirmed
+          </span>
+          <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number" v-else>
+            # {{ metaPin.number }}
+          </span>
           <span class="text-xs text-center mt-1 truncate w-16" :title="metaPin.path">{{ metaPin.path }}</span>
           <span class="text-xs text-center mt-1 break-all">{{ metaPin.pop }}</span>
         </div>

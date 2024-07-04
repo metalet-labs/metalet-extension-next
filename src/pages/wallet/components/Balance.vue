@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { IS_DEV } from '@/data/config'
 import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
@@ -46,7 +47,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
       </div>
     </div>
 
-    <div class="text-black-secondary flex justify-between mt-6 text-ss" v-if="false">
+    <div class="text-black-secondary flex justify-between mt-6 text-ss" v-if="IS_DEV">
       <div
         @click="toSelectAsset('send')"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
@@ -87,7 +88,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-2 mt-6 text-ss">
+    <div class="grid grid-cols-2 gap-2 mt-6 text-ss" v-else>
       <button class="button" @click="toSelectAsset('send')">
         <ArrowUpRightIcon class="mr-1 h-4 w-4" />
         <span>Send</span>

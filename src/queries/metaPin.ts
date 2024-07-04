@@ -33,6 +33,9 @@ export interface MetaIDPin {
   contentTypeDetect: string
   status: number
   rawTx?: string
+  metaid: string
+  creator: string
+  avatar: string
 }
 
 export async function fetchMetaPins(
