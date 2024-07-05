@@ -29,6 +29,12 @@ const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
   enabled: computed(() => !!address.value && !!mrc20Id.value),
 })
 
+const balance = computed(() => {
+  if (asset.value?.balance) {
+    return asset.value.balance.total.toNumber()
+  }
+})
+
 const tags = getTags(CoinCategory.MRC20)
 
 const assetUSD = computed(() => {
@@ -55,7 +61,14 @@ const toMint = () => {
 }
 
 const toSend = () => {
-  router.push(`/wallet/sendMRC20/${asset.value!.tokenName}/${mrc20Id.value}/${address.value}`)
+  router.push({
+    name: 'SendMRC20',
+    params: {
+      mrc20Id: mrc20Id.value,
+      address: address.value,
+      name: asset.value!.tokenName,
+    },
+  })
 }
 </script>
 
@@ -90,7 +103,11 @@ const toSend = () => {
         <PencilIcon class="w-3" />
         <span>Mint</span>
       </button>
-      <button @click="toSend" class="btn-blue-light">
+      <button
+        @click="toSend"
+        :disabled="!balance"
+        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !balance }]"
+      >
         <ArrowUpIcon class="w-3" />
         <span>Send</span>
       </button>
@@ -122,11 +139,10 @@ const toSend = () => {
       </div>
       <Activities
         v-if="asset"
-        class="mt-8 self-stretch"
         :asset="asset"
-        :exchangeRate="0"
+        :exchangeRate="0" 
         :address="address"
-        :coinCategory="CoinCategory.Rune"
+        :coinCategory="CoinCategory.MRC20"
       />
       <LoadingText text="Activities Loading..." v-else />
     </div>

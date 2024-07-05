@@ -51,11 +51,25 @@ watch(assetUSD, (_assetUSD) => {
 })
 
 const toMint = () => {
-  router.push(`/wallet/mintRune/${asset.value!.tokenName}/${runeId.value}/${address.value}`)
+  router.push({
+    name: 'MintRune',
+    params: {
+      symbol: asset.value!.tokenName,
+      runeId: runeId.value,
+      address: address.value,
+    },
+  })
 }
 
 const toSend = () => {
-  router.push(`/wallet/sendRune/${asset.value!.tokenName}/${runeId.value}/${address.value}`)
+  router.push({
+    name: 'SendRune',
+    params: {
+      symbol: asset.value!.tokenName,
+      runeId: runeId.value,
+      address: address.value,
+    },
+  })
 }
 </script>
 

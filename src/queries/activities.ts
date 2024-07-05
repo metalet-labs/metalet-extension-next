@@ -3,15 +3,17 @@ import { ComputedRef, Ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
 import { mvcApi, metaletApiV3 } from './request'
 import { SymbolTicker } from '@/lib/asset-symbol'
-import type { FTAsset, Asset } from '@/data/assets'
+import type { FTAsset, Asset, MRC20Asset } from '@/data/assets'
 import { Activities_QUERY_INTERVAL } from './constants'
+import { getNet } from '@/lib/network'
+import { PageResult } from './types'
 
 export type Operation = {
   flag: string
   time: number
   amount: number
   txId: string
-  comfirmed: boolean
+  confirmed: boolean
 }
 
 export type Activity = {
@@ -106,6 +108,43 @@ export const fetchBRC20Activities = async (address: string, symbol: SymbolTicker
     })
 }
 
+interface MRC20Activity {
+  txId: string
+  tickId: string
+  tokenName: string
+  decimals: string
+  from: string
+  to: string
+  amount: string
+  txType: number
+  timestamp: number
+}
+
+export const fetchMRC20Activities = async (address: string, tickId: string): Promise<Activities> => {
+  const net = getNet()
+  return metaletApiV3<PageResult<MRC20Activity>>(`/mrc20/address/activities`)
+    .get({
+      net,
+      tickId,
+      address,
+    })
+    .then((data) => data.list)
+    .then((activities) => {
+      return activities.map((activity) => {
+        return {
+          flag: '',
+          height: Number(0),
+          txid: activity.txId,
+          address: activity.from,
+          actionType: activity.txType.toString(),
+          time: Number(activity.timestamp * 1000),
+          income: activity.from === address ? Number(activity.amount) : 0,
+          outcome: activity.to === address ? Number(activity.amount) : 0,
+        }
+      })
+    })
+}
+
 export const fetchSpaceActivities = async (address: string): Promise<Activities> => {
   const unconfirmed: any = mvcApi(`/address/${address}/tx?confirmed=false`).get()
   const confirmed: any = mvcApi(`/address/${address}/tx?confirmed=true`).get()
@@ -161,6 +200,8 @@ export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?:
         return fetchBRC20Activities(address.value, asset.symbol)
       } else if (asset.contract === 'MetaContract') {
         return fetchTokenActivities(address.value, asset as FTAsset)
+      } else if (asset.contract === 'MRC20') {
+        return fetchMRC20Activities(address.value, (asset as MRC20Asset).mrc20Id)
       } else {
         return []
       }

@@ -1,11 +1,11 @@
 import Decimal from 'decimal.js'
 import { type UTXO } from './utxos'
 import { PageResult } from './types'
-import { getNet, network } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { metaletApiV3 } from './request'
 import { fetchBtcTxHex } from './transaction'
 import { COMMON_INTERVAL } from './constants'
+import { getNet, network } from '@/lib/network'
 import { type MRC20Asset } from '@/data/assets'
 import { CoinCategory } from './exchange-rates'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -169,7 +169,7 @@ export async function fetchMRC20Detail(
 
   return {
     symbol: data.tick,
-    tokenName: data.tokenName,
+    tokenName: data.tick,
     isNative: false,
     chain: 'btc',
     queryable: true,
@@ -180,6 +180,7 @@ export async function fetchMRC20Detail(
       confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
+    contract: CoinCategory.MRC20,
   } as MRC20Asset
 }
 

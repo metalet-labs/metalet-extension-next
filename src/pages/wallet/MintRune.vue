@@ -15,7 +15,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
-import { Chain, ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
+import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,7 +32,7 @@ const address = ref(route.params.address as string)
 const { currentBTCWallet } = useChainWalletsStore()
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
+const logo = computed(() => getIcon(CoinCategory.Rune, runeId.value) || '')
 
 const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(address, runeId, {
   enabled: computed(() => !!address.value && !!runeId.value),

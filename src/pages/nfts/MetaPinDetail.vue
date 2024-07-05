@@ -108,7 +108,7 @@ const getHostAndToTx = async (txId: string) => {
             </template>
           </UseImage>
           <div class="flex flex-col gap-1">
-            <span class="text-sm">{{ metaPin.creator || 'User' }}</span>
+            <span class="text-sm">{{ metaPin.creator ? shortestAddress(metaPin.creator, 6) : 'User' }}</span>
             <span class="text-xs">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
           </div>
         </div>

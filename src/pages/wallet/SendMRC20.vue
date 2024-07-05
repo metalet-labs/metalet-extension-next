@@ -46,7 +46,7 @@ const amount = ref<number>()
 
 const balance = computed(() => {
   if (asset.value?.balance) {
-    return new Decimal(asset.value.balance.total).toNumber()
+    return asset.value.balance.total.toNumber()
   }
 })
 
@@ -251,7 +251,9 @@ async function send() {
         <span>Amount</span>
         <span class="text-gray-primary text-xs">
           <span>Balance:</span>
-          <span v-if="balance">{{ prettifyBalanceFixed(balance, asset.symbol, asset.decimal, asset.decimal) }}</span>
+          <span v-if="balance !== undefined">
+            {{ prettifyBalanceFixed(balance, asset.symbol, asset.decimal, asset.decimal) }}
+          </span>
           <span v-else>--</span>
         </span>
       </FlexBox>

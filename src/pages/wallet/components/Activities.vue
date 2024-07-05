@@ -8,10 +8,10 @@ import NoActivitiesPNG from '@/assets/icons-v3/no_activities.png'
 import { CoinCategory } from '@/queries/exchange-rates'
 
 const props = defineProps<{
-  address: string
   asset: Asset
-  coinCategory: CoinCategory
+  address: string
   exchangeRate?: number
+  coinCategory: CoinCategory
 }>()
 
 const address = computed(() => props.address)
