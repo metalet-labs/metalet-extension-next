@@ -164,5 +164,18 @@ watch(
         <span class="text-[#909399]">Available(pending)</span>
       </div>
     </div>
+    <div
+      v-else-if="asset?.contract === 'MRC20' && asset.balance?.unconfirmed.toNumber()"
+      class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
+    >
+      <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
+        <span class="text-black-primary truncate">{{ asset.balance?.confirmed.toNumber() }}</span>
+        <span class="text-[#909399]">Confirmed</span>
+      </div>
+      <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
+        <span class="text-black-primary truncate">{{ asset.balance?.unconfirmed.toNumber() }}</span>
+        <span class="text-[#909399]">Unconfirmed</span>
+      </div>
+    </div>
   </div>
 </template>

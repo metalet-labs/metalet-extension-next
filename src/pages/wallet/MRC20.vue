@@ -79,7 +79,12 @@ const toSend = () => {
 
       <div class="mt-3 text-2xl text-balance max-w-full text-center">
         <span v-if="asset?.balance" class="break-all">
-          {{ calcBalance(asset.balance.total.toNumber(), asset.decimal, asset.symbol) }}
+          <span>
+            {{ calcBalance(asset.balance.confirmed.toNumber(), asset.decimal, asset.symbol) }}
+          </span>
+          <span v-if="asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary">
+            +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}
+          </span>
         </span>
         <span v-else>-- {{ symbol }}</span>
         <span class="text-gray-primary ml-2" v-if="assetUSD !== undefined">
@@ -137,13 +142,7 @@ const toSend = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Activities
-        v-if="asset"
-        :asset="asset"
-        :exchangeRate="0" 
-        :address="address"
-        :coinCategory="CoinCategory.MRC20"
-      />
+      <Activities v-if="asset" :asset="asset" :exchangeRate="0" :address="address" :coinCategory="CoinCategory.MRC20" />
       <LoadingText text="Activities Loading..." v-else />
     </div>
   </div>

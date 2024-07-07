@@ -81,6 +81,8 @@ interface MRC20Info {
   decimals: string
   metaData: string
   tokenName: string
+  unsafeAmount: string
+  unsafeBalance: string
 }
 
 export async function getMRC20Utxos(address: string, tickId: string, needRawTx = false) {
@@ -124,9 +126,9 @@ export async function fetchMRC20List(
     queryable: true,
     decimal: Number(data.decimals),
     balance: {
-      unconfirmed: new Decimal(0),
-      total: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
       confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
+      unconfirmed: new Decimal(data.unsafeBalance).mul(10 ** Number(data.decimals)),
+      total: new Decimal(data.balance).add(data.unsafeBalance).mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
     contract: CoinCategory.MRC20,
@@ -175,9 +177,9 @@ export async function fetchMRC20Detail(
     queryable: true,
     decimal: Number(data.decimals),
     balance: {
-      unconfirmed: new Decimal(0),
-      total: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
       confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
+      unconfirmed: new Decimal(data.unsafeBalance).mul(10 ** Number(data.decimals)),
+      total: new Decimal(data.balance).add(data.unsafeBalance).mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
     contract: CoinCategory.MRC20,
