@@ -169,11 +169,15 @@ watch(
       class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
     >
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
-        <span class="text-black-primary truncate">{{ asset.balance?.confirmed.toNumber() }}</span>
+        <span class="text-black-primary truncate">
+          {{ asset.balance?.confirmed.dividedBy(10 ** asset.decimal).toNumber() }}
+        </span>
         <span class="text-[#909399]">Confirmed</span>
       </div>
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
-        <span class="text-black-primary truncate">{{ asset.balance?.unconfirmed.toNumber() }}</span>
+        <span class="text-black-primary truncate">
+          {{ asset.balance?.unconfirmed.dividedBy(10 ** asset.decimal).toNumber() }}
+        </span>
         <span class="text-[#909399]">Unconfirmed</span>
       </div>
     </div>
