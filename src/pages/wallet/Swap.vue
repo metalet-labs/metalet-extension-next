@@ -8,6 +8,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { broadcastTx } from '@/queries/transaction'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
+import { useRunesPool } from '@/hooks/useRunesPool'
 import { useQueryClient } from '@tanstack/vue-query'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { type SymbolTicker } from '@/lib/asset-symbol'
@@ -36,6 +37,11 @@ const address = ref(route.params.address as string)
 const symbol = ref(route.params.symbol as SymbolTicker)
 const asset = computed(() => allAssets.find((asset) => asset.symbol === symbol.value)!)
 
+const { token1, token2 } = useRunesPool()
+
+console.log("token1",token1,'token');
+
+
 const { getIcon } = useIconsStore()
 const logo = computed(() => getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || '')
 
@@ -48,19 +54,6 @@ const amountInSats = computed(() => {
     return new Decimal(amount.value).mul(10 ** asset.value.decimal)
   }
   return new Decimal(0)
-})
-
-// balance
-const balanceQueryEnabled = computed(() => {
-  return !asset.value.balance && !!address.value && !!symbol.value
-})
-
-const { data: balanceData } = useBalanceQuery(address, symbol, { enabled: balanceQueryEnabled })
-
-const balance = computed(() => {
-  if (balanceData.value) {
-    return new Decimal(balanceData.value.total).div(10 ** asset.value.decimal).toNumber()
-  }
 })
 
 // btn disabled
@@ -167,14 +160,6 @@ const popConfirm = async () => {
   }
 }
 
-watch(amountInSats, (newAmountInSats) => {
-  if (balance.value && newAmountInSats && newAmountInSats.gt(balance.value || 0)) {
-    error.value = new Error('Insufficient balance')
-  } else {
-    error.value = undefined
-  }
-})
-
 const isOpenResultModal = ref(false)
 
 const operationLock = ref(false)
@@ -265,10 +250,6 @@ async function send() {
           <span>Amount</span>
           <span class="text-gray-primary text-xs">
             <span>Max:</span>
-            <span v-if="balance !== undefined">
-              {{ prettifyBalanceFixed(balanceData?.confirmed.toNumber() || 0, symbol, asset.decimal) }}
-            </span>
-            <span v-else>--</span>
           </span>
         </div>
         <input
@@ -276,7 +257,6 @@ async function send() {
           type="number"
           step="0.00001"
           v-model="amount"
-          :max="Number(balanceData?.confirmed || 0)"
           class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
         />
       </div>
@@ -284,7 +264,7 @@ async function send() {
         <div class="flex items-center justify-between w-full">
           <span class="text-sm">Total</span>
           <span class="text-xs text-gray-primary">
-            {{ prettifyBalanceFixed(balanceData?.total.toNumber() || 0, symbol, asset.decimal) }}
+            {{ prettifyBalanceFixed(0, symbol, asset.decimal) }}
           </span>
         </div>
         <div class="flex items-center justify-between w-full">
@@ -299,13 +279,13 @@ async function send() {
             </span>
           </span>
           <span class="text-xs text-gray-primary">
-            {{ prettifyBalanceFixed(balanceData?.unconfirmed.toNumber() || 0, symbol, asset.decimal) }}
+            {{ prettifyBalanceFixed(0, symbol, asset.decimal) }}
           </span>
         </div>
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary">Available</span>
           <span class="text-xs text-gray-primary">
-            {{ prettifyBalanceFixed(balanceData?.confirmed.toNumber() || 0, symbol, asset.decimal) }}
+            {{ prettifyBalanceFixed(0, symbol, asset.decimal) }}
           </span>
         </div>
       </div>

@@ -139,7 +139,6 @@ const toSend = () => {
       </div>
       <Activities
         v-if="asset"
-        class="mt-8 self-stretch"
         :asset="asset"
         :exchangeRate="0"
         :address="address"

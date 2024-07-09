@@ -145,7 +145,7 @@ export async function fetchMRC20List(
 
   return {
     list: mrc20Assets,
-    nextCursor: cursor > total ? null : cursor,
+    nextCursor: cursor >= total ? null : cursor,
   }
 }
 
@@ -183,6 +183,13 @@ export async function fetchMRC20Detail(
     },
     mrc20Id: data.mrc20Id,
     contract: CoinCategory.MRC20,
+    icon:
+      data?.metaData && JSON.parse(data.metaData).icon
+        ? JSON.parse(data.metaData).icon.replace(
+            'metafile://',
+            `https://man${network.value === 'testnet' && '-test'}.metaid.io/content/`
+          )
+        : undefined,
   } as MRC20Asset
 }
 

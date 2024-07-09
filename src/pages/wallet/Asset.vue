@@ -241,7 +241,6 @@ const toReceive = () => {
         :address="address"
         :coinCategory="CoinCategory.Native"
         :exchangeRate="Number(exchangeRate)"
-        class="grow nicer-scrollbar overflow-y-auto w-full pr-1 -mr-1"
       />
     </div>
 

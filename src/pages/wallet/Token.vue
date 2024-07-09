@@ -77,7 +77,7 @@ const copyGenesis = () => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center space-y-6 w-full">
+  <div class="flex flex-col items-center space-y-6 w-full h-full" v-if="asset">
     <div class="flex flex-col items-center">
       <AssetLogo :logo="icon" :chain="Chain.MVC" :symbol="symbol" type="network" class="w-15" />
 
@@ -121,33 +121,15 @@ const copyGenesis = () => {
       </div>
     </div>
 
-    <div class="w-full">
-      <div class="-mx-4 h-11 bg-gray-light px-4 py-[13px] text-ss" v-if="false">
-        <DropdownMenu>
-          <DropdownMenuTrigger class="flex items-center justify-between w-full">
-            <div class="flex items-center gap-x-2">
-              <span>Time</span>
-              <SelectorIcon />
-            </div>
-            <FilterIcon />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" class="bg-white">
-            <DropdownMenuItem @select="null">Time</DropdownMenuItem>
-            <DropdownMenuItem @select="null">Other</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      <Activities
-        v-if="asset"
-        :asset="asset"
-        :exchangeRate="Number(exchangeRate)"
-        :address="address"
-        :coinCategory="CoinCategory.MetaContract"
-      />
-      <LoadingText v-else text="Activities Loading..." />
-    </div>
+    <Activities
+      v-if="asset"
+      :asset="asset"
+      :exchangeRate="Number(exchangeRate)"
+      :address="address"
+      :coinCategory="CoinCategory.MetaContract"
+    />
   </div>
+  <LoadingText v-else text="Activities Loading..." />
 </template>
 
 <style scoped lang="css">

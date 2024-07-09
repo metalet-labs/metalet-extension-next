@@ -173,7 +173,6 @@ watch(assetUSD, (_assetUSD) => {
         :address="address"
         :coinCategory="CoinCategory.BRC20"
         :exchangeRate="Number(exchangeRate)"
-        class="flex-1 nicer-scrollbar w-full -mr-3 pr-3 overflow-y-auto"
       />
       <LoadingText text="Activities Loading..." v-else />
     </div>

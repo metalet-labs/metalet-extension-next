@@ -7,7 +7,6 @@ import { updateAsset } from '@/lib/balance'
 import CopyIcon from '@/components/Copy.vue'
 import { useRoute, useRouter } from 'vue-router'
 import AssetLogo from '@/components/AssetLogo.vue'
-import { useIconsStore } from '@/stores/IconsStore'
 import Activities from './components/Activities.vue'
 import { PencilIcon } from '@heroicons/vue/20/solid'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -47,8 +46,7 @@ const assetUSD = computed(() => {
   }
 })
 
-const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.MRC20, mrc20Id.value) || '')
+const logo = computed(() => asset.value?.icon || '')
 
 watch(assetUSD, (_assetUSD) => {
   if (asset.value && _assetUSD) {
@@ -142,7 +140,14 @@ const toSend = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Activities v-if="asset" :asset="asset" :exchangeRate="0" :address="address" :coinCategory="CoinCategory.MRC20" />
+      <Activities
+        v-if="asset"
+        :asset="asset"
+        :exchangeRate="0"
+        :icon="asset.icon"
+        :address="address"
+        :coinCategory="CoinCategory.MRC20"
+      />
       <LoadingText text="Activities Loading..." v-else />
     </div>
   </div>

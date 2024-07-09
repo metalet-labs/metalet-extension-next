@@ -129,6 +129,16 @@ const routes = [
         },
       },
       {
+        path: '/wallet/swap/:pair?',
+        component: () => import('./pages/wallet/Swap.vue'),
+        name: 'Swap',
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Swap',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/sendBRC20/:symbol/:amount/:address/:inscriptionId',
         component: () => import('./pages/wallet/SendBRC20.vue'),
         name: 'sendBRC20',
@@ -620,6 +630,8 @@ router.beforeEach(async (to, _, next) => {
         to.meta.headerTitle = `${to.params.name}`
       } else if (to.name === 'MintRune') {
         to.meta.headerTitle = `${to.params.name}`
+      } else if (to.name === 'Swap') {
+        to.meta.headerTitle = `Swap ${to.params?.pair ? (to.params.pair as string).replace('-', '/') : ''}`
       }
 
       if (to.path === '/wallet') {

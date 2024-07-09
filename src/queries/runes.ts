@@ -57,7 +57,7 @@ export async function fetchRunesList(
 
     return {
       list: runeAssets,
-      nextCursor: cursor > total ? null : cursor,
+      nextCursor: cursor >= total ? null : cursor,
     }
   }
 
@@ -88,7 +88,7 @@ export async function fetchRunesList(
 
   return {
     list: runeAssets,
-    nextCursor: cursor > total ? null : cursor,
+    nextCursor: cursor >= total ? null : cursor,
   }
 }
 

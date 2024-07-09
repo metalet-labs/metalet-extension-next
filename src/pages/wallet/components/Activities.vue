@@ -1,14 +1,15 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { type Asset } from '@/data/assets'
 import { LoadingText } from '@/components'
 import ActivityItem from './ActivityItem.vue'
+import { CoinCategory } from '@/queries/exchange-rates'
 import { useActivitiesQuery } from '@/queries/activities'
 import NoActivitiesPNG from '@/assets/icons-v3/no_activities.png'
-import { CoinCategory } from '@/queries/exchange-rates'
 
 const props = defineProps<{
   asset: Asset
+  icon?: string
   address: string
   exchangeRate?: number
   coinCategory: CoinCategory
@@ -22,8 +23,12 @@ const { isLoading, data: activities } = useActivitiesQuery(address, props.asset,
 
 <template>
   <LoadingText v-if="isLoading" text="Activities Loading..." />
-  <div v-else-if="activities?.length">
+  <div
+    v-else-if="activities?.length"
+    class="grow nicer-scrollbar overflow-y-auto w-full px-2 -mr-2 shadow-inner shadow-gray-primary/10 rounded-lg"
+  >
     <ActivityItem
+      :icon="icon"
       :asset="asset"
       :key="activity.txid"
       :activity="activity"

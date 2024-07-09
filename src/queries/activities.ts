@@ -136,14 +136,14 @@ export const fetchMRC20Activities = async (address: string, tickId: string): Pro
           height: Number(0),
           txid: activity.txId,
           address: activity.from,
-          actionType: activity.txType.toString(),
           time: Number(activity.timestamp * 1000),
+          actionType: activity.txType === 2 ? 'Mint' : '',
           income:
-            activity.to === address
+            activity.to === address ? new Decimal(activity.amount).mul(10 ** Number(activity.decimals)).toNumber() : 0,
+          outcome:
+            activity.from === address
               ? new Decimal(activity.amount).mul(10 ** Number(activity.decimals)).toNumber()
               : 0,
-          outcome:
-            activity.from === address ? new Decimal(activity.amount).mul(10 ** Number(activity.decimals)).toNumber() : 0,
         }
       })
     })

@@ -49,7 +49,7 @@ function toMRC20Detail(asset: MRC20Asset, address: string) {
         !isFetchingNextPage ? 'cursor-pointer hover:text-blue-500 hover:underline' : 'cursor-not-allowed',
       ]"
     >
-      <span>Load more MRC20s</span>
+      <span class="text-ss">Load more MRC20s</span>
       <LoadingIcon v-if="isFetchingNextPage" class="text-gray-primary" />
     </div>
     <div v-else-if="!isLoading && mrc20s.length === 0" class="w-full py-12">

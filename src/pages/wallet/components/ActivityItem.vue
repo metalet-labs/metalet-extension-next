@@ -11,9 +11,11 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
+import Decimal from 'decimal.js'
 
 const props = defineProps<{
   asset: Asset
+  icon?: string
   activity: Activity
   coinCategory: CoinCategory
 }>()
@@ -21,18 +23,19 @@ const props = defineProps<{
 const { getIcon } = useIconsStore()
 const icon = computed(
   () =>
+    props.icon ||
     getIcon(
       props.coinCategory,
       props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
-    ) || ''
+    ) ||
+    ''
 )
 
 const flow = computed(() => {
   const { outcome, income, actionType } = props.activity
   if (actionType === 'inscribeTransfer') {
-    return 'Inscribe-Transfer'
-  }
-  if (outcome > income) {
+    return 'Mint'
+  } else if (outcome > income) {
     return 'Send'
   } else if (income > outcome) {
     return 'Receive'
@@ -55,14 +58,14 @@ const difference = computed(() => {
   let displayClass
 
   if (outcome > income) {
-    display = `-${(outcome - income) / 10 ** decimal} ${symbol}`
+    display = `-${new Decimal((outcome - income) / 10 ** decimal).toFixed()} ${symbol}`
     displayClass = 'text-black-primary'
   } else if (outcome < income) {
-    display = `+${(income - outcome) / 10 ** decimal} ${symbol}`
+    display = `+${new Decimal((income - outcome) / 10 ** decimal).toFixed()} ${symbol}`
     displayClass = 'text-green-700'
   } else {
     display = `0 ${symbol}`
-    displayClass = 'text-gray-500'
+    displayClass = 'text-gray-primary'
   }
 
   return {

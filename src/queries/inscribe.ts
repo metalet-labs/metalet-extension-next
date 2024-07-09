@@ -127,7 +127,7 @@ export async function fetchCInscriptions(
 
   return {
     list,
-    nextCursor: cursor > total ? null : cursor,
+    nextCursor: cursor >= total ? null : cursor,
   }
 }
 
