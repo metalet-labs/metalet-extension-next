@@ -129,8 +129,8 @@ const routes = [
         },
       },
       {
-        path: '/wallet/swap/:pair?',
-        component: () => import('./pages/wallet/Swap.vue'),
+        path: '/wallet/swap/:chain?/:protocol?/:pair?',
+        component: () => import('./pages/wallet/Swap/Index.vue'),
         name: 'Swap',
         meta: {
           secondaryHeader: true,
@@ -630,8 +630,6 @@ router.beforeEach(async (to, _, next) => {
         to.meta.headerTitle = `${to.params.name}`
       } else if (to.name === 'MintRune') {
         to.meta.headerTitle = `${to.params.name}`
-      } else if (to.name === 'Swap') {
-        to.meta.headerTitle = `Swap ${to.params?.pair ? (to.params.pair as string).replace('-', '/') : ''}`
       }
 
       if (to.path === '/wallet') {

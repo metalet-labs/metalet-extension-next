@@ -6,7 +6,7 @@ export function useRunesPool() {
   const pairStr = useRouteParams<string>('pair')
   if (!pairStr.value) {
     // use default
-    pairStr.value = `btc-${runeTokens[0].runeid}`
+    pairStr.value = `BTC-${runeTokens[0].runeid}`
   }
 
   const token1 = computed(() => pairStr.value.split('-')[0])

@@ -1,0 +1,1 @@
+export const SWAP_THRESHOLD_AMOUNT = 10_000

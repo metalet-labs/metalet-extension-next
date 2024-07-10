@@ -1,0 +1,64 @@
+<script lang="ts" setup>
+import { computed } from 'vue'
+import RuneSwap from './RuneSwap.vue'
+import { Protocol } from '@/lib/types/protocol'
+import SwapIcon from '@/assets/icons-v3/swap.svg'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { useSwapPool } from '@/hooks/swap/useSwapPool'
+import { swapTabStore } from '@/stores/SwapTabTypeStore'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+
+const { chain } = useSwapPool()
+
+const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chain.value))
+</script>
+
+<template>
+  <div class="-mx-4 h-full overflow-y-auto nicer-scrollbar px-4">
+    <div class="mt-2 flex items-center justify-between text-blue-primary">
+      <button
+        @click="chain = chain === Chain.MVC ? Chain.BTC : Chain.MVC"
+        class="py-2 px-4 bg-[#F5F6FF] rounded-2xl text-xs font-medium flex items-center gap-1 cursor-pointer"
+      >
+        Swapping on {{ (chain === Chain.MVC ? Chain.BTC : Chain.MVC).toLocaleUpperCase() }}
+        <SwapIcon class="w-3 h-3" />
+      </button>
+      <RouterLink to="/" class="underline">Pools</RouterLink>
+    </div>
+    <Tabs :modelValue="swapTabStore.selectedTab.name" class="flex flex-col items-start mt-3 rounded-lg">
+      <TabsList class="p-1 shrink-0 h-12 w-full bg-[#F5F7F9]" v-if="tabs.length > 1">
+        <TabsTrigger
+          :key="tab.id"
+          :value="tab.name"
+          v-for="tab in tabs"
+          @click="swapTabStore.selectedTab = tab"
+          :class="[
+            'grow rounded-md h-full font-medium text-sm text-gray-primary',
+            { 'bg-white text-blue-primary': swapTabStore.selectedTab.name === tab.name },
+          ]"
+        >
+          <span>{{ tab.name }}</span>
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent :value="Protocol.Rune" :key="Protocol.Rune" class="pt-4 w-full">
+        <RuneSwap />
+      </TabsContent>
+      <TabsContent value="NFTs" key="NFTs" class="overflow-y-auto w-full nicer-scrollbar px-4">
+        <NFTList />
+      </TabsContent>
+      <TabsContent value="MRC20" key="MRC20" class="overflow-y-auto w-full nicer-scrollbar px-4">
+        <MRC20List />
+      </TabsContent>
+      <TabsContent value="MetaID PIN" key="MetaID PIN" class="overflow-y-auto w-full nicer-scrollbar px-4">
+        <MetaIDList />
+      </TabsContent>
+      <TabsContent value="Activity" class="overflow-y-auto w-full nicer-scrollbar px-4"></TabsContent>
+    </Tabs>
+  </div>
+</template>
+
+<style lang="css" scoped>
+.label {
+  @apply text-sm text-gray-500;
+}
+</style>
