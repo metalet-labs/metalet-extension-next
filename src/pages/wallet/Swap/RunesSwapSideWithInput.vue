@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
 import Decimal from 'decimal.js'
-import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
-
-import { getRuneBalanceQuery } from '@/queries/runes/balance.query'
-import { getExcludedBalanceQuery } from '@/queries/excluded-balance.query'
-import { getBrcFiatRate, getFiatRate } from '@/queries/orders-api'
-
-import { calcFiatPrice, unit, useBtcUnit } from '@/lib/helpers'
-import { prettyBalance, prettyRuneDisplay, prettyRuneSymbol } from '@/lib/formatters'
-
+import { type Asset } from '@/data/assets'
+import { computed, watch, ref } from 'vue'
+import { calcBalance } from '@/lib/formatters'
+import { SymbolTicker } from '@/lib/asset-symbol'
+import AssetLogo from '@/components/AssetLogo.vue'
+import { useIconsStore } from '@/stores/IconsStore'
 import { SWAP_THRESHOLD_AMOUNT } from '@/data/constants'
-import { type RuneToken } from '@/data/pinned-tokens'
+import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
+import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
 const props = defineProps({
   side: {
@@ -24,34 +20,54 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  asset: {
+    type: Object as () => Asset,
+    required: true,
+  },
+  coinCategory: {
+    type: String as () => CoinCategory,
+    required: true,
+  },
 })
-const symbol = defineModel('symbol', { required: true, type: String })
-const rune = defineModel<RuneToken>('rune')
-const isRune = computed(() => !!rune.value)
-const useSymbol = computed(() => (isRune.value ? rune.value?.symbol || 'R' : symbol.value))
 
-// amount
+const symbol = ref(props.asset.symbol)
+const asset = computed(() => props.asset)
+const coinCategory = ref(props.coinCategory)
+const balance = computed(() => props.asset.balance)
+
+const { getIcon } = useIconsStore()
+const icon = computed(() => getIcon(CoinCategory.Native, asset.value.symbol as SymbolTicker) || '')
+
+const { data: exchangeRate } = useExchangeRatesQuery(symbol, coinCategory, {
+  enabled: computed(() => {
+    return !!symbol.value
+  }),
+})
+
 const amount = defineModel('amount', { type: String })
 const normalizedAmount = computed(() => {
   if (!amount.value) {
     return ''
   }
-
-  const dividedBy = symbol.value.toLowerCase() === 'btc' ? 1e8 : 10 ** (rune.value?.divisibility || 0)
-  return new Decimal(amount.value).dividedBy(dividedBy).toDP().toFixed()
+  return new Decimal(amount.value)
+    .dividedBy(10 ** asset.value.decimal)
+    .toDP()
+    .toFixed()
 })
 const updateAmount = (updatingAmount: number | string) => {
   if (typeof updatingAmount === 'string') {
     updatingAmount = Number(updatingAmount)
   }
+
   if (isNaN(updatingAmount)) {
     updatingAmount = 0
   }
 
-  const times = symbol.value.toLowerCase() === 'btc' ? 1e8 : 10 ** (rune.value?.divisibility || 0)
-  amount.value = new Decimal(updatingAmount).times(times).toFixed()
+  amount.value = new Decimal(updatingAmount)
+    .times(10 ** asset.value.decimal)
+    .toDP()
+    .toFixed()
 
-  // this side is now the source
   emit('becameSource')
 }
 
@@ -86,121 +102,28 @@ const amountTextSize = computed(() => {
 const emit = defineEmits([
   'hasEnough',
   'notEnough',
+  'becameSource',
+  'amountCleared',
+  'amountEntered',
+  'update:symbol',
   'moreThanThreshold',
   'lessThanThreshold',
-  'amountEntered',
-  'amountCleared',
-  'update:symbol',
-  'becameSource',
 ])
 
-// fiat price
-const { data: btcFiatRate } = useQuery({
-  queryKey: ['fiatRate', { coin: 'btc' }],
-  queryFn: getFiatRate,
-})
-const { data: brcFiatRates } = useQuery({
-  queryKey: ['brcFiatRate'],
-  queryFn: getBrcFiatRate,
-  enabled: computed(() => false),
+const balanceDisplay = computed(() => {
+  if (balance.value) {
+    return calcBalance(balance.value.total.toNumber(), asset.value.decimal, asset.value.symbol)
+  }
+  return '--'
 })
 
 const fiatPrice = computed(() => {
-  if (!amount.value) {
-    return null
+  const usdRate = new Decimal(exchangeRate.value?.price || 0)
+  if (amount.value) {
+    const balanceInStandardUnit = new Decimal(amount.value).dividedBy(10 ** asset.value.decimal)
+    return usdRate.mul(balanceInStandardUnit)
   }
-
-  if (symbol.value === 'btc') {
-    if (!btcFiatRate.value) {
-      return null
-    }
-
-    return calcFiatPrice(amount.value, btcFiatRate.value)
-  }
-
-  if (!brcFiatRates.value) {
-    return null
-  }
-
-  const rate = brcFiatRates.value[symbol.value.toLowerCase()]
-  return calcFiatPrice(amount.value, rate)
 })
-
-// balance
-const { data: btcBalance } = useQuery(
-  getExcludedBalanceQuery(
-    { address: connectionStore.getAddress },
-    computed(() => !!connectionStore.connected)
-  )
-)
-const { data: myRuneBalances } = useQuery(
-  getRuneBalanceQuery(
-    { address: computed(() => connectionStore.getAddress) },
-    computed(() => connectionStore.connected)
-  )
-)
-
-const balance = computed(() => {
-  if (isRune.value) {
-    // find symbol's balance
-    const runeBalance = myRuneBalances.value?.find((runeBalance) => runeBalance.runeid === rune.value?.runeid)
-
-    if (!runeBalance) {
-      return 0
-    }
-
-    return Number(runeBalance.amount)
-  }
-
-  if (!btcBalance.value) {
-    return 0
-  }
-
-  return btcBalance.value
-})
-
-const balanceDisplay = computed(() => {
-  if (balance.value === 0) {
-    return '0'
-  }
-
-  if (isRune.value) {
-    return prettyRuneDisplay({
-      amount: balance.value,
-      divisibility: rune.value?.divisibility,
-      symbol: rune.value?.symbol || 'R',
-    })
-  }
-
-  return `${prettyBalance(balance.value, useBtcUnit.value)} ${unit.value}`
-})
-
-// use total balance
-const useTotalBalance = () => {
-  if (symbol.value !== 'btc') {
-    // find symbol's balance
-    const runeBalance = myRuneBalances.value?.find((rb) => rb.runeid.toLowerCase() === symbol.value.toLowerCase())
-
-    if (!runeBalance) {
-      amount.value = '0'
-      return
-    }
-
-    amount.value = runeBalance.amount
-    return
-  }
-
-  if (!btcBalance.value) {
-    amount.value = '0'
-    return
-  }
-
-  // TODO: Use 95% of balance temporarily
-  amount.value = new Decimal(btcBalance.value).times(0.95).toFixed(0)
-
-  // this side is now the source
-  emit('becameSource')
-}
 
 const hasEnough = computed(() => {
   if (!amount.value) {
@@ -211,7 +134,7 @@ const hasEnough = computed(() => {
     return true
   }
 
-  return new Decimal(amount.value).lte(new Decimal(balance.value))
+  return new Decimal(amount.value).lte(balance.value?.total || 0)
 })
 
 const amountMoreThanThreshold = computed(() => {
@@ -227,7 +150,6 @@ const amountMoreThanThreshold = computed(() => {
   return new Decimal(amount.value).gte(SWAP_THRESHOLD_AMOUNT)
 })
 
-// watch for change of hasEnough; emit event
 watch(
   () => hasEnough.value,
   (hasEnough) => {
@@ -238,6 +160,7 @@ watch(
     }
   }
 )
+
 watch(
   () => amountMoreThanThreshold.value,
   (moreThanThreshold) => {
@@ -260,25 +183,32 @@ watch(
     }
   }
 )
+
+const useTotalBalance = () => {
+  if (balance.value?.total) {
+    amount.value = balance.value?.total.toFixed()
+    emit('becameSource')
+  }
+}
 </script>
 
 <template>
-  <div class="swap-sub-control-panel">
-    <div class="text-zinc-400">You {{ side }}</div>
+  <div class="swap-sub-control-panel border border-gray-soft p-3 rounded-lg">
+    <div class="text-black-primary">You {{ side }}</div>
 
     <div class="flex h-16 items-center justify-between space-x-2">
       <input
-        class="quiet-input w-12 flex-1 bg-transparent p-0 leading-loose"
+        min="0"
         :id="`${side}Amount`"
+        class="quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none"
         :class="[
           hasEnough
             ? calculating
-              ? 'text-zinc-500'
-              : 'text-zinc-100 caret-runes'
+              ? 'text-gray-primary'
+              : 'text-black-primary/80'
             : calculating
               ? 'text-red-900/50 caret-red-900/50'
-              : 'text-red-500 caret-red-500',
-          // if too long, make it smaller
+              : 'text-red-primary caret-red-500',
           amountTextSize,
         ]"
         placeholder="0"
@@ -287,49 +217,43 @@ watch(
         @input="(event: any) => updateAmount(event.target.value)"
       />
 
-      <button v-if="side === 'pay' && amount" @click="updateAmount(0)">
-        <EraserIcon class="size-4 text-zinc-500 hover:text-zinc-300" />
+      <button v-if="side === 'pay' && amount && amount !== '0'" @click="updateAmount(0)">
+        <EraserIcon class="size-4 text-zinc-300 hover:text-zinc-500" />
       </button>
 
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
-      <div :class="['flex items-center gap-1 rounded-full bg-zinc-900 p-1 px-4 text-xl']">
-        <RunesTokenIcon :symbol="useSymbol" class="size-6 rounded-full" v-if="isRune && useSymbol" />
-        <TokenIcon :token="useSymbol" class="size-6 rounded-full" v-else-if="useSymbol" />
-        <div class="mr-1" :class="[isRune && 'text-xs']">
-          {{ prettyRuneSymbol(useSymbol) }}
+      <div :class="['flex items-center gap-1 rounded-full bg-gray-100 p-1 px-4 text-xl']">
+        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" class="w-6 h-6 text-xs" />
+        <div class="mr-1" :class="['text-sm font-medium text-gray-primary']">
+          {{ asset.symbol }}
         </div>
       </div>
     </div>
 
-    <!-- warning -->
     <div
-      class="-mt-2 mb-2 flex items-center gap-2 text-sm text-red-500"
       v-if="hasEnough && !calculating && !amountMoreThanThreshold"
+      class="-mt-2 mb-2 flex items-center gap-2 text-sm text-red-primary"
     >
       <AlertCircleIcon class="size-4" />
       Amount should be at least {{ SWAP_THRESHOLD_AMOUNT / 1e8 }} BTC
     </div>
 
-    <!-- data footer -->
     <div class="flex items-center justify-between">
-      <!-- fiat price -->
-      <div class="text-sm text-zinc-400" v-if="fiatPrice">
-        {{ fiatPrice ? '$' + fiatPrice : '-' }}
+      <div class="text-sm text-zinc-400" v-if="fiatPrice?.toNumber()">
+        {{ '$' + fiatPrice }}
       </div>
       <div class="w-1" v-else></div>
 
-      <!-- balance -->
       <button
-        class="text-xs text-zinc-400 hover:text-runes hover:underline"
         v-if="side === 'pay'"
-        v-show="!!useSymbol"
         @click="useTotalBalance"
+        class="text-xs text-zinc-400 hover:text-runes hover:underline"
       >
         Balance: {{ balanceDisplay }}
       </button>
 
-      <div class="text-xs text-zinc-400" v-else v-show="!!useSymbol">Balance: {{ balanceDisplay }}</div>
+      <div class="text-xs text-zinc-400" v-else>Balance: {{ balanceDisplay }}</div>
     </div>
   </div>
 </template>
