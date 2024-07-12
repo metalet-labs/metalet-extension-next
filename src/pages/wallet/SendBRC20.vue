@@ -35,7 +35,7 @@ const logo = computed(() => getIcon(CoinCategory.BRC20, route.params.symbol as S
 
 const { currentBTCWallet } = useChainWalletsStore()
 
-const tags = getTags('BRC-20')
+const tags = getTags(CoinCategory.BRC20)
 
 const recipient = ref('')
 const operationLock = ref(false)

@@ -27,7 +27,7 @@ const logo = computed(() => getIcon(CoinCategory.MetaContract, route.params.gene
 
 const { currentMVCWallet } = useChainWalletsStore()
 
-const tags = getTags('MetaContract')
+const tags = getTags(CoinCategory.MetaContract)
 
 // 用户拥有的代币资产
 const { isLoading, data: asset } = useMVCTokenQuery(address, genesis, {

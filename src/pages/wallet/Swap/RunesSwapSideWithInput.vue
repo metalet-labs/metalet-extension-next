@@ -16,10 +16,6 @@ const props = defineProps({
     required: true,
     validator: (side: string) => ['pay', 'receive'].includes(side),
   },
-  calculating: {
-    type: Boolean,
-    default: false,
-  },
   asset: {
     type: Object as () => Asset,
     required: true,
@@ -28,7 +24,22 @@ const props = defineProps({
     type: String as () => CoinCategory,
     required: true,
   },
+  calculating: {
+    type: Boolean,
+    default: false,
+  },
 })
+
+const emit = defineEmits([
+  'hasEnough',
+  'notEnough',
+  'becameSource',
+  'amountCleared',
+  'amountEntered',
+  'update:symbol',
+  'moreThanThreshold',
+  'lessThanThreshold',
+])
 
 const symbol = ref(props.asset.symbol)
 const asset = computed(() => props.asset)
@@ -45,28 +56,22 @@ const { data: exchangeRate } = useExchangeRatesQuery(symbol, coinCategory, {
 })
 
 const amount = defineModel('amount', { type: String })
+
 const normalizedAmount = computed(() => {
-  if (!amount.value) {
+  if (amount.value === undefined) {
     return ''
   }
-  return new Decimal(amount.value)
-    .dividedBy(10 ** asset.value.decimal)
-    .toDP()
-    .toFixed()
+
+  return new Decimal(amount.value).dividedBy(10 ** asset.value.decimal).toFixed()
 })
-const updateAmount = (updatingAmount: number | string) => {
-  if (typeof updatingAmount === 'string') {
-    updatingAmount = Number(updatingAmount)
+
+const updateAmount = (_amount: string) => {
+  if (_amount === '') {
+    amount.value = undefined
+    return
   }
 
-  if (isNaN(updatingAmount)) {
-    updatingAmount = 0
-  }
-
-  amount.value = new Decimal(updatingAmount)
-    .times(10 ** asset.value.decimal)
-    .toDP()
-    .toFixed()
+  amount.value = new Decimal(_amount).times(10 ** asset.value.decimal).toFixed(0)
 
   emit('becameSource')
 }
@@ -99,17 +104,6 @@ const amountTextSize = computed(() => {
   return 'text-4xl'
 })
 
-const emit = defineEmits([
-  'hasEnough',
-  'notEnough',
-  'becameSource',
-  'amountCleared',
-  'amountEntered',
-  'update:symbol',
-  'moreThanThreshold',
-  'lessThanThreshold',
-])
-
 const balanceDisplay = computed(() => {
   if (balance.value) {
     return calcBalance(balance.value.total.toNumber(), asset.value.decimal, asset.value.symbol)
@@ -118,10 +112,9 @@ const balanceDisplay = computed(() => {
 })
 
 const fiatPrice = computed(() => {
-  const usdRate = new Decimal(exchangeRate.value?.price || 0)
-  if (amount.value) {
-    const balanceInStandardUnit = new Decimal(amount.value).dividedBy(10 ** asset.value.decimal)
-    return usdRate.mul(balanceInStandardUnit)
+  if (amount.value && exchangeRate.value) {
+    const unit = new Decimal(amount.value).dividedBy(10 ** asset.value.decimal)
+    return unit.mul(new Decimal(exchangeRate.value?.price || 0))
   }
 })
 
@@ -186,9 +179,13 @@ watch(
 
 const useTotalBalance = () => {
   if (balance.value?.total) {
-    amount.value = balance.value?.total.toFixed()
+    amount.value = balance.value?.total.toDP().toFixed()
     emit('becameSource')
   }
+}
+
+const clear = () => {
+  amount.value = undefined
 }
 </script>
 
@@ -202,6 +199,7 @@ const useTotalBalance = () => {
         :id="`${side}Amount`"
         class="quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none"
         :class="[
+          amountTextSize,
           hasEnough
             ? calculating
               ? 'text-gray-primary'
@@ -209,7 +207,6 @@ const useTotalBalance = () => {
             : calculating
               ? 'text-red-900/50 caret-red-900/50'
               : 'text-red-primary caret-red-500',
-          amountTextSize,
         ]"
         placeholder="0"
         type="number"
@@ -217,7 +214,7 @@ const useTotalBalance = () => {
         @input="(event: any) => updateAmount(event.target.value)"
       />
 
-      <button v-if="side === 'pay' && amount && amount !== '0'" @click="updateAmount(0)">
+      <button v-if="side === 'pay' && amount && amount !== '0'" @click="clear">
         <EraserIcon class="size-4 text-zinc-300 hover:text-zinc-500" />
       </button>
 
@@ -240,8 +237,8 @@ const useTotalBalance = () => {
     </div>
 
     <div class="flex items-center justify-between">
-      <div class="text-sm text-zinc-400" v-if="fiatPrice?.toNumber()">
-        {{ '$' + fiatPrice }}
+      <div class="text-sm text-zinc-400" v-if="fiatPrice">
+        {{ '$' + fiatPrice.toFixed() }}
       </div>
       <div class="w-1" v-else></div>
 

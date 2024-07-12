@@ -1,17 +1,14 @@
 <script lang="ts" setup>
-import { computed, ref, toRaw } from 'vue'
 import { BTCAsset } from '@/data/assets'
-import { computedEager } from '@vueuse/core'
+import { computed, ref, toRaw } from 'vue'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
 import { SymbolTicker } from '@/lib/asset-symbol'
-import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { useRuneDetailQuery } from '@/queries/runes'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useSwapPool } from '@/hooks/swap/useSwapPool'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { calcBalance, truncateStr } from '@/lib/formatters'
 import RunesSwapSideWithInput from './RunesSwapSideWithInput.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 

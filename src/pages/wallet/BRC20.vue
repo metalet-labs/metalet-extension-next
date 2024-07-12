@@ -54,7 +54,7 @@ const availableBalanceSafe = computed(() => asset.value?.balance.availableBalanc
 
 const availableBalanceUnSafe = computed(() => asset.value?.balance.availableBalanceUnSafe)
 
-const tags = getTags('BRC-20')
+const tags = getTags(CoinCategory.BRC20)
 
 const rateEnabled = computed(() => {
   if (asset.value) {

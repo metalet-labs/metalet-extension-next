@@ -1,5 +1,6 @@
 import { TokenTransfer } from '@/queries/brc20'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { CoinCategory } from '@/queries/exchange-rates'
 import { Balance, BRC20Balance } from '@/queries/types/balance'
 
 export interface Asset {
@@ -80,9 +81,9 @@ function getTagInfo(name: string): Tag | undefined {
 
 type Protocol = 'BRC-20' | 'MetaContract' | 'Runes' | 'MRC20'
 
-function getTags(protocol: Protocol): Tag[] {
+function getTags(coinCategory: CoinCategory): Tag[] {
   const tagList: Tag[] = []
-  const contractTag = getTagInfo(protocol)
+  const contractTag = getTagInfo(coinCategory)
   if (contractTag) {
     tagList.push(contractTag)
   }

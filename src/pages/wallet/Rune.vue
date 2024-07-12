@@ -29,7 +29,7 @@ const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(addre
   enabled: computed(() => !!address.value && !!runeId.value),
 })
 
-const tags = getTags('Runes')
+const tags = getTags(CoinCategory.Rune)
 
 const assetUSD = computed(() => {
   const usdRate = new Decimal(0)

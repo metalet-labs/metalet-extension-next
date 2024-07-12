@@ -28,7 +28,7 @@ const enabled = computed(() => !!address && !!symbol && !!genesis)
 const { getIcon } = useIconsStore()
 const icon = computed(() => getIcon(CoinCategory.MetaContract, route.params.genesis as string) || '')
 
-const tags = getTags('MetaContract')
+const tags = getTags(CoinCategory.MetaContract)
 
 const { data: asset } = useMVCTokenQuery(ref(address), ref(genesis), { enabled })
 
