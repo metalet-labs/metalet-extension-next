@@ -10,6 +10,8 @@ import {
   MEMPOOL_HOST,
   ORDINALS_HOST,
   UNISAT_TESTNET_HOST,
+  API_RUNES_ORDERS_EXCHANGE,
+  API_RUNES_TESTNET_ORDERS_EXCHANGE,
 } from '@/data/hosts'
 
 type OptionParams = Record<string, string | number | undefined>
@@ -25,6 +27,7 @@ interface RequestOption {
   headers?: Headers
   mode?: RequestMode
   withCredential?: boolean
+  message?: string
   body?: string | URLSearchParams
 }
 
@@ -32,11 +35,11 @@ async function request<T = any>(url: string, options: RequestOption): Promise<T>
   if (!options?.headers) {
     options.headers = new Headers()
   }
-  // if (options?.withCredential) {
-  //   const { publicKey, signature } = await getCredential()
-  //   options.headers.set('X-Signature', signature)
-  //   options.headers.set('X-Public-Key', publicKey)
-  // }
+  if (options?.withCredential) {
+    const { publicKey, signature } = await getCredential({ message: options?.message })
+    options.headers.set('X-Signature', signature)
+    options.headers.set('X-Public-Key', publicKey)
+  }
   if (options?.params) {
     let cleanedParams = Object.entries(options.params ?? {})
       .filter(([, value]) => value !== undefined)
@@ -204,6 +207,15 @@ export const ordersApi = <T>(path: string) => {
   return {
     get: (params?: OptionParams) => request<T>(`${ordersHost}${path}`, { method: 'GET', params }),
     post: (data?: OptionData) => request<T>(`${ordersHost}${path}`, { method: 'POST', data }),
+  }
+}
+
+export const swapApi = <T>(path: string) => {
+  const swapHost = network.value === 'mainnet' ? API_RUNES_ORDERS_EXCHANGE : API_RUNES_TESTNET_ORDERS_EXCHANGE
+  return {
+    get: (params?: OptionParams) => request<T>(`${swapHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) =>
+      request<T>(`${swapHost}${path}`, { method: 'POST', data, withCredential: true, message: 'orders.exchange' }),
   }
 }
 

@@ -19,5 +19,8 @@ export const METAFILE_API_HOST = 'https://filecdn.showpay.top'
 export const API2_ORDERS_EXCHANGE = 'https://api2.orders.exchange/api'
 export const API2_ORDERS_EXCHANGE_TESTNET = 'https://api2-testnet.orders.exchange/api'
 
+export const API_RUNES_ORDERS_EXCHANGE = 'https://api-runes.orders.exchange/api'
+export const API_RUNES_TESTNET_ORDERS_EXCHANGE = 'https://api-runes-testnet.orders.exchange/api'
+
 export const UNISAT_HOST = 'https://wallet-api.unisat.io/v5'
 export const UNISAT_TESTNET_HOST = 'https://wallet-api-testnet.unisat.io/v5'

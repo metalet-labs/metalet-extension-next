@@ -1,13 +1,82 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import { Psbt } from 'bitcoinjs-lib'
 import Copy from '@/components/Copy.vue'
 import { getBtcNetwork } from '@/lib/network'
 import actions from '@/data/authorize-actions'
+import { Psbt, PsbtTxOutput } from 'bitcoinjs-lib'
+import { isTaprootInput } from 'bitcoinjs-lib/src/psbt/bip371'
 import { fetchRuneUtxoDetail, decipherRuneScript } from '@/queries/runes'
-import { getAddressFromScript, Transaction } from '@metalet/utxo-wallet-service'
-import { prettifyTxId, prettifyBalance, prettifyBalanceFixed } from '@/lib/formatters'
+import { AddressType, Chain, getAddressFromScript, Transaction } from '@metalet/utxo-wallet-service'
+import { prettifyTxId, prettifyBalance, prettifyBalanceFixed, calcBalance } from '@/lib/formatters'
 import { CheckBadgeIcon, ChevronDoubleRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/solid'
+import { getCurrentWallet } from '@/lib/wallet'
+
+type PsbtInput = (typeof Psbt.prototype.data.inputs)[0]
+
+const TX_EMPTY_SIZE = 4 + 1 + 1 + 4 // 10
+const TX_INPUT_BASE = 32 + 4 + 1 + 4 // 41
+const TX_INPUT_PUBKEY_HASH = 107
+const TX_INPUT_SEGWIT = 27
+const TX_INPUT_TAPROOT = 16.5
+const TX_OUTPUT_BASE = 8 + 1
+const TX_OUTPUT_PUBKEY_HASH = 25
+const TX_OUTPUT_SCRIPT_HASH = 23
+const TX_OUTPUT_SEGWIT = 22
+const TX_OUTPUT_SEGWIT_SCRIPT_HASH = 34
+
+function transactionBytes(inputs: PsbtInput[], outputs: PsbtTxOutput[], isTaproot = false) {
+  const inputsSize = inputs.reduce(function (a, x) {
+    return a + inputBytes(x)
+  }, 0)
+  const outputsSize = outputs.reduce(function (a, x) {
+    return a + outputBytes(x)
+  }, 0)
+
+  if (isTaproot) {
+    return TX_EMPTY_SIZE + Math.floor(inputsSize) + 1 + outputsSize
+  }
+
+  return TX_EMPTY_SIZE + inputsSize + outputsSize
+}
+
+function inputBytes(input: PsbtInput) {
+  return (
+    TX_INPUT_BASE +
+    (input.redeemScript ? input.redeemScript.length : 0) +
+    (input.witnessScript
+      ? input.witnessScript.length / 4
+      : isTaprootInput(input)
+        ? TX_INPUT_TAPROOT
+        : input.witnessUtxo
+          ? TX_INPUT_SEGWIT
+          : !input.redeemScript
+            ? TX_INPUT_PUBKEY_HASH
+            : 0)
+  )
+}
+
+function outputBytes(output: PsbtTxOutput) {
+  return (
+    TX_OUTPUT_BASE +
+    (output.script
+      ? output.script.length
+      : output.address?.startsWith('bc1') || output.address?.startsWith('tb1')
+        ? output.address?.length === 42
+          ? TX_OUTPUT_SEGWIT
+          : TX_OUTPUT_SEGWIT_SCRIPT_HASH
+        : output.address?.startsWith('3') || output.address?.startsWith('2')
+          ? TX_OUTPUT_SCRIPT_HASH
+          : TX_OUTPUT_PUBKEY_HASH)
+  )
+}
+
+function calcSize(psbt: Psbt, isTaproot = false) {
+  const inputs = psbt.data.inputs
+
+  const outputs = psbt.txOutputs
+
+  return transactionBytes(inputs, outputs, isTaproot)
+}
 
 const action = actions.SignBTCPsbt
 
@@ -18,6 +87,8 @@ const props = defineProps<{
   }
 }>()
 
+const fee = ref()
+const feeRate = ref()
 const isShowingDetails = ref(false)
 
 const psbtHex = props.params.psbtHex
@@ -41,7 +112,10 @@ const outputs = ref<{ address: string; value: number; script: string }[]>([])
 
 onMounted(async () => {
   const btcNetwork = getBtcNetwork()
+  const wallet = await getCurrentWallet(Chain.BTC)
   const psbt = Psbt.fromHex(psbtHex, { network: btcNetwork })
+  let totalInputValue = 0
+  let totalOutputValue = 0
   for (let index = 0; index < psbt.data.inputs.length; index++) {
     const inputData = psbt.data.inputs[index]
     const runes = await fetchRuneUtxoDetail(
@@ -62,6 +136,7 @@ onMounted(async () => {
       value = output.value
     }
     inputs.value.push({ address, value, runes })
+    totalInputValue += value
   }
 
   for (let index = 0; index < psbt.txOutputs.length; index++) {
@@ -88,7 +163,10 @@ onMounted(async () => {
       value: out.value,
       address: out.address || '',
     })
+    totalOutputValue += out.value
   }
+  fee.value = totalInputValue - totalOutputValue
+  feeRate.value = (totalInputValue - totalOutputValue) / calcSize(psbt, wallet.getAddressType() === AddressType.Taproot)
 })
 </script>
 
@@ -181,8 +259,18 @@ onMounted(async () => {
     </ul>
 
     <div class="w-full flex items-center justify-between mt-2">
-      <span>PSBT</span>
+      <span>Psbt Hex</span>
       <Copy :text="psbtHex" title="PSBT Hex copied" :showContent="false" />
+    </div>
+
+    <div class="w-full flex items-center justify-between mt-2">
+      <span>Miner's Fee</span>
+      <span>{{ calcBalance(fee, 8, 'BTC') }}</span>
+    </div>
+
+    <div class="w-full flex items-center justify-between mt-2">
+      <span>Fee Rate</span>
+      <span>{{ Math.ceil(feeRate) }} sat/vB</span>
     </div>
 
     <!-- a button to view detail -->

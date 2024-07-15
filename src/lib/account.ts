@@ -1,13 +1,13 @@
 import { mvc } from 'meta-contract'
 import useStorage from '@/lib/storage'
 import { signMessage } from '@/lib/crypto'
-import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import { fetchUtxos } from '@/queries/utxos'
 import { notifyContent } from '@/lib/notify-content'
+import { generateRandomString } from '@/lib/helpers'
 import { getBtcNetwork, getNetwork } from '@/lib/network'
-import { generateRandomString, raise } from '@/lib/helpers'
-import { ScriptType, Chain as UtxoChain } from '@metalet/utxo-wallet-service'
+import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import type { V1Account, V2Account, Chain, ChainDetail } from './types'
+import { ScriptType, Chain as UtxoChain } from '@metalet/utxo-wallet-service'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
 import { deriveSigner, deriveAddress, derivePublicKey, inferAddressType, derivePrivateKey } from '@/lib/bip32-deriver'
 
@@ -254,31 +254,32 @@ export async function getSigner(chain: UtxoChain, treehash?: string) {
   return deriveSigner(wallet.getPrivateKey(), btcNetwork)
 }
 
-export async function getCredential(
-  chain: Chain = 'btc'
-): Promise<{ address: string; publicKey: string; signature: string }> {
-  const account = (await getCurrentAccount()) ?? raise('No current account')
-  const cachedCredential = account[chain]['credential']
-
-  if (cachedCredential) return cachedCredential
-
-  const message = 'metalet.space'
-  const wif = await getPrivateKey(chain)
-  const privateKey = mvc.PrivateKey.fromWIF(wif)
-  const { signature } = signMessage(message, privateKey)
-  const address = await getAddress(chain)
-  const publicKey = await getPublicKey(chain)
-  const newCredential = {
-    address,
-    publicKey,
-    signature,
+export async function getCredential({
+  chain = UtxoChain.BTC,
+  message = 'metalet.space',
+  encoding = 'base64',
+}: {
+  chain?: UtxoChain
+  message?: string
+  encoding?: BufferEncoding
+}): Promise<{ address: string; publicKey: string; signature: string }> {
+  // TODO： Saving in memory
+  let signature = ''
+  const wallet = await getCurrentWallet(chain)
+  if (chain === UtxoChain.BTC) {
+    signature = wallet.signMessage(message, encoding)
+  } else if (chain === UtxoChain.MVC) {
+    const wif = wallet.getPrivateKey()
+    const privateKey = mvc.PrivateKey.fromWIF(wif)
+    const { signature: _signature } = signMessage(message, privateKey)
+    signature = _signature
   }
 
-  // cache credential
-  account[chain]['credential'] = newCredential
-  await setAccount(account)
-
-  return newCredential
+  return {
+    signature,
+    address: wallet.getAddress(),
+    publicKey: wallet.getPublicKey().toString('hex'),
+  }
 }
 
 export async function getPublicKey(chain: Chain = 'mvc', path?: string): Promise<string> {

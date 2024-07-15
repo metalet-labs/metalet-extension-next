@@ -4,9 +4,11 @@ import { type Asset } from '@/data/assets'
 import { computed, watch, ref } from 'vue'
 import { calcBalance } from '@/lib/formatters'
 import { SymbolTicker } from '@/lib/asset-symbol'
+import { runeTokens } from '@/data/pinned-tokens'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { SWAP_THRESHOLD_AMOUNT } from '@/data/constants'
+import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
 import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
@@ -132,7 +134,7 @@ const hasEnough = computed(() => {
 
 const amountMoreThanThreshold = computed(() => {
   // only check when symbol is btc
-  if (symbol.value !== 'btc') {
+  if (symbol.value !== 'BTC') {
     return true
   }
 
@@ -190,7 +192,7 @@ const clear = () => {
 </script>
 
 <template>
-  <div class="swap-sub-control-panel border border-gray-soft p-3 rounded-lg">
+  <div class="rounded-2xl border px-4 py-5 border-gray-soft hover:border-blue-primary">
     <div class="text-black-primary">You {{ side }}</div>
 
     <div class="flex h-16 items-center justify-between space-x-2">
@@ -220,9 +222,10 @@ const clear = () => {
 
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
-      <div :class="['flex items-center gap-1 rounded-full bg-gray-100 p-1 px-4 text-xl']">
+      <RunesModalTokenSelect :pinned-tokens="runeTokens" v-if="coinCategory === CoinCategory.Rune" />
+      <div :class="['flex items-center gap-1 rounded-full bg-gray-100 p-1 px-2 text-xl']" v-else>
         <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" class="w-6 h-6 text-xs" />
-        <div class="mr-1" :class="['text-sm font-medium text-gray-primary']">
+        <div class="mr-1" :class="['text-sm font-medium']">
           {{ asset.symbol }}
         </div>
       </div>

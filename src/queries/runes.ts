@@ -1,13 +1,15 @@
 import Decimal from 'decimal.js'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
-import { Ref, ComputedRef } from 'vue'
 import { type RuneAsset } from '@/data/assets'
 import { UNISAT_ENABLED } from '@/data/config'
+import { Ref, ComputedRef, computed } from 'vue'
 import { Balance_QUERY_INTERVAL } from './constants'
 import { AddressRunesTokenSummary } from './types/rune'
-import { metaletApiV3, unisatApi, ordersApi } from './request'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
+import { metaletApiV3, unisatApi, ordersApi, swapApi } from './request'
+
+export type SwapType = '1x' | 'x2' | '2x' | 'x1'
 
 export interface RuneBalance {
   amount: string
@@ -203,4 +205,89 @@ export async function decipherRuneScript(script: string) {
     script,
   })
   return JSON.stringify(spec)
+}
+
+export type RuneToken = {
+  runeid: string
+  rune: string
+  spacedRune: string
+  number: number
+  height: number
+  txidx: number
+  timestamp: number
+  divisibility: number
+  symbol: string
+  etching: string
+  premine: string
+  terms: null | string
+  mints: string
+  burned: string
+  holders: number
+  transactions: number
+  supply: string
+  start: null | string
+  end: null | string
+  mintable: boolean
+  remaining: string
+}
+
+export const getRunesTokens = async ({ keyword }: { keyword: string }): Promise<RuneToken[]> => {
+  const {
+    data: { detail },
+  } = await ordersApi<{ data: { detail: RuneToken[] } }>(`/runes/list`).get({ runename: keyword })
+
+  return detail
+}
+
+export const getRunesTokensQuery = (
+  filters: {
+    keyword: Ref<string>
+  },
+  enabled: ComputedRef<boolean> = computed(() => true)
+) =>
+  useQuery({
+    queryKey: ['runesTokens', filters],
+    queryFn: () => getRunesTokens({ keyword: filters.keyword.value }),
+    enabled,
+  })
+
+export const previewSwap = async ({
+  address,
+  token1,
+  token2,
+  swapType,
+  sourceAmount,
+}: {
+  address: string
+  token1: string
+  token2: string
+  swapType: SwapType
+  sourceAmount: string
+}): Promise<{
+  gas: string
+  ratio: string
+  poolRatio: string
+  serviceFee: string
+  sourceAmount: string
+  targetAmount: string
+  priceImpact: string
+}> => {
+  const { data } = await swapApi<{
+    data: {
+      gas: string
+      ratio: string
+      poolRatio: string
+      serviceFee: string
+      sourceAmount: string
+      targetAmount: string
+      priceImpact: string
+    }
+  }>('/preview/swap').post({
+    address,
+    token1,
+    token2,
+    swapType,
+    sourceAmount,
+  })
+  return data
 }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import RuneSwap from './RuneSwap.vue'
+import RuneSwap from './Rune/RuneSwap.vue'
 import { Protocol } from '@/lib/types/protocol'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -43,16 +43,6 @@ const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chai
       <TabsContent :value="Protocol.Rune" :key="Protocol.Rune" class="pt-4 w-full">
         <RuneSwap />
       </TabsContent>
-      <TabsContent value="NFTs" key="NFTs" class="overflow-y-auto w-full nicer-scrollbar px-4">
-        <NFTList />
-      </TabsContent>
-      <TabsContent value="MRC20" key="MRC20" class="overflow-y-auto w-full nicer-scrollbar px-4">
-        <MRC20List />
-      </TabsContent>
-      <TabsContent value="MetaID PIN" key="MetaID PIN" class="overflow-y-auto w-full nicer-scrollbar px-4">
-        <MetaIDList />
-      </TabsContent>
-      <TabsContent value="Activity" class="overflow-y-auto w-full nicer-scrollbar px-4"></TabsContent>
     </Tabs>
   </div>
 </template>
