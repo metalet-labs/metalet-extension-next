@@ -21,7 +21,6 @@ import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '
 
 const route = useRoute()
 const recipient = ref('')
-const error = ref<Error>()
 const router = useRouter()
 const txPsbt = ref<Psbt>()
 const totalFee = ref<number>()
@@ -35,7 +34,7 @@ const address = ref(route.params.address as string)
 const { getIcon } = useIconsStore()
 const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
 
-const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(address, runeId, {
+const { data: asset } = useRuneDetailQuery(address, runeId, {
   enabled: computed(() => !!address.value && !!runeId.value),
 })
 

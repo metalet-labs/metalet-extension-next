@@ -7,7 +7,7 @@ import { DUST_UTXO_VALUE, RUNES_SWAP_2X_TX_SIZE, SWAP_POOL_ADD_TX_SIZE, SWAP_TX_
 
 const currentRateFee = ref<number>()
 const props = defineProps(['taskType', 'token1Amount', 'serviceFee'])
-const emit = defineEmits(['returnBecameNegative', 'returnBecamePositive'])
+const emit = defineEmits(['returnBecameNegative', 'returnBecamePositive', 'feeRateOnchange'])
 
 const taskGas = computed(() => {
   if (!currentRateFee.value) return 0
@@ -67,6 +67,14 @@ watch(
   },
   { immediate: true }
 )
+
+watch(
+  () => currentRateFee.value,
+  (_currentRateFee) => {
+    emit('feeRateOnchange', _currentRateFee)
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -83,9 +91,9 @@ watch(
     <div class="flex items-center justify-between text-xs lg:text-sm" v-if="showFinal">
       <span class="text-zinc-500">Finally Receive</span>
       <div class="flex items-center gap-3">
-        <div :class="negativeReturn ? 'font-bold text-red-500' : 'text-zinc-300'">
+        <!-- <div :class="negativeReturn ? 'font-bold text-red-500' : 'text-zinc-300'">
           {{ prettyFinalToken1Amount }}
-        </div>
+        </div> -->
         <div class="text-right text-xs text-zinc-500 lg:text-sm" v-if="taskGas && !negativeReturn">
           {{ calcBalance(finalToken1Amount, 8, 'BTC') }}
         </div>

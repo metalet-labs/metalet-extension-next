@@ -98,7 +98,7 @@ const serviceFeeDisplay = computed(() => {
     <TooltipProvider v-if="hasImpactWarning">
       <Tooltip>
         <TooltipTrigger
-          class="mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-red-500/30 p-3 text-xs lg:text-sm"
+          class="mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-red-primary p-3 text-xs lg:text-sm"
           as="div"
         >
           <div>Price Impact Warning</div>

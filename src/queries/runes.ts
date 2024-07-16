@@ -1,3 +1,4 @@
+import { UTXO } from './utxos'
 import Decimal from 'decimal.js'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
@@ -290,4 +291,162 @@ export const previewSwap = async ({
     sourceAmount,
   })
   return data
+}
+
+export const build1xSwap = async ({
+  address,
+  pubkey,
+  token1,
+  token2,
+  sourceAmount,
+  feeRate,
+}: {
+  address: string
+  pubkey: string
+  token1: string
+  token2: string
+  sourceAmount: string
+  feeRate: number
+}): Promise<{
+  rawPsbt: string
+  buildId: string
+  type: string
+  feeRate: number
+}> => {
+  const res = await swapApi<{
+    rawPsbt: string
+    buildId: string
+    type: string
+  }>('/build/1x').post({
+    address,
+    pubkey,
+    token1,
+    token2,
+    sourceAmount,
+    feeRate,
+  })
+  return {
+    ...res,
+    feeRate,
+  }
+}
+
+export const buildX2Swap = async ({
+  address,
+  pubkey,
+  token1,
+  token2,
+  sourceAmount,
+  feeRate,
+}: {
+  address: string
+  pubkey: string
+  token1: string
+  token2: string
+  sourceAmount: string
+  feeRate: number
+}): Promise<{
+  rawPsbt: string
+  buildId: string
+  type: string
+  feeRate: number
+}> => {
+  const res = await swapApi<{
+    rawPsbt: string
+    buildId: string
+    type: string
+  }>('/build/x2').post({
+    address,
+    pubkey,
+    token1,
+    token2,
+    sourceAmount,
+    feeRate,
+  })
+  return {
+    ...res,
+    feeRate,
+  }
+}
+
+export const build2xSwap = async ({
+  address,
+  pubkey,
+  token1,
+  token2,
+  sourceAmount,
+  feeRate,
+  runeUtxos,
+}: {
+  address: string
+  pubkey: string
+  token1: string
+  token2: string
+  sourceAmount: string
+  feeRate: number
+  runeUtxos: UTXO[]
+}): Promise<{
+  rawPsbt: string
+  buildId: string
+  type: string
+  feeRate: number
+}> => {
+  const res = await swapApi<{
+    rawPsbt: string
+    buildId: string
+    type: string
+  }>('/build/2x').post({
+    address,
+    pubkey,
+    token1,
+    token2,
+    sourceAmount,
+    runeUtxos,
+    feeRate,
+  })
+  return {
+    ...res,
+    feeRate,
+  }
+}
+
+export const buildX1Swap = async ({
+  address,
+  pubkey,
+  token1,
+  token2,
+  sourceAmount,
+  feeRate,
+  runeUtxos,
+}: {
+  address: string
+  pubkey: string
+  token1: string
+  token2: string
+  sourceAmount: string
+  feeRate: number
+  runeUtxos: UTXO[]
+}): Promise<{
+  rawPsbt: string
+  buildId: string
+  type: string
+  feeRate: number
+}> => {
+  const res = await swapApi<{
+    rawPsbt: string
+    buildId: string
+    type: string
+  }>('/build/x1').post({
+    address,
+    pubkey,
+    token1,
+    token2,
+    sourceAmount,
+    runeUtxos,
+    feeRate,
+  })
+  return {
+    ...res,
+    feeRate,
+  }
 }
