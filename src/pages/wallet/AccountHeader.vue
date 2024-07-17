@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { FlexBox } from '@/components'
 import { useRouter } from 'vue-router'
+import { getMetaId } from '@/lib/metaId'
 import { getNetwork } from '@/lib/network'
 import Avatar from '@/components/Avatar.vue'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
@@ -15,16 +16,19 @@ import { useToast } from '@/components/ui/toast/use-toast'
 import ServiceMenu from '@/components/headers/ServiceMenu.vue'
 import SettingMenu from '@/components/headers/SettingMenu.vue'
 import { Chain, BaseWallet } from '@metalet/utxo-wallet-service'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TriangleDownIcon from '@/assets/icons-v3/triangle-down.svg'
 import { getV3CurrentAccount, getV3CurrentWallet } from '@/lib/wallet'
 import {
   Drawer,
   DrawerClose,
-  DrawerContent,
-  DrawerHeader,
   DrawerTitle,
+  DrawerHeader,
+  DrawerContent,
   DrawerDescription,
 } from '@/components/ui/drawer'
+
+const { getAddress } = useChainWalletsStore()
 
 const { toast } = useToast()
 
@@ -34,6 +38,9 @@ const isOpen = ref(false)
 const router = useRouter()
 const wallet = ref<V3Wallet>()
 const account = ref<V3Account>()
+
+const btcAddress = getAddress(Chain.BTC)
+const mvcAddress = getAddress(Chain.MVC)
 
 getNetwork().then((_network) => (network.value = _network))
 
@@ -76,14 +83,25 @@ const copy = (address: string, addressType: string, type: string) => {
 <template>
   <div class="flex items-center justify-between py-3">
     <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toManageWallets" v-if="account">
-      <Avatar :id="account.id" />
+      <div class="flex items-center">
+        <Avatar :id="btcAddress" class="z-10" />
+        <Avatar :id="mvcAddress" class="-ml-5" v-if="btcAddress !== mvcAddress" />
+      </div>
       <div class="flex flex-col" v-if="wallet">
-        <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-xs text-gray-primary">{{ wallet.name }}</span>
+        <div class="text-gray-black text-xs text-gray-primary">
+          <span>{{ wallet.name }}</span>
         </div>
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-sm">{{ account.name }}</span>
+          <span class="text-ss">{{ account.name }}</span>
           <TriangleDownIcon class="w-2" />
+        </div>
+        <div class="text-gray-black text-xs text-gray-primary space-x-0.5">
+          <span>MetaID:</span>
+          <span>{{ getMetaId(btcAddress) }}</span>
+          <template v-if="btcAddress !== mvcAddress">
+            <span>/</span>
+            <span>{{ getMetaId(mvcAddress) }}</span>
+          </template>
         </div>
       </div>
     </FlexBox>

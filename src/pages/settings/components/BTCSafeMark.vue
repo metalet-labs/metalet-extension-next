@@ -2,11 +2,11 @@
 import { ref, watch } from 'vue'
 import { Avatar } from '@/components'
 import { toast } from '@/components/ui/toast'
-import { prettifyAddress } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { UTXO, getAllBtcUtxos } from '@/queries/utxos'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { addSafeUtxo, getSafeUtxos } from '@/lib/utxo'
+import { prettifyAddress, calcBalance } from '@/lib/formatters'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const isLoading = ref(true)
@@ -56,7 +56,7 @@ watch(
         <div class="space-y-2">
           <div class="label">{{ prettifyAddress(utxo.txId) }}:{{ utxo.outputIndex }}</div>
           <div class="value space-x-2">
-            <span>value: {{ utxo.satoshis }}</span>
+            <span>value: {{ calcBalance(utxo.satoshis, 8, 'BTC') }}</span>
             <span>confirmed: {{ utxo.confirmed }}</span>
           </div>
         </div>

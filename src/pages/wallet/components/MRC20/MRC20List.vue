@@ -2,6 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AssetItem from '../AssetItem.vue'
+import ManageToken from '../ ManageToken.vue'
 import { type MRC20Asset } from '@/data/assets'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -45,7 +46,7 @@ function toMRC20Detail(asset: MRC20Asset, address: string) {
       :disabled="isFetchingNextPage"
       @click="() => fetchNextPage()"
       :class="[
-        'text-gray-primary flex items-center gap-2 justify-center pt-2',
+        'text-gray-primary flex items-center gap-2 justify-center py-4',
         !isFetchingNextPage ? 'cursor-pointer hover:text-blue-500 hover:underline' : 'cursor-not-allowed',
       ]"
     >
@@ -56,4 +57,5 @@ function toMRC20Detail(asset: MRC20Asset, address: string) {
       <EmptyIcon class="mx-auto" />
     </div>
   </div>
+  <ManageToken />
 </template>

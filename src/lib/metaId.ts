@@ -1,3 +1,4 @@
+import CryptoJS from 'crypto-js'
 import useStorage from './storage'
 import { Chain } from '@metalet/utxo-wallet-service'
 
@@ -18,4 +19,8 @@ export function getMetaIDType() {
 
 export function setMetaIdType(tabType: MetaIDTabType) {
   return storage.set(MetaID_Tab_Type_Key, tabType)
+}
+
+export function getMetaId(address: string, len = 6) {
+  return CryptoJS.SHA256(address).toString().slice(0, len)
 }

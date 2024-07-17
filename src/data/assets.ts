@@ -69,7 +69,7 @@ const tags: Tag[] = [
     color: '#835AFF',
   },
   {
-    name: 'MRC20',
+    name: 'MRC-20',
     bg: 'rgba(214, 240, 255, 0.4)',
     color: '#1472FF',
   },
@@ -78,8 +78,6 @@ const tags: Tag[] = [
 function getTagInfo(name: string): Tag | undefined {
   return tags.find((tag) => tag.name === name)
 }
-
-type Protocol = 'BRC-20' | 'MetaContract' | 'Runes' | 'MRC20'
 
 function getTags(coinCategory: CoinCategory): Tag[] {
   const tagList: Tag[] = []
