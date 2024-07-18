@@ -1,16 +1,24 @@
 <script lang="ts" setup>
 import { Switch } from '@headlessui/vue'
-import { computed, ref, watch } from 'vue'
 import { UseImage } from '@vueuse/components'
 import { useIconsStore } from '@/stores/IconsStore'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { computed, ref, onMounted, watch } from 'vue'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { addAssetsDisplay, getAssetsDisplay, removeAssetsDisplay } from '@/lib/assets'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { type Asset, type FTAsset, type MRC20Asset, type Tag, getTagInfo } from '@/data/assets'
 
 const props = defineProps<{
   asset: Asset
+  selected: boolean
   coinCategory: CoinCategory
 }>()
+
+const emit = defineEmits(['setSelected'])
+
+const { getAddress } = useChainWalletsStore()
+const btcAddress = getAddress(Chain.BTC)
+const mvcAddress = getAddress(Chain.MVC)
 
 const tag = ref<Tag>()
 const asset = computed(() => props.asset)
@@ -32,20 +40,13 @@ const icon = computed(
 )
 
 const enabled = ref(false)
-const initializing = ref(true)
-getAssetsDisplay().then((assets) => {
-  enabled.value = assets.includes(props.asset.symbol)
-  initializing.value = false
+
+onMounted(() => {
+  enabled.value = props.selected
 })
 
-watch(enabled, async (value) => {
-  if (initializing.value) return
-
-  if (value) {
-    await addAssetsDisplay(props.asset.symbol)
-  } else {
-    await removeAssetsDisplay(props.asset.symbol)
-  }
+watch(enabled, async () => {
+  emit('setSelected')
 })
 </script>
 

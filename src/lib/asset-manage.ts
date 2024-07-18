@@ -26,9 +26,13 @@ const setAssetManageObj = async (assetManageObj: AssetManageObj) => {
 
 export const getAssetManageList = async (address: string) => {
   const assetManageObj = await getAssetManageObj()
-  return Object.entries(assetManageObj[address])
-    .filter(([_, value]) => !!value)
-    .map(([key]) => key)
+  return Object.entries(assetManageObj).flatMap(([_, coinCategories]) =>
+    Object.entries(coinCategories).flatMap(([coinCategory, symbols]) =>
+      Object.entries(symbols)
+        .filter(([_, value]) => !value)
+        .map(([symbol, _]) => `${coinCategory}-${symbol}`)
+    )
+  )
 }
 
 export const setAssetManage = async (
