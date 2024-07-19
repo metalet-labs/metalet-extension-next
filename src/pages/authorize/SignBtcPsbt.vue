@@ -3,13 +3,13 @@ import { onMounted, ref } from 'vue'
 import Copy from '@/components/Copy.vue'
 import { getBtcNetwork } from '@/lib/network'
 import actions from '@/data/authorize-actions'
+import { getCurrentWallet } from '@/lib/wallet'
 import { Psbt, PsbtTxOutput } from 'bitcoinjs-lib'
 import { isTaprootInput } from 'bitcoinjs-lib/src/psbt/bip371'
 import { fetchRuneUtxoDetail, decipherRuneScript } from '@/queries/runes'
 import { AddressType, Chain, getAddressFromScript, Transaction } from '@metalet/utxo-wallet-service'
 import { prettifyTxId, prettifyBalance, prettifyBalanceFixed, calcBalance } from '@/lib/formatters'
 import { CheckBadgeIcon, ChevronDoubleRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/solid'
-import { getCurrentWallet } from '@/lib/wallet'
 
 type PsbtInput = (typeof Psbt.prototype.data.inputs)[0]
 
@@ -89,6 +89,7 @@ const props = defineProps<{
 
 const fee = ref()
 const feeRate = ref()
+const transferAmount = ref()
 const isShowingDetails = ref(false)
 
 const psbtHex = props.params.psbtHex
@@ -116,6 +117,7 @@ onMounted(async () => {
   const psbt = Psbt.fromHex(psbtHex, { network: btcNetwork })
   let totalInputValue = 0
   let totalOutputValue = 0
+  let changeOutputValue = 0
   for (let index = 0; index < psbt.data.inputs.length; index++) {
     const inputData = psbt.data.inputs[index]
     const runes = await fetchRuneUtxoDetail(
@@ -164,8 +166,12 @@ onMounted(async () => {
       address: out.address || '',
     })
     totalOutputValue += out.value
+    if (out.address === wallet.getAddress()) {
+      changeOutputValue += out.value
+    }
   }
   fee.value = totalInputValue - totalOutputValue
+  transferAmount.value = totalInputValue - totalOutputValue + changeOutputValue
   feeRate.value = (totalInputValue - totalOutputValue) / calcSize(psbt, wallet.getAddressType() === AddressType.Taproot)
 })
 </script>
@@ -261,6 +267,11 @@ onMounted(async () => {
     <div class="w-full flex items-center justify-between mt-2">
       <span>Psbt Hex</span>
       <Copy :text="psbtHex" title="PSBT Hex copied" :showContent="false" />
+    </div>
+
+    <div class="w-full flex items-center justify-between mt-2">
+      <span>Transfer Amount</span>
+      <span>{{ calcBalance(transferAmount, 8, 'BTC') }}</span>
     </div>
 
     <div class="w-full flex items-center justify-between mt-2">
