@@ -1,24 +1,18 @@
 <script lang="ts" setup>
 import { Switch } from '@headlessui/vue'
+import { computed, ref, watch } from 'vue'
 import { UseImage } from '@vueuse/components'
 import { useIconsStore } from '@/stores/IconsStore'
-import { Chain } from '@metalet/utxo-wallet-service'
-import { computed, ref, onMounted, watch } from 'vue'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { type Asset, type FTAsset, type MRC20Asset, type Tag, getTagInfo } from '@/data/assets'
 
 const props = defineProps<{
   asset: Asset
-  selected: boolean
+  selectList: string[]
   coinCategory: CoinCategory
 }>()
 
 const emit = defineEmits(['setSelected'])
-
-const { getAddress } = useChainWalletsStore()
-const btcAddress = getAddress(Chain.BTC)
-const mvcAddress = getAddress(Chain.MVC)
 
 const tag = ref<Tag>()
 const asset = computed(() => props.asset)
@@ -39,15 +33,15 @@ const icon = computed(
     ''
 )
 
-const enabled = ref(false)
+const enabled = ref(true)
 
-onMounted(() => {
-  enabled.value = props.selected
-})
-
-watch(enabled, async () => {
-  emit('setSelected')
-})
+watch(
+  () => [props.selectList, props.coinCategory, props.asset.symbol],
+  ([newSelectList, newCoinCategory, newAssetSymbol]) => {
+    enabled.value = !newSelectList.includes(`${newCoinCategory}-${newAssetSymbol}`)
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -80,6 +74,7 @@ watch(enabled, async () => {
     <!-- toggle -->
     <Switch
       v-model="enabled"
+      @update:modelValue="emit('setSelected', enabled)"
       :class="enabled ? 'bg-blue-primary' : 'bg-gray-50 shadow-inner'"
       class="relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
     >

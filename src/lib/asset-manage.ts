@@ -8,7 +8,7 @@ const ASSET_MANAGE = 'ASSET_MANAGE'
 
 interface AssetManageObj {
   [address: string]: {
-    [coinCategory in CoinCategory]: {
+    [coinCategory in CoinCategory]?: {
       [symbol: SymbolTicker]: boolean
     }
   }
@@ -26,12 +26,10 @@ const setAssetManageObj = async (assetManageObj: AssetManageObj) => {
 
 export const getAssetManageList = async (address: string) => {
   const assetManageObj = await getAssetManageObj()
-  return Object.entries(assetManageObj).flatMap(([_, coinCategories]) =>
-    Object.entries(coinCategories).flatMap(([coinCategory, symbols]) =>
-      Object.entries(symbols)
-        .filter(([_, value]) => !value)
-        .map(([symbol, _]) => `${coinCategory}-${symbol}`)
-    )
+  return Object.entries(assetManageObj[address] || {}).flatMap(([coinCategory, symbols]) =>
+    Object.entries(symbols)
+      .filter(([_, value]) => !value)
+      .map(([symbol, _]) => `${coinCategory}-${symbol}`)
   )
 }
 
@@ -42,6 +40,19 @@ export const setAssetManage = async (
   isOpen: boolean
 ) => {
   const assetManageObj = await getAssetManageObj()
-  assetManageObj[address][coinCategory][symbol] = isOpen
+
+  // Ensure the address object exists
+  if (!assetManageObj[address]) {
+    assetManageObj[address] = {}
+  }
+
+  // Ensure the coinCategory object exists
+  if (!assetManageObj[address][coinCategory]) {
+    assetManageObj[address][coinCategory] = {}
+  }
+
+  // Set the symbol value
+  assetManageObj[address][coinCategory]![symbol] = isOpen
+
   await setAssetManageObj(assetManageObj)
 }

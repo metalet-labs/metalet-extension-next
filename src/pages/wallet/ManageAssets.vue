@@ -1,16 +1,18 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { allAssets, Asset } from '@/data/assets'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useMVCAssetsQuery } from '@/queries/tokens'
 import { useBRC20AssetsQuery } from '@/queries/brc20'
 import { useRunesAssetsQuery } from '@/queries/runes'
+import SearchInput from '@/components/SearchInput.vue'
 import AssetSelect from './components/AssetSelect.vue'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { getAssetManageList } from '@/lib/asset-manage'
 import { useMRC20sInfiniteQuery } from '@/queries/mrc20'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { getAssetManageList, setAssetManage } from '@/lib/asset-manage'
 
+const assetSearch = ref()
 const selectList = ref<string[]>([])
 
 const { getAddress } = useChainWalletsStore()
@@ -32,67 +34,118 @@ const { data: metaContractAssets } = useMVCAssetsQuery(mvcAddress, {
   autoRefresh: true,
 })
 
-const { data } = useMRC20sInfiniteQuery(btcAddress, ref(1000000), {
+const { data: _mrc20Assets } = useMRC20sInfiniteQuery(btcAddress, ref(1000000), {
   enabled: computed(() => !!btcAddress.value),
 })
 
-const mrc20Assets = computed(() => (data.value ? data.value.pages.flatMap((page) => page.list) : []))
+const mrc20Assets = computed(() => (_mrc20Assets.value ? _mrc20Assets.value.pages.flatMap((page) => page.list) : []))
 
-getAssetManageList(btcAddress.value).then((list) => {
-  selectList.value = [...selectList.value, ...list]
-})
+watch(
+  btcAddress,
+  (address) => {
+    if (address) {
+      getAssetManageList(address).then((list) => {
+        selectList.value = [...selectList.value, ...list]
+      })
+    }
+  },
+  { immediate: true }
+)
 
-getAssetManageList(mvcAddress.value).then((list) => {
-  selectList.value = [...selectList.value, ...list]
-})
+watch(
+  mvcAddress,
+  (address) => {
+    if (address) {
+      getAssetManageList(address).then((list) => {
+        selectList.value = [...selectList.value, ...list]
+      })
+    }
+  },
+  { immediate: true }
+)
 
-function setSelected(asset: Asset, coinCategory: CoinCategory) {
-  console.log(1111)
-
-  if (selectList.value.includes(`${CoinCategory.Native}-${asset.symbol}`)) {
-    selectList.value = selectList.value.filter((item) => item !== `${CoinCategory.Native}-${asset.symbol}`)
+async function setSelected(asset: Asset, coinCategory: CoinCategory, enabled: boolean) {
+  if (selectList.value.includes(`${coinCategory}-${asset.symbol}`)) {
+    selectList.value = selectList.value.filter((item) => item !== `${coinCategory}-${asset.symbol}`)
   } else {
-    selectList.value.push(`${CoinCategory.Native}-${asset.symbol}`)
+    selectList.value.push(`${coinCategory}-${asset.symbol}`)
   }
+  await setAssetManage(
+    asset.chain === Chain.BTC ? btcAddress.value : mvcAddress.value,
+    coinCategory,
+    asset.symbol,
+    enabled
+  )
 }
 </script>
 
 <template>
   <div class="divide-y divide-gray-100 text-black">
+    <SearchInput v-model:assetSearch="assetSearch" />
     <AssetSelect
       :asset="asset"
       :key="asset.symbol"
-      v-for="asset in allAssets"
+      :selectList="selectList"
       :coinCategory="CoinCategory.Native"
-      :selected="!selectList.includes(`${CoinCategory.Native}-${asset.symbol}`)"
+      @setSelected="(enabled) => setSelected(asset, CoinCategory.Native, enabled)"
+      v-for="asset in allAssets.filter(
+        (asset) =>
+          !assetSearch ||
+          asset.symbol.toLowerCase().includes(assetSearch.toLowerCase()) ||
+          asset.tokenName.toLowerCase().includes(assetSearch.toLowerCase())
+      )"
     />
     <AssetSelect
-      v-for="asset in mrc20Assets"
-      :key="asset.symbol"
       :asset="asset"
+      :key="asset.symbol"
+      :selectList="selectList"
       :coinCategory="CoinCategory.MRC20"
-      :selected="!selectList.includes(`${CoinCategory.MRC20}-${asset.symbol}`)"
+      @setSelected="(enabled) => setSelected(asset, CoinCategory.MRC20, enabled)"
+      v-for="asset in mrc20Assets?.filter(
+        (asset) =>
+          !assetSearch ||
+          asset.symbol.toLowerCase().includes(assetSearch.toLowerCase()) ||
+          asset.tokenName.toLowerCase().includes(assetSearch.toLowerCase())
+      )"
     />
     <AssetSelect
       :asset="asset"
       :key="asset.symbol"
-      v-for="asset in brc20Assets"
+      :selectList="selectList"
       :coinCategory="CoinCategory.BRC20"
-      :selected="!selectList.includes(`${CoinCategory.BRC20}-${asset.symbol}`)"
+      @setSelected="(enabled) => setSelected(asset, CoinCategory.BRC20, enabled)"
+      v-for="asset in brc20Assets?.filter(
+        (asset) =>
+          !assetSearch ||
+          asset.symbol.toLowerCase().includes(assetSearch.toLowerCase()) ||
+          asset.tokenName.toLowerCase().includes(assetSearch.toLowerCase())
+      )"
     />
     <AssetSelect
       :asset="asset"
       :key="asset.symbol"
-      v-for="asset in runeAssets"
+      :selectList="selectList"
       :coinCategory="CoinCategory.Rune"
-      :selected="!selectList.includes(`${CoinCategory.Rune}-${asset.symbol}`)"
+      @setSelected="(enabled) => setSelected(asset, CoinCategory.Rune, enabled)"
+      v-for="asset in runeAssets?.filter(
+        (asset) =>
+          !assetSearch ||
+          asset.symbol.toLowerCase().includes(assetSearch.toLowerCase()) ||
+          asset.tokenName.toLowerCase().includes(assetSearch.toLowerCase())
+      )"
     />
     <AssetSelect
       :asset="asset"
       :key="asset.symbol"
-      v-for="asset in metaContractAssets"
+      :selectList="selectList"
       :coinCategory="CoinCategory.MetaContract"
-      :selected="!selectList.includes(`${CoinCategory.MetaContract}-${asset.symbol}`)"
+      @setSelected="(enabled) => setSelected(asset, CoinCategory.MetaContract, enabled)"
+      v-for="asset in metaContractAssets?.filter(
+        (asset) =>
+          !assetSearch ||
+          asset.symbol.toLowerCase().includes(assetSearch.toLowerCase()) ||
+          asset.tokenName.toLowerCase().includes(assetSearch.toLowerCase())
+      )"
     />
   </div>
 </template>

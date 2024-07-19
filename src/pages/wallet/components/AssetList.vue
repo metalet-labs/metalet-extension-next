@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AssetItem from './AssetItem.vue'
+import { ref, computed, watch } from 'vue'
 import ManageToken from './ ManageToken.vue'
-import { getAssetsDisplay } from '@/lib/assets'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useMVCAssetsQuery } from '@/queries/tokens'
 import { useBRC20AssetsQuery } from '@/queries/brc20'
 import { useRunesAssetsQuery } from '@/queries/runes'
 import { CoinCategory } from '@/queries/exchange-rates'
+import { getAssetManageList } from '@/lib/asset-manage'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { type Asset, BTCAsset, MVCAsset, type FTAsset, type RuneAsset } from '@/data/assets'
@@ -16,21 +16,41 @@ import { type Asset, BTCAsset, MVCAsset, type FTAsset, type RuneAsset } from '@/
 const router = useRouter()
 const { getAddress } = useChainWalletsStore()
 
+const selectList = ref<string[]>([])
 const serviceNetwork = ref<Service>([])
-const btcAddress = getAddress(Chain.BTC)
 
+const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
 
 getServiceNetwork().then((_serviceNetwork) => {
   serviceNetwork.value = _serviceNetwork
 })
 
-const assetsDisplay = ref<string[]>([])
-getAssetsDisplay().then((display) => {
-  assetsDisplay.value = display
-})
+watch(
+  btcAddress,
+  (address) => {
+    if (address) {
+      getAssetManageList(address).then((list) => {
+        selectList.value = [...selectList.value, ...list]
+      })
+    }
+  },
+  { immediate: true }
+)
 
-const { data: btcAssets } = useBRC20AssetsQuery(btcAddress, {
+watch(
+  mvcAddress,
+  (address) => {
+    if (address) {
+      getAssetManageList(address).then((list) => {
+        selectList.value = [...selectList.value, ...list]
+      })
+    }
+  },
+  { immediate: true }
+)
+
+const { data: brc20Assets } = useBRC20AssetsQuery(btcAddress, {
   enabled: computed(() => !!btcAddress.value),
 })
 
@@ -42,10 +62,6 @@ const { data: mvcAssets } = useMVCAssetsQuery(mvcAddress, {
   enabled: computed(() => !!mvcAddress.value),
   autoRefresh: true,
 })
-
-function toManageAssets() {
-  router.push('/wallet/manage-assets')
-}
 
 function toNative(asset: Asset, address: string) {
   router.push({
@@ -86,12 +102,15 @@ function toRune(asset: RuneAsset, address: string) {
             :address="btcAddress"
             :coinCategory="CoinCategory.Native"
             @click="toNative(BTCAsset, btcAddress)"
+            v-if="!selectList.includes(`${CoinCategory.Native}-${BTCAsset.symbol}`)"
           />
           <AssetItem
             :asset="asset"
             :key="asset.symbol"
             :address="btcAddress"
-            v-for="asset in btcAssets"
+            v-for="asset in brc20Assets?.filter(
+              (asset) => !selectList.includes(`${CoinCategory.BRC20}-${asset.symbol}`)
+            )"
             :coinCategory="CoinCategory.BRC20"
             @click="toBRC20(asset, btcAddress)"
           />
@@ -99,9 +118,9 @@ function toRune(asset: RuneAsset, address: string) {
             :asset="asset"
             :key="asset.symbol"
             :address="btcAddress"
-            v-for="asset in runeAssets"
             :coinCategory="CoinCategory.Rune"
             @click="toRune(asset, btcAddress)"
+            v-for="asset in runeAssets?.filter((asset) => !selectList.includes(`${CoinCategory.Rune}-${asset.symbol}`))"
           />
         </div>
       </template>
@@ -113,14 +132,15 @@ function toRune(asset: RuneAsset, address: string) {
             :address="mvcAddress"
             :coinCategory="CoinCategory.Native"
             @click="toNative(MVCAsset, mvcAddress)"
+            v-if="!selectList.includes(`${CoinCategory.Native}-${MVCAsset.symbol}`)"
           />
           <AssetItem
             :asset="asset"
             :key="asset.genesis"
             :address="mvcAddress"
-            v-for="asset in mvcAssets"
             @click="toToken(asset, mvcAddress)"
             :coinCategory="CoinCategory.MetaContract"
+            v-for="asset in mvcAssets?.filter((asset) => !selectList.includes(`${CoinCategory.BRC20}-${asset.symbol}`))"
           />
         </div>
       </template>

@@ -1,20 +1,34 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AssetItem from '../AssetItem.vue'
+import { ref, computed, watch } from 'vue'
 import ManageToken from '../ ManageToken.vue'
 import { type MRC20Asset } from '@/data/assets'
 import EmptyIcon from '@/assets/icons-v3/empty.svg'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { CoinCategory } from '@/queries/exchange-rates'
+import { getAssetManageList } from '@/lib/asset-manage'
 import { LoadingText, LoadingIcon } from '@/components'
 import { useMRC20sInfiniteQuery } from '@/queries/mrc20'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
-const size = ref(10)
+const size = ref(100000)
 const router = useRouter()
+const selectList = ref<string[]>([])
 const { getAddress } = useChainWalletsStore()
 const address = getAddress(Chain.BTC)
+
+watch(
+  address,
+  (_address) => {
+    if (_address) {
+      getAssetManageList(_address).then((list) => {
+        selectList.value = [...selectList.value, ...list]
+      })
+    }
+  },
+  { immediate: true }
+)
 
 const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useMRC20sInfiniteQuery(address, size, {
   enabled: computed(() => !!address.value),
@@ -37,7 +51,7 @@ function toMRC20Detail(asset: MRC20Asset, address: string) {
       :key="index"
       :asset="asset"
       :address="address"
-      v-for="(asset, index) in mrc20s"
+      v-for="(asset, index) in mrc20s?.filter((asset) => !selectList.includes(`${CoinCategory.MRC20}-${asset.symbol}`))"
       :coinCategory="CoinCategory.MRC20"
       @click="toMRC20Detail(asset, address)"
     />
