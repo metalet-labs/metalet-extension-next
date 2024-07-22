@@ -101,7 +101,7 @@ watch(
             </div>
           </template>
           <template #error>
-            <div class="text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+            <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
               {{ asset.symbol[0].toLocaleUpperCase() }}
             </div>
           </template>
@@ -145,7 +145,7 @@ watch(
       </div>
     </div>
     <div
-      v-if="asset?.contract === 'BRC-20'"
+      v-if="asset?.contract === CoinCategory.BRC20"
       class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
     >
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
@@ -165,7 +165,7 @@ watch(
       </div>
     </div>
     <div
-      v-else-if="asset?.contract === 'MRC20' && asset.balance?.unconfirmed.toNumber()"
+      v-else-if="asset?.contract === CoinCategory.MRC20 && asset.balance?.unconfirmed.toNumber()"
       class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
     >
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
