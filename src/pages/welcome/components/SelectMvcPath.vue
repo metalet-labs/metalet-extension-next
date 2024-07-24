@@ -15,12 +15,14 @@ import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
 import { MvcWallet, AddressType, CoinType } from '@metalet/utxo-wallet-service'
 import { useExchangeRatesQuery, useAllExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
-const mvcPath = ref(10001)
+const MVC_PATH = 10001
+const isCustom = ref(false)
 const error = ref<string>()
+const mvcPath = ref(MVC_PATH)
 const customAddress = ref('')
 const selectedMvcPath = ref(false)
 
-const { words } = defineProps({
+const props = defineProps({
   words: {
     type: Array<string>,
     required: true,
@@ -31,12 +33,23 @@ const { words } = defineProps({
   },
 })
 
-const emit = defineEmits(['preStep', 'nextStep', 'update:mvcTypes'])
+console.log('mvcTypes', props.mvcTypes, props.mvcTypes.includes(MVC_PATH))
+
+watch(
+  props.mvcTypes,
+  (mvcTypes) => {
+    mvcPath.value = mvcTypes?.[0] || MVC_PATH
+    isCustom.value = mvcTypes.includes(MVC_PATH)
+  },
+  { immediate: true }
+)
+
+const emit = defineEmits(['close', 'update:mvcTypes'])
 
 const network = getNet()
-const mnemonic = words.join(' ')
+const mnemonic = props.words.join(' ')
 if (!mnemonic) {
-  emit('preStep')
+  emit('close')
 }
 
 const { isLoading: ftRatesLoading, data: ftRates } = useAllExchangeRatesQuery(ref(CoinCategory.MetaContract), {
@@ -100,10 +113,11 @@ const customUSD = computed(() => {
 const debouncedMvcPath = useDebounce(mvcPath, 300)
 
 watch(debouncedMvcPath, (newPath, prePath) => {
+  error.value = undefined
   if (newPath === prePath) {
     return
   }
-  if (!newPath) {
+  if (newPath === undefined || newPath < 0) {
     error.value = 'Please enter a valid path.'
     return
   }
@@ -123,7 +137,7 @@ watch(debouncedMvcPath, (newPath, prePath) => {
 
 const next = () => {
   emit('update:mvcTypes', [mvcPath.value])
-  emit('nextStep')
+  emit('close')
 }
 </script>
 
@@ -131,29 +145,41 @@ const next = () => {
   <div class="flex flex-col gap-6 w-82">
     <div class="flex items-center gap-3">
       <ArrowLeftIcon
-        @click="!selectedMvcPath ? emit('preStep') : (selectedMvcPath = false)"
+        @click="!selectedMvcPath ? emit('close') : (selectedMvcPath = false)"
         class="cursor-pointer w-3.5"
       />
-      <div class="text-2xl font-medium">MVC</div>
+      <div class="text-2xl font-medium">Choose MVC Address</div>
     </div>
     <div v-if="!selectedMvcPath">
       <div class="h-[416px]">
-        <div class="text-xs font-semibold">Choose MVC Address Type</div>
+        <div class="text-xs font-semibold">Choose MVC(Bitcoin sidechain) Address Type</div>
         <p class="text-xs text-gray-primary mt-2">If you're unsure what this is, keep the default.</p>
         <div
           class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer mt-[22px]"
-          @click="mvcPath = 10001"
+          @click="
+            () => {
+              mvcPath = 10001
+              isCustom = false
+            }
+          "
         >
           <div class="flex flex-col gap-y-1.5 w-64">
             <div class="text-sm font-semibold">Default</div>
-            <div class="text-xs">It's default strategy of MVC Address. Using "m/44'/10001'/0'" as derivation path.</div>
+            <div class="text-xs">
+              It's default strategy of MVC(Bitcoin sidechain) Address. Using "m/44'/10001'/0'" as derivation path.
+            </div>
           </div>
           <SuccessIcon v-if="mvcPath === 10001" class="w-5 h-5" />
           <div v-else class="w-4 h-4 border border-[#C5C5C5] rounded-full"></div>
         </div>
         <div
           class="flex items-center justify-between bg-gray-secondary rounded-lg p-4 cursor-pointer mt-4"
-          @click="mvcPath = 236"
+          @click="
+            () => {
+              mvcPath = 236
+              isCustom = true
+            }
+          "
         >
           <div class="flex flex-col gap-y-1.5 w-64">
             <div class="text-sm font-semibold">Custom</div>
@@ -178,18 +204,18 @@ const next = () => {
     <div class="flex flex-col gap-4" v-else>
       <div class="flex flex-col gap-6 h-[416px]">
         <div class="flex flex-col gap-3">
-          <div class="text-xs font-semibold">Customize your MVC address</div>
-          <div class="flex items-center justify-between gap-5">
-            <template v-if="mvcPath !== 10001">
+          <template v-if="isCustom">
+            <div class="text-xs font-semibold">Customize your MVC(Bitcoin sidechain) address</div>
+            <div class="flex items-center justify-between gap-5">
               <div class="text-sm tracking-wide">
                 <span>m/44'/</span>
-                <input type="text" class="pit-input mx-2 w-16" v-model="mvcPath" />
+                <input type="number" class="pit-input mx-2 w-16" v-model="mvcPath" min="0" />
                 <span>'/0'</span>
               </div>
               <DeleteIcon class="cursor-pointer" v-if="false" />
-            </template>
-            <div v-else class="text-xs font-semibold">Address for MVC</div>
-          </div>
+            </div>
+          </template>
+          <div v-else class="text-xs font-semibold">Address for MVC(Bitcoin sidechain)</div>
           <div class="flex items-center gap-2 bg-gray-secondary p-3 rounded-lg text-xs">
             <Avatar :id="customAddress" />
             <div class="flex flex-col gap-1 grow overflow-hidden">
@@ -208,10 +234,10 @@ const next = () => {
       <Button
         @click="next"
         type="primary"
-        :disabled="!mvcPath || !!error"
-        :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': !mvcPath || !!error }]"
+        :disabled="mvcPath === undefined || !!error"
+        :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': mvcPath === undefined || !!error }]"
       >
-        Next
+        Confirm
       </Button>
 
       <!-- error -->
@@ -219,3 +245,16 @@ const next = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type='number'] {
+  -moz-appearance: textfield; /* Firefox */
+}
+</style>

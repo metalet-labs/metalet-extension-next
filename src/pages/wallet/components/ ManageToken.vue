@@ -3,7 +3,7 @@ import { SquaresPlusIcon } from '@heroicons/vue/24/outline'
 </script>
 
 <template>
-  <div class="flex items-center justify-center sticky bottom-0 z-10">
+  <div class="flex items-center justify-center sticky bottom-0 z-10 mt-2">
     <span class="bg-white">
       <button
         @click="$router.push('/wallet/manage-assets')"

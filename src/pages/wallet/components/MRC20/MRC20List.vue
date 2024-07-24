@@ -51,9 +51,9 @@ function toMRC20Detail(asset: MRC20Asset, address: string) {
       :key="index"
       :asset="asset"
       :address="address"
-      v-for="(asset, index) in mrc20s?.filter((asset) => !selectList.includes(`${CoinCategory.MRC20}-${asset.symbol}`))"
       :coinCategory="CoinCategory.MRC20"
       @click="toMRC20Detail(asset, address)"
+      v-for="(asset, index) in mrc20s?.filter((asset) => !selectList.includes(`${CoinCategory.MRC20}-${asset.symbol}`))"
     />
     <div
       v-if="hasNextPage"

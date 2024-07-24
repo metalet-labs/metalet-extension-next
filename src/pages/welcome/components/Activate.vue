@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import { onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { Button } from '@/components'
 import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
@@ -10,10 +10,11 @@ import FailIcon from '@/assets/icons-v3/fail.svg'
 import { Checkbox } from '@/components/ui/checkbox'
 import { WalletsStore } from '@/stores/WalletStore'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import SuccessPNG from '@/assets/icons-v3/send-success.png'
+import NetworkIcon from '@/assets/icons-v3/network.svg'
 import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import BtcLogoIcon from '@/assets/icons-v3/btc-logo.svg?url'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import { getBackupV3Wallet, setBackupV3Wallet } from '@/lib/backup'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
@@ -25,13 +26,17 @@ const { updateAllWallets } = useChainWalletsStore()
 
 type ActivateType = 'Create' | 'Import'
 
-const { words, mvcTypes, type } = defineProps<{
+const props = defineProps<{
   words: string[]
   mvcTypes: number[]
   type: ActivateType
 }>()
 
-const loading = ref(true)
+const type = computed(() => props.type)
+const words = computed(() => props.words)
+const mvcTypes = computed(() => props.mvcTypes)
+
+const loading = ref(false)
 const error = ref<string>()
 const router = useRouter()
 
@@ -87,57 +92,62 @@ const selectChain = (chain: Chain) => {
 }
 
 const onSubmit = handleSubmit(async ({ chains }) => {
-  updateServiceNetwork(chains as Chain[])
+  await addWallet()
+  await updateServiceNetwork(chains as Chain[])
 })
 
-const mnemonic = words.join(' ')
+const mnemonic = words.value.join(' ')
 if (!mnemonic) {
   router.go(0)
 }
 
-onMounted(async () => {
-  const wallets = await getV3Wallets()
-  const hasWallet = wallets.find((wallet) => wallet.mnemonic === mnemonic)
-  if (hasWallet) {
+const addWallet = async () => {
+  try {
+    const wallets = await getV3Wallets()
+    const hasWallet = wallets.find((wallet) => wallet.mnemonic === mnemonic)
+    if (hasWallet) {
+      loading.value = false
+      error.value = 'Wallet already exists.'
+      return
+    }
+    const walletId = genUID()
+    const accountId = genUID()
+    const walletNum = await getV3WalletsNum()
+    await addV3Wallet({
+      id: walletId,
+      name: `Wallet ${formatIndex(walletNum + 1)}`,
+      mnemonic,
+      mvcTypes: mvcTypes.value,
+      accounts: [
+        {
+          id: accountId,
+          name: 'Account 01',
+          addressIndex: 0,
+        },
+      ],
+    }).catch((err) => {
+      error.value = err.message
+      return
+    })
+    await setV3WalletsNum(walletNum + 1)
+    await setCurrentWalletId(walletId)
+    await setCurrentAccountId(accountId)
+    if (WalletsStore.hasWalletManager()) {
+      await WalletsStore.addWalletOnlyAccount(walletId, accountId)
+    } else {
+      await WalletsStore.initWalletManager()
+    }
+    await updateAllWallets()
+    if (type.value === 'Import') {
+      const walletIds = await getBackupV3Wallet()
+      walletIds.push(walletId)
+      setBackupV3Wallet(walletIds)
+    }
     loading.value = false
-    error.value = 'Wallet already exists.'
-    return
+  } catch (err) {
+    error.value = (err as Error).message
   }
-  const walletId = genUID()
-  const accountId = genUID()
-  const walletNum = await getV3WalletsNum()
-  await addV3Wallet({
-    id: walletId,
-    name: `Wallet ${formatIndex(walletNum + 1)}`,
-    mnemonic,
-    mvcTypes,
-    accounts: [
-      {
-        id: accountId,
-        name: 'Account 01',
-        addressIndex: 0,
-      },
-    ],
-  }).catch((err) => {
-    error.value = err.message
-    return
-  })
-  await setV3WalletsNum(walletNum + 1)
-  await setCurrentWalletId(walletId)
-  await setCurrentAccountId(accountId)
-  if (WalletsStore.hasWalletManager()) {
-    await WalletsStore.addWalletOnlyAccount(walletId, accountId)
-  } else {
-    await WalletsStore.initWalletManager()
-  }
-  await updateAllWallets()
-  if (type === 'Import') {
-    const walletIds = await getBackupV3Wallet()
-    walletIds.push(walletId)
-    setBackupV3Wallet(walletIds)
-  }
-  loading.value = false
-})
+}
 </script>
 
 <template>
@@ -154,7 +164,7 @@ onMounted(async () => {
     </div>
 
     <div class="flex flex-col items-center">
-      <img :src="SuccessPNG" alt="Send Success" class="w-30" v-if="!error" />
+      <NetworkIcon class="w-16" v-if="!error" />
       <FailIcon class="w-30" v-else />
       <h1 class="text-2xl mt-6 font-medium">
         <span v-if="error">
@@ -163,18 +173,12 @@ onMounted(async () => {
           <span v-if="$props.type === 'Import'">Imported</span>
           Failed
         </span>
-        <span v-else>
-          Wallet
-          <span v-if="$props.type === 'Create'">Created</span>
-          <span v-if="$props.type === 'Import'">Imported</span>
-          Successfully
-        </span>
+        <span v-else>Please select a network</span>
       </h1>
       <template v-if="!error">
-        <p class="mt-6">Choose Networks</p>
-        <form @submit="onSubmit" class="mt-9 relative">
+        <form @submit="onSubmit" class="mt-9 relative w-full">
           <FormField name="chains">
-            <FormItem class="flex items-center gap-8">
+            <FormItem class="flex flex-col items-center gap-8 w-full relative">
               <FormField
                 name="chains"
                 :key="chain.id"
@@ -186,13 +190,21 @@ onMounted(async () => {
               >
                 <FormItem
                   :class="[
-                    'flex flex-col items-center justify-center cursor-pointer bg-[#F8F8FA] w-30 h-[130px] rounded-lg gap-2',
+                    'flex items-center justify-between cursor-pointer px-[18px] py-3 bg-[#F8F8FA] w-full rounded-lg gap-2 relative',
                     { 'border border-blue-primary': selectedChains.includes(chain.id) },
                   ]"
                 >
-                  <FormLabel class="flex flex-col items-center gap-2 cursor-pointer">
-                    <img :src="chain.logo" alt="Bitcoin" class="inline-block w-[38px] h-[38px]" />
-                    <span class="text-xs">{{ chain.name }}</span>
+                  <FormLabel class="flex items-center gap-2 cursor-pointer">
+                    <img :src="chain.logo" alt="Bitcoin" class="inline-block size-10" />
+                    <div class="text-xs flex flex-col gap-1">
+                      <span>{{ chain.name }}</span>
+                      <span
+                        v-if="chain.name === 'MicrovisionChain'"
+                        class="text-xs px-2 py-1 scale-75 origin-left rounded-full bg-[#F7931A]/20 text-[#F7931A]"
+                      >
+                        Bitcoin sidechain
+                      </span>
+                    </div>
                   </FormLabel>
                   <FormControl>
                     <Checkbox
@@ -202,6 +214,16 @@ onMounted(async () => {
                       class="rounded-full data-[state=checked]:bg-green-success data-[state=checked]:border-none w-5 h-5 text-xs"
                     />
                   </FormControl>
+                  <p
+                    class="absolute -bottom-8 left-0 flex items-center gap-x-1 text-sm"
+                    v-if="chain.name === 'MicrovisionChain' && value.includes(chain.id) && type === 'Import'"
+                  >
+                    <span class="text-gray-primary">Choose</span>
+                    <span class="underline text-blue-primary" @click="$emit('openSelectMvcPath')">MVC Address</span>
+                    <span v-tooltip="'Import the MVC wallet by modifying the HD Path.'">
+                      <QuestionMarkCircleIcon class="w-3.5" />
+                    </span>
+                  </p>
                 </FormItem>
               </FormField>
             </FormItem>

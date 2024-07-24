@@ -19,7 +19,6 @@ import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } fro
 import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
-const size = ref(10)
 const route = useRoute()
 const recipient = ref('')
 const commitTxHex = ref('')
@@ -47,6 +46,18 @@ const amount = ref<number>()
 const balance = computed(() => {
   if (asset.value?.balance) {
     return asset.value.balance.total.toNumber()
+  }
+})
+
+const confirmBalance = computed(() => {
+  if (asset.value?.balance) {
+    return asset.value.balance.confirmed.toNumber()
+  }
+})
+
+const unconfirmedBalance = computed(() => {
+  if (asset.value?.balance) {
+    return asset.value.balance.unconfirmed.toNumber()
   }
 })
 
@@ -251,17 +262,22 @@ async function send() {
         <span>Amount</span>
         <span class="text-gray-primary text-xs">
           <span>Balance:</span>
-          <span v-if="balance !== undefined">
-            {{ prettifyBalanceFixed(balance, asset.symbol, asset.decimal, asset.decimal) }}
-          </span>
+          <template v-if="balance !== undefined">
+            <span v-if="confirmBalance !== undefined">
+              {{ prettifyBalanceFixed(confirmBalance, asset.symbol, asset.decimal, asset.decimal) }}
+            </span>
+            <span class="text-gray-primary" v-if="unconfirmedBalance">
+              +{{ prettifyBalanceFixed(unconfirmedBalance, asset.symbol, asset.decimal, asset.decimal) }}
+            </span>
+          </template>
           <span v-else>--</span>
         </span>
       </FlexBox>
       <input
         min="0"
         type="number"
-        :max="balance"
         v-model="amount"
+        :max="confirmBalance"
         :step="new Decimal(1).div(10 ** asset.decimal).toNumber()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />

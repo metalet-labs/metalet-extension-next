@@ -197,7 +197,7 @@ const hasMergeToken = computed(() => {
     <div class="py-4 flex gap-3 items-center">
       <Avatar :id="address" />
       <div class="flex flex-col gap-1">
-        <div class="text-sm font-medium">MVC Address</div>
+        <div class="text-sm font-medium">MVC(Bitcoin sidechain) Address</div>
         <div class="text-gray-primary text-xs">{{ address }}</div>
       </div>
     </div>

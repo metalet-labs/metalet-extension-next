@@ -56,7 +56,7 @@ async function find() {
 
 <template>
   <div>
-    <h3 class="gradient-text text-lg">MVC Path Finder</h3>
+    <h3 class="gradient-text text-lg">MVC(Bitcoin sidechain) Path Finder</h3>
     <p class="text-sm text-gray-600">
       This tool is designed to help you find the correct derivation path for your wallet.
     </p>

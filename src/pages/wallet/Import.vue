@@ -1,8 +1,15 @@
 <script lang="ts" setup>
-import { ref, computed, Ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { addAccount } from '@/lib/account'
 import passwordManager from '@/lib/password'
+import { ref, computed, Ref, watch } from 'vue'
+import MetaletLogoImg from '@/assets/images/metalet-logo-v3.svg?url'
+import { deriveAllAddresses, scripts, AddressType } from '@/lib/bip32-deriver'
+import { TrashIcon, CheckIcon, ChevronUpDownIcon, ChevronRightIcon } from '@heroicons/vue/24/solid'
 import {
+  Switch,
+  SwitchLabel,
+  SwitchGroup,
   RadioGroup,
   RadioGroupOption,
   Disclosure,
@@ -12,16 +19,7 @@ import {
   ListboxButton,
   ListboxOptions,
   ListboxOption,
-  Switch,
-  SwitchGroup,
-  SwitchLabel,
 } from '@headlessui/vue'
-import { TrashIcon, CheckIcon, ChevronUpDownIcon, ChevronRightIcon } from '@heroicons/vue/24/solid'
-
-import { addAccount } from '@/lib/account'
-import { deriveAllAddresses, scripts, AddressType } from '@/lib/bip32-deriver'
-
-import MetaletLogoImg from '@/assets/images/metalet-logo-v3.svg?url'
 
 // Remove the last one
 const selectableScripts = scripts.slice(0, -1)
@@ -100,7 +98,6 @@ const onSubmit = async () => {
 
     await addAccount(account)
 
-    // 查询有否设置密码
     const hasPassword = await passwordManager.has()
     const following = hasPassword ? '/wallet' : '/wallet/set-password'
     router.push(following)
@@ -151,15 +148,14 @@ const onSubmit = async () => {
       </h3>
 
       <div class="grid grid-cols-3 gap-2">
-        <!-- input框 绑定粘贴事件 -->
         <input
-          v-for="(word, index) in words"
-          :key="index"
           type="text"
-          class="pit-input gradient-text"
-          :placeholder="(index + 1).toString()"
+          :key="index"
           v-model="words[index]"
           @paste.prevent="onPasteWords"
+          v-for="(word, index) in words"
+          class="pit-input gradient-text"
+          :placeholder="(index + 1).toString()"
         />
       </div>
     </div>
@@ -168,7 +164,7 @@ const onSubmit = async () => {
     <div class="mt-6">
       <Disclosure v-slot="{ open }">
         <DisclosureButton class="flex items-center gap-1">
-          <span class="text-xs text-gray-500">MVC Path</span>
+          <span class="text-xs text-gray-500">MVC(Bitcoin sidechain) Path</span>
           <ChevronRightIcon :class="['h-4 w-4 text-gray-400 transition duration-200', open && 'rotate-90 transform']" />
         </DisclosureButton>
 
@@ -185,7 +181,10 @@ const onSubmit = async () => {
             <p>
               A derivation path is used to generate your wallet address. You can use the default path or customize it.
             </p>
-            <p>The default path used by Metalet is <span>m/44'/10001'/0'</span></p>
+            <p>
+              The default path used by Metalet is
+              <span>m/44'/10001'/0'</span>
+            </p>
           </DisclosurePanel>
         </transition>
       </Disclosure>
@@ -205,7 +204,7 @@ const onSubmit = async () => {
           v-model="useSamePath"
           class="group relative inline-flex h-5 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full"
         >
-          <span class="sr-only">Use same path as MVC</span>
+          <span class="sr-only">Use same path as MVC(Bitcoin sidechain)</span>
           <span aria-hidden="true" class="pointer-events-none absolute h-full w-full rounded-md bg-white"></span>
           <span
             aria-hidden="true"
@@ -223,7 +222,9 @@ const onSubmit = async () => {
           ></span>
         </Switch>
 
-        <SwitchLabel as="span" class="ml-3 text-sm text-gray-500"> Use the same path as MVC </SwitchLabel>
+        <SwitchLabel as="span" class="ml-3 text-sm text-gray-500">
+          Use the same path as MVC(Bitcoin sidechain)
+        </SwitchLabel>
       </SwitchGroup>
 
       <Listbox v-model="selectedScript" v-if="!useSamePath">

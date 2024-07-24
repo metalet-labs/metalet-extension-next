@@ -12,7 +12,6 @@ import { PasswordInput, SeedPhrase, VerifySeedPhrase } from '@/components'
 import { getBackupV3Wallet, hasBackupCurrentWallet, setBackupV3Wallet } from '@/lib/backup'
 
 const router = useRouter()
-const { currentMVCWallet } = useChainWalletsStore()
 
 const mnemonic = ref()
 const showResetModal = ref(false)
@@ -108,10 +107,6 @@ const back = () => {
             </button>
             <div class="w-48 text-center">View your seed phrase. Make sure no one else is looking at your screen.</div>
           </div>
-        </div>
-        <div class="space-y-2">
-          <h4>MVC Derivation Path</h4>
-          <div class="rounded-lg bg-gray-100 px-3 py-2 text-sm leading-loose">{{ currentMVCWallet?.getPath() }}</div>
         </div>
       </div>
 

@@ -4,17 +4,11 @@ import passwordManager from '@/lib/password'
 import { CreatePassword, SelectMvcPath, ImportPhrase, Activate } from './components'
 
 const step = ref(1)
-const stepLen = ref(4)
+const stepLen = ref(3)
 const mvcTypes = ref([10001])
 const hasPassword = ref(false)
+const chooseMVCAddress = ref(false)
 const words = ref<string[]>(Array(12).fill(''))
-
-const preStep = () => {
-  if (step.value === stepLen.value) {
-    return
-  }
-  step.value -= 1
-}
 
 const nextStep = () => {
   if (step.value === stepLen.value) {
@@ -35,8 +29,6 @@ passwordManager.has().then((_hasPassword) => {
   <div class="flex flex-col w-full gap-20">
     <div class="flex items-center justify-center gap-2 w-full h-[70px]">
       <div
-        ai="center"
-        jc="center"
         v-for="_step in Array.from({ length: stepLen }, (_, i) => i + 1)"
         :class="['flex items-center justify-center step-circle', { active: step === _step }]"
       >
@@ -45,15 +37,9 @@ passwordManager.has().then((_hasPassword) => {
     </div>
     <div class="flex justify-center w-full">
       <ImportPhrase @nextStep="nextStep" v-model:words="words" v-if="step === 1" />
-      <SelectMvcPath
-        :words="words"
-        @preStep="preStep"
-        @nextStep="nextStep"
-        v-else-if="step === 2"
-        v-model:mvcTypes="mvcTypes"
-      />
+
       <CreatePassword
-        v-else-if="!hasPassword && step === 3"
+        v-else-if="!hasPassword"
         :callback="
           () => {
             step = step + 1
@@ -61,7 +47,21 @@ passwordManager.has().then((_hasPassword) => {
           }
         "
       />
-      <Activate v-else-if="step === stepLen" :words="words" :mvcTypes="mvcTypes" type="Import" />
+
+      <Activate
+        type="Import"
+        :words="words"
+        :mvcTypes="mvcTypes"
+        v-else-if="step === stepLen"
+        @openSelectMvcPath="chooseMVCAddress = true"
+      />
+      <SelectMvcPath
+        :words="words"
+        v-if="chooseMVCAddress"
+        v-model:mvcTypes="mvcTypes"
+        class="z-10 absolute bg-white"
+        @close="chooseMVCAddress = false"
+      />
     </div>
   </div>
 </template>

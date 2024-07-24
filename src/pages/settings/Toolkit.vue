@@ -39,7 +39,7 @@ const toSpaceMerge = () => {
     </div>
 
     <div class="space-y-2">
-      <div class="text-base">MVC</div>
+      <div class="text-base">MVC(Bitcoin sidechain)</div>
       <div class="divide-y divide-gray-100">
         <div class="setting-item group cursor-pointer" @click="toSpaceMerge">
           <div class="text-gray-500 group-hover:underline">Space Merge</div>
