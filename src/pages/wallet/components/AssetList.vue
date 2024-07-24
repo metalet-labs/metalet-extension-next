@@ -140,7 +140,7 @@ function toRune(asset: RuneAsset, address: string) {
             :address="mvcAddress"
             @click="toToken(asset, mvcAddress)"
             :coinCategory="CoinCategory.MetaContract"
-            v-for="asset in mvcAssets?.filter((asset) => !selectList.includes(`${CoinCategory.BRC20}-${asset.symbol}`))"
+            v-for="asset in mvcAssets?.filter((asset) => !selectList.includes(`${CoinCategory.MetaContract}-${asset.symbol}`))"
           />
         </div>
       </template>
