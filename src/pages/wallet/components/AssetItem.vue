@@ -37,6 +37,8 @@ const icon = computed(
 
 if (props.asset?.contract) {
   tag.value = getTagInfo(props.asset.contract)
+} else if (props.asset.symbol === 'SPACE') {
+  tag.value = { bg: 'rgba(247,147,26,0.2)', color: '#F7931A', name: 'Bitcoin sidechain' }
 }
 
 const balanceEnabled = computed(() => !!address.value && !!asset.value.symbol && !asset.value.balance)
@@ -122,7 +124,7 @@ watch(
 
           <div
             v-if="tag"
-            :style="`background-color:${tag.bg};color:${tag.color};`"
+            :style="[`background-color:${tag.bg};color:${tag.color};`]"
             :class="['px-1.5', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'scale-75', 'origin-left']"
           >
             {{ tag.name }}
