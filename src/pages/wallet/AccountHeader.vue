@@ -1,14 +1,16 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { FlexBox } from '@/components'
 import { useRouter } from 'vue-router'
 import { getMetaId } from '@/lib/metaId'
 import { getNetwork } from '@/lib/network'
 import Avatar from '@/components/Avatar.vue'
+import { UseImage } from '@vueuse/components'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
 import { prettifyAddress } from '@/lib/formatters'
 import CloseIcon from '@/assets/icons-v3/close.svg'
 import { WalletsStore } from '@/stores/WalletStore'
+import { useMetaidInfoQuery } from '@/queries/metaid'
 import { V3Wallet, type V3Account } from '@/lib/types'
 import BtcLogo from '@/assets/icons-v3/btc-logo.svg?url'
 import SpaceLogo from '@/assets/icons-v3/space.svg?url'
@@ -41,6 +43,13 @@ const account = ref<V3Account>()
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
+
+const { data: btcMetaidInfo, isLoading: btcInfoLoading } = useMetaidInfoQuery(btcAddress, {
+  enabled: computed(() => !!btcAddress),
+})
+const { data: mvcMetaidInfo } = useMetaidInfoQuery(mvcAddress, {
+  enabled: computed(() => !!mvcAddress && btcAddress.value !== mvcAddress.value),
+})
 
 getNetwork().then((_network) => (network.value = _network))
 
@@ -84,15 +93,35 @@ const copy = (address: string, addressType: string, type: string) => {
   <div class="flex items-center justify-between py-3">
     <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toManageWallets" v-if="account">
       <div class="flex items-center">
-        <Avatar :id="btcAddress" class="z-10" />
-        <Avatar :id="mvcAddress" class="-ml-5" v-if="btcAddress !== mvcAddress" />
+        <Avatar :id="btcAddress" class="z-10" v-if="!btcMetaidInfo" />
+        <UseImage :src="btcMetaidInfo.avatar" class="z-10 h-10 w-10 rounded-full border border-gray-soft" v-else>
+          <template #loading>
+            <Avatar :id="btcAddress" class="z-10" />
+          </template>
+          <template #error>
+            <Avatar :id="btcAddress" class="z-10" />
+          </template>
+        </UseImage>
+        <Avatar :id="mvcAddress" class="-ml-5" v-if="!mvcMetaidInfo" />
+        <UseImage :src="mvcMetaidInfo.avatar" class="z-10 h-10 w-10 rounded-full -ml-5 border border-gray-soft" v-else>
+          <template #loading>
+            <Avatar :id="mvcAddress" class="-ml-5" />
+          </template>
+          <template #error>
+            <Avatar :id="mvcAddress" class="-ml-5" />
+          </template>
+        </UseImage>
       </div>
       <div class="flex flex-col" v-if="wallet">
         <div class="text-gray-black text-xs text-gray-primary">
           <span>{{ wallet.name }}</span>
         </div>
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-ss">{{ account.name }}</span>
+          <span class="text-ss">{{ btcMetaidInfo?.name || account.name }}</span>
+          <template v-if="btcAddress !== mvcAddress && mvcMetaidInfo?.name">
+            <span>/</span>
+            <span class="text-ss">{{ mvcMetaidInfo?.name }}</span>
+          </template>
           <TriangleDownIcon class="w-2" />
         </div>
         <div class="text-gray-black text-xs text-gray-primary space-x-0.5">
