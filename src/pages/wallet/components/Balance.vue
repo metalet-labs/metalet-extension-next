@@ -36,7 +36,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
 
 <template>
   <div>
-    <div class="mt-2 flex items-center justify-between">
+    <div class="flex items-center justify-between">
       <div class="text-[40px] leading-10 font-bold">$ {{ totalBalance.toFixed(2) }}</div>
       <div
         v-if="network !== 'mainnet'"
