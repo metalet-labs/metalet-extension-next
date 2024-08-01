@@ -267,7 +267,14 @@ async function send() {
               {{ prettifyBalanceFixed(confirmBalance, asset.symbol, asset.decimal, asset.decimal) }}
             </span>
             <span class="text-gray-primary" v-if="unconfirmedBalance">
-              +{{ prettifyBalanceFixed(unconfirmedBalance, asset.symbol, asset.decimal, asset.decimal) }}
+              +{{
+                prettifyBalanceFixed(
+                  unconfirmedBalance,
+                  asset.symbol,
+                  asset.decimal,
+                  confirmBalance === Math.floor(unconfirmedBalance) ? 0 : asset.decimal
+                )
+              }}
             </span>
           </template>
           <span v-else>--</span>
