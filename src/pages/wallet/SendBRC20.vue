@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue'
 import { getTags } from '@/data/assets'
 import { addSafeUtxo } from '@/lib/utxo'
-import type { Psbt } from 'bitcoinjs-lib'
 import { getBtcUtxos } from '@/queries/utxos'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
@@ -14,7 +13,7 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { prettifyBalanceFixed } from '@/lib/formatters'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { ScriptType, getAddressFromScript } from '@metalet/utxo-wallet-service'
+import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
@@ -40,8 +39,9 @@ const tags = getTags(CoinCategory.BRC20)
 const recipient = ref('')
 const operationLock = ref(false)
 const currentRateFee = ref<number>()
-const calcFee = ref<number>()
-const txPsbt = ref<Psbt>()
+const calcFee = ref<string>()
+const rawTx = ref<string>()
+const psbtHex = ref<string>()
 
 const isOpenResultModal = ref(false)
 
@@ -67,13 +67,23 @@ async function next() {
     const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const {
       fee,
-      psbt,
-      cost: _cost,
-    } = currentBTCWallet.value!.sendBRC20(recipient.value, [utxo], currentRateFee.value!, utxos)
+      txOutputs,
+      rawTx: _rawTx,
+      psbtHex: _psbtHex,
+    } = currentBTCWallet.value!.signTx(SignType.Transfer, {
+      recipient: recipient.value,
+      transferUTXOs: [utxo],
+      feeRate: currentRateFee.value!,
+      utxos,
+    })
 
-    cost.value = _cost
-    txPsbt.value = psbt
+    cost.value = txOutputs.reduce(
+      (total, out) => (total + out.address === currentBTCWallet.value?.getAddress() ? 0 : out.value),
+      0
+    )
+    rawTx.value = _rawTx
     calcFee.value = fee
+    psbtHex.value = _psbtHex
     isShowConfirm.value = true
   } catch (error) {
     console.error('Error in BTC transaction:', error)
@@ -88,7 +98,7 @@ async function next() {
 }
 
 async function send() {
-  if (!txPsbt.value) {
+  if (!rawTx.value) {
     transactionResult.value = {
       status: 'warning',
       message: 'No Psbt.',
@@ -97,7 +107,7 @@ async function send() {
     return
   }
 
-  const txId = await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
+  const txId = await broadcastBTCTx(rawTx.value).catch((err: Error) => {
     isShowConfirm.value = false
     transactionResult.value = {
       status: 'failed',
@@ -114,14 +124,13 @@ async function send() {
     return
   }
 
+  const tx = Transaction.fromHex(rawTx.value)
+
   if (
-    txPsbt.value.txOutputs.length > 1 &&
-    getAddressFromScript(
-      txPsbt.value.txOutputs[txPsbt.value.txOutputs.length - 1].script,
-      currentBTCWallet.value!.getNetwork()
-    ) === address.value
+    tx.outs.length > 1 &&
+    getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address.value
   ) {
-    await addSafeUtxo(address.value, `${txId}:${txPsbt.value.txOutputs.length - 1}`)
+    await addSafeUtxo(address.value, `${txId}:${tx.outs.length - 1}`)
   }
 
   isShowConfirm.value = false
@@ -217,7 +226,7 @@ async function send() {
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Fees (Estimated)</div>
-            <div>{{ prettifyBalanceFixed(calcFee || 0, 'BTC', 8) }}</div>
+            <div>{{ prettifyBalanceFixed(Number(calcFee) || 0, 'BTC', 8) }}</div>
           </FlexBox>
           <Divider />
           <FlexBox ai="center" jc="between">

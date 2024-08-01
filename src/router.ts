@@ -585,7 +585,7 @@ const routes = [
   },
   {
     path: '/test',
-    component: () => import('./pages/tests/Index.vue'),
+    component: () => import('./pages/tests/Auth.vue'),
   },
 ]
 

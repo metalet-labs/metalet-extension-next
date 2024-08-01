@@ -104,6 +104,8 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
   }
   let utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
 
+  utxos = utxos.filter((utxo) => utxo.satoshis >= 600)
+
   if (!useUnconfirmed) {
     utxos = utxos.filter((utxo) => utxo.confirmed)
   } else {

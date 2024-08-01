@@ -3,8 +3,11 @@ import * as ecc from '@bitcoinerlab/secp256k1'
 import { getBtcNetwork, getNetwork } from '@/lib/network'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import btcjs, { Psbt, payments, networks, Transaction } from 'bitcoinjs-lib'
+import { IS_DEV } from '@/data/config'
 
-btcjs.initEccLib(ecc)
+if (!IS_DEV) {
+  btcjs.initEccLib(ecc)
+}
 
 const toXOnly = (pubKey: Buffer) => (pubKey.length === 32 ? pubKey : pubKey.slice(1, 33))
 

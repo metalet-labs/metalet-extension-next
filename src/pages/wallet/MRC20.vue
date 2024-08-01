@@ -28,12 +28,6 @@ const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
   enabled: computed(() => !!address.value && !!mrc20Id.value),
 })
 
-const balance = computed(() => {
-  if (asset.value?.balance) {
-    return asset.value.balance.total.toNumber()
-  }
-})
-
 const confirmBalance = computed(() => {
   if (asset.value?.balance) {
     return asset.value.balance.confirmed.toNumber()
@@ -81,20 +75,26 @@ const toSend = () => {
     <div class="flex flex-col items-center">
       <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
-      <div class="mt-3 text-2xl text-balance max-w-full text-center">
+      <div v-if="asset?.balance && asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary mt-2">
+        +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}
+      </div>
+
+      <div class="mt-2 text-2xl text-balance max-w-full text-center">
         <span v-if="asset?.balance" class="break-all">
           <span>
             {{ calcBalance(asset.balance.confirmed.toNumber(), asset.decimal, asset.symbol) }}
           </span>
-          <span v-if="asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary">
+          <!-- <span v-if="asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary">
             +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}
-          </span>
+          </span> -->
         </span>
         <span v-else>-- {{ symbol }}</span>
-        <span class="text-gray-primary ml-2" v-if="assetUSD !== undefined">
+        <!-- <span class="text-gray-primary ml-2" v-if="assetUSD !== undefined">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
-        </span>
+        </span> -->
       </div>
+
+      <div class="text-gray-primary ml-2" v-if="assetUSD !== undefined">≈ ${{ assetUSD?.toNumber().toFixed(2) }}</div>
 
       <div
         :key="tag.name"
@@ -108,10 +108,10 @@ const toSend = () => {
 
     <div class="flex items-center justify-center gap-x-2">
       <!-- TODO: mintable -->
-      <button @click="toMint" :disabled="true" :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': true }]">
+      <!-- <button @click="toMint" :disabled="true" :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': true }]">
         <PencilIcon class="w-3" />
         <span>Mint</span>
-      </button>
+      </button> -->
       <button
         @click="toSend"
         :disabled="!confirmBalance"

@@ -12,7 +12,7 @@ import { UTXO, getInscriptionUtxo } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
 import TransactionResultModal, { type TransactionResult } from '../wallet/components/TransactionResultModal.vue'
-import { ScriptType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
+import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 const route = useRoute()
 const queryClient = useQueryClient()
@@ -36,10 +36,10 @@ const calcFee = ref<number>()
 const rawTx = ref<string>()
 
 const isOpenResultModal = ref(false)
-const isShowComfirm = ref(false)
+const isShowConfirm = ref(false)
 
 function cancel() {
-  isShowComfirm.value = false
+  isShowConfirm.value = false
 }
 
 const transactionResult = ref<TransactionResult | undefined>()
@@ -81,16 +81,16 @@ async function next() {
 
   try {
     const utxos = await getBtcUtxos(address.value, needRawTx, true)
-    const { fee, rawTx: _rawTx } = currentBTCWallet.value!.sendBRC20(
-      recipient.value,
-      [utxo],
-      currentRateFee.value!,
-      utxos
-    )
+    const { fee, rawTx: _rawTx } = currentBTCWallet.value!.signTx(SignType.Transfer, {
+      recipient: recipient.value,
+      transferUTXOs: [utxo],
+      feeRate: currentRateFee.value!,
+      utxos,
+    })
 
     rawTx.value = _rawTx
-    calcFee.value = fee
-    isShowComfirm.value = true
+    calcFee.value = Number(fee)
+    isShowConfirm.value = true
   } catch (error) {
     console.error('Error in BTC transaction:', error)
     transactionResult.value = {
@@ -114,7 +114,7 @@ async function send() {
   }
 
   const txId = await broadcastBTCTx(rawTx.value).catch((err: Error) => {
-    isShowComfirm.value = false
+    isShowConfirm.value = false
     transactionResult.value = {
       status: 'failed',
       message: err.message,
@@ -167,7 +167,7 @@ operationLock.value = false
     <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
 
     <!-- send page -->
-    <div v-show="!isShowComfirm" class="space-y-4 w-full min-h-full pb-4 flex flex-col">
+    <div v-show="!isShowConfirm" class="space-y-4 w-full min-h-full pb-4 flex flex-col">
       <div class="grow space-y-4">
         <div class="flex items-center gap-3 rounded-md">
           <div class="grid grid-cols-3 gap-3 w-full">
@@ -217,8 +217,8 @@ operationLock.value = false
       </button>
     </div>
 
-    <!-- comfirm page -->
-    <div v-show="isShowComfirm" class="min-h-full flex flex-col">
+    <!-- confirm page -->
+    <div v-show="isShowConfirm" class="min-h-full flex flex-col">
       <div class="grow space-y-[30px]">
         <div class="grid grid-cols-3 gap-3">
           <div

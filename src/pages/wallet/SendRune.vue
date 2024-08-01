@@ -15,14 +15,14 @@ import type { TransactionResult } from '@/global-types'
 import { getBtcUtxos, getRuneUtxos } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal from './components/TransactionResultModal.vue'
-import { ScriptType, getAddressFromScript, SignType } from '@metalet/utxo-wallet-service'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
+import { ScriptType, getAddressFromScript, SignType, Transaction } from '@metalet/utxo-wallet-service'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
 const route = useRoute()
 const recipient = ref('')
 const router = useRouter()
-const txPsbt = ref<Psbt>()
+const rawTx = ref<string>()
 const totalFee = ref<number>()
 const currentRateFee = ref<number>()
 const isOpenConfirmModal = ref(false)
@@ -111,7 +111,7 @@ const popConfirm = async () => {
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const runeUtxos = await getRuneUtxos(address.value, asset.value!.runeId, needRawTx)
-    const { fee, psbt } = currentBTCWallet.value!.signTx(SignType.RUNE_SEND, {
+    const { fee, rawTx: _rawTx } = currentBTCWallet.value!.signTx(SignType.RUNE_SEND, {
       utxos,
       runeId: runeId.value,
       feeRate: currentRateFee.value,
@@ -119,11 +119,9 @@ const popConfirm = async () => {
       runeUtxos,
       runeAmount: amount.value.toString(),
       divisibility: asset.value!.decimal,
-    }) as {
-      psbt: Psbt
-      fee: string
-    }
-    txPsbt.value = psbt
+    })
+    // txPsbt.value = psbt
+    rawTx.value = _rawTx
     totalFee.value = Number(fee)
     isOpenConfirmModal.value = true
   } catch (error) {
@@ -143,8 +141,8 @@ const isOpenResultModal = ref(false)
 const operationLock = ref(false)
 
 async function sendBTC() {
-  if (txPsbt.value) {
-    const txId = await broadcastBTCTx(txPsbt.value.extractTransaction().toHex()).catch((err: Error) => {
+  if (rawTx.value) {
+    const txId = await broadcastBTCTx(rawTx.value).catch((err: Error) => {
       isOpenConfirmModal.value = false
       transactionResult.value = {
         status: 'failed',
@@ -154,14 +152,12 @@ async function sendBTC() {
       operationLock.value = false
       throw err
     })
+    const tx = Transaction.fromHex(rawTx.value)
     if (
-      txPsbt.value.txOutputs.length > 1 &&
-      getAddressFromScript(
-        txPsbt.value.txOutputs[txPsbt.value.txOutputs.length - 1].script,
-        currentBTCWallet.value!.getNetwork()
-      ) === address.value
+      tx.outs.length > 1 &&
+      getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address.value
     ) {
-      await addSafeUtxo(address.value, `${txId}:${txPsbt.value.txOutputs.length - 1}`)
+      await addSafeUtxo(address.value, `${txId}:${tx.outs.length - 1}`)
     }
     return { txId }
   } else {

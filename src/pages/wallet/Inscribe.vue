@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
-import { type Psbt } from 'bitcoinjs-lib'
 import { LoadingText } from '@/components'
 import Ticker from './components/Ticker.vue'
 import { getBtcUtxos } from '@/queries/utxos'
@@ -10,7 +9,7 @@ import CopyIcon from '@/assets/icons-v3/copy.svg'
 import { commitInscribe } from '@/queries/inscribe'
 import { useBRC20AssetQuery } from '@/queries/brc20'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import { ScriptType } from '@metalet/utxo-wallet-service'
+import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import InscribeSuccessPNG from '@/assets/icons-v3/inscribe-success.png'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
@@ -55,10 +54,8 @@ const nextStep = ref(0)
 const operationLock = ref(false)
 const isOpenResultModal = ref(false)
 
-const psbtHex = ref('')
 const copied = ref(false)
 const total = ref<number>()
-const inscribePsbt = ref<Psbt>()
 const inscribeAmount = ref<number>()
 const paymentNetworkFee = ref<number>()
 const inscribeOrder = ref<PreInscribe>()
@@ -71,7 +68,7 @@ interface SimpleUTXO {
 const inputUTXOs = ref<SimpleUTXO[]>()
 const outputUTXOs = ref<SimpleUTXO[]>()
 const copyHex = () => {
-  navigator.clipboard.writeText(psbtHex.value)
+  navigator.clipboard.writeText(rawTx.value!)
   copied.value = true
 }
 const popConfirm = async () => {
@@ -131,23 +128,19 @@ const popConfirm = async () => {
     const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const {
       fee,
-      psbt,
       txInputs,
       txOutputs,
-      rawTx: _rawTx,
-    } = currentBTCWallet.value!.send(
-      order.payAddress,
-      (order.needAmount / 1e8).toString(),
-      currentRateFee.value!,
-      utxos
-    )
+      rawTx: _rawTx
+    } = currentBTCWallet.value!.signTx(SignType.SEND, {
+      recipient: order.payAddress,
+      amount: order.needAmount / 1e8,
+      feeRate: currentRateFee.value!,
+      utxos,
+    })
     rawTx.value = _rawTx
     inputUTXOs.value = txInputs
     outputUTXOs.value = txOutputs
-    psbtHex.value = psbt.extractTransaction().toHex()
-    paymentNetworkFee.value = fee
-    inscribePsbt.value = psbt
-    // console.log('paymentNetworkFee', paymentNetworkFee.value, order.minerFee)
+    paymentNetworkFee.value =Number(fee) 
     inscribeOrder.value = order
     orderId.value = order.orderId
     total.value = paymentNetworkFee.value + order.needAmount
@@ -346,7 +339,7 @@ const changeTabIdx = (idx: number) => {
           <div class="space-y-2 rounded-md">
             <div class="label">Outputs</div>
             <div class="w-full p-4 bg-gray-secondary h-48 rounded-md break-all overflow-y-scroll">
-              {{ psbtHex }}
+              {{ rawTx }}
             </div>
           </div>
           <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer hover:text-blue-primary">

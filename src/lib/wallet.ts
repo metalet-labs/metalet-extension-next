@@ -229,7 +229,12 @@ export async function hasWallets() {
   return !!wallets.length
 }
 
-export async function getCurrentWallet(chain: Chain, _addressIndex?: number) {
+interface WalletMap {
+  [Chain.BTC]: BtcWallet
+  [Chain.MVC]: MvcWallet
+}
+
+export async function getCurrentWallet<T extends Chain>(chain: T, _addressIndex?: number): Promise<WalletMap[T]> {
   const network = getNet()
   const activeWallet = await getActiveWalletOnlyAccount()
   const mnemonic = activeWallet.mnemonic

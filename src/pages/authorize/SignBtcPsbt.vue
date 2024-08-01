@@ -171,7 +171,7 @@ onMounted(async () => {
     }
   }
   fee.value = totalInputValue - totalOutputValue
-  transferAmount.value = totalInputValue - totalOutputValue + changeOutputValue
+  transferAmount.value = totalOutputValue - changeOutputValue
   feeRate.value = (totalInputValue - totalOutputValue) / calcSize(psbt, wallet.getAddressType() === AddressType.Taproot)
 })
 </script>

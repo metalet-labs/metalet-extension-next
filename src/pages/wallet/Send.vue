@@ -18,7 +18,7 @@ import type { TransactionResult } from '@/global-types'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import TransactionResultModal from './components/TransactionResultModal.vue'
-import { Chain, ScriptType, getAddressFromScript } from '@metalet/utxo-wallet-service'
+import { Chain, ScriptType, SignType, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
@@ -126,15 +126,15 @@ const popConfirm = async () => {
     try {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
       const utxos = await getBtcUtxos(address.value, needRawTx, true)
-      const { fee, psbt } = currentBTCWallet.value!.send(
-        recipient.value,
-        amount.value.toString(),
-        currentRateFee.value!,
-        utxos
-      )
+      const { fee, rawTx } = currentBTCWallet.value!.signTx(SignType.SEND, {
+        recipient: recipient.value,
+        amount: amount.value,
+        feeRate: currentRateFee.value!,
+        utxos,
+      })
       cost.value = amountInSats.value.add(fee).toNumber()
-      txHex.value = psbt.extractTransaction().toHex()
-      totalFee.value = fee
+      txHex.value = rawTx
+      totalFee.value = Number(fee)
       isOpenConfirmModal.value = true
     } catch (error) {
       console.error('Error in BTC transaction:', error)

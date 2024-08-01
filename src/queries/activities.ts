@@ -7,6 +7,7 @@ import type { FTAsset, Asset, MRC20Asset } from '@/data/assets'
 import { Activities_QUERY_INTERVAL } from './constants'
 import { getNet } from '@/lib/network'
 import { PageResult } from './types'
+import { CoinCategory } from './exchange-rates'
 
 export type Operation = {
   flag: string
@@ -200,11 +201,11 @@ export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?:
         return fetchBtcActivities(address.value)
       } else if (asset.symbol === 'SPACE') {
         return fetchSpaceActivities(address.value)
-      } else if (asset.contract === 'BRC-20') {
+      } else if (asset.contract === CoinCategory.BRC20) {
         return fetchBRC20Activities(address.value, asset.symbol)
-      } else if (asset.contract === 'MetaContract') {
+      } else if (asset.contract === CoinCategory.MetaContract) {
         return fetchTokenActivities(address.value, asset as FTAsset)
-      } else if (asset.contract === 'MRC20') {
+      } else if (asset.contract === CoinCategory.MRC20) {
         return fetchMRC20Activities(address.value, (asset as MRC20Asset).mrc20Id)
       } else {
         return []

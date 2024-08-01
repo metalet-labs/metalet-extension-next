@@ -47,20 +47,22 @@ watch(
 <template>
   <div class="flex items-center justify-between rounded px-4 py-6">
     <div class="flex items-center gap-x-3">
-      <UseImage :src="icon" class="h-10 w-10 rounded-md">
+      <UseImage :src="icon" class="h-10 w-10 shrink-0 rounded-md">
         <template #loading>
-          <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+          <div class="h-10 w-10 shrink-0 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
             {{ asset.symbol[0].toLocaleUpperCase() }}
           </div>
         </template>
         <template #error>
-          <div class="text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+          <div class="h-10 w-10 shrink-0 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
             {{ asset.symbol[0].toLocaleUpperCase() }}
           </div>
         </template>
       </UseImage>
-      <div class="flex flex-col items-start">
-        <div class="text-base">{{ asset.tokenName }}</div>
+      <div class="flex flex-col items-start w-full">
+        <div class="text-base text-balance break-all">
+          {{ asset.tokenName }}
+        </div>
         <div
           v-if="tag"
           :style="`background-color:${tag.bg};color:${tag.color};`"

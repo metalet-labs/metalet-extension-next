@@ -53,7 +53,7 @@ const toSendNFT = (id: string) => {
 
     <div class="flex items-center justify-center text-lg">
       <span v-if="inscriptionDetail.inscriptionNumber !== -1"># {{ inscriptionDetail.inscriptionNumber }}</span>
-      <span v-else>Uncomfirmed</span>
+      <span v-else>Unconfirmed</span>
     </div>
 
     <div class="flex justify-center">

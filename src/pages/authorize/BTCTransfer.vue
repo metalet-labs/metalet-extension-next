@@ -4,7 +4,7 @@ import { getBtcUtxos } from '@/queries/utxos'
 import { getCurrentWallet } from '@/lib/wallet'
 import { ref, computed, watch, toRaw } from 'vue'
 import { useBTCRateQuery } from '@/queries/transaction'
-import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
+import { Chain, ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import { prettifyTxId, prettifyBalance } from '@/lib/formatters'
 import { ChevronDoubleRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/solid'
 
@@ -44,12 +44,12 @@ watch(
         const wallet = await getCurrentWallet(Chain.BTC)
         const address = wallet.getAddress()
         const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)
-        const { txInputs, txOutputs } = wallet.send(
-          props.params.toAddress,
-          new Decimal(props.params.satoshis).div(1e8).toString(),
-          _currentFeeRate,
-          utxos
-        )
+        const { txInputs, txOutputs } = wallet.signTx(SignType.SEND, {
+          recipient: props.params.toAddress,
+          amount: new Decimal(props.params.satoshis).div(1e8).toNumber(),
+          feeRate: _currentFeeRate,
+          utxos,
+        })
         inputs.value = txInputs
         outputs.value = txOutputs
       } catch (err) {

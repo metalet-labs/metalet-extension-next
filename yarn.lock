@@ -697,14 +697,15 @@
   resolved "https://registry.yarnpkg.com/@magiceden-oss/runestone-lib/-/runestone-lib-1.0.2.tgz#524394b49119d1acace0edc351f9cd5d7ed1ad73"
   integrity sha512-C4XoE7tHxxaWQNzovBIEndXGrTesotshnKQA8DXlnoVDvriD6G26ezUoj9AlEb2UAPbEijSga4Dtwd86Z0a1jg==
 
-"@metalet/utxo-wallet-sdk@0.5.5":
-  version "0.5.5"
-  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-sdk/-/utxo-wallet-sdk-0.5.5.tgz#412dde5f4b34e1859a8e722151dffbfcd372eed7"
-  integrity sha512-eBqzLOW0HK2U3tYFMBZzPVBewnYULkNB5kbS/68/DpYxwdq4B4sZqRtkSb7TKOTtlB9/y+42a4heuFQNvx71Ag==
+"@metalet/utxo-wallet-sdk@0.5.7":
+  version "0.5.7"
+  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-sdk/-/utxo-wallet-sdk-0.5.7.tgz#85b88b3e2127622350c49394fa7ed911a83b83cd"
+  integrity sha512-6T/+NZ7eMneEwRVy+a/IHbcHgoHy6y8cyZJx7R6Fz5vmcmAX3qZMqbdiFGuoJAd/BKxWfOWXiscg3yMJXrTeyQ==
   dependencies:
     "@bitcoinerlab/secp256k1" "^1.1.1"
     "@magiceden-oss/runestone-lib" "^1.0.2"
     "@okxweb3/crypto-lib" "^1.0.1"
+    assert "^2.1.0"
     bip32 "^4.0.0"
     bip39 "^3.1.0"
     bitcoinjs-lib "^6.1.5"
@@ -713,12 +714,12 @@
     ecpair "^2.1.0"
     undici "^6.19.2"
 
-"@metalet/utxo-wallet-service@0.3.11":
-  version "0.3.11"
-  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.3.11.tgz#2647ac0bd605a1017934e6fc6a582a12836af536"
-  integrity sha512-vEXyh6Uk9lJyhNx8V9ygs1cauliqeyVqDfUOPKyo5QpOkTTo5ag1h9vEeLn9NCWlSXq9SnfNxBRqjsceJTGduQ==
+"@metalet/utxo-wallet-service@0.3.13":
+  version "0.3.13"
+  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.3.13.tgz#39e07cd29569ddac7a33e67f9073d3d7fdf24705"
+  integrity sha512-yHIOwSSRBzdcozTvl0muRPERHmMhGA4sPqCDqivmgxb2k4olQw4xzetJRaNVS6vrQZP7IC9dmk2fFL/FR6HZ4w==
   dependencies:
-    "@metalet/utxo-wallet-sdk" "0.5.5"
+    "@metalet/utxo-wallet-sdk" "0.5.7"
     crypto-js "^4.2.0"
     decimal.js "^10.4.3"
 
@@ -1923,7 +1924,7 @@ asn1.js@^4.10.1:
     inherits "^2.0.1"
     minimalistic-assert "^1.0.0"
 
-assert@^2.0.0:
+assert@^2.0.0, assert@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/assert/-/assert-2.1.0.tgz#6d92a238d05dc02e7427c881fb8be81c8448b2dd"
   integrity sha512-eLHpSK/Y4nhMJ07gDaAzoX/XAKS8PSaojml3M0DM4JpV1LAi5JOJ/p6H/XWrl8L+DzVEvVCW1z3vWAaB9oTsQw==
@@ -6733,9 +6734,9 @@ undici-types@~5.26.4:
   integrity sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==
 
 undici@^6.19.2:
-  version "6.19.2"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.2.tgz#231bc5de78d0dafb6260cf454b294576c2f3cd31"
-  integrity sha512-JfjKqIauur3Q6biAtHJ564e3bWa8VvT+7cSiOJHFbX4Erv6CLGDpg8z+Fmg/1OI/47RA+GI2QZaF48SSaLvyBA==
+  version "6.19.4"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-6.19.4.tgz#5ec3b191699a1678ee0aa9ed14e443a682d0f7a8"
+  integrity sha512-i3uaEUwNdkRq2qtTRRJb13moW5HWqviu7Vl7oYRYz++uPtGHJj+x7TGjcEuwS5Mt2P4nA0U9dhIX3DdB6JGY0g==
 
 union-value@^1.0.0:
   version "1.0.1"

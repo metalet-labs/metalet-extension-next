@@ -44,7 +44,7 @@ const account = ref<V3Account>()
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
 
-const { data: btcMetaidInfo, isLoading: btcInfoLoading } = useMetaidInfoQuery(btcAddress, {
+const { data: btcMetaidInfo } = useMetaidInfoQuery(btcAddress, {
   enabled: computed(() => !!btcAddress),
 })
 const { data: mvcMetaidInfo } = useMetaidInfoQuery(mvcAddress, {
@@ -102,15 +102,22 @@ const copy = (address: string, addressType: string, type: string) => {
             <Avatar :id="btcAddress" class="z-10" />
           </template>
         </UseImage>
-        <Avatar :id="mvcAddress" class="-ml-5" v-if="!mvcMetaidInfo" />
-        <UseImage :src="mvcMetaidInfo.avatar" class="z-10 h-10 w-10 rounded-full -ml-5 border border-gray-soft" v-else>
-          <template #loading>
-            <Avatar :id="mvcAddress" class="-ml-5" />
-          </template>
-          <template #error>
-            <Avatar :id="mvcAddress" class="-ml-5" />
-          </template>
-        </UseImage>
+
+        <template v-if="btcAddress !== mvcAddress">
+          <Avatar :id="mvcAddress" class="-ml-5" v-if="!mvcMetaidInfo" />
+          <UseImage
+            v-else
+            :src="mvcMetaidInfo.avatar"
+            class="z-10 h-10 w-10 rounded-full -ml-5 border border-gray-soft"
+          >
+            <template #loading>
+              <Avatar :id="mvcAddress" class="-ml-5" />
+            </template>
+            <template #error>
+              <Avatar :id="mvcAddress" class="-ml-5" />
+            </template>
+          </UseImage>
+        </template>
       </div>
       <div class="flex flex-col" v-if="wallet">
         <div class="text-gray-black text-xs text-gray-primary">

@@ -74,7 +74,7 @@ const toBRC20Detail = (inscriptionId: string) => {
         >
           <BRCToken :value="inscription.outputValue" :contentBody="inscription.contentBody" />
           <span class="text-sm text-center mt-3 truncate" :title="'# ' + inscription.inscriptionNumber">{{
-            inscription.utxoHeight === 0 ? 'Uncomfirmed' : `# ${inscription.inscriptionNumber}`
+            inscription.utxoHeight === 0 ? 'Unconfirmed' : `# ${inscription.inscriptionNumber}`
           }}</span>
           <span class="text-xs text-center mt-1 h-[30px]">{{ formatTimestamp(inscription.timestamp) }}</span>
         </div>

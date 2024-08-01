@@ -32,7 +32,7 @@ export async function process(params: MRC20MintParams) {
 
   const tx = Transaction.fromHex(commitTx.rawTx)
   if (tx.outs.length > 1 && getAddressFromScript(tx.outs[tx.outs.length - 1].script, wallet.getNetwork()) === address) {
-    await addSafeUtxo(address, `${commitTx.commitTxId}:${tx.outs.length - 1}`)
+    await addSafeUtxo(address, `${commitTx.txId}:${tx.outs.length - 1}`)
   }
 
   return { commitTx, revealTx }
