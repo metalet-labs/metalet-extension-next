@@ -126,9 +126,11 @@ const popConfirm = async () => {
     try {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
       const utxos = await getBtcUtxos(address.value, needRawTx, true)
+      console.log('amount', amount.value)
+
       const { fee, rawTx } = currentBTCWallet.value!.signTx(SignType.SEND, {
         recipient: recipient.value,
-        amount: amount.value,
+        amount: amountInSats.value.toNumber(),
         feeRate: currentRateFee.value!,
         utxos,
       })

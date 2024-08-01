@@ -119,6 +119,7 @@ interface MRC20Activity {
   amount: string
   txType: number
   timestamp: number
+  height: number
 }
 
 export const fetchMRC20Activities = async (address: string, tickId: string): Promise<Activities> => {
@@ -134,7 +135,7 @@ export const fetchMRC20Activities = async (address: string, tickId: string): Pro
       return activities.map((activity) => {
         return {
           flag: '',
-          height: Number(0),
+          height: activity.height,
           txid: activity.txId,
           address: activity.from,
           time: Number(activity.timestamp * 1000),

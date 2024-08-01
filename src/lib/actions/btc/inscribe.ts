@@ -1,6 +1,8 @@
 import { getBtcUtxos } from '@/queries/utxos'
 import { getCurrentWallet } from '../../wallet'
-import { Chain, ScriptType, SignType } from '@metalet/utxo-wallet-service'
+import { broadcastBTCTx } from '@/queries/transaction'
+import { Chain, ScriptType, SignType, Transaction } from '@metalet/utxo-wallet-service'
+import { getMetaIdPinUnspentOutputsObj, setMetaIdPinUnspentOutputsObj } from '@/lib/metaIdPin'
 
 export type PrevOutput = {
   txId: string
@@ -41,18 +43,66 @@ export type InscriptionRequest = {
   }
 }
 
+function initOptions() {
+  return { noBroadcast: false }
+}
+
+interface InscribeHexResult {
+  commitTxHex: string
+  revealTxsHex: string[]
+  commitCost: number
+  revealCost: number
+  totalCost: number
+}
+
+interface InscribeTxIdResult {
+  commitTxId: string
+  revealTxIds: string[]
+  commitCost: number
+  revealCost: number
+  totalCost: number
+}
+
 export async function process({
   data: { metaidDataList, service, feeRate },
+  options = initOptions(),
 }: {
   data: Omit<InscriptionRequest, 'commitTxPrevOutputList'>
-}) {
+  options?: { noBroadcast: boolean }
+}): Promise<InscribeHexResult | InscribeTxIdResult> {
   const wallet = await getCurrentWallet(Chain.BTC)
   const address = wallet.getAddress()
   const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)
-  return wallet.signTx(SignType.INSCRIBE_METAIDPIN, {
+  const { commitTx, revealTxs } = wallet.signTx(SignType.INSCRIBE_METAIDPIN, {
     utxos,
     feeRate,
     metaidDataList,
     service,
   })
+  const commitCost = Number(commitTx.fee)
+  const revealCost = revealTxs.reduce((total, revealTx) => total + Number(revealTx.fee), 0)
+  const totalCost = commitCost + revealCost + Number(service?.satoshis || 0)
+
+  if (!options.noBroadcast) {
+    const commitTxId = await broadcastBTCTx(commitTx.rawTx)
+    const [...revealTxIds] = await Promise.all([...revealTxs.map((revealTx) => broadcastBTCTx(revealTx.rawTx))])
+    const wallet = await getCurrentWallet(Chain.BTC)
+    const address = wallet.getAddress()
+    const metaIdPinUnspentOutputsObj = await getMetaIdPinUnspentOutputsObj()
+    const metaIdPinUnspentOutputs = metaIdPinUnspentOutputsObj[address] || []
+    metaIdPinUnspentOutputs.push(`${commitTxId}:${Transaction.fromHex(commitTx.rawTx).outs.length - 1}`)
+    await setMetaIdPinUnspentOutputsObj({
+      ...metaIdPinUnspentOutputsObj,
+      [address]: metaIdPinUnspentOutputs,
+    })
+    return { commitTxId, revealTxIds, commitCost, revealCost, totalCost }
+  }
+
+  return {
+    totalCost,
+    commitCost,
+    revealCost,
+    commitTxHex: commitTx.rawTx,
+    revealTxsHex: revealTxs.map((revealTx) => revealTx.rawTx),
+  }
 }
