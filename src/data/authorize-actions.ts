@@ -111,8 +111,8 @@ export default {
   },
   SignBTCPsbt: {
     name: 'SignBTCPsbt',
-    title: 'Sign for Psbt',
-    description: ['Third party apps requests signing of the PSBT(s), and ask Metalet to sign for them.'],
+    title: 'Sign Psbt',
+    description: ['A third party app is requesting to sign the PSBT.'],
     process: SignBTCPsbt.process,
     estimate: doNothing,
     closeAfterProcess: true,

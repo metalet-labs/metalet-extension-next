@@ -44,14 +44,17 @@ export async function fetchMetaPins(
   size: number
 ): Promise<{ metaPins: MetaIDPin[]; nextCursor: number | null }> {
   const net = getNet()
-  const metaPins = await metaletApiV3<MetaIDPin[]>('/address/pins').get({
+  const { list: metaPins, total } = await metaletApiV3<{ list: MetaIDPin[]; total: number }>('/address/pins').get({
     net,
     address,
+    cnt: 'true',
     cursor: `${cursor}`,
     size: `${size}`,
   })
 
-  const nextCursor = metaPins.length < size ? null : cursor + size
+  cursor += size
+
+  const nextCursor = cursor >= total ? null : cursor
 
   return {
     metaPins,
