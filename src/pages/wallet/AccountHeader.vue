@@ -17,6 +17,7 @@ import SpaceLogo from '@/assets/icons-v3/space.svg?url'
 import { useToast } from '@/components/ui/toast/use-toast'
 import ServiceMenu from '@/components/headers/ServiceMenu.vue'
 import SettingMenu from '@/components/headers/SettingMenu.vue'
+import { getServiceNetwork, type Service } from '@/lib/network'
 import { Chain, BaseWallet } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TriangleDownIcon from '@/assets/icons-v3/triangle-down.svg'
@@ -40,9 +41,14 @@ const isOpen = ref(false)
 const router = useRouter()
 const wallet = ref<V3Wallet>()
 const account = ref<V3Account>()
+const serviceNetwork = ref<Service>([])
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
+
+getServiceNetwork().then((_serviceNetwork) => {
+  serviceNetwork.value = _serviceNetwork
+})
 
 const { data: btcMetaidInfo } = useMetaidInfoQuery(btcAddress, {
   enabled: computed(() => !!btcAddress),
@@ -93,28 +99,34 @@ const copy = (address: string, addressType: string, type: string) => {
   <div class="flex items-center justify-between py-3">
     <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toManageWallets" v-if="account">
       <div class="flex items-center">
-        <Avatar :id="btcAddress" class="z-10" v-if="!btcMetaidInfo" />
-        <UseImage :src="btcMetaidInfo.avatar" class="z-10 h-10 w-10 rounded-full border border-gray-soft" v-else>
-          <template #loading>
-            <Avatar :id="btcAddress" class="z-10" />
-          </template>
-          <template #error>
-            <Avatar :id="btcAddress" class="z-10" />
-          </template>
-        </UseImage>
+        <template v-if="serviceNetwork.includes(Chain.BTC)">
+          <Avatar :id="btcAddress" class="z-10" v-if="!btcMetaidInfo" />
+          <UseImage :src="btcMetaidInfo.avatar" class="z-10 h-10 w-10 rounded-full border border-gray-soft" v-else>
+            <template #loading>
+              <Avatar :id="btcAddress" class="z-10" />
+            </template>
+            <template #error>
+              <Avatar :id="btcAddress" class="z-10" />
+            </template>
+          </UseImage>
+        </template>
 
-        <template v-if="btcAddress !== mvcAddress">
-          <Avatar :id="mvcAddress" class="-ml-5" v-if="!mvcMetaidInfo" />
+        <template v-if="btcAddress !== mvcAddress && serviceNetwork.includes(Chain.MVC)">
+          <Avatar :id="mvcAddress" :class="{ '-ml-5': serviceNetwork.includes(Chain.BTC) }" v-if="!mvcMetaidInfo" />
           <UseImage
             v-else
             :src="mvcMetaidInfo.avatar"
-            class="z-10 h-10 w-10 rounded-full -ml-5 border border-gray-soft"
+            :class="
+              serviceNetwork.includes(Chain.BTC)
+                ? '-ml-5 z-10 h-10 w-10 rounded-full border border-gray-soft'
+                : 'z-10 h-10 w-10 rounded-full border border-gray-soft'
+            "
           >
             <template #loading>
-              <Avatar :id="mvcAddress" class="-ml-5" />
+              <Avatar :id="mvcAddress" :class="{ '-ml-5': serviceNetwork.includes(Chain.BTC) }" />
             </template>
             <template #error>
-              <Avatar :id="mvcAddress" class="-ml-5" />
+              <Avatar :id="mvcAddress" :class="{ '-ml-5': serviceNetwork.includes(Chain.BTC) }" />
             </template>
           </UseImage>
         </template>

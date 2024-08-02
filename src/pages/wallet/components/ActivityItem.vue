@@ -60,13 +60,13 @@ const difference = computed(() => {
   let displayClass
 
   if (outcome > income) {
-    display = `-${new Decimal((outcome - income) / 10 ** decimal).toFixed()} ${truncateStr(symbol)}`
+    display = `-${new Decimal((outcome - income) / 10 ** decimal).toFixed()}`
     displayClass = 'text-black-primary'
   } else if (outcome < income) {
-    display = `+${new Decimal((income - outcome) / 10 ** decimal).toFixed()} ${truncateStr(symbol)}`
+    display = `+${new Decimal((income - outcome) / 10 ** decimal).toFixed()}`
     displayClass = 'text-green-700'
   } else {
-    display = `0 ${truncateStr(symbol)}`
+    display = `0`
     displayClass = 'text-gray-primary'
   }
 
