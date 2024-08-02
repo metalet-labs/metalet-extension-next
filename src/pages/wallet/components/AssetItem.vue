@@ -112,7 +112,7 @@ watch(
           <div :title="asset.tokenName" class="flex items-center gap-x-0.5 text-base">
             <span
               :title="asset.tokenName"
-              :class="['truncate max-w-64', { 'max-w-24 truncate overflow-hidden': coinCategory === 'BRC-20' }]"
+              :class="['truncate max-w-40', { 'max-w-24 truncate overflow-hidden': coinCategory === 'BRC-20' }]"
             >
               {{ asset.tokenName }}
             </span>

@@ -8,7 +8,7 @@ import { getBrowserHost } from '@/lib/host'
 import AssetLogo from '@/components/AssetLogo.vue'
 import type { Activity } from '@/queries/activities'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
+import { prettifyTimestamp, prettifyTxId, truncateStr } from '@/lib/formatters'
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
 import Decimal from 'decimal.js'
@@ -60,13 +60,13 @@ const difference = computed(() => {
   let displayClass
 
   if (outcome > income) {
-    display = `-${new Decimal((outcome - income) / 10 ** decimal).toFixed()} ${symbol}`
+    display = `-${new Decimal((outcome - income) / 10 ** decimal).toFixed()} ${truncateStr(symbol)}`
     displayClass = 'text-black-primary'
   } else if (outcome < income) {
-    display = `+${new Decimal((income - outcome) / 10 ** decimal).toFixed()} ${symbol}`
+    display = `+${new Decimal((income - outcome) / 10 ** decimal).toFixed()} ${truncateStr(symbol)}`
     displayClass = 'text-green-700'
   } else {
-    display = `0 ${symbol}`
+    display = `0 ${truncateStr(symbol)}`
     displayClass = 'text-gray-primary'
   }
 
@@ -104,7 +104,9 @@ const toActivityTx = async () => {
       </div>
     </FlexBox>
     <FlexBox d="col" ai="end">
-      <div :class="['text-sm', difference.displayClass]">{{ difference.display }}</div>
+      <div :class="['text-sm', difference.displayClass]">
+        {{ difference.display }}
+      </div>
       <div
         @click="toActivityTx"
         :title="activity.txid"

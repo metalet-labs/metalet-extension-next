@@ -62,7 +62,19 @@ const unconfirmedBalance = computed(() => {
 })
 
 const btnDisabled = computed(() => {
-  return !recipient.value || !amount.value || operationLock.value || !currentRateFee.value
+  console.log(amount.value)
+  console.log(confirmBalance.value)
+
+  console.log(new Decimal(amount.value || 0).gt(confirmBalance.value || 0))
+
+  return (
+    !recipient.value ||
+    !amount.value ||
+    (amount.value && amount.value <= 0) ||
+    operationLock.value ||
+    !currentRateFee.value ||
+    new Decimal(confirmBalance.value || 0).dividedBy(10 ** (asset.value?.decimal || 0)).lt(amount.value)
+  )
 })
 
 const popConfirm = async () => {
@@ -260,7 +272,10 @@ async function send() {
     <div class="space-y-2 w-full">
       <FlexBox ai="center" jc="between">
         <span>Amount</span>
-        <span class="text-gray-primary text-xs">
+        <span
+          class="text-gray-primary text-xs cursor-pointer hover:underline"
+          @click="amount = new Decimal(confirmBalance || 0).dividedBy(10 ** (asset?.decimal || 0)).toNumber()"
+        >
           <span>Balance:</span>
           <template v-if="balance !== undefined">
             <span v-if="confirmBalance !== undefined">

@@ -83,6 +83,11 @@ interface MRC20Info {
   tokenName: string
   unsafeAmount: string
   unsafeBalance: string
+  deployAddress: string
+  deployUserInfo: {
+    name: string
+    avatar: string
+  }
 }
 
 export async function getMRC20Utxos(address: string, tickId: string, needRawTx = false) {
@@ -149,25 +154,14 @@ export async function fetchMRC20List(
   }
 }
 
-export async function fetchMRC20Detail(
-  address: string,
-  mrc20Id: string,
-  cursor = 0,
-  size = 10000
-): Promise<MRC20Asset | null> {
+export async function fetchMRC20Detail(address: string, tickId: string): Promise<MRC20Asset | null> {
   const net = getNet()
 
-  const { list } = await metaletApiV3<PageResult<MRC20Info>>('/mrc20/address/balance-list').get({
+  const data = await metaletApiV3<MRC20Info>('/mrc20/address/balance-info').get({
     net,
     address,
-    cursor: cursor.toString(),
-    size: size.toString(),
+    tickId,
   })
-
-  const data = list.find((item) => item.mrc20Id === mrc20Id)
-  if (!data) {
-    return null
-  }
 
   return {
     symbol: data.tick,
@@ -182,6 +176,9 @@ export async function fetchMRC20Detail(
       total: new Decimal(data.balance).add(data.unsafeBalance).mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
+    deployAddress: data.deployAddress,
+    deployName: data.deployUserInfo.name,
+    deployAvatar: data.deployUserInfo.avatar,
     contract: CoinCategory.MRC20,
     icon:
       data?.metaData && JSON.parse(data.metaData).icon

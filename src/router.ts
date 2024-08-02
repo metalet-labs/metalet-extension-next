@@ -620,13 +620,17 @@ router.beforeEach(async (to, _, next) => {
     } else if (await isLocked()) {
       next('/lock')
     } else {
+      console.log('to name', to.name)
+
       if (['asset', 'token', 'brc20'].includes(to.name as string)) {
         to.meta.headerTitle = to.params.symbol
       } else if (['rune'].includes(to.name as string)) {
         to.meta.headerTitle = to.params.name
       } else if (to.name === 'send-token') {
         to.meta.headerTitle = `Send ${to.params.symbol}`
-      } else if (to.name === 'SendRune') {
+      } else if (to.name === 'mrc20-detail') {
+        to.meta.headerTitle = `${to.params.symbol}`
+      }else if (to.name === 'SendRune') {
         to.meta.headerTitle = `${to.params.name}`
       } else if (to.name === 'MintRune') {
         to.meta.headerTitle = `${to.params.name}`

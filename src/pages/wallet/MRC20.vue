@@ -82,7 +82,7 @@ const toSend = () => {
       <div class="mt-2 text-2xl text-balance max-w-full text-center">
         <span v-if="asset?.balance" class="break-all">
           <span>
-            {{ calcBalance(asset.balance.confirmed.toNumber(), asset.decimal, asset.symbol) }}
+            {{ calcBalance(asset.balance.confirmed.toNumber(), asset.decimal, '') }}
           </span>
           <!-- <span v-if="asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary">
             +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}
@@ -122,11 +122,20 @@ const toSend = () => {
       </button>
     </div>
 
-    <div class="mt-8 self-stretch">
-      <div class="text-xs text-gray-500">Token ID</div>
-      <div class="flex items-center hover:text-blue-primary gap-x-2">
-        <div class="text-base">{{ truncateStr(mrc20Id, 6) }}</div>
-        <CopyIcon :text="mrc20Id" :title="'Token ID Copied'" />
+    <div class="mt-8 flex flex-col items-center gap-y-2 w-full">
+      <div class="flex items-center justify-between w-full">
+        <div class="text-xs text-gray-500">Deployer</div>
+        <div class="flex items-center gap-x-2">
+          <AssetLogo :logo="asset?.deployAvatar" :symbol="asset?.deployName || 'D'" class="w-5 rounded-full" />
+          <span>{{ asset?.deployName }}</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between w-full">
+        <div class="text-xs text-gray-500">Token ID</div>
+        <div class="flex items-center hover:text-blue-primary gap-x-2">
+          <div class="text-base">{{ truncateStr(mrc20Id, 6) }}</div>
+          <CopyIcon :text="mrc20Id" :title="'Token ID Copied'" />
+        </div>
       </div>
     </div>
 
