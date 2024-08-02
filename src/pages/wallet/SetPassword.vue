@@ -20,7 +20,7 @@ const password = ref('')
 const confirmPassword = ref('')
 
 const canPass = computed(() => {
-  return password.value.length >= 8
+  return password.value.length >= 6
 })
 
 // 按钮
