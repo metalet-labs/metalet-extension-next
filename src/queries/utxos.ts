@@ -109,7 +109,7 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
   if (!useUnconfirmed) {
     utxos = utxos.filter((utxo) => utxo.confirmed)
   } else {
-    utxos = await getSafeUtxos(address, utxos)
+    // utxos = await getSafeUtxos(address, utxos)
   }
   if (needRawTx) {
     for (let utxo of utxos) {

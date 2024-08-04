@@ -195,7 +195,6 @@ async function sendBTC() {
       operationLock.value = false
       throw err
     })
-    console.log('commitTxId:', commitTxId, 'revealTxId:', revealTxId)
 
     const tx = Transaction.fromHex(commitTxHex.value)
     if (

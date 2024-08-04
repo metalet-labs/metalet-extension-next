@@ -28,6 +28,12 @@ const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
   enabled: computed(() => !!address.value && !!mrc20Id.value),
 })
 
+const balance = computed(() => {
+  if (asset.value?.balance) {
+    return asset.value.balance.total.toNumber()
+  }
+})
+
 const confirmBalance = computed(() => {
   if (asset.value?.balance) {
     return asset.value.balance.confirmed.toNumber()
@@ -73,7 +79,7 @@ const toSend = () => {
 <template>
   <div class="flex flex-col items-center space-y-6 w-full">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
+      <AssetLogo :logo="logo || asset?.deployAvatar" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
       <div v-if="asset?.balance && asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary mt-2">
         +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}
@@ -114,8 +120,8 @@ const toSend = () => {
       </button> -->
       <button
         @click="toSend"
-        :disabled="!confirmBalance"
-        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !confirmBalance }]"
+        :disabled="!balance"
+        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !balance }]"
       >
         <ArrowUpIcon class="w-3" />
         <span>Send</span>
@@ -127,7 +133,7 @@ const toSend = () => {
         <div class="text-xs text-gray-500">Deployer</div>
         <div class="flex items-center gap-x-2">
           <AssetLogo :logo="asset?.deployAvatar" :symbol="asset?.deployName" class="size-5 rounded-full text-xs" />
-          <span>{{ asset?.deployName }}</span>
+          <span>{{ asset?.deployName || '--' }}</span>
         </div>
       </div>
       <div class="flex items-center justify-between w-full">

@@ -143,7 +143,9 @@ export async function fetchMRC20List(
             'metafile://',
             `https://man${network.value === 'testnet' && '-test'}.metaid.io/content/`
           )
-        : undefined,
+        : data?.deployUserInfo
+          ? data.deployUserInfo.avatar
+          : undefined,
   })) as MRC20Asset[]
 
   cursor += size
