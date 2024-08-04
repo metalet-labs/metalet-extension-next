@@ -176,7 +176,9 @@ const copy = (address: string, addressType: string, type: string) => {
           <div>
             <div class="space-x-2">
               <span>Bitcoin</span>
-              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">{{ btcWallet.addressType }}</span>
+              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">
+                {{ btcWallet.addressType === 'Same as MVC' ? 'Default' : btcWallet.addressType }}
+              </span>
             </div>
             <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(btcWallet.address) }}</div>
           </div>

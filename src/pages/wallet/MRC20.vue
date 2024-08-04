@@ -28,12 +28,6 @@ const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
   enabled: computed(() => !!address.value && !!mrc20Id.value),
 })
 
-const balance = computed(() => {
-  if (asset.value?.balance) {
-    return asset.value.balance.total.toNumber()
-  }
-})
-
 const confirmBalance = computed(() => {
   if (asset.value?.balance) {
     return asset.value.balance.confirmed.toNumber()
@@ -120,8 +114,8 @@ const toSend = () => {
       </button> -->
       <button
         @click="toSend"
-        :disabled="!balance"
-        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !balance }]"
+        :disabled="!confirmBalance"
+        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !confirmBalance }]"
       >
         <ArrowUpIcon class="w-3" />
         <span>Send</span>
