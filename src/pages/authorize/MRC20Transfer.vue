@@ -4,7 +4,7 @@ import actions from '@/data/authorize-actions'
 import { useBTCRateQuery } from '@/queries/transaction'
 import { MRC20TransferParams } from '@/lib/actions/btc/mrc20-transfer'
 
-const action = actions.MRC20DTransfer
+const action = actions.MRC20Transfer
 
 const props = defineProps<{
   params: MRC20TransferParams
@@ -43,7 +43,8 @@ const currentRevealFeeRate = computed(() => {
     <div class="space-y-2">
       <div class="label">Commit Fee Rate: {{ currentCommitFeeRate }}</div>
       <div class="label">Reveal Fee Rate: {{ currentRevealFeeRate }}</div>
-      <div class="label">MRC20 ID: {{ params.mrc20TickId }}</div>
+      <div class="label">Amount: {{ params.amount }}</div>
+      <div class="label break-all">Content: {{ params.body }}</div>
     </div>
   </div>
 </template>

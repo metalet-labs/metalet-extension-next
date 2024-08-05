@@ -58,7 +58,6 @@ const getHostAndToTx = async (txid: string) => {
 const running = ref(false)
 const isFinished = ref(false)
 const processTxids = ref([])
-const processRes = ref()
 const runAction = async () => {
   running.value = true
 

@@ -64,11 +64,7 @@ const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
           class="mt-3 flex px-3 py-3.5 items-center justify-between w-[232px] gap-4 border border-gray-soft rounded-lg relative"
         >
           <span>{{ prettifyTxId(address) }}</span>
-          <Copy
-            :text="address"
-            class="w-[22px]"
-            @click="toast({ title: `${network}  Address Copied`, toastType: 'success', description: address })"
-          />
+          <Copy :showContent="true" :text="address" class="w-[22px]" :title="`${network}  Address Copied`" />
         </div>
       </div>
     </div>
