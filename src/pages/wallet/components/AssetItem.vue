@@ -93,10 +93,10 @@ watch(
 
 <template>
   <div class="group relative transition hover:z-10">
-    <div class="flex gap-2 cursor-pointer items-center justify-between rounded-md py-3">
+    <div class="flex gap-2 cursor-pointer items-center justify-between rounded-full py-3">
       <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
-        <UseImage :src="icon" class="h-10 w-10 rounded-md">
+        <UseImage :src="icon" class="h-10 w-10 rounded-full">
           <template #loading>
             <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
               {{ asset.symbol[0].toLocaleUpperCase() }}

@@ -92,7 +92,24 @@ const selectChain = (chain: Chain) => {
           <FormItem class="flex items-center space-y-0 justify-between cursor-pointer" @click="selectChain(chain.id)">
             <FormLabel class="flex items-center gap-2 cursor-pointer" @click="selectChain">
               <img :src="chain.logo" alt="Bitcoin" class="inline-block w-8 h-8" />
-              <span class="text-base">{{ chain.name }}</span>
+              <div class="flex flex-col items-start gap-x-2">
+                <span class="text-base">{{ chain.name }}</span>
+                <div
+                  v-if="chain.name === 'MicrovisionChain'"
+                  :class="[
+                    'px-1.5',
+                    'py-0.5',
+                    'rounded',
+                    'text-xs',
+                    'inline-block',
+                    'scale-75',
+                    'origin-left',
+                    'bg-[rgba(247,147,26,0.2)] text-[#F7931A]',
+                  ]"
+                >
+                  Bitcoin sizechain
+                </div>
+              </div>
             </FormLabel>
             <FormControl>
               <Checkbox

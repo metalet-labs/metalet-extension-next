@@ -168,7 +168,9 @@ const toReceive = () => {
                   <div class="text-sm" :title="wallet.address">
                     {{ prettifyAddress(wallet.address) }}
                   </div>
-                  <div class="text-xs text-gray-primary">{{ wallet.addressType }}</div>
+                  <div class="text-xs text-gray-primary">
+                    {{ wallet.addressType === 'Same as MVC' ? 'Default' : wallet.addressType }}
+                  </div>
                 </div>
               </div>
               <div class="flex flex-col items-end gap-1.5">
@@ -209,7 +211,7 @@ const toReceive = () => {
       <Divider class="w-full" />
 
       <div class="space-y-2 text-xs w-full border-gray-primary" v-if="asset.chain === 'btc'">
-        <div>{{ currentBTCWallet?.getAddressType() }}</div>
+        <div>{{ currentBTCWallet?.getAddressType() === 'Same as MVC' ? 'Default' : currentBTCWallet?.getAddressType() }}</div>
         <div class="flex items-center justify-between text-gray-primary gap-4">
           <div class="break-all">{{ currentBTCWallet?.getAddress() }}</div>
           <Copy :text="address" class="w-[22px]" :title="`${currentBTCWallet?.getAddressType()} Address Copied`" />

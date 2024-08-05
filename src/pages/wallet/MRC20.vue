@@ -73,7 +73,7 @@ const toSend = () => {
 <template>
   <div class="flex flex-col items-center space-y-6 w-full">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="logo || asset?.deployAvatar" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
+      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
       <div v-if="asset?.balance && asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary mt-2">
         +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}

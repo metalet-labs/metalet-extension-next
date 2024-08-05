@@ -88,6 +88,7 @@ interface MRC20Info {
     name: string
     avatar: string
   }
+  tag: 'id-coins' | string
 }
 
 export async function getMRC20Utxos(address: string, tickId: string, needRawTx = false) {
@@ -143,8 +144,10 @@ export async function fetchMRC20List(
             'metafile://',
             `https://man${network.value === 'testnet' && '-test'}.metaid.io/content/`
           )
-        : data?.deployUserInfo
-          ? data.deployUserInfo.avatar
+        : data.tag === 'id-coins'
+          ? data?.deployUserInfo
+            ? data.deployUserInfo.avatar
+            : undefined
           : undefined,
   })) as MRC20Asset[]
 
@@ -188,7 +191,11 @@ export async function fetchMRC20Detail(address: string, tickId: string): Promise
             'metafile://',
             `https://man${network.value === 'testnet' && '-test'}.metaid.io/content/`
           )
-        : undefined,
+        : data.tag === 'id-coins'
+          ? data?.deployUserInfo
+            ? data.deployUserInfo.avatar
+            : undefined
+          : undefined,
   } as MRC20Asset
 }
 

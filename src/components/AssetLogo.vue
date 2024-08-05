@@ -17,7 +17,7 @@ const { logo, chain, symbol } = defineProps<{
 
 <template>
   <div class="relative text-3xl">
-    <UseImage :src="logo!" class="w-full aspect-square rounded-xl">
+    <UseImage :src="logo!" class="w-full aspect-square rounded-full">
       <template #loading>
         <div
           class="aspect-square flex items-center justify-center rounded-full text-white bg-blue-primary shrink-0"
