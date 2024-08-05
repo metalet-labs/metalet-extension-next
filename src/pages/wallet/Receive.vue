@@ -56,7 +56,7 @@ const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
           <span>{{ symbol }}</span>
         </div>
         <div class="text-xs px-1.5 py-0.5 rounded inline-block bg-gray-light text-gray-primary" v-if="tag">
-          {{ tag }}
+          {{ tag === 'Same as MVC' ? 'Default' : tag }}
         </div>
         <Divider class="w-[232px] my-4" />
         <img :src="qrcode" alt="" class="w-[232px] h-[232px] rounded-lg" />

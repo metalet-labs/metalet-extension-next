@@ -184,7 +184,13 @@ const copy = (address: string, addressType: string, type: string) => {
           </div>
           <CopyIcon
             class="cursor-pointer hover:text-blue-primary w-4.5"
-            @click="copy(btcWallet.address, btcWallet.addressType, 'Bitcoin')"
+            @click="
+              copy(
+                btcWallet.address,
+                btcWallet.addressType === 'Same as MVC' ? 'Default' : btcWallet.addressType,
+                'Bitcoin'
+              )
+            "
           />
         </FlexBox>
         <FlexBox ai="center" :gap="2" v-if="chainWallets.mvc" v-for="mvcWallet in chainWallets.mvc">
