@@ -18,6 +18,7 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import { getTags } from '@/data/assets'
 
 const route = useRoute()
 const recipient = ref('')
@@ -28,6 +29,8 @@ const totalFee = ref<number>()
 const currentRateFee = ref<number>()
 const isOpenConfirmModal = ref(false)
 const transactionResult = ref<TransactionResult>()
+
+const tags = getTags(CoinCategory.MRC20)
 
 const mrc20Id = ref(route.params.mrc20Id as string)
 const address = ref(route.params.address as string)
@@ -62,11 +65,6 @@ const unconfirmedBalance = computed(() => {
 })
 
 const btnDisabled = computed(() => {
-  console.log(amount.value)
-  console.log(confirmBalance.value)
-
-  console.log(new Decimal(amount.value || 0).gt(confirmBalance.value || 0))
-
   return (
     !recipient.value ||
     !amount.value ||
@@ -254,10 +252,15 @@ async function send() {
     <div class="space-y-4 w-full">
       <FlexBox d="col" ai="center" :gap="3">
         <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
-        <div class="text-base">{{ asset.tokenName }}</div>
+        <div
+          :key="tag.name"
+          v-for="tag in tags"
+          :style="`background-color:${tag.bg};color:${tag.color};`"
+          :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
+        >
+          {{ tag.name }}
+        </div>
       </FlexBox>
-
-      <Divider />
     </div>
 
     <div class="space-y-2 w-full">
@@ -275,16 +278,15 @@ async function send() {
           class="text-gray-primary text-xs cursor-pointer hover:underline"
           @click="amount = new Decimal(confirmBalance || 0).dividedBy(10 ** (asset?.decimal || 0)).toNumber()"
         >
-          <span>Balance:</span>
           <template v-if="balance !== undefined">
             <span v-if="confirmBalance !== undefined">
-              {{ prettifyBalanceFixed(confirmBalance, asset.symbol, asset.decimal, asset.decimal) }}
+              {{ prettifyBalanceFixed(confirmBalance, '', asset.decimal, asset.decimal) }}
             </span>
             <span class="text-gray-primary" v-if="unconfirmedBalance">
               +{{
                 prettifyBalanceFixed(
                   unconfirmedBalance,
-                  asset.symbol,
+                  '',
                   asset.decimal,
                   confirmBalance === Math.floor(unconfirmedBalance) ? 0 : asset.decimal
                 )

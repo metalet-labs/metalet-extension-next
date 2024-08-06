@@ -626,10 +626,12 @@ router.beforeEach(async (to, _, next) => {
         to.meta.headerTitle = to.params.name
       } else if (to.name === 'rune-detail') {
         to.meta.headerTitle = to.params.name
-      }else if (to.name === 'send-token') {
+      } else if (to.name === 'send-token') {
         to.meta.headerTitle = `Send ${to.params.symbol}`
       } else if (to.name === 'mrc20-detail') {
         to.meta.headerTitle = `${to.params.symbol}`
+      } else if (to.name === 'SendMRC20') {
+        to.meta.headerTitle = `${to.params.name}`
       } else if (to.name === 'SendRune') {
         to.meta.headerTitle = `${to.params.name}`
       } else if (to.name === 'MintRune') {

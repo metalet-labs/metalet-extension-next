@@ -98,14 +98,14 @@ const serviceFeeDisplay = computed(() => {
     <TooltipProvider v-if="hasImpactWarning">
       <Tooltip>
         <TooltipTrigger
-          class="mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-red-primary p-3 text-xs lg:text-sm"
+          class="mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-red-primary p-3 text-xs lg:text-sm text-red-primary"
           as="div"
         >
           <div>Price Impact Warning</div>
-          <span class="text-red-primary">~{{ priceImpact }}%</span>
+          <span>~{{ priceImpact }}%</span>
         </TooltipTrigger>
 
-        <TooltipContent side="left" :side-offset="2" class="w-96 px-4 py-6">
+        <TooltipContent side="bottom" :side-offset="2" class="w-96 px-4 py-6">
           <p>
             A swap of this size may have a high price impact, given the current liquidity in the pool. There may be a
             large difference between the amount of your input token and what you will receive in the output token

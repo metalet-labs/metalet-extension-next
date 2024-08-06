@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
-import { Psbt } from 'bitcoinjs-lib'
+import { getTags } from '@/data/assets'
 import { addSafeUtxo } from '@/lib/utxo'
 import { transferToNumber } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
@@ -26,10 +26,11 @@ const rawTx = ref<string>()
 const totalFee = ref<number>()
 const currentRateFee = ref<number>()
 const isOpenConfirmModal = ref(false)
-const transactionResult = ref<TransactionResult>()
-
 const runeId = ref(route.params.runeId as string)
+const transactionResult = ref<TransactionResult>()
 const address = ref(route.params.address as string)
+
+const tags = getTags(CoinCategory.Rune)
 
 const { getIcon } = useIconsStore()
 const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
@@ -209,10 +210,15 @@ async function send() {
     <div class="space-y-4 w-full">
       <FlexBox d="col" ai="center" :gap="3">
         <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
-        <div class="text-base">{{ asset.tokenName }}</div>
+        <div
+          :key="tag.name"
+          v-for="tag in tags"
+          :style="`background-color:${tag.bg};color:${tag.color};`"
+          :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
+        >
+          {{ tag.name }}
+        </div>
       </FlexBox>
-
-      <Divider />
     </div>
 
     <div class="space-y-2 w-full">
