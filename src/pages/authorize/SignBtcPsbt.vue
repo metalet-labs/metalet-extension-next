@@ -283,7 +283,7 @@ onMounted(async () => {
       <span>{{ calcBalance(fee, 8, 'BTC') }}</span>
     </div>
 
-    <div class="w-full flex items-center justify-between mt-2">
+    <div class="w-full flex items-center justify-between mt-2" v-if="Math.ceil(feeRate) > 0">
       <span>Fee Rate</span>
       <span>{{ Math.ceil(feeRate) }} sat/vB</span>
     </div>
