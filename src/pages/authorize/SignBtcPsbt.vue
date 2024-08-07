@@ -115,6 +115,7 @@ onMounted(async () => {
   const btcNetwork = getBtcNetwork()
   const wallet = await getCurrentWallet(Chain.BTC)
   const psbt = Psbt.fromHex(psbtHex, { network: btcNetwork })
+  let myInputValue = 0
   let totalInputValue = 0
   let totalOutputValue = 0
   let changeOutputValue = 0
@@ -139,6 +140,9 @@ onMounted(async () => {
     }
     inputs.value.push({ address, value, runes })
     totalInputValue += value
+    if (address === wallet.getAddress()) {
+      myInputValue += value
+    }
   }
 
   for (let index = 0; index < psbt.txOutputs.length; index++) {
@@ -171,7 +175,7 @@ onMounted(async () => {
     }
   }
   fee.value = totalInputValue - totalOutputValue
-  transferAmount.value = totalOutputValue - changeOutputValue
+  transferAmount.value = myInputValue - changeOutputValue
   feeRate.value = (totalInputValue - totalOutputValue) / calcSize(psbt, wallet.getAddressType() === AddressType.Taproot)
 })
 </script>
@@ -269,12 +273,12 @@ onMounted(async () => {
       <Copy :text="psbtHex" title="PSBT Hex copied" :showContent="false" />
     </div>
 
-    <div class="w-full flex items-center justify-between mt-2">
+    <div class="w-full flex items-center justify-between mt-2" v-if="Number(transferAmount) > 0">
       <span>Transfer Amount</span>
       <span>{{ calcBalance(transferAmount, 8, 'BTC') }}</span>
     </div>
 
-    <div class="w-full flex items-center justify-between mt-2">
+    <div class="w-full flex items-center justify-between mt-2" v-if="Number(fee) > 0">
       <span>Miner's Fee</span>
       <span>{{ calcBalance(fee, 8, 'BTC') }}</span>
     </div>
