@@ -136,7 +136,7 @@ const copy = (address: string, addressType: string, type: string) => {
           <span>{{ wallet.name }}</span>
         </div>
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-ss">{{ btcMetaidInfo?.name || mvcMetaidInfo?.name || account.name }}</span>
+          <span class="text-ss max-w-28 truncate">{{ btcMetaidInfo?.name || mvcMetaidInfo?.name || account.name }}</span>
           <!-- <template v-if="btcAddress !== mvcAddress && mvcMetaidInfo?.name">
             <span>/</span>
             <span class="text-ss">{{ mvcMetaidInfo?.name }}</span>
