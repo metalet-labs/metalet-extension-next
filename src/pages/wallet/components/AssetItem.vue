@@ -96,14 +96,14 @@ watch(
     <div class="flex gap-2 cursor-pointer items-center justify-between rounded-full py-3">
       <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
-        <UseImage :src="icon" class="h-10 w-10 rounded-full">
+        <UseImage :src="icon" class="h-10 w-10 shrink-0 rounded-full">
           <template #loading>
-            <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+            <div class="h-10 w-10 shrink-0 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
               {{ asset.symbol[0].toLocaleUpperCase() }}
             </div>
           </template>
           <template #error>
-            <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
+            <div class="h-10 w-10 shrink-0 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
               {{ asset.symbol[0].toLocaleUpperCase() }}
             </div>
           </template>
