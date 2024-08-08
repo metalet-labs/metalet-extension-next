@@ -142,7 +142,7 @@ export async function fetchMRC20List(
       data?.metaData && JSON.parse(data.metaData).icon
         ? JSON.parse(data.metaData).icon.replace(
             'metafile://',
-            `https://man${network.value === 'testnet' && '-test'}.metaid.io/content/`
+            `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
           )
         : data.tag === 'id-coins'
           ? data?.deployUserInfo
@@ -189,7 +189,7 @@ export async function fetchMRC20Detail(address: string, tickId: string): Promise
       data?.metaData && JSON.parse(data.metaData).icon
         ? JSON.parse(data.metaData).icon.replace(
             'metafile://',
-            `https://man${network.value === 'testnet' && '-test'}.metaid.io/content/`
+            `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
           )
         : data.tag === 'id-coins'
           ? data?.deployUserInfo

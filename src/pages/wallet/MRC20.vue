@@ -126,7 +126,7 @@ const toSend = () => {
       <div class="flex items-center justify-between w-full">
         <div class="text-xs text-gray-500">Deployer</div>
         <div class="flex items-center gap-x-2">
-          <AssetLogo :logo="asset?.deployAvatar" :symbol="asset?.deployName" class="size-5 rounded-full text-xs" />
+          <AssetLogo :logo="asset?.deployAvatar" :symbol="asset?.deployName" class="size-5 shrink-0 rounded-full text-xs" />
           <span>{{ asset?.deployName || '--' }}</span>
         </div>
       </div>

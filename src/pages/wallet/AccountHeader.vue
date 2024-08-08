@@ -136,20 +136,20 @@ const copy = (address: string, addressType: string, type: string) => {
           <span>{{ wallet.name }}</span>
         </div>
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-ss">{{ btcMetaidInfo?.name || account.name }}</span>
-          <template v-if="btcAddress !== mvcAddress && mvcMetaidInfo?.name">
+          <span class="text-ss">{{ btcMetaidInfo?.name || mvcMetaidInfo?.name || account.name }}</span>
+          <!-- <template v-if="btcAddress !== mvcAddress && mvcMetaidInfo?.name">
             <span>/</span>
             <span class="text-ss">{{ mvcMetaidInfo?.name }}</span>
-          </template>
+          </template> -->
           <TriangleDownIcon class="w-2" />
         </div>
         <div class="text-gray-black text-xs text-gray-primary space-x-0.5">
           <span>MetaID:</span>
-          <span>{{ getMetaId(btcAddress) }}</span>
-          <template v-if="btcAddress !== mvcAddress">
+          <span>{{ getMetaId(btcAddress) || getMetaId(mvcAddress) }}</span>
+          <!-- <template v-if="btcAddress !== mvcAddress">
             <span>/</span>
             <span>{{ getMetaId(mvcAddress) }}</span>
-          </template>
+          </template> -->
         </div>
       </div>
     </FlexBox>

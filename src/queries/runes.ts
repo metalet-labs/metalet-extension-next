@@ -214,7 +214,7 @@ export type RuneToken = {
   spacedRune: string
   number: number
   height: number
-  txidx: number
+  txid: number
   timestamp: number
   divisibility: number
   symbol: string
