@@ -130,13 +130,15 @@ const popConfirm = async () => {
     return
   }
   try {
+    console.log(network.value === 'mainnet')
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, needRawTx)
+
     const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_TRANSFER, {
       utxos,
       amount: new Decimal(amount.value).toFixed(),
-      flag: network.value === 'mainnet' ? 'metaid' : 'testid',
+      flag: 'metaid',
       commitFeeRate: currentRateFee.value,
       revealFeeRate: currentRateFee.value,
       mrc20Utxos,

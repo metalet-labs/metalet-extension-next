@@ -7,7 +7,7 @@ export interface MRC20TransferParams {
   body: string
   amount: string
   mrc20TickId: string
-  flag?: 'metaid' | 'testid'
+  flag?: 'metaid'
   revealAddr?: string
   commitFeeRate: number
   revealFeeRate: number

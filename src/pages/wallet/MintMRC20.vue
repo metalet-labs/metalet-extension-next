@@ -104,7 +104,7 @@ const popConfirm = async () => {
       metaIdPinUtxos: metaPinUtxos.value,
       commitFeeRate: currentRateFee.value,
       revealFeeRate: currentRateFee.value,
-      flag: network.value === 'mainnet' ? 'metaid' : 'testid',
+      flag: 'metaid',
     })
     commitTxHex.value = commitTx.rawTx
     revealTxHex.value = revealTx.rawTx

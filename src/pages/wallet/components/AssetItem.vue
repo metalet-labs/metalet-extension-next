@@ -57,9 +57,9 @@ const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRate
 
 const assetPrice = computed(() => {
   if (asset.value?.balance) {
-    return `${asset.value.balance.total.dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
+    return `${asset.value.balance.total.dividedBy(10 ** asset.value.decimal).toFixed()} ${asset.value.symbol}`
   } else if (balance.value) {
-    return `${balance.value.total.dividedBy(10 ** asset.value.decimal).toNumber()} ${asset.value.symbol}`
+    return `${balance.value.total.dividedBy(10 ** asset.value.decimal).toFixed()} ${asset.value.symbol}`
   }
   return `-- ${asset.value.symbol}`
 })

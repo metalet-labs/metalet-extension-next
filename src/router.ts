@@ -139,6 +139,16 @@ const routes = [
         },
       },
       {
+        path: '/wallet/bridge/:chain?/:protocol?/:pair?',
+        component: () => import('./pages/wallet/Bridge/Index.vue'),
+        name: 'Bridge',
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Bridge',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/sendBRC20/:symbol/:amount/:address/:inscriptionId',
         component: () => import('./pages/wallet/SendBRC20.vue'),
         name: 'sendBRC20',

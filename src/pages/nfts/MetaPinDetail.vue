@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { PopCard } from '@/components'
+import Copy from '@/components/Copy.vue'
 import { LoadingText } from '@/components'
 import { getBrowserHost } from '@/lib/host'
 import { UseImage } from '@vueuse/components'
@@ -132,8 +133,9 @@ const getHostAndToTx = async (txId: string) => {
       </div>
       <div class="row">
         <span class="label">ID</span>
-        <div :title="metaPin.id">
+        <div :title="metaPin.id" class="flex items-center gap-x-1">
           {{ prettifyTxId(metaPin.id) }}
+          <Copy :text="metaPin.id!" title="MetaPin ID Copied" :show-content="true"/>
         </div>
       </div>
       <div class="row">

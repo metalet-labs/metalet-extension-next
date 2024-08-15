@@ -285,7 +285,7 @@ onMounted(async () => {
 
     <div class="w-full flex items-center justify-between mt-2" v-if="Math.ceil(feeRate) > 0">
       <span>Fee Rate</span>
-      <span>{{ Math.ceil(feeRate) }} sat/vB</span>
+      <span>≈{{ Math.ceil(feeRate) }} sat/vB</span>
     </div>
 
     <!-- a button to view detail -->

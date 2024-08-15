@@ -22,7 +22,7 @@ export type MetaidData = {
   version?: string
   encoding?: BufferEncoding
   revealAddr: string
-  flag?: 'metaid' | 'testid'
+  flag?: 'metaid'
 }
 
 export type InscriptionRequest = {

@@ -70,16 +70,21 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         </div>
         <span>Receive</span>
       </div>
-      <div class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary">
+      <div
+        class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
+        @click="$router.push('/wallet/swap')"
+      >
         <div
-          @click="$router.push('/wallet/swap')"
           class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
         >
           <SwapIcon class="w-4" />
         </div>
         <span>Swap</span>
       </div>
-      <div class="cursor-not-allowed flex flex-col items-center gap-y-[11px] hover:text-blue-primary">
+      <div
+        class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
+        @click="$router.push('/wallet/bridge')"
+      >
         <div
           class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
         >

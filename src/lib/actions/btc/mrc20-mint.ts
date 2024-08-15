@@ -6,7 +6,7 @@ import { Chain, ScriptType, SignType, Transaction, getAddressFromScript } from '
 export interface MRC20MintParams {
   id: string
   utxos: UTXO[]
-  flag?: 'metaid' | 'testid'
+  flag?: 'metaid'
   revealAddr?: string
   contentType?: string
   commitFeeRate: number

@@ -20,7 +20,7 @@ export interface MRC20DeployParams {
       lvl?: string
     }
   }
-  flag?: 'metaid' | 'testid'
+  flag?: 'metaid'
   revealAddr?: string
   commitFeeRate: number
   revealFeeRate: number
