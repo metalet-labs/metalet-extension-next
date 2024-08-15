@@ -6,7 +6,6 @@ import SwapIcon from '@/assets/icons-v3/swap.svg'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useSwapPool } from '@/hooks/swap/useSwapPool'
 import { swapTabStore } from '@/stores/SwapTabTypeStore'
-import BridgePairSelect from './components/BridgeSelectPairs.vue'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 const { chain } = useSwapPool()
