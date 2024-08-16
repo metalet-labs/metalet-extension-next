@@ -608,18 +608,18 @@ async function doSwap() {
 
       <div class="relative z-30 my-0.5 flex h-0 justify-center">
         <div
-          class="group absolute -translate-y-1/2 rounded-xl bg-gray-soft p-1 transition-all duration-500 hover:scale-110 lg:duration-150 text-gray-primary"
+          class="group absolute -translate-y-1/2 rounded-xl bg-white p-1 transition-all duration-500 hover:scale-110 lg:duration-150 text-gray-line"
         >
           <ArrowDownIcon class="box-content inline h-4 w-4 rounded-lg bg-gray-soft p-2 group-hover:hidden" />
 
           <button
             @click="flipAsset"
             :class="[
-              'box-content hidden rounded-lg bg-gray-soft p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
+              'box-content hidden rounded-lg bg-gray-secondary p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
               { 'rotate-180': flippedControl },
             ]"
           >
-            <ArrowUpDownIcon class="h-4 w-4 text-runes" />
+            <ArrowUpDownIcon class="h-4 w-4" />
           </button>
         </div>
       </div>

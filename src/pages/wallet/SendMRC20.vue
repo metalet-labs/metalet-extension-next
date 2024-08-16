@@ -71,7 +71,8 @@ const btnDisabled = computed(() => {
     (amount.value && amount.value <= 0) ||
     operationLock.value ||
     !currentRateFee.value ||
-    new Decimal(confirmBalance.value || 0).dividedBy(10 ** (asset.value?.decimal || 0)).lt(amount.value)
+    balance.value === undefined ||
+    balance.value === 0
   )
 })
 
@@ -130,7 +131,6 @@ const popConfirm = async () => {
     return
   }
   try {
-    console.log(network.value === 'mainnet')
     const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
     const utxos = await getBtcUtxos(address.value, needRawTx, true)
     const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, needRawTx)

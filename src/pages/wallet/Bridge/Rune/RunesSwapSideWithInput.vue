@@ -192,15 +192,15 @@ const clear = () => {
 </script>
 
 <template>
-  <div class="rounded-2xl border px-4 py-5 border-gray-soft hover:border-blue-primary">
+  <div class="rounded-2xl border border-gray-secondary px-4 py-5 bg-gray-secondary hover:border-gray-soft">
     <div class="text-black-primary">You {{ side }}</div>
 
     <div class="flex h-16 items-center justify-between space-x-2">
       <input
         min="0"
         :id="`${side}Amount`"
-        class="quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none"
         :class="[
+          'quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none',
           amountTextSize,
           hasEnough
             ? calculating
