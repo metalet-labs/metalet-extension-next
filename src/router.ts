@@ -139,7 +139,7 @@ const routes = [
         },
       },
       {
-        path: '/wallet/bridge/:chain?/:protocol?/:pair?',
+        path: '/wallet/bridge/:protocol?/:pair?',
         component: () => import('./pages/wallet/Bridge/Index.vue'),
         name: 'Bridge',
         meta: {

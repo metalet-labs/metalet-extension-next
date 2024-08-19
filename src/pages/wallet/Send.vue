@@ -292,12 +292,12 @@ async function send() {
         />
       </div>
       <div class="flex flex-col w-full gap-2" v-if="asset.chain === 'btc'">
-        <div class="flex items-center justify-between w-full">
+        <!-- <div class="flex items-center justify-between w-full">
           <span class="text-sm">Total</span>
           <span class="text-xs text-gray-primary">
             {{ prettifyBalanceFixed(balanceData?.total.toNumber() || 0, symbol, asset.decimal) }}
           </span>
-        </div>
+        </div> -->
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary flex items-end gap-1">
             <span>Pending</span>

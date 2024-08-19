@@ -7,6 +7,7 @@ import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
 import { metaletApiV3, mvcApi, unisatApi } from './request'
 import { Balance, BitcoinBalance, BTCBalance } from './types/balance'
+import { getBtcUtxos } from './utxos'
 
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
   const balance = await mvcApi<Omit<Balance, 'total'>>(`/address/${address}/balance`).get()
@@ -60,6 +61,25 @@ export const useBalanceQuery = (
         default: {
           return doNothing()
         }
+      }
+    },
+    refetchInterval: Balance_QUERY_INTERVAL,
+    ...options,
+  })
+}
+
+export const useBTCBalanceQuery = (address: Ref<string>, options: { enabled: ComputedRef<boolean> }) => {
+  return useQuery({
+    queryKey: ['BTC Balance', { address }],
+    queryFn: () => {
+      return getBtcUtxos(address.value)
+    },
+    select: (utxos) => {
+      const balance = utxos.reduce((acc, utxo) => acc.add(utxo.satoshis), new Decimal(0))
+      return {
+        total: balance,
+        confirmed: balance,
+        unconfirmed: new Decimal(0),
       }
     },
     refetchInterval: Balance_QUERY_INTERVAL,

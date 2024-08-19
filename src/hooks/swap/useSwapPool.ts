@@ -17,7 +17,7 @@ export function useSwapPool() {
   const protocol = useRouteParams<string>('protocol')
   if (!protocol.value) {
     if (chain.value === Chain.BTC) {
-      protocol.value = Protocol.Rune.toLocaleLowerCase()
+      protocol.value = Protocol.Runes.toLocaleLowerCase()
     } else if (chain.value === Chain.MVC) {
       protocol.value = Protocol.MetaContract.toLocaleLowerCase()
     } else {
@@ -27,10 +27,11 @@ export function useSwapPool() {
     }
   }
 
-  if (protocol.value === Protocol.Rune.toLocaleLowerCase()) {
+  if (protocol.value === Protocol.Runes.toLocaleLowerCase()) {
     return { ...useRunesPool(), chain }
   } else {
     toast({ toastType: 'warning', title: 'Unsupported protocol type.' })
+    // FIXME: go undefined
     router.go(-1)
   }
 

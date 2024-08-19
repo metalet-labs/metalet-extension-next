@@ -12,6 +12,8 @@ import {
   UNISAT_TESTNET_HOST,
   API_RUNES_ORDERS_EXCHANGE,
   API_RUNES_TESTNET_ORDERS_EXCHANGE,
+  OCTOPUS_HOST,
+  OCTOPUS_TESTNET_HOST,
 } from '@/data/hosts'
 
 type OptionParams = Record<string, string | number | undefined>
@@ -216,6 +218,27 @@ export const swapApi = <T>(path: string) => {
     get: (params?: OptionParams) => request<T>(`${swapHost}${path}`, { method: 'GET', params }),
     post: (data?: OptionData) =>
       request<T>(`${swapHost}${path}`, { method: 'POST', data, withCredential: true, message: 'orders.exchange' }),
+  }
+}
+
+interface OctopusResult<T> {
+  success: boolean
+  data: T
+}
+
+const octopusApiRequest = <T>(url: string, options: RequestOption): Promise<T> =>
+  request<OctopusResult<T>>(url, options).then((result) => {
+    if (result.success === false) {
+      throw new Error('Octopus API request failed')
+    }
+    return result.data
+  })
+
+export const octopusApi = <T>(path: string) => {
+  const octopusHost = network.value === 'mainnet' ? OCTOPUS_HOST : OCTOPUS_TESTNET_HOST
+  return {
+    get: (params?: OptionParams) => octopusApiRequest<T>(`${octopusHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) => octopusApiRequest<T>(`${octopusHost}${path}`, { method: 'POST', data }),
   }
 }
 

@@ -10,7 +10,7 @@ interface TabType {
 }
 
 const tabs: TabType[] = [
-  { id: 1, name: Protocol.Rune, disabled: false, chain: Chain.BTC },
+  { id: 1, name: Protocol.Runes, disabled: false, chain: Chain.BTC },
   { id: 2, name: Protocol.BRC20, disabled: false, chain: Chain.BTC },
   { id: 3, name: Protocol.MRC20, disabled: false, chain: Chain.BTC },
   { id: 4, name: Protocol.MetaContract, disabled: false, chain: Chain.MVC },

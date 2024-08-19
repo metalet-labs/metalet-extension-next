@@ -88,7 +88,7 @@ export interface UnisatUTXO {
 }
 
 // TODO: add mode
-export async function getBtcUtxos(address: string, needRawTx = false, useUnconfirmed = false): Promise<UTXO[]> {
+export async function getBtcUtxos(address: string, needRawTx = false, useUnconfirmed = true): Promise<UTXO[]> {
   const net = getNet()
   if (UNISAT_ENABLED) {
     const unisatUtxos = await unisatApi<UnisatUTXO[]>(`/address/btc-utxo`).get({ net, address })

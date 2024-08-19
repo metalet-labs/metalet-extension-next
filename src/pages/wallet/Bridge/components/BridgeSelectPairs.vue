@@ -1,62 +1,66 @@
 <script lang="ts" setup>
+import { computed, ref, watch } from 'vue'
+import AssetLogo from '@/components/AssetLogo.vue'
+import { assetReqReturnType } from '@/queries/types/bridge'
+import { CheckIcon, ChevronDownIcon } from 'lucide-vue-next'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { ChevronRightIcon, CheckIcon } from 'lucide-vue-next'
 
-import bridgePairs from '@/data/bridge-pairs'
-import { useBridgePair } from '@/hooks/use-bridge-pair'
-import { truncateStr } from '@/lib/formatters'
-// debugger
-// const sortedBridgePairs = bridgePairs.value.sort((a, b) => {
-//   // sorted by id
-//   return a.id > b.id ? 1 : -1
-// })
+const props = defineProps<{
+  bridgePairs?: assetReqReturnType[]
+}>()
 
-const { selectBridgePair, selectedPair } = useBridgePair()
+const codeHash = defineModel('codeHash', { type: String })
+const genesis = defineModel('genesis', { type: String })
+
+const bridgePairs = computed(() => props.bridgePairs)
+const selectedPair = ref(bridgePairs.value?.[0])
+
+function selectBridgePair(pairId: string) {
+  const pair = bridgePairs.value?.find((p) => p.originTokenId === pairId)
+  if (pair) {
+    selectedPair.value = pair
+    codeHash.value = pair.targetTokenCodeHash
+    genesis.value = pair.targetTokenGenesis
+  }
+}
+
+watch(
+  bridgePairs,
+  (newData) => {
+    if (newData && newData.length > 0) {
+      selectedPair.value = newData[0]
+      codeHash.value = newData[0].targetTokenCodeHash
+      genesis.value = newData[0].targetTokenGenesis
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
   <Listbox
     as="div"
+    v-if="bridgePairs && selectedPair"
     class="relative inline-block text-left"
-    :model-value="selectedPair.id"
+    :model-value="selectedPair?.originTokenId"
     @update:model-value="selectBridgePair"
   >
     <div>
       <ListboxButton
-        class="inline-flex w-full items-center justify-center gap-x-1.5 rounded-md bg-black px-3 py-1.5 text-sm font-semibold text-primary shadow-sm transition-all hover:bg-opacity-80"
+        class="inline-flex w-full items-center justify-center gap-x-1.5 bg-gray-secondary rounded-full px-3 py-1.5 text-sm font-semibold text-primary shadow-sm transition-all hover:bg-opacity-80"
         v-slot="{ open }"
       >
         <div class="flex">
-          <TokenIcon
-            :token="selectedPair.originSymbol"
-            :wrapt="false"
-            class="size-5 rounded-full"
-            v-if="selectedPair.originSymbol"
-          />
-
-          <TokenIcon
-            :token="selectedPair.targetSymbol"
-            :wrapt="true"
-            class="-ml-2 size-5 rounded-full"
-            v-if="selectedPair.targetSymbol"
-          />
-          <!-- <img :src="selectedPair.fromSymbol" class="h-5 rounded-full" />
-          <img :src="selectedPair.toIcon" class="-ml-2 h-5 rounded-full" /> -->
+          <AssetLogo :symbol="selectedPair.originSymbol" class="size-5 text-xs" />
+          <AssetLogo :symbol="selectedPair.targetSymbol" class="size-5 text-xs -ml-2" />
         </div>
 
-        <span v-if="selectedPair.network !== 'RUNES'" class="font-bold ml-1 text-left uppercase">
-          ${{ selectedPair.originName }}-{{ selectedPair.targetName }}
+        <span v-if="selectedPair.network !== 'RUNES'" class="font-bold ml-1 text-left uppercase text-blue-primary">
+          ${{ selectedPair.originSymbol }}-{{ selectedPair.targetSymbol }}
         </span>
 
-        <div v-else class="flex items-center font-bold ml-1 text-left uppercase relative">
-          <span class="mr-1">
-            {{ truncateStr(selectedPair.originName) }}
-          </span>
-          <span class="text-xs text-teal-500">(Runes)</span>
-        </div>
-
-        <ChevronRightIcon
-          :class="['-mr-1 h-5 w-5 transform text-zinc-400 duration-200', open && 'rotate-90']"
+        <ChevronDownIcon
+          :class="['h-5 w-5 transform text-black duration-200', open && 'rotate-180']"
           aria-hidden="true"
         />
       </ListboxButton>
@@ -71,43 +75,24 @@ const { selectBridgePair, selectedPair } = useBridgePair()
       leave-to-class="transform opacity-0 scale-95"
     >
       <ListboxOptions
-        class="nicer-scrollbar absolute left-0 z-10 mt-2 max-h-[75vh] origin-top-left overflow-auto rounded-md bg-zinc-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="nicer-scrollbar absolute left-0 z-50 mt-2 max-h-[75vh] origin-top-left overflow-auto rounded-md bg-gray-secondary shadow-lg ring-1 ring-gray-secondary ring-opacity-5 focus:outline-none"
       >
-        <ListboxOption v-slot="{ active, selected }" v-for="pair in bridgePairs" :key="pair.id" :value="pair.id">
-          <button :class="['flex w-max min-w-full items-center p-4 text-xs', active && 'bg-black']">
+        <ListboxOption
+          v-slot="{ active, selected }"
+          v-for="pair in bridgePairs"
+          :key="pair.originTokenId"
+          :value="pair.originTokenId"
+        >
+          <button :class="['flex w-max min-w-full items-center p-4 text-xs', active && 'bg-white']">
             <div class="flex">
-              <TokenIcon
-                :token="pair.originSymbol"
-                :wrapt="false"
-                class="size-5 rounded-full"
-                v-if="pair.originSymbol"
-              />
-
-              <TokenIcon
-                :token="pair.targetSymbol"
-                :wrapt="true"
-                class="-ml-2 size-5 rounded-full"
-                v-if="pair.targetSymbol"
-              />
-
-              <!-- <img :src="pair.fromIcon" class="h-5 rounded-full" />
-              <img :src="pair.toIcon" class="-ml-2 h-5 rounded-full" /> -->
+              <AssetLogo :symbol="selectedPair.originSymbol" class="size-5 text-xs" />
+              <AssetLogo :symbol="selectedPair.targetSymbol" class="size-5 text-xs -ml-2" />
             </div>
 
             <div class="relative">
-              <span v-if="pair.network !== 'RUNES'" :class="['ml-2 font-bold uppercase', selected && 'text-primary']">
-                ${{ pair.originName }}-{{ pair.targetName }}
+              <span :class="['ml-2 font-bold uppercase', selected && 'text-blue-primary']">
+                ${{ pair.originSymbol }}-{{ pair.targetSymbol }}
               </span>
-              <div v-else :class="[' ml-2 font-bold uppercase', selected && 'text-primary']">
-                <span>{{ pair.originName }}</span>
-                <span class="text-teal-500">(Runes)</span>
-              </div>
-              <!-- <span
-                class="absolute inline-flex -translate-x-1 -translate-y-2 rotate-3 items-center rounded-md px-1.5 py-0.5 text-xs font-medium text-red-500"
-                v-if="pair.isNew"
-              >
-                New!
-              </span> -->
             </div>
 
             <CheckIcon v-if="selected" class="ml-4 h-5 w-5 text-primary" aria-hidden="true" />

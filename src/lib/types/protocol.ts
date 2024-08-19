@@ -1,7 +1,7 @@
 export enum Protocol {
-  Rune = 'Rune',
-  BRC20 = 'BRC-20',
-  MRC20 = 'MRC-20',
   Native = 'Native',
+  MRC20 = 'MRC20',
+  BRC20 = 'BRC20',
+  Runes = 'Runes',
   MetaContract = 'MetaContract',
 }

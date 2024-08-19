@@ -40,7 +40,7 @@ const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chai
           <span>{{ tab.name }}</span>
         </TabsTrigger>
       </TabsList>
-      <TabsContent :value="Protocol.Rune" :key="Protocol.Rune" class="pt-4 w-full">
+      <TabsContent :value="Protocol.Runes" :key="Protocol.Runes" class="pt-4 w-full">
         <RuneSwap />
       </TabsContent>
     </Tabs>

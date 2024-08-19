@@ -25,13 +25,11 @@ export const API_RUNES_TESTNET_ORDERS_EXCHANGE = 'https://api-runes-testnet.orde
 export const UNISAT_HOST = 'https://wallet-api.unisat.io/v5'
 export const UNISAT_TESTNET_HOST = 'https://wallet-api-testnet.unisat.io/v5'
 
-export const proxy =
-  (import.meta.env.VITE_HOST_PROXY || 'https://api2.orders.exchange') + '/api'
+export const proxy = (import.meta.env.VITE_HOST_PROXY || 'https://api2.orders.exchange') + '/api'
 
-export const runes =
-  (import.meta.env.VITE_HOST_RUNES ||
-    'https://runes-preview-swap-queue.vercel.app') + '/api'
+export const runes = (import.meta.env.VITE_HOST_RUNES || 'https://runes-preview-swap-queue.vercel.app') + '/api'
 
-export const swap =
-  (import.meta.env.VITE_HOST_SWAP || 'https://api-swap.orders.exchange') +
-  '/api'
+export const swap = (import.meta.env.VITE_HOST_SWAP || 'https://api-swap.orders.exchange') + '/api'
+
+export const OCTOPUS_HOST = 'https://api.octopus.space/api-bridge/'
+export const OCTOPUS_TESTNET_HOST = 'https://api.octopus.space/api-bridge-testnet/'

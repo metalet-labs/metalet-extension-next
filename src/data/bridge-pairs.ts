@@ -1,23 +1,12 @@
-import btc from '@/assets/btc.svg?url'
-
 import { InjectionKey } from 'vue'
 import { ref, Ref } from 'vue'
-import { type assetReqReturnType } from '@/queries/bridge-api'
-import { network } from '@/lib/network'
+import { type assetReqReturnType } from '@/queries/types/bridge'
 import { useBridgePairStore } from '@/stores/bridge-pair'
 const bridgePairStore = useBridgePairStore()
 
-const bridgePairs: Ref<assetReqReturnType[]> =
-  network.value === 'testnet'
-    ? ref(bridgePairStore.list)
-    : ref([
-        {
-          network: 'BTC',
-          targetSymbol: 'BTC',
-          originSymbol: 'BTC',
-          id: 1,
-        },
-      ])
+console.log('bridgePairStore', bridgePairStore.list)
+
+const bridgePairs: Ref<assetReqReturnType[]> = ref(bridgePairStore.list)
 
 export default bridgePairs
 

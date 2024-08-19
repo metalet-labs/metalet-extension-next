@@ -59,7 +59,7 @@ const selectCustom = () => {
       <div class="text-sm">Fee Rate</div>
       <FlexBox ai="center" jc="center" class="text-xs text-gray-primary">
         <span>{{ feeRate }} sat/vB</span>
-        <ArrowRightIcon />
+        <ArrowRightIcon class="text-gray-primary"/>
       </FlexBox>
     </FlexBox>
     <Drawer v-model:open="open">

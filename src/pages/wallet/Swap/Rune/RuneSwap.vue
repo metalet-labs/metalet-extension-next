@@ -342,7 +342,7 @@ watch([token1Amount, token2Amount], async ([newToken1Amount, newToken2Amount], [
   if (!sourceChanging) return
 
   // if (!sourceAmount.value) return
-
+  
   if (!sourceAmount.value) {
     token1Amount.value = undefined
     token2Amount.value = undefined

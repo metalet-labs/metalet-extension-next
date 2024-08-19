@@ -4,11 +4,8 @@ import { type Asset } from '@/data/assets'
 import { computed, watch, ref } from 'vue'
 import { calcBalance } from '@/lib/formatters'
 import { SymbolTicker } from '@/lib/asset-symbol'
-import { runeTokens } from '@/data/pinned-tokens'
 import AssetLogo from '@/components/AssetLogo.vue'
-import { useIconsStore } from '@/stores/IconsStore'
-import { SWAP_THRESHOLD_AMOUNT } from '@/data/constants'
-import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
+  import { useIconsStore } from '@/stores/IconsStore'
 import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
@@ -20,7 +17,7 @@ const props = defineProps({
   },
   asset: {
     type: Object as () => Asset,
-    required: true,
+    required: false,
   },
   coinCategory: {
     type: String as () => CoinCategory,
@@ -30,26 +27,29 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  limitMaximum: {
+    type: String,
+    default: false,
+  },
+  limitMinimum: {
+    type: String,
+    default: false,
+  },
 })
 
-const emit = defineEmits([
-  'hasEnough',
-  'notEnough',
-  'becameSource',
-  'amountCleared',
-  'amountEntered',
-  'update:symbol',
-  'moreThanThreshold',
-  'lessThanThreshold',
-])
+const emit = defineEmits(['hasEnough', 'notEnough', 'becameSource', 'amountCleared', 'amountEntered', 'update:symbol'])
 
-const symbol = ref(props.asset.symbol)
+const symbol = ref(props.asset?.symbol || '--')
 const asset = computed(() => props.asset)
 const coinCategory = ref(props.coinCategory)
-const balance = computed(() => props.asset.balance)
+const balance = computed(() => props.asset?.balance)
 
 const { getIcon } = useIconsStore()
-const icon = computed(() => getIcon(CoinCategory.Native, asset.value.symbol as SymbolTicker) || '')
+const icon = computed(() => {
+  if (asset.value) {
+    return getIcon(coinCategory.value, asset.value.symbol as SymbolTicker)
+  }
+})
 
 const { data: exchangeRate } = useExchangeRatesQuery(symbol, coinCategory, {
   enabled: computed(() => {
@@ -60,7 +60,7 @@ const { data: exchangeRate } = useExchangeRatesQuery(symbol, coinCategory, {
 const amount = defineModel('amount', { type: String })
 
 const normalizedAmount = computed(() => {
-  if (amount.value === undefined) {
+  if (amount.value === undefined || asset.value === undefined) {
     return ''
   }
 
@@ -68,12 +68,15 @@ const normalizedAmount = computed(() => {
 })
 
 const updateAmount = (_amount: string) => {
+  if (!asset) {
+    return
+  }
   if (_amount === '') {
     amount.value = undefined
     return
   }
 
-  amount.value = new Decimal(_amount).times(10 ** asset.value.decimal).toFixed(0)
+  amount.value = new Decimal(_amount).times(10 ** (asset.value?.decimal || 0)).toFixed(0)
 
   emit('becameSource')
 }
@@ -108,14 +111,14 @@ const amountTextSize = computed(() => {
 
 const balanceDisplay = computed(() => {
   if (balance.value) {
-    return calcBalance(balance.value.total.toNumber(), asset.value.decimal, asset.value.symbol)
+    return calcBalance(balance.value.total.toNumber(), asset.value?.decimal || 0, asset.value?.symbol || '--')
   }
   return '--'
 })
 
 const fiatPrice = computed(() => {
   if (amount.value && exchangeRate.value) {
-    const unit = new Decimal(amount.value).dividedBy(10 ** asset.value.decimal)
+    const unit = new Decimal(amount.value).dividedBy(10 ** (asset.value?.decimal || 0))
     return unit.mul(new Decimal(exchangeRate.value?.price || 0))
   }
 })
@@ -132,19 +135,6 @@ const hasEnough = computed(() => {
   return new Decimal(amount.value).lte(balance.value?.total || 0)
 })
 
-const amountMoreThanThreshold = computed(() => {
-  // only check when symbol is btc
-  if (symbol.value !== 'BTC') {
-    return true
-  }
-
-  if (!amount.value) {
-    return true
-  }
-
-  return new Decimal(amount.value).gte(SWAP_THRESHOLD_AMOUNT)
-})
-
 watch(
   () => hasEnough.value,
   (hasEnough) => {
@@ -152,17 +142,6 @@ watch(
       emit('hasEnough')
     } else {
       emit('notEnough')
-    }
-  }
-)
-
-watch(
-  () => amountMoreThanThreshold.value,
-  (moreThanThreshold) => {
-    if (moreThanThreshold) {
-      emit('moreThanThreshold')
-    } else {
-      emit('lessThanThreshold')
     }
   }
 )
@@ -181,13 +160,14 @@ watch(
 
 const useTotalBalance = () => {
   if (balance.value?.total) {
-    amount.value = balance.value?.total.toDP().toFixed()
+    amount.value = balance.value?.total.toFixed()
     emit('becameSource')
   }
 }
 
 const clear = () => {
   amount.value = undefined
+  emit('amountCleared')
 }
 </script>
 
@@ -199,8 +179,10 @@ const clear = () => {
       <input
         min="0"
         :id="`${side}Amount`"
+        :disabled="side === 'receive'"
         :class="[
           'quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none',
+          side === 'receive' ? 'cursor-not-allowed' : 'cursor-auto',
           amountTextSize,
           hasEnough
             ? calculating
@@ -222,22 +204,30 @@ const clear = () => {
 
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
-      <RunesModalTokenSelect :pinned-tokens="runeTokens" v-if="coinCategory === CoinCategory.Rune" />
-      <div :class="['flex items-center gap-1 rounded-full bg-gray-100 p-1 px-2 text-xl']" v-else>
-        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" class="w-6 h-6 text-xs" />
+      <div :class="['flex items-center gap-1 rounded-full bg-white p-1 px-2 text-xl shadow-sm']">
+        <AssetLogo :logo="icon" :chain="asset?.chain" :symbol="asset?.symbol" class="size-6 text-xs" />
         <div class="mr-1" :class="['text-sm font-medium']">
-          {{ asset.symbol }}
+          {{ asset?.symbol || '--' }}
         </div>
       </div>
     </div>
 
-    <div
-      v-if="hasEnough && !calculating && !amountMoreThanThreshold"
-      class="-mt-2 mb-2 flex items-center gap-2 text-sm text-red-primary"
-    >
-      <AlertCircleIcon class="size-4" />
-      Amount should be at least {{ SWAP_THRESHOLD_AMOUNT / 1e8 }} BTC
-    </div>
+    <template v-if="hasEnough && !calculating && amount && asset">
+      <div
+        v-if="props.limitMinimum && new Decimal(amount).lt(props.limitMinimum)"
+        class="-mt-2 mb-2 flex items-center gap-2 text-sm text-red-primary"
+      >
+        <AlertCircleIcon class="size-4" />
+        Amount should be at least {{ calcBalance(Number(props.limitMinimum), asset.decimal, asset.symbol) }}
+      </div>
+      <div
+        v-if="props.limitMaximum && new Decimal(amount).gt(props.limitMaximum)"
+        class="-mt-2 mb-2 flex items-center gap-2 text-sm text-red-primary"
+      >
+        <AlertCircleIcon class="size-4" />
+        Amount should be at most {{ calcBalance(Number(props.limitMaximum), asset.decimal, asset.symbol) }}
+      </div>
+    </template>
 
     <div class="flex items-center justify-between">
       <div class="text-sm text-zinc-400" v-if="fiatPrice">

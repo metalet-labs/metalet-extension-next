@@ -1,12 +1,6 @@
+import { ref } from 'vue'
 import { createGlobalState } from '@vueuse/core'
 import { type assetReqReturnType } from '@/queries/bridge-api'
-import { ref } from 'vue'
-// type bridgePairInfo={
-//     network: string,
-//     targetSymbol: string,
-//     originSymbol: string,
-//     id: number,
-// }
 
 export const useBridgePairStore = createGlobalState(() => {
   const list = ref<assetReqReturnType[]>([])

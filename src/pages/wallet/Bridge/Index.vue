@@ -1,48 +1,38 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import RuneSwap from './Rune/RuneSwap.vue'
-import { Protocol } from '@/lib/types/protocol'
-import SwapIcon from '@/assets/icons-v3/swap.svg'
-import { Chain } from '@metalet/utxo-wallet-service'
-import { useSwapPool } from '@/hooks/swap/useSwapPool'
-import { swapTabStore } from '@/stores/SwapTabTypeStore'
+import BTCBridge from './components/BTCBridge.vue'
+import MRC20Bridge from './components/MRC20Bridge.vue'
+import useBridgePool from '@/hooks/bridge/useBridgePool'
+import { bridgeTabStore } from '@/stores/BridgeTabStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-const { chain } = useSwapPool()
+useBridgePool()
 
-const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chain.value))
+const tabs = computed(() => bridgeTabStore.tabs)
 </script>
 
 <template>
   <div class="-mx-4 h-full overflow-y-auto nicer-scrollbar px-4">
-    <div class="mt-2 flex items-center justify-between text-blue-primary">
-      <button
-        @click="chain = chain === Chain.MVC ? Chain.BTC : Chain.MVC"
-        class="py-2 px-4 bg-[#F5F6FF] rounded-2xl text-xs font-medium flex items-center gap-1 cursor-pointer"
-      >
-        Swapping on {{ (chain === Chain.MVC ? Chain.BTC : Chain.MVC).toLocaleUpperCase() }}
-        <SwapIcon class="w-3 h-3" />
-      </button>
-      <BridgePairSelect />
-      <RouterLink to="/" class="underline">Pools</RouterLink>
-    </div>
-    <Tabs :modelValue="swapTabStore.selectedTab.name" class="flex flex-col items-start mt-3 rounded-lg">
+    <Tabs :modelValue="bridgeTabStore.selectedTab.name" class="flex flex-col items-start mt-3 rounded-lg">
       <TabsList class="p-1 shrink-0 h-12 w-full bg-[#F5F7F9]" v-if="tabs.length > 1">
         <TabsTrigger
           :key="tab.id"
           :value="tab.name"
           v-for="tab in tabs"
-          @click="swapTabStore.selectedTab = tab"
+          @click="bridgeTabStore.selectedTab = tab"
           :class="[
             'grow rounded-md h-full font-medium text-sm text-gray-primary',
-            { 'bg-white text-blue-primary': swapTabStore.selectedTab.name === tab.name },
+            { 'bg-white text-blue-primary': bridgeTabStore.selectedTab.name === tab.name },
           ]"
         >
-          <span>{{ tab.name }}</span>
+          <span>{{ tab.name.toLocaleUpperCase() }}</span>
         </TabsTrigger>
       </TabsList>
-      <TabsContent :value="Protocol.Rune" :key="Protocol.Rune" class="pt-4 w-full">
-        <RuneSwap />
+      <TabsContent :value="'BTC'" :key="'BTC'" class="pt-4 w-full">
+        <BTCBridge />
+      </TabsContent>
+      <TabsContent :value="'MRC20'" :key="'MRC20'" class="pt-4 w-full">
+        <MRC20Bridge />
       </TabsContent>
     </Tabs>
   </div>

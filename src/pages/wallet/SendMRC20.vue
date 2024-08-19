@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { ref, computed } from 'vue'
-import { network } from '@/lib/network'
+import { getTags } from '@/data/assets'
 import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
 import { transferToNumber } from '@/lib/helpers'
@@ -18,7 +18,6 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
 import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
-import { getTags } from '@/data/assets'
 
 const route = useRoute()
 const recipient = ref('')
@@ -44,7 +43,7 @@ const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
 
 const { currentBTCWallet } = useChainWalletsStore()
 
-const amount = ref<number>()
+const amount = ref<string>()
 
 const balance = computed(() => {
   if (asset.value?.balance) {
@@ -68,7 +67,7 @@ const btnDisabled = computed(() => {
   return (
     !recipient.value ||
     !amount.value ||
-    (amount.value && amount.value <= 0) ||
+    (amount.value && Number(amount.value) <= 0) ||
     operationLock.value ||
     !currentRateFee.value ||
     balance.value === undefined ||
@@ -278,7 +277,7 @@ async function send() {
         <span>Amount</span>
         <span
           class="text-gray-primary text-xs cursor-pointer hover:underline"
-          @click="amount = new Decimal(confirmBalance || 0).dividedBy(10 ** (asset?.decimal || 0)).toNumber()"
+          @click="amount = new Decimal(confirmBalance || 0).dividedBy(10 ** (asset?.decimal || 0)).toString()"
         >
           <template v-if="balance !== undefined">
             <span v-if="confirmBalance !== undefined">
@@ -303,9 +302,16 @@ async function send() {
         type="number"
         v-model="amount"
         :max="confirmBalance"
-        :step="new Decimal(1).div(10 ** asset.decimal).toNumber()"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
+      <!-- <input
+        min="0"
+        type="number"
+        v-model="amount"
+        :max="confirmBalance"
+        :step="new Decimal(1).div(10 ** asset.decimal).toFixed()"
+        class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
+      /> -->
     </div>
 
     <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
