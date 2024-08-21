@@ -1,7 +1,11 @@
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
 import BigNumber from 'bignumber.js'
+import { AddressType, BtcWallet, MvcWallet, SignType } from '@metalet/utxo-wallet-service'
 import { assetReqReturnType, bridgeAssetPairReturnType } from '@/queries/types/bridge'
+import { Network } from './network'
+import { createPrepayOrderMintBtc, submitPrepayOrderMintBtc } from '@/queries/bridge'
+import { getBtcUtxos } from '@/queries/utxos'
 export const formatSat = (value: string | number, dec = 8) => {
   if (!value) return '0'
 
@@ -147,7 +151,6 @@ export const calcMintBtcInfo = (mintAmount: number, assetInfo: bridgeAssetPairRe
     transactionSize,
     assetList,
   } = assetInfo
-  console.log('mintAmount', mintAmount)
 
   if (mintAmount < Number(amountLimitMinimum)) {
     throw new Error('amount less than minimum amount')
@@ -242,7 +245,7 @@ export const calcMintBrc20Info = (
   }
 }
 
-export const calcMintBrc20Range = (assetInfo: bridgeAssetPairReturnType, asset: assetReqReturnType) => {
+export const calcPriceRange = (assetInfo: bridgeAssetPairReturnType, asset: assetReqReturnType) => {
   const { btcPrice, amountLimitMaximum, amountLimitMinimum } = assetInfo
   const assetRdex = asset
   const minAmount = ((Number(amountLimitMinimum) / 1e8) * btcPrice) / assetRdex.price
@@ -502,5 +505,54 @@ export const calcMintMRC20Info = (
     bridgeFee: bridgeFee.toFixed(asset.decimals),
     totalFee: totalFee.toFixed(asset.decimals),
     confirmNumber,
+  }
+}
+
+export async function mintBtc(
+  mintAmount: number,
+  originTokenId: string,
+  addressType: AddressType,
+  btcWallet: BtcWallet,
+  mvcWallet: MvcWallet,
+  feeRate: number
+) {
+  const publicKey = mvcWallet.getPublicKey().toString('hex')
+  const publicKeySign = mvcWallet.signMessage(publicKey, 'base64')
+  const publicKeyReceive = btcWallet.getPublicKey().toString('hex')
+  const publicKeyReceiveSign = btcWallet.signMessage(publicKeyReceive, 'base64')
+
+  const createPrepayOrderDto = {
+    amount: mintAmount,
+    originTokenId,
+    addressType: addressType,
+    publicKey,
+    publicKeySign,
+    publicKeyReceive,
+    publicKeyReceiveSign,
+  }
+  try {
+    const createResp = await createPrepayOrderMintBtc(createPrepayOrderDto)
+
+    const { orderId, bridgeAddress } = createResp
+
+    const utxos = await getBtcUtxos(btcWallet.getAddress())
+
+    const { rawTx } = btcWallet.signTx(SignType.SEND, {
+      utxos,
+      amount: Number(mintAmount),
+      recipient: bridgeAddress,
+      feeRate,
+    })
+
+    const submitPrepayOrderMintDto = {
+      orderId,
+      txHex: rawTx,
+    }
+    const submitRes = await submitPrepayOrderMintBtc(submitPrepayOrderMintDto)
+    if (!submitRes.success) throw new Error(submitRes.msg)
+
+    return submitRes
+  } catch (error) {
+    throw new Error((error as any).message || (error as any).msg)
   }
 }

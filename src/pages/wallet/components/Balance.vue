@@ -94,7 +94,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-2 mt-6 text-ss" v-else>
+    <div class="grid grid-cols-2 gap-2 mt-4 text-ss" v-else>
       <button class="button" @click="toSelectAsset('send')">
         <ArrowUpRightIcon class="mr-1 h-4 w-4" />
         <span>Send</span>

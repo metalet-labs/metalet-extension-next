@@ -96,7 +96,7 @@ const copy = (address: string, addressType: string, type: string) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between py-3">
+  <div class="flex items-center justify-between">
     <FlexBox ai="center" jc="center" :gap="2" class="cursor-pointer" @click="toManageWallets" v-if="account">
       <div class="flex items-center">
         <template v-if="serviceNetwork.includes(Chain.BTC)">

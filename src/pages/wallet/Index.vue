@@ -19,7 +19,7 @@ hasWallets().then(async (_hasWallets) => {
 </script>
 
 <template>
-  <div class="relative flex flex-col gap-y-6 w-full h-full">
+  <div class="relative flex flex-col gap-y-4 w-full h-full">
     <AccountHeader />
 
     <Balance />

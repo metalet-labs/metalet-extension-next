@@ -2,11 +2,8 @@
 import { computed } from 'vue'
 import BTCBridge from './components/BTCBridge.vue'
 import MRC20Bridge from './components/MRC20Bridge.vue'
-import useBridgePool from '@/hooks/bridge/useBridgePool'
 import { bridgeTabStore } from '@/stores/BridgeTabStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
-useBridgePool()
 
 const tabs = computed(() => bridgeTabStore.tabs)
 </script>

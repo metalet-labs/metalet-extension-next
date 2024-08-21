@@ -4,23 +4,43 @@ import AssetLogo from '@/components/AssetLogo.vue'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { CheckIcon, ChevronDownIcon } from 'lucide-vue-next'
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
+import { useIconsStore } from '@/stores/IconsStore'
+import { CoinCategory } from '@/queries/exchange-rates'
 
 const props = defineProps<{
   bridgePairs?: assetReqReturnType[]
 }>()
 
-const codeHash = defineModel('codeHash', { type: String })
-const genesis = defineModel('genesis', { type: String })
+const { getIcon } = useIconsStore()
+
+const selectedPair = defineModel('selectedPair', { type: Object })
 
 const bridgePairs = computed(() => props.bridgePairs)
-const selectedPair = ref(bridgePairs.value?.[0])
 
 function selectBridgePair(pairId: string) {
   const pair = bridgePairs.value?.find((p) => p.originTokenId === pairId)
   if (pair) {
     selectedPair.value = pair
-    codeHash.value = pair.targetTokenCodeHash
-    genesis.value = pair.targetTokenGenesis
+  }
+}
+
+function getCoinCategory(type: string) {
+  switch (type) {
+    case 'BTC': {
+      return CoinCategory.Native
+    }
+    case 'MRC20': {
+      return CoinCategory.MRC20
+    }
+    case 'BRC20': {
+      return CoinCategory.BRC20
+    }
+    case 'RUNES': {
+      return CoinCategory.Rune
+    }
+    default: {
+      return CoinCategory.MetaContract
+    }
   }
 }
 
@@ -29,8 +49,6 @@ watch(
   (newData) => {
     if (newData && newData.length > 0) {
       selectedPair.value = newData[0]
-      codeHash.value = newData[0].targetTokenCodeHash
-      genesis.value = newData[0].targetTokenGenesis
     }
   },
   { immediate: true }
@@ -51,8 +69,22 @@ watch(
         v-slot="{ open }"
       >
         <div class="flex">
-          <AssetLogo :symbol="selectedPair.originSymbol" class="size-5 text-xs" />
-          <AssetLogo :symbol="selectedPair.targetSymbol" class="size-5 text-xs -ml-2" />
+          <AssetLogo
+            :logo="getIcon(getCoinCategory(selectedPair.network), selectedPair.originSymbol)"
+            :symbol="selectedPair.originSymbol"
+            class="size-5 text-xs z-10"
+            chain="btc"
+            type="network"
+            logo-size="size-2"
+          />
+          <AssetLogo
+            :logo="getIcon(CoinCategory.MetaContract, selectedPair.targetTokenGenesis)"
+            :symbol="selectedPair.targetSymbol"
+            class="size-5 text-xs -ml-2"
+            chain="mvc"
+            type="network"
+            logo-size="size-2"
+          />
         </div>
 
         <span v-if="selectedPair.network !== 'RUNES'" class="font-bold ml-1 text-left uppercase text-blue-primary">
@@ -85,8 +117,22 @@ watch(
         >
           <button :class="['flex w-max min-w-full items-center p-4 text-xs', active && 'bg-white']">
             <div class="flex">
-              <AssetLogo :symbol="selectedPair.originSymbol" class="size-5 text-xs" />
-              <AssetLogo :symbol="selectedPair.targetSymbol" class="size-5 text-xs -ml-2" />
+              <AssetLogo
+                chain="btc"
+                type="network"
+                logo-size="size-2"
+                class="size-5 text-xs z-10"
+                :symbol="selectedPair.originSymbol"
+                :logo="getIcon(getCoinCategory(selectedPair.network), selectedPair.originSymbol)"
+              />
+              <AssetLogo
+                chain="mvc"
+                type="network"
+                logo-size="size-2"
+                class="size-5 text-xs -ml-2"
+                :symbol="selectedPair.targetSymbol"
+                :logo="getIcon(CoinCategory.MetaContract, selectedPair.targetTokenGenesis)"
+              />
             </div>
 
             <div class="relative">

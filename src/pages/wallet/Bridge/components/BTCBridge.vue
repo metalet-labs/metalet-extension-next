@@ -2,24 +2,26 @@
 import Decimal from 'decimal.js'
 import { sleep } from '@/lib/helpers'
 import { ERRORS } from '@/data/errors'
-import { Asset, BTCAsset } from '@/data/assets'
+import { Asset, BTCAsset, MetaContractAsset } from '@/data/assets'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { useMutation } from '@tanstack/vue-query'
 import { computed, ref, toRaw, watch } from 'vue'
 import { useBTCBalanceQuery } from '@/queries/balance'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
-import RunesSwapSideWithInput from './RunesSwapSideWithInput.vue'
-import RunesSwapFrictionStats from './RunesSwapFrictionStats.vue'
+import BridgeSideWithInput from './BridgeSideWithInput.vue'
+import BridgeFrictionStats from './BridgeFrictionStats.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import BridgeSelectPairs from '../components/BridgeSelectPairs.vue'
-import RunesSwapPriceDisclosure from './RunesSwapPriceDisclosure.vue'
+import BridgeSelectPairs from './BridgeSelectPairs.vue'
+import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
 import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon, FileClockIcon } from 'lucide-vue-next'
 import { SwapType } from '@/queries/runes'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useMetaContractAssetQuery } from '@/queries/metacontract'
 import { calcMintBtcInfo, calcRedeemBtcInfo } from '@/lib/bridge-utils'
 import { calcBalance } from '@/lib/formatters'
+import { assetReqReturnType } from '@/queries/types/bridge'
+import { Protocol } from '@/lib/types/protocol'
 
 const flippedControl = ref(false)
 const calculatingPay = ref(false)
@@ -43,10 +45,12 @@ const { getAddress } = useChainWalletsStore()
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
-const codeHash = ref()
-const genesis = ref()
+const selectedPair = ref<assetReqReturnType>()
+const genesis = computed(() => selectedPair.value?.targetTokenGenesis || '')
+const codeHash = computed(() => selectedPair.value?.targetTokenCodeHash || '')
 
-const { data: bridgePairInfo } = useBridgeInfoQuery(ref(CoinCategory.Native))
+const { data: bridgePairInfo } = useBridgeInfoQuery()
+const bridgePairs = computed(() => bridgePairInfo.value?.assetList.filter((item) => item.network === 'BTC'))
 
 const { data: balance } = useBTCBalanceQuery(btcAddress, {
   enabled: computed(() => {
@@ -61,9 +65,32 @@ const btcAsset = computed(() => {
   return BTCAsset
 })
 
-const { data: metaContractAsset } = useMetaContractAssetQuery(mvcAddress, codeHash, genesis, {
+const { data: _metaContractAsset } = useMetaContractAssetQuery(mvcAddress, codeHash, genesis, {
   enabled: computed(() => !!mvcAddress.value && !!codeHash.value && !!genesis.value),
 })
+
+const metaContractAsset = computed(
+  () =>
+    _metaContractAsset.value ||
+    ({
+      symbol: selectedPair.value?.targetSymbol,
+      tokenName: selectedPair.value?.targetName,
+      isNative: false,
+      chain: 'mvc',
+      queryable: true,
+      decimal: 0,
+      balance: {
+        confirmed: new Decimal(0),
+        unconfirmed: new Decimal(0),
+        total: new Decimal(0),
+      },
+      contract: CoinCategory.MetaContract,
+      protocol: Protocol.MetaContract,
+      codeHash: codeHash.value,
+      genesis: genesis.value,
+      sensibleId: '',
+    } as MetaContractAsset)
+)
 
 const sourceAmount = computed(() => {
   if (swapType.value.includes('1')) {
@@ -79,6 +106,16 @@ watch(sourceAmount, (sourceAmount) => {
     token2Amount.value = undefined
   }
 })
+
+// const mint = async () => {
+//   // if (!btcAddress || !asset || !network || !AssetsInfo) return;
+
+//   try {
+//     const ret = await mintBtc(amountRaw(String(amount), 8), asset, addressType, network, AssetsInfo)
+//   } catch (err) {
+//     console.log(err)
+//   }
+// }
 
 const conditions = ref<
   {
@@ -171,13 +208,13 @@ watch(
       try {
         if (swapType.value.includes('1')) {
           const info = calcMintBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
-          serviceFee.value = new Decimal(info.bridgeFee).toFixed(8) + ' BTC'
-          networkFee.value = new Decimal(info.minerFee).toFixed(8) + ' BTC'
+          serviceFee.value = info.bridgeFee.toString()
+          networkFee.value = info.minerFee.toString()
           token2Amount.value = new Decimal(10).pow(metaContractAsset.value!.decimal).mul(info.receiveAmount).toFixed()
         } else {
           const info = calcRedeemBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
-          serviceFee.value = new Decimal(info.bridgeFee).toFixed(8) + ' BTC'
-          networkFee.value = new Decimal(info.minerFee).toFixed(8) + ' BTC'
+          serviceFee.value = info.bridgeFee.toString()
+          networkFee.value = info.minerFee.toString()
           token1Amount.value = new Decimal(10).pow(btcAsset.value!.decimal).mul(info.receiveAmount).toFixed()
         }
       } catch (error) {
@@ -286,16 +323,12 @@ watch(
 
 <template>
   <div class="flex flex-col items-center gap-y-4">
-    <div class="flex w-full items-center justify-between">
-      <BridgeSelectPairs
-        v-model:codeHash="codeHash"
-        v-model:genesis="genesis"
-        :bridgePairs="bridgePairInfo?.assetList"
-      />
+    <div class="flex flex-row-reverse w-full items-center justify-between h-8">
       <FileClockIcon class="text-gray-primary cursor-pointer" />
+      <BridgeSelectPairs :bridgePairs="bridgePairs" v-model:selectedPair="selectedPair" />
     </div>
     <div class="w-full">
-      <RunesSwapSideWithInput
+      <BridgeSideWithInput
         side="pay"
         v-if="!flipped"
         :asset="btcAsset"
@@ -310,7 +343,7 @@ watch(
         :limit-maximum="bridgePairInfo?.amountLimitMaximum"
         :limit-minimum="bridgePairInfo?.amountLimitMinimum"
       />
-      <RunesSwapSideWithInput
+      <BridgeSideWithInput
         side="pay"
         v-else-if="flipped"
         :asset="metaContractAsset"
@@ -319,7 +352,7 @@ watch(
         @has-enough="hasEnough = true"
         @not-enough="hasEnough = false"
         @became-source="swapType = '2x'"
-        :coinCategory="CoinCategory.Rune"
+        :coinCategory="CoinCategory.MetaContract"
         @amount-entered="hasAmount = true"
         @amount-cleared="hasAmount = false"
       />
@@ -342,7 +375,8 @@ watch(
         </div>
       </div>
 
-      <RunesSwapSideWithInput
+      <!-- FIXME: wbtc logo do not load -->
+      <BridgeSideWithInput
         side="receive"
         v-if="!flipped"
         :asset="metaContractAsset"
@@ -352,7 +386,7 @@ watch(
         :coinCategory="CoinCategory.MetaContract"
       />
 
-      <RunesSwapSideWithInput
+      <BridgeSideWithInput
         side="receive"
         v-if="flipped"
         :asset="btcAsset"
@@ -364,21 +398,19 @@ watch(
         @less-than-threshold="moreThanThreshold = false"
       />
 
-      <RunesSwapPriceDisclosure
+      <BridgePriceDisclosure
         :service-fee="serviceFee"
         :network-fee="networkFee"
+        :symbol="btcAsset.symbol"
         :calculating="calculating"
+        :decimal="btcAsset.decimal"
         :token1-symbol="btcAsset.symbol"
         :token2-symbol="metaContractAsset.symbol"
         v-if="metaContractAsset && Number(sourceAmount)"
       />
 
-      <RunesSwapFrictionStats
-        :task-type="swapType"
+      <BridgeFrictionStats
         :service-fee="serviceFee"
-        :token-1-amount="token1Amount"
-        @return-became-positive="returnIsPositive = true"
-        @return-became-negative="returnIsPositive = false"
         @fee-rate-onchange="(_currentRateFee) => (currentRateFee = _currentRateFee)"
         :limit-minimum="calcBalance(Number(bridgePairInfo?.amountLimitMinimum), btcAsset.decimal, 'BTC')"
         :limit-maximum="calcBalance(Number(bridgePairInfo?.amountLimitMaximum), btcAsset.decimal, 'BTC')"

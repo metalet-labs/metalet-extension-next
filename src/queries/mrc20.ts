@@ -168,6 +168,10 @@ export async function fetchMRC20Detail(address: string, tickId: string): Promise
     tickId,
   })
 
+  if (!data) {
+    return null
+  }
+
   return {
     symbol: data.tick,
     tokenName: data.tick,
@@ -263,7 +267,7 @@ export const useMRC20DetailQuery = (
   options: { enabled: ComputedRef<boolean> }
 ) => {
   return useQuery({
-    queryKey: ['MRC20List', { address, mrc20Id }],
+    queryKey: ['MRC20Detail', { address, mrc20Id }],
     queryFn: () => fetchMRC20Detail(address.value, mrc20Id.value),
     ...options,
   })

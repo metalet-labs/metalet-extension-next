@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import Decimal from 'decimal.js'
 import { ChevronDownIcon } from 'lucide-vue-next'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
@@ -23,7 +25,19 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  decimal: {
+    type: Number,
+    required: false,
+  },
+  symbol: {
+    type: String,
+    required: false,
+  },
 })
+
+const serviceFee = ref(new Decimal(props.serviceFee || 0).toFixed(props.decimal || 0))
+const networkFee = ref(new Decimal(props.networkFee || 0).toFixed(props.decimal || 0))
+const totalFee = ref(new Decimal(props.networkFee || 0).add(props.serviceFee || 0).toFixed(props.decimal || 0))
 </script>
 
 <template>
@@ -64,15 +78,22 @@ const props = defineProps({
             <DisclosurePanel class="mt-4 flex flex-col gap-2 border-t border-gray-soft pt-4 text-xs lg:text-sm" static>
               <div class="flex w-full items-center justify-between">
                 <span class="label">Service fee</span>
-                <div class="text-right text-xs text-zinc-500 lg:text-sm" v-if="props.serviceFee">
-                  {{ props.serviceFee }}
+                <div class="text-right text-xs text-zinc-500 lg:text-sm" v-if="serviceFee">
+                  {{ `${serviceFee} ${symbol}` }}
                 </div>
               </div>
 
               <div class="flex w-full items-center justify-between">
                 <span class="label">Network fee</span>
-                <div class="text-right text-xs text-zinc-500 lg:text-sm" v-if="props.serviceFee">
-                  {{ props.networkFee }}
+                <div class="text-right text-xs text-zinc-500 lg:text-sm" v-if="networkFee">
+                  {{ `${networkFee} ${symbol}` }}
+                </div>
+              </div>
+
+              <div class="flex w-full items-center justify-between">
+                <span class="label">Total fee</span>
+                <div class="text-right text-xs text-zinc-500 lg:text-sm" v-if="totalFee">
+                  {{ `${totalFee} ${symbol}` }}
                 </div>
               </div>
             </DisclosurePanel>

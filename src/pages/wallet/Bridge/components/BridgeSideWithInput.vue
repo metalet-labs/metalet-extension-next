@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import Decimal from 'decimal.js'
-import { type Asset } from '@/data/assets'
 import { computed, watch, ref } from 'vue'
 import { calcBalance } from '@/lib/formatters'
-import { SymbolTicker } from '@/lib/asset-symbol'
 import AssetLogo from '@/components/AssetLogo.vue'
-  import { useIconsStore } from '@/stores/IconsStore'
+import { FTAsset, type Asset } from '@/data/assets'
+import { useIconsStore } from '@/stores/IconsStore'
 import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
@@ -45,9 +44,18 @@ const coinCategory = ref(props.coinCategory)
 const balance = computed(() => props.asset?.balance)
 
 const { getIcon } = useIconsStore()
+
 const icon = computed(() => {
   if (asset.value) {
-    return getIcon(coinCategory.value, asset.value.symbol as SymbolTicker)
+    console.log(coinCategory.value, asset.value)
+    return (
+      asset.value.icon ||
+      getIcon(
+        coinCategory.value,
+        coinCategory.value === CoinCategory.MetaContract ? (asset.value as FTAsset).genesis : asset.value.symbol
+      ) ||
+      ''
+    )
   }
 })
 
@@ -205,7 +213,14 @@ const clear = () => {
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
       <div :class="['flex items-center gap-1 rounded-full bg-white p-1 px-2 text-xl shadow-sm']">
-        <AssetLogo :logo="icon" :chain="asset?.chain" :symbol="asset?.symbol" class="size-6 text-xs" />
+        <AssetLogo
+          :logo="icon"
+          :chain="asset?.chain"
+          :symbol="asset?.symbol"
+          class="size-6 text-xs"
+          type="network"
+          logo-size="size-[10px]"
+        />
         <div class="mr-1" :class="['text-sm font-medium']">
           {{ asset?.symbol || '--' }}
         </div>

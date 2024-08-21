@@ -14,6 +14,7 @@ export interface Asset {
   balance?: Balance
   contract?: string
   protocol?: Protocol
+  icon?: string
 }
 
 export interface BRC20Asset extends Asset {
@@ -35,7 +36,6 @@ export interface RuneAsset extends Asset {
 
 export interface MRC20Asset extends Asset {
   mrc20Id: string
-  icon?: string
   deployAddress: string
   deployName: string
   deployAvatar: string
@@ -44,7 +44,7 @@ export interface MRC20Asset extends Asset {
 export interface MetaContractAsset extends Asset {
   codeHash: string
   genesis: string
-  icon?: string
+
   sensibleId: string
 }
 

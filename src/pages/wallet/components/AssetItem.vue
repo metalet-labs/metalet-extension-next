@@ -2,7 +2,7 @@
 import Decimal from 'decimal.js'
 import { ref, computed, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
-import { UseImage } from '@vueuse/components'
+import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
@@ -27,11 +27,11 @@ const { isOfficeGenesis } = useOfficeGenesisStore()
 
 const icon = computed(
   () =>
+    (asset.value as MRC20Asset)?.icon ||
     getIcon(
       props.coinCategory,
       props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
     ) ||
-    (asset.value as MRC20Asset)?.icon ||
     ''
 )
 
@@ -96,18 +96,14 @@ watch(
     <div class="flex gap-2 cursor-pointer items-center justify-between rounded-full py-3">
       <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
-        <UseImage :src="icon" class="h-10 w-10 shrink-0 rounded-full">
-          <template #loading>
-            <div class="h-10 w-10 shrink-0 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
-              {{ asset.symbol[0].toLocaleUpperCase() }}
-            </div>
-          </template>
-          <template #error>
-            <div class="h-10 w-10 shrink-0 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
-              {{ asset.symbol[0].toLocaleUpperCase() }}
-            </div>
-          </template>
-        </UseImage>
+        <AssetLogo
+          :chain="asset.chain"
+          logo-size="size-4"
+          class="size-10"
+          :symbol="asset.symbol"
+          :logo="icon"
+          :type="asset.isNative ? undefined : 'network'"
+        />
         <div class="flex flex-col gap-y-1 items-start">
           <div :title="asset.tokenName" class="flex items-center gap-x-0.5 text-base">
             <span

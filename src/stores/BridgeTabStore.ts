@@ -12,8 +12,8 @@ interface TabType {
 const tabs: TabType[] = [
   { id: 1, name: 'BTC', disabled: false, chains: [Chain.BTC, Chain.MVC] },
   { id: 2, name: Protocol.MRC20, disabled: false, chains: [Chain.BTC, Chain.MVC] },
-  { id: 3, name: Protocol.BRC20, disabled: false, chains: [Chain.BTC, Chain.MVC] },
-  { id: 4, name: Protocol.Runes, disabled: false, chains: [Chain.BTC, Chain.MVC] },
+  // { id: 3, name: Protocol.BRC20, disabled: false, chains: [Chain.BTC, Chain.MVC] },
+  // { id: 4, name: Protocol.Runes, disabled: false, chains: [Chain.BTC, Chain.MVC] },
 ]
 
 interface BridgeTabStore {

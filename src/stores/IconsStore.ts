@@ -10,7 +10,8 @@ export const useIconsStore = createGlobalState(() => {
     if (icons) {
       const icon =
         icons.value?.[coinCategory.toLocaleLowerCase()]?.[coinSymbol] ||
-        icons.value?.[coinCategory.toLocaleLowerCase()]?.[coinSymbol.toLocaleLowerCase()]
+        icons.value?.[coinCategory.toLocaleLowerCase()]?.[coinSymbol?.toLocaleLowerCase()]
+
       if (icon) {
         return `https://www.metalet.space/wallet-api${icon}`
       }
