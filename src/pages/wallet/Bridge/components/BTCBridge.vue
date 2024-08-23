@@ -18,7 +18,7 @@ import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon, FileClockIcon } from 'luci
 import { SwapType } from '@/queries/runes'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useMetaContractAssetQuery } from '@/queries/metacontract'
-import { calcMintBtcInfo, calcRedeemBtcInfo, mintBtc } from '@/lib/bridge-utils'
+import { calcMintBtcInfo, calcRedeemBtcInfo, mintBtc, redeemBtc } from '@/lib/bridge-utils'
 import { calcBalance } from '@/lib/formatters'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
@@ -135,14 +135,31 @@ const mint = async () => {
           params: {
             txId,
             chain: btcAsset.value.chain,
-            symbol: symbol.value,
+            symbol: btcAsset.value.symbol,
             amount: new Decimal(sourceAmount.value).div(10 ** btcAsset.value.decimal).toFixed(),
             address: recipient,
             coinCategory: CoinCategory.Native,
           },
         })
       } else {
-        // const amountRaw = amountRaw(String(sourceAmount.value), metaContractAsset.value.decimal)
+        const { txId, recipient } = await redeemBtc(
+          new Decimal(sourceAmount.value).toNumber(),
+          selectedPair.value,
+          currentBTCWallet.value.getScriptType(),
+          currentBTCWallet.value,
+          currentMVCWallet.value
+        )
+        router.replace({
+          name: 'SendSuccess',
+          params: {
+            txId,
+            chain: metaContractAsset.value.chain,
+            symbol: metaContractAsset.value.symbol,
+            amount: new Decimal(sourceAmount.value).div(10 ** metaContractAsset.value.decimal).toFixed(),
+            address: recipient,
+            coinCategory: CoinCategory.MetaContract,
+          },
+        })
       }
     }
   } catch (err) {

@@ -5,12 +5,16 @@ import { getBtcUtxos } from '@/queries/utxos'
 import {
   createPrepayOrderMintBtc,
   createPrepayOrderMintMrc20,
+  createPrepayOrderRedeemBtc,
   submitPrepayOrderMintBtc,
   submitPrepayOrderMintMrc20,
+  submitPrepayOrderRedeemBtc,
 } from '@/queries/bridge'
 import { assetReqReturnType, bridgeAssetPairReturnType } from '@/queries/types/bridge'
 import { AddressType, BtcWallet, MvcWallet, ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import { getMRC20Utxos } from '@/queries/mrc20'
+import { process as sendToken } from '@/lib/actions/transfer'
+import { sleep } from './helpers'
 export const formatSat = (value: string | number, dec = 8) => {
   if (!value) return '0'
 
@@ -615,48 +619,53 @@ export async function mintMrc20(
   return { txId: commitTx.txId, recipient: bridgeAddress }
 }
 
-// export async function redeemBtc(
-//   redeemAmount: number,
-//   originTokenId: string,
-//   scriptType: ScriptType,
-//   btcWallet: BtcWallet,
-//   mvcWallet: MvcWallet,
-//   feeRate: number
-// ): Promise<{ orderId: string; txid: string }> {
-//   try {
-//     const publicKey = mvcWallet.getPublicKey().toString('hex')
-//     const publicKeySign = mvcWallet.signMessage(publicKey, 'base64')
-//     const publicKeyReceive = btcWallet.getPublicKey().toString('hex')
-//     const publicKeyReceiveSign = btcWallet.signMessage(publicKeyReceive, 'base64')
+export async function redeemBtc(
+  redeemAmount: number,
+  selectedPair: assetReqReturnType,
+  scriptType: ScriptType,
+  btcWallet: BtcWallet,
+  mvcWallet: MvcWallet
+) {
+  try {
+    const publicKey = mvcWallet.getPublicKey().toString('hex')
+    const publicKeySign = mvcWallet.signMessage(publicKey, 'base64')
+    const publicKeyReceive = btcWallet.getPublicKey().toString('hex')
+    const publicKeyReceiveSign = btcWallet.signMessage(publicKeyReceive, 'base64')
 
-//     const createPrepayOrderDto = {
-//       amount: redeemAmount,
-//       originTokenId: originTokenId,
-//       addressType:scriptType,
-//       publicKey,
-//       publicKeySign,
-//       publicKeyReceive,
-//       publicKeyReceiveSign,
-//     }
-//     const { data: createResp } = await createPrepayOrderRedeemBtc(network, createPrepayOrderDto)
-//     const { orderId, bridgeAddress } = createResp
-//     const { targetTokenCodeHash, targetTokenGenesis } = btcAsset
-//     const txid = await sendToken(String(redeemAmount), bridgeAddress, targetTokenCodeHash, targetTokenGenesis)
+    const createPrepayOrderDto = {
+      amount: redeemAmount,
+      originTokenId: selectedPair.originTokenId,
+      addressType: scriptType,
+      publicKey,
+      publicKeySign,
+      publicKeyReceive,
+      publicKeyReceiveSign,
+    }
+    const createResp = await createPrepayOrderRedeemBtc(createPrepayOrderDto)
+    const { orderId, bridgeAddress } = createResp
+    const { targetTokenCodeHash, targetTokenGenesis } = selectedPair
+    const {
+      txids: [txId],
+    } = await sendToken({
+      broadcast: true,
+      tasks: [
+        {
+          codehash: targetTokenCodeHash,
+          genesis: targetTokenGenesis,
+          receivers: [{ address: bridgeAddress, amount: redeemAmount.toString() }],
+        },
+      ],
+    })
 
-//     const submitPrepayOrderRedeemDto = {
-//       orderId,
-//       txid: txid,
-//     }
-//     await sleep(3000)
-//     const ret = await submitPrepayOrderRedeemBtc(network, submitPrepayOrderRedeemDto)
-//     if (!ret.success) {
-//       throw new Error(ret.msg)
-//     }
-//     return {
-//       orderId,
-//       txid,
-//     }
-//   } catch (error) {
-//     throw new Error(error as any)
-//   }
-// }
+    const submitPrepayOrderRedeemDto = {
+      orderId,
+      txid: txId,
+    }
+    await sleep(3000)
+    await submitPrepayOrderRedeemBtc(submitPrepayOrderRedeemDto)
+
+    return { txId, recipient: bridgeAddress }
+  } catch (error) {
+    throw new Error(error as any)
+  }
+}
