@@ -47,7 +47,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
       </div>
     </div>
 
-    <div class="text-black-secondary flex justify-between mt-6 text-ss" v-if="IS_DEV">
+    <div class="text-black-secondary flex justify-between mt-6 text-ss">
       <div
         @click="toSelectAsset('send')"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
@@ -70,9 +70,10 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         </div>
         <span>Receive</span>
       </div>
-      <div
+      <a
+        :href="network === 'testnet' ? 'https://testnet.orders.exchange/swap' : 'https://app.orders.exchange/swap'"
+        target="_blank"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
-        @click="$router.push('/wallet/swap')"
       >
         <div
           class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
@@ -80,7 +81,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
           <SwapIcon class="w-4" />
         </div>
         <span>Swap</span>
-      </div>
+      </a>
       <div
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
         @click="$router.push('/wallet/bridge')"
@@ -94,7 +95,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-2 mt-4 text-ss" v-else>
+    <!-- <div class="grid grid-cols-2 gap-2 mt-4 text-ss" v-else>
       <button class="button" @click="toSelectAsset('send')">
         <ArrowUpRightIcon class="mr-1 h-4 w-4" />
         <span>Send</span>
@@ -103,7 +104,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         <QrCodeIcon class="mr-1 h-4 w-4" />
         <span>Receive</span>
       </button>
-    </div>
+    </div> -->
   </div>
 </template>
 
