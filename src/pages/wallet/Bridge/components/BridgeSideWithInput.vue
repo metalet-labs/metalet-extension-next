@@ -47,7 +47,6 @@ const { getIcon } = useIconsStore()
 
 const icon = computed(() => {
   if (asset.value) {
-    console.log(coinCategory.value, asset.value)
     return (
       asset.value.icon ||
       getIcon(

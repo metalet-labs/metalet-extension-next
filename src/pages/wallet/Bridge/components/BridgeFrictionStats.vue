@@ -4,7 +4,7 @@ import { FeeRateSelector } from '@/components'
 
 const currentRateFee = ref<number>()
 const emit = defineEmits(['feeRateOnchange'])
-const props = defineProps(['limitMinimum', 'limitMaximum'])
+defineProps(['limitMinimum', 'limitMaximum'])
 
 watch(
   () => currentRateFee.value,

@@ -18,7 +18,7 @@ import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon, FileClockIcon } from 'luci
 import { SwapType } from '@/queries/runes'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useMetaContractAssetQuery } from '@/queries/metacontract'
-import { calcMintBtcInfo, calcRedeemBtcInfo } from '@/lib/bridge-utils'
+import { calcMintBtcInfo, calcRedeemBtcInfo, mintBtc } from '@/lib/bridge-utils'
 import { calcBalance } from '@/lib/formatters'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
@@ -29,19 +29,14 @@ const token1Amount = ref<string>()
 const token2Amount = ref<string>()
 const symbol = ref(BTCAsset.symbol)
 const currentRateFee = ref<number>()
-const swapType = ref<SwapType>('1x')
+const bridgeType = ref<SwapType>('1x')
 const calculatingReceive = ref(false)
 const serviceFee = ref<string>()
 const networkFee = ref<string>()
-const priceImpact = ref<Decimal>(new Decimal(0))
-const flipped = computed(() => ['2x', 'x1'].includes(swapType.value))
+const flipped = computed(() => ['2x', 'x1'].includes(bridgeType.value))
 const calculating = computed(() => calculatingPay.value || calculatingReceive.value)
-const hasImpactWarning = computed(() => {
-  // greater than 15%
-  return priceImpact.value.gte(15)
-})
 
-const { getAddress } = useChainWalletsStore()
+const { getAddress, currentBTCWallet, currentMVCWallet } = useChainWalletsStore()
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
@@ -93,10 +88,18 @@ const metaContractAsset = computed(
 )
 
 const sourceAmount = computed(() => {
-  if (swapType.value.includes('1')) {
+  if (bridgeType.value.includes('1')) {
     return token1Amount.value
   } else {
     return token2Amount.value
+  }
+})
+
+const sourceSymbol = computed(() => {
+  if (bridgeType.value.includes('1')) {
+    return btcAsset.value.symbol
+  } else {
+    return metaContractAsset.value.symbol
   }
 })
 
@@ -107,15 +110,35 @@ watch(sourceAmount, (sourceAmount) => {
   }
 })
 
-// const mint = async () => {
-//   // if (!btcAddress || !asset || !network || !AssetsInfo) return;
+const mint = async () => {
+  console.log(sourceAmount.value)
 
-//   try {
-//     const ret = await mintBtc(amountRaw(String(amount), 8), asset, addressType, network, AssetsInfo)
-//   } catch (err) {
-//     console.log(err)
-//   }
-// }
+  try {
+    if (
+      sourceAmount.value &&
+      selectedPair.value &&
+      currentBTCWallet.value &&
+      currentMVCWallet.value &&
+      currentRateFee.value
+    ) {
+      if (bridgeType.value.includes('1')) {
+        const ret = await mintBtc(
+          new Decimal(sourceAmount.value).toNumber(),
+          selectedPair.value.originTokenId,
+          currentBTCWallet.value.getScriptType(),
+          currentBTCWallet.value,
+          currentMVCWallet.value,
+          currentRateFee.value
+        )
+        console.log('ret', ret)
+      } else {
+        // const amountRaw = amountRaw(String(sourceAmount.value), metaContractAsset.value.decimal)
+      }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 const conditions = ref<
   {
@@ -180,18 +203,18 @@ const flipAsset = async () => {
 
   await sleep(200)
 
-  switch (swapType.value) {
+  switch (bridgeType.value) {
     case '1x':
-      swapType.value = '2x'
+      bridgeType.value = '2x'
       break
     case '2x':
-      swapType.value = '1x'
+      bridgeType.value = '1x'
       break
     case 'x1':
-      swapType.value = '1x'
+      bridgeType.value = '1x'
       break
     case 'x2':
-      swapType.value = '2x'
+      bridgeType.value = '2x'
       break
   }
 
@@ -206,7 +229,8 @@ watch(
   () => {
     if (sourceAmount.value) {
       try {
-        if (swapType.value.includes('1')) {
+        calculatingReceive.value = true
+        if (bridgeType.value.includes('1')) {
           const info = calcMintBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
           serviceFee.value = info.bridgeFee.toString()
           networkFee.value = info.minerFee.toString()
@@ -217,8 +241,9 @@ watch(
           networkFee.value = info.minerFee.toString()
           token1Amount.value = new Decimal(10).pow(btcAsset.value!.decimal).mul(info.receiveAmount).toFixed()
         }
+        calculatingReceive.value = false
       } catch (error) {
-        if (swapType.value.includes('1')) {
+        if (bridgeType.value.includes('1')) {
           token2Amount.value = undefined
         } else {
           token1Amount.value = undefined
@@ -336,7 +361,7 @@ watch(
         v-model:amount="token1Amount"
         @has-enough="hasEnough = true"
         @not-enough="hasEnough = false"
-        @became-source="swapType = '1x'"
+        @became-source="bridgeType = '1x'"
         @amount-entered="hasAmount = true"
         @amount-cleared="hasAmount = false"
         :coinCategory="CoinCategory.Native"
@@ -351,7 +376,7 @@ watch(
         v-model:amount="token2Amount"
         @has-enough="hasEnough = true"
         @not-enough="hasEnough = false"
-        @became-source="swapType = '2x'"
+        @became-source="bridgeType = '2x'"
         :coinCategory="CoinCategory.MetaContract"
         @amount-entered="hasAmount = true"
         @amount-cleared="hasAmount = false"
@@ -381,7 +406,7 @@ watch(
         v-if="!flipped"
         :asset="metaContractAsset"
         v-model:amount="token2Amount"
-        @became-source="swapType = 'x2'"
+        @became-source="bridgeType = 'x2'"
         :calculating="calculatingReceive"
         :coinCategory="CoinCategory.MetaContract"
       />
@@ -391,7 +416,7 @@ watch(
         v-if="flipped"
         :asset="btcAsset"
         v-model:amount="token1Amount"
-        @became-source="swapType = 'x1'"
+        @became-source="bridgeType = 'x1'"
         :calculating="calculatingReceive"
         :coinCategory="CoinCategory.Native"
         @more-than-threshold="moreThanThreshold = true"
@@ -406,14 +431,14 @@ watch(
         :decimal="btcAsset.decimal"
         :token1-symbol="btcAsset.symbol"
         :token2-symbol="metaContractAsset.symbol"
-        v-if="metaContractAsset && Number(sourceAmount)"
+        v-if="Number(sourceAmount)"
       />
 
+      <!-- FIXME: asset decimal not allow more than 8 -->
       <BridgeFrictionStats
-        :service-fee="serviceFee"
         @fee-rate-onchange="(_currentRateFee) => (currentRateFee = _currentRateFee)"
-        :limit-minimum="calcBalance(Number(bridgePairInfo?.amountLimitMinimum), btcAsset.decimal, 'BTC')"
-        :limit-maximum="calcBalance(Number(bridgePairInfo?.amountLimitMaximum), btcAsset.decimal, 'BTC')"
+        :limit-minimum="calcBalance(Number(bridgePairInfo?.amountLimitMinimum), btcAsset.decimal, sourceSymbol)"
+        :limit-maximum="calcBalance(Number(bridgePairInfo?.amountLimitMaximum), btcAsset.decimal, sourceSymbol)"
       />
     </div>
 
@@ -431,9 +456,7 @@ watch(
     </RunesMainBtn>
 
     <!-- confirm button -->
-    <RunesMainBtn v-else @click="" :dangerous="hasImpactWarning">
-      {{ hasImpactWarning ? 'Bridge Anyway' : 'Bridge' }}
-    </RunesMainBtn>
+    <RunesMainBtn v-else @click="mint">Bridge</RunesMainBtn>
   </div>
 </template>
 

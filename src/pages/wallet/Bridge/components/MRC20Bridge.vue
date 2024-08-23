@@ -2,7 +2,7 @@
 import Decimal from 'decimal.js'
 import { sleep } from '@/lib/helpers'
 import { ERRORS } from '@/data/errors'
-import { BTCAsset, MetaContractAsset, MRC20Asset } from '@/data/assets'
+import { MetaContractAsset, MRC20Asset } from '@/data/assets'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { useMutation } from '@tanstack/vue-query'
 import { computed, ref, toRaw, watch } from 'vue'
@@ -14,31 +14,26 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import BridgeSelectPairs from '../components/BridgeSelectPairs.vue'
 import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
 import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon, FileClockIcon } from 'lucide-vue-next'
-import { SwapType } from '@/queries/runes'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useMetaContractAssetQuery } from '@/queries/metacontract'
-import { calcMintBtcInfo, calcRedeemBtcInfo } from '@/lib/bridge-utils'
+import { calcMintMRC20Info, calcPriceRange, calcRedeemMrc20Info } from '@/lib/bridge-utils'
 import { calcBalance } from '@/lib/formatters'
 import { useMRC20DetailQuery } from '@/queries/mrc20'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
+import { SwapType } from '@/queries/runes'
 
 const flippedControl = ref(false)
 const calculatingPay = ref(false)
 const token1Amount = ref<string>()
 const token2Amount = ref<string>()
 const currentRateFee = ref<number>()
-const swapType = ref<SwapType>('1x')
+const bridgeType = ref<SwapType>('1x')
 const calculatingReceive = ref(false)
 const serviceFee = ref<string>()
 const networkFee = ref<string>()
-const priceImpact = ref<Decimal>(new Decimal(0))
-const flipped = computed(() => ['2x', 'x1'].includes(swapType.value))
+const flipped = computed(() => ['2x', 'x1'].includes(bridgeType.value))
 const calculating = computed(() => calculatingPay.value || calculatingReceive.value)
-const hasImpactWarning = computed(() => {
-  // greater than 15%
-  return priceImpact.value.gte(15)
-})
 
 const { getAddress } = useChainWalletsStore()
 
@@ -64,7 +59,7 @@ const mrc20Asset = computed(
       isNative: false,
       chain: 'btc',
       queryable: true,
-      decimal: 0,
+      decimal: selectedPair.value?.decimals,
       balance: {
         confirmed: new Decimal(0),
         unconfirmed: new Decimal(0),
@@ -80,11 +75,27 @@ const mrc20Asset = computed(
 )
 
 const bridgePairs = computed(() =>
-  bridgePairInfo.value?.assetList.filter((item) => item.network === 'MRC20' && item.price)
+  bridgePairInfo.value?.assetList.filter(
+    (item) => item.network === 'MRC20' && item.price && item.decimals <= 8 && item.originName === 'vgx'
+  )
 )
 
 const { data: _metaContractAsset } = useMetaContractAssetQuery(mvcAddress, codeHash, genesis, {
   enabled: computed(() => !!mvcAddress.value && !!codeHash.value && !!genesis.value),
+})
+
+const amountLimitInfo = computed(() => {
+  if (bridgePairInfo.value && selectedPair.value && mrc20Asset.value) {
+    return calcPriceRange(bridgePairInfo.value, selectedPair.value)
+  }
+})
+
+const sourceSymbol = computed(() => {
+  if (bridgeType.value.includes('1')) {
+    return mrc20Asset.value.symbol
+  } else {
+    return metaContractAsset.value.symbol
+  }
 })
 
 const metaContractAsset = computed(
@@ -111,7 +122,7 @@ const metaContractAsset = computed(
 )
 
 const sourceAmount = computed(() => {
-  if (swapType.value.includes('1')) {
+  if (bridgeType.value.includes('1')) {
     return token1Amount.value
   } else {
     return token2Amount.value
@@ -188,18 +199,18 @@ const flipAsset = async () => {
 
   await sleep(200)
 
-  switch (swapType.value) {
+  switch (bridgeType.value) {
     case '1x':
-      swapType.value = '2x'
+      bridgeType.value = '2x'
       break
     case '2x':
-      swapType.value = '1x'
+      bridgeType.value = '1x'
       break
     case 'x1':
-      swapType.value = '1x'
+      bridgeType.value = '1x'
       break
     case 'x2':
-      swapType.value = '2x'
+      bridgeType.value = '2x'
       break
   }
 
@@ -210,30 +221,42 @@ const flipAsset = async () => {
 }
 
 watch(
-  () => sourceAmount.value,
+  () => [sourceAmount.value, bridgePairInfo.value, selectedPair.value],
   () => {
-    if (sourceAmount.value) {
+    if (sourceAmount.value && bridgePairInfo.value && selectedPair.value) {
       try {
-        if (swapType.value.includes('1')) {
-          const info = calcMintBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
-          serviceFee.value = new Decimal(info.bridgeFee).toFixed(8) + ' BTC'
-          networkFee.value = new Decimal(info.minerFee).toFixed(8) + ' BTC'
+        if (bridgeType.value.includes('1')) {
+          const info = calcMintMRC20Info(
+            new Decimal(sourceAmount.value).toNumber(),
+            bridgePairInfo.value,
+            selectedPair.value
+          )
+          serviceFee.value = new Decimal(info.bridgeFee).toFixed(selectedPair.value.decimals)
+          networkFee.value = new Decimal(info.minerFee).toFixed(selectedPair.value.decimals)
+
           token2Amount.value = new Decimal(10).pow(metaContractAsset.value!.decimal).mul(info.receiveAmount).toFixed()
         } else {
-          const info = calcRedeemBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
-          serviceFee.value = new Decimal(info.bridgeFee).toFixed(8) + ' BTC'
-          networkFee.value = new Decimal(info.minerFee).toFixed(8) + ' BTC'
+          const info = calcRedeemMrc20Info(
+            new Decimal(sourceAmount.value).toNumber(),
+            bridgePairInfo.value,
+            selectedPair.value
+          )
+          serviceFee.value = new Decimal(info.bridgeFee).toFixed(selectedPair.value.decimals)
+          networkFee.value = new Decimal(info.minerFee).toFixed(selectedPair.value.decimals)
           token1Amount.value = new Decimal(10).pow(mrc20Asset.value!.decimal).mul(info.receiveAmount).toFixed()
         }
       } catch (error) {
-        if (swapType.value.includes('1')) {
+        console.log('error', error)
+
+        if (bridgeType.value.includes('1')) {
           token2Amount.value = undefined
         } else {
           token1Amount.value = undefined
         }
       }
     }
-  }
+  },
+  { immediate: true }
 )
 
 const hasAmount = ref(false)
@@ -344,12 +367,12 @@ watch(
         v-model:amount="token1Amount"
         @has-enough="hasEnough = true"
         @not-enough="hasEnough = false"
-        @became-source="swapType = '1x'"
+        @became-source="bridgeType = '1x'"
         @amount-entered="hasAmount = true"
         @amount-cleared="hasAmount = false"
-        :coinCategory="CoinCategory.Native"
-        :limit-maximum="bridgePairInfo?.amountLimitMaximum"
-        :limit-minimum="bridgePairInfo?.amountLimitMinimum"
+        :coinCategory="CoinCategory.MRC20"
+        :limit-maximum="amountLimitInfo?.amountLimitMaximum"
+        :limit-minimum="amountLimitInfo?.amountLimitMinimum"
       />
       <BridgeSideWithInput
         side="pay"
@@ -359,7 +382,7 @@ watch(
         v-model:amount="token2Amount"
         @has-enough="hasEnough = true"
         @not-enough="hasEnough = false"
-        @became-source="swapType = '2x'"
+        @became-source="bridgeType = '2x'"
         :coinCategory="CoinCategory.Rune"
         @amount-entered="hasAmount = true"
         @amount-cleared="hasAmount = false"
@@ -388,7 +411,7 @@ watch(
         v-if="!flipped"
         :asset="metaContractAsset"
         v-model:amount="token2Amount"
-        @became-source="swapType = 'x2'"
+        @became-source="bridgeType = 'x2'"
         :calculating="calculatingReceive"
         :coinCategory="CoinCategory.MetaContract"
       />
@@ -398,34 +421,40 @@ watch(
         v-if="flipped"
         :asset="mrc20Asset"
         v-model:amount="token1Amount"
-        @became-source="swapType = 'x1'"
+        @became-source="bridgeType = 'x1'"
         :calculating="calculatingReceive"
-        :coinCategory="CoinCategory.Native"
+        :coinCategory="CoinCategory.MRC20"
         @more-than-threshold="moreThanThreshold = true"
         @less-than-threshold="moreThanThreshold = false"
       />
 
       <BridgePriceDisclosure
+        :symbol="sourceSymbol"
         :service-fee="serviceFee"
         :network-fee="networkFee"
         :calculating="calculating"
+        :decimal="selectedPair?.decimals"
         :token1-symbol="mrc20Asset!.symbol"
         :token2-symbol="metaContractAsset.symbol"
-        v-if="metaContractAsset && Number(sourceAmount)"
+        v-if="Number(sourceAmount)"
       />
 
       <BridgeFrictionStats
-        :task-type="swapType"
-        :service-fee="serviceFee"
-        :token-1-amount="token1Amount"
-        @return-became-positive="returnIsPositive = true"
-        @return-became-negative="returnIsPositive = false"
+        :task-type="bridgeType"
         @fee-rate-onchange="(_currentRateFee) => (currentRateFee = _currentRateFee)"
         :limit-minimum="
-          calcBalance(Number(bridgePairInfo?.amountLimitMinimum), mrc20Asset?.decimal || 8, mrc20Asset?.symbol || 'BTC')
+          calcBalance(
+            Number(amountLimitInfo?.amountLimitMinimum),
+            mrc20Asset?.decimal || 8,
+            mrc20Asset?.symbol || 'BTC'
+          )
         "
         :limit-maximum="
-          calcBalance(Number(bridgePairInfo?.amountLimitMaximum), mrc20Asset?.decimal || 8, mrc20Asset?.symbol || 'BTC')
+          calcBalance(
+            Number(amountLimitInfo?.amountLimitMaximum),
+            mrc20Asset?.decimal || 8,
+            mrc20Asset?.symbol || 'BTC'
+          )
         "
       />
     </div>
@@ -444,9 +473,7 @@ watch(
     </RunesMainBtn>
 
     <!-- confirm button -->
-    <RunesMainBtn v-else @click="" :dangerous="hasImpactWarning">
-      {{ hasImpactWarning ? 'Bridge Anyway' : 'Bridge' }}
-    </RunesMainBtn>
+    <RunesMainBtn v-else @click="">Bridge</RunesMainBtn>
   </div>
 </template>
 

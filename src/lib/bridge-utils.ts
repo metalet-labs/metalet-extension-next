@@ -1,11 +1,10 @@
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
 import BigNumber from 'bignumber.js'
-import { AddressType, BtcWallet, MvcWallet, SignType } from '@metalet/utxo-wallet-service'
-import { assetReqReturnType, bridgeAssetPairReturnType } from '@/queries/types/bridge'
-import { Network } from './network'
-import { createPrepayOrderMintBtc, submitPrepayOrderMintBtc } from '@/queries/bridge'
 import { getBtcUtxos } from '@/queries/utxos'
+import { createPrepayOrderMintBtc, submitPrepayOrderMintBtc } from '@/queries/bridge'
+import { assetReqReturnType, bridgeAssetPairReturnType } from '@/queries/types/bridge'
+import { AddressType, BtcWallet, MvcWallet, ScriptType, SignType } from '@metalet/utxo-wallet-service'
 export const formatSat = (value: string | number, dec = 8) => {
   if (!value) return '0'
 
@@ -250,7 +249,11 @@ export const calcPriceRange = (assetInfo: bridgeAssetPairReturnType, asset: asse
   const assetRdex = asset
   const minAmount = ((Number(amountLimitMinimum) / 1e8) * btcPrice) / assetRdex.price
   const maxAmount = ((Number(amountLimitMaximum) / 1e8) * btcPrice) / assetRdex.price
-  return [minAmount, maxAmount]
+
+  return {
+    amountLimitMinimum: new Decimal(10).pow(asset.decimals).mul(minAmount).toString(),
+    amountLimitMaximum: new Decimal(10).pow(asset.decimals).mul(maxAmount).toString(),
+  }
 }
 
 export function determineAddressInfo(address: string): string {
@@ -319,9 +322,6 @@ export const calcMintRunesInfo = (
     transactionSize,
     assetList,
   } = assetInfo
-  console.log('asset:', asset)
-
-  console.log(new Decimal(mintAmount).mul(10 ** asset.decimals))
 
   // // 转换成btc价值
   const mintRunesEqualBtcAmount = ((asset.price * Number(mintAmount)) / btcPrice) * 10 ** 8
@@ -415,9 +415,11 @@ export const calcRedeemMrc20Info = (
 ): FeeInfo => {
   const { btcPrice, feeBtc, amountLimitMaximum, amountLimitMinimum, confirmSequence, transactionSize } = assetInfo
 
+  // 计算兑换的 BRC 金额
   const brcAmount = redeemAmount / 10 ** (asset.decimals - asset.trimDecimals)
-  const redeemMrc20EqualBtcAmount = ((asset.price * Number(brcAmount)) / btcPrice) * 10 ** 8
+  const redeemMrc20EqualBtcAmount = ((asset.price * brcAmount) / btcPrice) * 10 ** 8
 
+  // 检查兑换金额是否在限制范围内
   if (redeemMrc20EqualBtcAmount < Number(amountLimitMinimum)) {
     throw new Error('amount less than minimum amount')
   }
@@ -425,12 +427,10 @@ export const calcRedeemMrc20Info = (
     throw new Error('amount greater than maximum amount')
   }
 
-  const confirmNumber = confirmNumberBySeqAndAmount(
-    redeemMrc20EqualBtcAmount,
-    confirmSequence,
-    // mint btc -> mvc, get mvc confirm number
-    'MVC'
-  )
+  // 获取确认数
+  const confirmNumber = confirmNumberBySeqAndAmount(redeemMrc20EqualBtcAmount, confirmSequence, 'MVC')
+
+  // 计算桥接费用和矿工费用
   const bridgeFeeConst = BigInt(
     Math.floor(
       (((asset.feeRateConstRedeem / 10 ** 8) * btcPrice) / asset.price) * 10 ** (asset.decimals - asset.trimDecimals)
@@ -438,19 +438,23 @@ export const calcRedeemMrc20Info = (
   )
   const bridgeFeePercent = (BigInt(redeemAmount) * BigInt(asset.feeRateNumeratorRedeem)) / 10000n
   const bridgeFee = bridgeFeeConst + bridgeFeePercent
+
   const minerFee = BigInt(
     Math.floor(
       (((transactionSize.RUNES_REDEEM / 10 ** 8) * feeBtc * btcPrice) / asset.price) *
         10 ** (asset.decimals - asset.trimDecimals)
     )
   )
+
   const totalFee = bridgeFee + minerFee
   const receiveAmount = BigInt(redeemAmount) - totalFee
+
+  // 格式化并返回结果
   return {
-    receiveAmount: formatSat(String(receiveAmount), asset.decimals - asset.trimDecimals),
-    minerFee: formatSat(String(minerFee), asset.decimals - asset.trimDecimals),
-    bridgeFee: formatSat(String(bridgeFee), asset.decimals - asset.trimDecimals),
-    totalFee: formatSat(String(totalFee), asset.decimals - asset.trimDecimals),
+    receiveAmount: formatSat(receiveAmount.toString(), asset.decimals - asset.trimDecimals),
+    minerFee: formatSat(minerFee.toString(), asset.decimals - asset.trimDecimals),
+    bridgeFee: formatSat(bridgeFee.toString(), asset.decimals - asset.trimDecimals),
+    totalFee: formatSat(totalFee.toString(), asset.decimals - asset.trimDecimals),
     confirmNumber,
   }
 }
@@ -469,36 +473,36 @@ export const calcMintMRC20Info = (
     amountLimitMinimum,
     confirmSequence,
     transactionSize,
-    assetList,
   } = assetInfo
 
-  const mintRawAmount = new Decimal(mintAmount).mul(10 ** asset.decimals).toFixed(0)
-  const mintMrc20EqualBtcAmount = ((asset.price * Number(mintAmount)) / btcPrice) * 10 ** 8
+  // 将 mintAmount 转换为资产小数位数后的实际金额
+  const actualMintAmount = mintAmount / 10 ** asset.decimals
 
-  if (Number(mintMrc20EqualBtcAmount) < Number(amountLimitMinimum)) {
+  // 计算 mintAmount 对应的 BTC 等值
+  const mintMrc20EqualBtcAmount = ((asset.price * actualMintAmount) / btcPrice) * 10 ** 8
+
+  // 检查是否在最小和最大限制范围内
+  if (mintMrc20EqualBtcAmount < Number(amountLimitMinimum)) {
     throw new Error('amount less than minimum amount')
   }
-  if (Number(mintMrc20EqualBtcAmount) > Number(amountLimitMaximum)) {
+  if (mintMrc20EqualBtcAmount > Number(amountLimitMaximum)) {
     throw new Error('amount greater than maximum amount')
   }
 
-  const confirmNumber = confirmNumberBySeqAndAmount(
-    mintMrc20EqualBtcAmount,
-    confirmSequence,
-    // mint btc -> mvc, get mvc confirm number
-    'MRC20'
-  )
-  let bridgeFee: number = 0
-  let minerFee: number = 0
-  if (asset.feeRateNumeratorMint > 0 || asset.feeRateConstMint > 0) {
-    bridgeFee =
-      (Number(mintAmount) * asset.feeRateNumeratorMint) / 10000 +
-      ((asset.feeRateConstMint / 10 ** 8) * btcPrice) / asset.price
-    minerFee = (transactionSize.BTC_MINT * feeMvc * mvcPrice) / 10 ** 8 / asset.price
-  }
+  // 获取确认数
+  const confirmNumber = confirmNumberBySeqAndAmount(mintMrc20EqualBtcAmount, confirmSequence, 'MRC20')
+
+  // 计算手续费
+  const bridgeFee =
+    (actualMintAmount * asset.feeRateNumeratorMint) / 10000 +
+    ((asset.feeRateConstMint / 10 ** 8) * btcPrice) / asset.price
+  const minerFee = (transactionSize.BTC_MINT * feeMvc * mvcPrice) / 10 ** 8 / asset.price
   const totalFee = bridgeFee + minerFee
-  const receiveAmount = Number(mintAmount) - totalFee
+
+  // 计算实际接收金额，并格式化为相应的小数位数
+  const receiveAmount = actualMintAmount - totalFee
   const receiveAmountFixed = receiveAmount.toFixed(asset.decimals - asset.trimDecimals)
+
   return {
     receiveAmount: receiveAmountFixed,
     minerFee: minerFee.toFixed(asset.decimals),
@@ -511,7 +515,7 @@ export const calcMintMRC20Info = (
 export async function mintBtc(
   mintAmount: number,
   originTokenId: string,
-  addressType: AddressType,
+  scriptType: ScriptType,
   btcWallet: BtcWallet,
   mvcWallet: MvcWallet,
   feeRate: number
@@ -524,22 +528,21 @@ export async function mintBtc(
   const createPrepayOrderDto = {
     amount: mintAmount,
     originTokenId,
-    addressType: addressType,
+    addressType: scriptType,
     publicKey,
     publicKeySign,
     publicKeyReceive,
     publicKeyReceiveSign,
   }
   try {
-    const createResp = await createPrepayOrderMintBtc(createPrepayOrderDto)
-
-    const { orderId, bridgeAddress } = createResp
+    const { orderId, bridgeAddress } = await createPrepayOrderMintBtc(createPrepayOrderDto)
+    console.log('bridgeAddress', bridgeAddress)
 
     const utxos = await getBtcUtxos(btcWallet.getAddress())
 
     const { rawTx } = btcWallet.signTx(SignType.SEND, {
       utxos,
-      amount: Number(mintAmount),
+      amount: mintAmount,
       recipient: bridgeAddress,
       feeRate,
     })
