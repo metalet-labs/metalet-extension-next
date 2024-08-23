@@ -187,7 +187,7 @@ const mint = async () => {
         })
       }
     }
-  } catch (err: Error) {
+  } catch (err: any) {
     toast({ toastType: 'fail', title: err?.message || err })
   }
 }
