@@ -185,7 +185,14 @@ const toReceive = () => {
 
     <div class="grow w-full flex flex-col gap-y-6 overflow-y-hidden">
       <div class="flex flex-col items-center">
-        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" type="network" class="w-15" />
+        <AssetLogo
+          :logo="icon"
+          :chain="asset.chain"
+          :symbol="asset.symbol"
+          :type="asset.isNative ? undefined : 'network'"
+          class="w-15"
+          logo-size="size-6"
+        />
 
         <div class="mt-3 text-2xl text-balance max-w-full text-center">
           <span v-if="balance" class="break-all">

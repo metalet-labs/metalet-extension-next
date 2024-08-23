@@ -76,7 +76,7 @@ const toSend = () => {
 <template>
   <div class="flex flex-col items-center space-y-6 w-full">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
+      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" logoSize="size-6"/>
 
       <div class="mt-3 text-2xl text-balance max-w-full text-center">
         <span v-if="asset?.balance" class="break-all">

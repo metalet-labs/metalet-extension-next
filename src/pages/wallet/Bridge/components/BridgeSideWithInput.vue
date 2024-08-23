@@ -218,7 +218,7 @@ const clear = () => {
           :chain="asset?.chain"
           :symbol="asset?.symbol"
           class="size-6 text-xs"
-          type="network"
+          :type="asset?.isNative ? undefined : 'network'"
           logo-size="size-[10px]"
         />
         <div class="mr-1" :class="['text-sm font-medium']">

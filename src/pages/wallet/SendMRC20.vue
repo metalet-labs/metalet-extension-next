@@ -252,7 +252,14 @@ async function send() {
 
     <div class="space-y-4 w-full">
       <FlexBox d="col" ai="center" :gap="3">
-        <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
+        <AssetLogo
+          :logo="logo"
+          :symbol="asset.symbol"
+          :chain="asset.chain"
+          type="network"
+          class="w-15"
+          logo-size="size-6"
+        />
         <div
           :key="tag.name"
           v-for="tag in tags"

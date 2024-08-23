@@ -126,10 +126,9 @@ const popConfirm = async () => {
     try {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
       const utxos = await getBtcUtxos(address.value, needRawTx, true)
-      console.log('amount', amount.value)
 
       const { fee, rawTx } = currentBTCWallet.value!.signTx(SignType.SEND, {
-        recipient: recipient.value,
+        recipient: recipient.value.trim(),
         amount: amountInSats.value.toNumber(),
         feeRate: currentRateFee.value!,
         utxos,
@@ -256,7 +255,13 @@ async function send() {
     <div class="grow w-full space-y-3">
       <div class="space-y-3 w-full">
         <FlexBox d="col" ai="center" :gap="3">
-          <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" type="network" class="w-15" />
+          <AssetLogo
+            :logo="logo"
+            :symbol="symbol"
+            :chain="asset.chain"
+            class="w-15"
+            :type="asset.isNative ? undefined : 'network'"
+          />
           <div class="text-base">{{ symbol }}</div>
         </FlexBox>
 
