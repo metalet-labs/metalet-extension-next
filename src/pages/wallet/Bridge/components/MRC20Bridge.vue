@@ -16,13 +16,14 @@ import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
 import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon, FileClockIcon } from 'lucide-vue-next'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useMetaContractAssetQuery } from '@/queries/metacontract'
-import { calcMintMRC20Info, calcPriceRange, calcRedeemMrc20Info, mintMrc20 } from '@/lib/bridge-utils'
+import { calcMintMRC20Info, calcPriceRange, calcRedeemMrc20Info, mintMrc20, redeemMrc20 } from '@/lib/bridge-utils'
 import { calcBalance } from '@/lib/formatters'
 import { useMRC20DetailQuery } from '@/queries/mrc20'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
 import { SwapType } from '@/queries/runes'
 import { useRouter } from 'vue-router'
+import { toast } from '@/components/ui/toast'
 
 const router = useRouter()
 const flippedControl = ref(false)
@@ -77,9 +78,7 @@ const mrc20Asset = computed(
 )
 
 const bridgePairs = computed(() =>
-  bridgePairInfo.value?.assetList.filter(
-    (item) => item.network === 'MRC20' && item.price && item.decimals <= 8 && item.originName === 'vgx'
-  )
+  bridgePairInfo.value?.assetList.filter((item) => item.network === 'MRC20' && item.price && item.decimals <= 8)
 )
 
 const { data: _metaContractAsset } = useMetaContractAssetQuery(mvcAddress, codeHash, genesis, {
@@ -150,7 +149,7 @@ const mint = async () => {
       if (bridgeType.value.includes('1')) {
         const { txId, recipient } = await mintMrc20(
           new Decimal(sourceAmount.value).toNumber(),
-          selectedPair.value.originTokenId,
+          selectedPair.value,
           currentBTCWallet.value.getScriptType(),
           currentBTCWallet.value,
           currentMVCWallet.value,
@@ -168,11 +167,28 @@ const mint = async () => {
           },
         })
       } else {
-        // const amountRaw = amountRaw(String(sourceAmount.value), metaContractAsset.value.decimal)
+        const { txId, recipient } = await redeemMrc20(
+          new Decimal(sourceAmount.value).toNumber(),
+          selectedPair.value,
+          currentBTCWallet.value.getScriptType(),
+          currentBTCWallet.value,
+          currentMVCWallet.value
+        )
+        router.replace({
+          name: 'SendSuccess',
+          params: {
+            txId,
+            chain: metaContractAsset.value.chain,
+            symbol: metaContractAsset.value.symbol,
+            amount: new Decimal(sourceAmount.value).div(10 ** metaContractAsset.value.decimal).toFixed(),
+            address: recipient,
+            coinCategory: CoinCategory.MetaContract,
+          },
+        })
       }
     }
-  } catch (err) {
-    console.log(err)
+  } catch (err: Error) {
+    toast({ toastType: 'fail', title: err?.message || err })
   }
 }
 
