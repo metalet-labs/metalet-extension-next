@@ -647,7 +647,7 @@ export async function redeemBtc(
     const { orderId, bridgeAddress } = createResp
     const { targetTokenCodeHash, targetTokenGenesis } = selectedPair
     const {
-      txids: [txId],
+      txids: [,txId],
     } = await sendToken({
       broadcast: true,
       tasks: [
@@ -697,7 +697,7 @@ export async function redeemMrc20(
     const { orderId, bridgeAddress } = createResp
     const { targetTokenCodeHash, targetTokenGenesis } = selectedPair
     const {
-      txids: [txId],
+      txids: [,txId],
     } = await sendToken({
       broadcast: true,
       tasks: [

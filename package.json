@@ -42,6 +42,7 @@
     "@vueuse/integrations": "^10.4.1",
     "@vueuse/router": "^10.11.0",
     "axios": "0.27.2",
+    "bignumber.js": "^9.1.2",
     "bip32": "^4.0.0",
     "bip39": "^3.1.0",
     "bitcoinjs-lib": "^6.1.5",
