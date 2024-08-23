@@ -10,8 +10,16 @@ export async function createPrepayOrderMintBtc(data: any) {
   return await octopusApi<any>('/createPrepayOrderMintBtc').post(data)
 }
 
+export async function createPrepayOrderMintMrc20(data: any) {
+  return await octopusApi<any>('/createPrepayOrderMintMrc20').post(data)
+}
+
 export async function submitPrepayOrderMintBtc(data: any) {
   return await octopusApi<any>('/submitPrepayOrderMintBtc').post(data)
+}
+
+export async function submitPrepayOrderMintMrc20(data: any) {
+  return await octopusApi<any>('/submitPrepayOrderMintMrc20').post(data)
 }
 
 export const useBridgeInfoQuery = () => {

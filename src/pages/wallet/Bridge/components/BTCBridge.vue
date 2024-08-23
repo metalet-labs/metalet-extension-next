@@ -22,7 +22,9 @@ import { calcMintBtcInfo, calcRedeemBtcInfo, mintBtc } from '@/lib/bridge-utils'
 import { calcBalance } from '@/lib/formatters'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const flippedControl = ref(false)
 const calculatingPay = ref(false)
 const token1Amount = ref<string>()
@@ -111,26 +113,34 @@ watch(sourceAmount, (sourceAmount) => {
 })
 
 const mint = async () => {
-  console.log(sourceAmount.value)
-
   try {
     if (
       sourceAmount.value &&
       selectedPair.value &&
       currentBTCWallet.value &&
       currentMVCWallet.value &&
-      currentRateFee.value
+      bridgePairInfo.value
     ) {
       if (bridgeType.value.includes('1')) {
-        const ret = await mintBtc(
+        const { txId, recipient } = await mintBtc(
           new Decimal(sourceAmount.value).toNumber(),
           selectedPair.value.originTokenId,
           currentBTCWallet.value.getScriptType(),
           currentBTCWallet.value,
           currentMVCWallet.value,
-          currentRateFee.value
+          bridgePairInfo.value.feeBtc
         )
-        console.log('ret', ret)
+        router.replace({
+          name: 'SendSuccess',
+          params: {
+            txId,
+            chain: btcAsset.value.chain,
+            symbol: symbol.value,
+            amount: new Decimal(sourceAmount.value).div(10 ** btcAsset.value.decimal).toFixed(),
+            address: recipient,
+            coinCategory: CoinCategory.Native,
+          },
+        })
       } else {
         // const amountRaw = amountRaw(String(sourceAmount.value), metaContractAsset.value.decimal)
       }

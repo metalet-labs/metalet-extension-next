@@ -16,13 +16,15 @@ import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
 import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon, FileClockIcon } from 'lucide-vue-next'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useMetaContractAssetQuery } from '@/queries/metacontract'
-import { calcMintMRC20Info, calcPriceRange, calcRedeemMrc20Info } from '@/lib/bridge-utils'
+import { calcMintMRC20Info, calcPriceRange, calcRedeemMrc20Info, mintMrc20 } from '@/lib/bridge-utils'
 import { calcBalance } from '@/lib/formatters'
 import { useMRC20DetailQuery } from '@/queries/mrc20'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
 import { SwapType } from '@/queries/runes'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const flippedControl = ref(false)
 const calculatingPay = ref(false)
 const token1Amount = ref<string>()
@@ -35,7 +37,7 @@ const networkFee = ref<string>()
 const flipped = computed(() => ['2x', 'x1'].includes(bridgeType.value))
 const calculating = computed(() => calculatingPay.value || calculatingReceive.value)
 
-const { getAddress } = useChainWalletsStore()
+const { getAddress, currentBTCWallet, currentMVCWallet } = useChainWalletsStore()
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
@@ -135,6 +137,44 @@ watch(sourceAmount, (sourceAmount) => {
     token2Amount.value = undefined
   }
 })
+
+const mint = async () => {
+  try {
+    if (
+      sourceAmount.value &&
+      selectedPair.value &&
+      currentBTCWallet.value &&
+      currentMVCWallet.value &&
+      bridgePairInfo.value
+    ) {
+      if (bridgeType.value.includes('1')) {
+        const { txId, recipient } = await mintMrc20(
+          new Decimal(sourceAmount.value).toNumber(),
+          selectedPair.value.originTokenId,
+          currentBTCWallet.value.getScriptType(),
+          currentBTCWallet.value,
+          currentMVCWallet.value,
+          bridgePairInfo.value.feeBtc
+        )
+        router.replace({
+          name: 'SendSuccess',
+          params: {
+            txId,
+            chain: mrc20Asset.value.chain,
+            symbol: mrc20Asset.value.symbol,
+            amount: new Decimal(sourceAmount.value).div(10 ** mrc20Asset.value.decimal).toFixed(),
+            address: recipient,
+            coinCategory: CoinCategory.Native,
+          },
+        })
+      } else {
+        // const amountRaw = amountRaw(String(sourceAmount.value), metaContractAsset.value.decimal)
+      }
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
 
 const conditions = ref<
   {
@@ -473,7 +513,7 @@ watch(
     </RunesMainBtn>
 
     <!-- confirm button -->
-    <RunesMainBtn v-else @click="">Bridge</RunesMainBtn>
+    <RunesMainBtn v-else @click="mint">Bridge</RunesMainBtn>
   </div>
 </template>
 
