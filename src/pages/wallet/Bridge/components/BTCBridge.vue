@@ -23,6 +23,7 @@ import { calcBalance } from '@/lib/formatters'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
 import { useRouter } from 'vue-router'
+import BridgeHistory from './bridge-history.vue'
 
 const router = useRouter()
 const flippedControl = ref(false)
@@ -376,7 +377,7 @@ watch(
 <template>
   <div class="flex flex-col items-center gap-y-4">
     <div class="flex flex-row-reverse w-full items-center justify-between h-8">
-      <FileClockIcon class="text-gray-primary cursor-pointer" />
+      <BridgeHistory protocolType="btc" :bridgeType="bridgeType === '1x' ? 'mint' : 'redeem'" />
       <BridgeSelectPairs :bridgePairs="bridgePairs" v-model:selectedPair="selectedPair" />
     </div>
     <div class="w-full">

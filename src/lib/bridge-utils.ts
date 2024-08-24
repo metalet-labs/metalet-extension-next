@@ -645,16 +645,16 @@ export async function redeemBtc(
     }
     const createResp = await createPrepayOrderRedeemBtc(createPrepayOrderDto)
     const { orderId, bridgeAddress } = createResp
-    const { targetTokenCodeHash, targetTokenGenesis } = selectedPair
+    const { targetTokenCodeHash, targetTokenGenesis, decimals } = selectedPair
     const {
-      txids: [,txId],
+      txids: [, txId],
     } = await sendToken({
       broadcast: true,
       tasks: [
         {
           codehash: targetTokenCodeHash,
           genesis: targetTokenGenesis,
-          receivers: [{ address: bridgeAddress, amount: redeemAmount.toString() }],
+          receivers: [{ address: bridgeAddress, amount: redeemAmount.toString(), decimal: decimals.toString() }],
         },
       ],
     })
@@ -695,16 +695,16 @@ export async function redeemMrc20(
     }
     const createResp = await createPrepayOrderRedeemMrc20(createPrepayOrderDto)
     const { orderId, bridgeAddress } = createResp
-    const { targetTokenCodeHash, targetTokenGenesis } = selectedPair
+    const { targetTokenCodeHash, targetTokenGenesis, decimals } = selectedPair
     const {
-      txids: [,txId],
+      txids: [, txId],
     } = await sendToken({
       broadcast: true,
       tasks: [
         {
           codehash: targetTokenCodeHash,
           genesis: targetTokenGenesis,
-          receivers: [{ address: bridgeAddress, amount: redeemAmount.toString() }],
+          receivers: [{ address: bridgeAddress, amount: redeemAmount.toString(), decimal: decimals.toString() }],
         },
       ],
     })

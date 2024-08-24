@@ -242,4 +242,12 @@ export const octopusApi = <T>(path: string) => {
   }
 }
 
+export const octopusApiOuter = <T>(path: string) => {
+  const octopusHost = network.value === 'mainnet' ? OCTOPUS_HOST : OCTOPUS_TESTNET_HOST
+  return {
+    get: (params?: OptionParams) => request<T>(`${octopusHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) => request<T>(`${octopusHost}${path}`, { method: 'POST', data }),
+  }
+}
+
 export default request

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { IS_DEV } from '@/data/config'
+// import { IS_DEV } from '@/data/config'
 import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
@@ -10,7 +10,7 @@ import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import { network, getServiceNetwork } from '@/lib/network'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { ArrowUpRightIcon, QrCodeIcon } from '@heroicons/vue/20/solid'
+// import { ArrowUpRightIcon, QrCodeIcon } from '@heroicons/vue/20/solid'
 
 const router = useRouter()
 

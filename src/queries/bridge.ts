@@ -1,4 +1,4 @@
-import { octopusApi } from './request'
+import { octopusApi, octopusApiOuter } from './request'
 import { useQuery } from '@tanstack/vue-query'
 import { bridgeAssetPairReturnType } from './types/bridge'
 
@@ -43,4 +43,14 @@ export const useBridgeInfoQuery = () => {
     queryKey: ['BridgePairList'],
     queryFn: () => getBridgePairInfo(),
   })
+}
+
+export async function getBridgeHistory(params: {
+  type: string
+  cursor: string
+  size: string
+  order: string
+  address: string
+}) {
+  return await octopusApiOuter<any>('/queryTransactionsByAddress').get(params)
 }

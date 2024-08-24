@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { TransferTask, Receiver } from '@/lib/actions/transfer'
 import { shortestAddress } from '@/lib/formatters'
+import Decimal from 'decimal.js'
 
 const props = defineProps<{
   task: TransferTask
@@ -13,7 +14,7 @@ function prettyAmount(task: TransferTask, receiver: Receiver) {
     return Number(receiver.amount) / 1e8 + ' SPACE'
   }
 
-  return receiver.amount
+  return new Decimal(receiver.amount).div(10 ** Number(receiver.decimal)).toFixed()
 }
 </script>
 

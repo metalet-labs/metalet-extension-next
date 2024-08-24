@@ -37,7 +37,7 @@ export const useMVCAssetsQuery = (
         (token) =>
           ({
             symbol: token.symbol,
-            tokenName: token.name,
+            tokenName: token.symbol,
             isNative: false,
             chain: 'mvc',
             queryable: true,

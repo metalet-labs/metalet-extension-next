@@ -3,6 +3,8 @@ import { IS_DEV } from '@/data/config'
 import { twMerge } from 'tailwind-merge'
 import { type ClassValue, clsx } from 'clsx'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from '@/data/config'
+import dayjs from 'dayjs'
+import Decimal from 'decimal.js'
 
 export const goToPage = (path: string, created = false) => {
   if (IS_DEV || !created) {
@@ -32,4 +34,19 @@ export const goToTab = (path: string, created = false) => {
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+export function prettyTimestamp(timestamp: number, isInSeconds = false, cutThisYear = false) {
+  if (isInSeconds) timestamp = timestamp * 1000
+
+  if (cutThisYear) return dayjs(timestamp).format('MM-DD HH:mm:ss')
+
+  return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')
+}
+
+export const formatUnitToBtc = (value: number | string, decimal: number = 8) => {
+  if (!value) {
+    return 0
+  }
+  return new Decimal(value).div(10 ** decimal).toNumber()
 }

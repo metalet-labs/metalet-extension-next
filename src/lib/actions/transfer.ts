@@ -8,6 +8,7 @@ import { API_NET, API_TARGET, FtManager, Wallet, mvc } from 'meta-contract'
 export type Receiver = {
   address: string
   amount: string
+  decimal:string
 }
 export type TransferTask = {
   genesis?: string

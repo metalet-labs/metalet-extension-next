@@ -187,7 +187,7 @@ export const getBridgeHistory = async ({
   txList: HsitoryDetail[]
 }> => {
   return await bridgeApiFetch(
-    `/queryTransactionsByAddress?type=${type}&cursor=${cursor}&size=${size}&order=${order}&address=${address}`,
+    `/query/queryTransactionsByAddress?type=${type}&cursor=${cursor}&size=${size}&order=${order}&address=${address}`,
     {
       method: 'GET',
     }
