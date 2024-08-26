@@ -12,6 +12,10 @@ module.exports = {
     },
 
     extend: {
+      spacing: {
+        4.5: "1.125rem",
+        7.5: "1.875rem",
+      },
       colors: {
         'black-primary': '#141416',
         'black-secondary': '#303133',

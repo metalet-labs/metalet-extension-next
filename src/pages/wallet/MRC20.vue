@@ -126,7 +126,11 @@ const toSend = () => {
       <div class="flex items-center justify-between w-full">
         <div class="text-xs text-gray-500">Deployer</div>
         <div class="flex items-center gap-x-2">
-          <AssetLogo :logo="asset?.deployAvatar" :symbol="asset?.deployName" class="size-5 shrink-0 rounded-full text-xs" />
+          <AssetLogo
+            :logo="asset?.deployAvatar"
+            :symbol="asset?.deployName"
+            class="size-5 shrink-0 rounded-full text-xs"
+          />
           <span>{{ asset?.deployName || '--' }}</span>
         </div>
       </div>
@@ -134,7 +138,7 @@ const toSend = () => {
         <div class="text-xs text-gray-500">Token ID</div>
         <div class="flex items-center hover:text-blue-primary gap-x-2">
           <div class="text-base">{{ truncateStr(mrc20Id, 6) }}</div>
-          <CopyIcon :text="mrc20Id" :title="'Token ID Copied'" />
+          <CopyIcon :text="mrc20Id" title="Token ID Copied" />
         </div>
       </div>
     </div>

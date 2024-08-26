@@ -1,17 +1,17 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
+import Decimal from 'decimal.js'
 import { toTx } from '@/lib/helpers'
 import { FlexBox } from '@/components'
 import { type Chain } from '@/lib/types'
-import { FTAsset, type Asset } from '@/data/assets'
 import { getBrowserHost } from '@/lib/host'
 import AssetLogo from '@/components/AssetLogo.vue'
+import { useIconsStore } from '@/stores/IconsStore'
+import { FTAsset, type Asset } from '@/data/assets'
 import type { Activity } from '@/queries/activities'
 import LoadingIcon from '@/components/LoadingIcon.vue'
-import { prettifyTimestamp, prettifyTxId, truncateStr } from '@/lib/formatters'
-import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
-import Decimal from 'decimal.js'
+import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
 
 const props = defineProps<{
   asset: Asset
@@ -94,6 +94,7 @@ const toActivityTx = async () => {
         type="activity"
         class="w-[38px] text-lg"
         :flow="flow"
+        logo-size="size-4"
       />
       <div>
         <div :class="['flex items-center gap-x-2 text-sm', { 'text-orange-primary': !isConfirmed }]">

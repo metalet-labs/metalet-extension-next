@@ -15,6 +15,7 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
+import { prettifyAddress } from '@/lib/formatters'
 
 const route = useRoute()
 const router = useRouter()
@@ -225,11 +226,11 @@ async function send() {
         <div class="p-4 space-y-4 text-ss">
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">From</div>
-            <div class="break-all w-[228px]">{{ address }}</div>
+            <div class="break-all" :title="address">{{ prettifyAddress(address) }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">To</div>
-            <div class="break-all w-[228px]">{{ recipient }}</div>
+            <div class="break-all" :title="recipient">{{ prettifyAddress(recipient) }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">Amount</div>

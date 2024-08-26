@@ -23,7 +23,7 @@ import { calcBalance } from '@/lib/formatters'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
 import { useRouter } from 'vue-router'
-import BridgeHistory from './bridge-history.vue'
+import BridgeHistory from './BridgeHistory.vue'
 
 const router = useRouter()
 const flippedControl = ref(false)

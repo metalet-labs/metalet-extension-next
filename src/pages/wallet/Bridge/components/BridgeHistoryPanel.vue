@@ -28,7 +28,7 @@
       <div class="border-b border-[#EBEBEB]/5 my-2" />
       <div class="flex items-center justify-between">
         <div class="left">
-          <span class="info">{{ item.amount }} {{ item.symbol }}</span>
+          <span class="info">{{ calcBalance(item.amount, item.decimals, item.symbol) }}</span>
         </div>
         <div class="right">{{ item.timestamp }}</div>
       </div>
@@ -51,6 +51,7 @@ import { ArrowRight } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { calcBalance } from '@/lib/formatters'
 
 const props = defineProps({
   type: {

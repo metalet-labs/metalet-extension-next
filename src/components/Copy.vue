@@ -3,11 +3,16 @@ import { twMerge } from 'tailwind-merge'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
 import { ClipboardStore } from '@/stores/ClipboardStore'
 
-const { text, title } = defineProps<{
-  text: string
-  title?: string
-  showContent?: boolean
-}>()
+withDefaults(
+  defineProps<{
+    text: string
+    title?: string
+    showContent?: boolean
+  }>(),
+  {
+    showContent: true,
+  }
+)
 </script>
 
 <template>

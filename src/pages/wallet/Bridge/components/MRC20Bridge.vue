@@ -24,7 +24,7 @@ import { Protocol } from '@/lib/types/protocol'
 import { SwapType } from '@/queries/runes'
 import { useRouter } from 'vue-router'
 import { toast } from '@/components/ui/toast'
-import BridgeHistory from './bridge-history.vue'
+import BridgeHistory from './BridgeHistory.vue'
 
 const router = useRouter()
 const flippedControl = ref(false)

@@ -3,25 +3,20 @@ import type { TransferTask, Receiver } from '@/lib/actions/transfer'
 import { shortestAddress } from '@/lib/formatters'
 import Decimal from 'decimal.js'
 
-const props = defineProps<{
+defineProps<{
   task: TransferTask
   receiver: Receiver
 }>()
 
-function prettyAmount(task: TransferTask, receiver: Receiver) {
-  // 如果没有genesis，说明是space，需要除以10^8
-  if (!task.genesis) {
-    return Number(receiver.amount) / 1e8 + ' SPACE'
-  }
-
-  return new Decimal(receiver.amount).div(10 ** Number(receiver.decimal)).toFixed()
+function prettyAmount(receiver: Receiver) {
+  return new Decimal(receiver.amount).div(10 ** Number(receiver?.decimal || 8)).toFixed(Number(receiver?.decimal || 8))
 }
 </script>
 
 <template>
   <tr>
     <td class="td-cell">{{ task.genesis ? 'Token' : 'SPACE' }}</td>
-    <td class="td-cell">{{ prettyAmount(task, receiver) }}</td>
+    <td class="td-cell">{{ prettyAmount(receiver) }}</td>
     <td class="td-cell" :title="receiver.address">{{ shortestAddress(receiver.address) }}</td>
   </tr>
 </template>

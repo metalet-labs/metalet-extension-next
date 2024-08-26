@@ -51,10 +51,10 @@ getServiceNetwork().then((_serviceNetwork) => {
 })
 
 const { data: btcMetaidInfo } = useMetaidInfoQuery(btcAddress, {
-  enabled: computed(() => !!btcAddress),
+  enabled: computed(() => !!btcAddress.value),
 })
 const { data: mvcMetaidInfo } = useMetaidInfoQuery(mvcAddress, {
-  enabled: computed(() => !!mvcAddress && btcAddress.value !== mvcAddress.value),
+  enabled: computed(() => !!mvcAddress.value && btcAddress.value !== mvcAddress.value),
 })
 
 getNetwork().then((_network) => (network.value = _network))

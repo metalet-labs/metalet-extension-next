@@ -6,19 +6,19 @@ import ExpenseLogo from '@/assets/icons-v3/expense.svg'
 import BTCNetworkLogo from '@/assets/icons-v3/network_btc.svg'
 import MVCNetworkLogo from '@/assets/icons-v3/network_mvc.svg'
 
-const {
-  logo,
-  chain,
-  symbol,
-  logoSize = 'size-6',
-} = defineProps<{
-  logo?: string
-  chain?: Chain
-  symbol?: string
-  type?: 'network' | 'activity'
-  flow?: 'Send' | 'Receive' | 'Transfer' | string
-  logoSize?: string
-}>()
+withDefaults(
+  defineProps<{
+    logo?: string
+    chain?: Chain
+    symbol?: string
+    logoSize?: string
+    type?: 'network' | 'activity'
+    flow?: 'Send' | 'Receive' | 'Transfer' | string
+  }>(),
+  {
+    logoSize: 'size-6',
+  }
+)
 </script>
 
 <template>
