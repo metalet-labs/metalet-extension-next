@@ -601,7 +601,7 @@ async function doSwap() {
         @not-enough="hasEnough = false"
         v-else-if="runeAsset && flipped"
         @became-source="swapType = '2x'"
-        :coinCategory="CoinCategory.Rune"
+        :coinCategory="CoinCategory.Runes"
         @amount-entered="hasAmount = true"
         @amount-cleared="hasAmount = false"
       />
@@ -631,7 +631,7 @@ async function doSwap() {
         v-model:amount="token2Amount"
         @became-source="swapType = 'x2'"
         :calculating="calculatingReceive"
-        :coinCategory="CoinCategory.Rune"
+        :coinCategory="CoinCategory.Runes"
       />
 
       <RunesSwapSideWithInput

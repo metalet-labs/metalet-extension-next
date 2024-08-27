@@ -118,9 +118,9 @@ function toRune(asset: RuneAsset, address: string) {
             :asset="asset"
             :key="asset.symbol"
             :address="btcAddress"
-            :coinCategory="CoinCategory.Rune"
+            :coinCategory="CoinCategory.Runes"
             @click="toRune(asset, btcAddress)"
-            v-for="asset in runeAssets?.filter((asset) => !selectList.includes(`${CoinCategory.Rune}-${asset.symbol}`))"
+            v-for="asset in runeAssets?.filter((asset) => !selectList.includes(`${CoinCategory.Runes}-${asset.symbol}`))"
           />
         </div>
       </template>

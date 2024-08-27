@@ -125,8 +125,8 @@ async function setSelected(asset: Asset, coinCategory: CoinCategory, enabled: bo
       :asset="asset"
       :key="asset.symbol"
       :selectList="selectList"
-      :coinCategory="CoinCategory.Rune"
-      @setSelected="(enabled) => setSelected(asset, CoinCategory.Rune, enabled)"
+      :coinCategory="CoinCategory.Runes"
+      @setSelected="(enabled) => setSelected(asset, CoinCategory.Runes, enabled)"
       v-for="asset in runeAssets?.filter(
         (asset) =>
           !assetSearch ||

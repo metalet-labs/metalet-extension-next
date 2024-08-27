@@ -36,7 +36,7 @@ function getCoinCategory(type: string) {
       return CoinCategory.BRC20
     }
     case 'RUNES': {
-      return CoinCategory.Rune
+      return CoinCategory.Runes
     }
     default: {
       return CoinCategory.MetaContract

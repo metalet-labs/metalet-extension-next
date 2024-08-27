@@ -222,7 +222,7 @@ const clear = () => {
 
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
-      <RunesModalTokenSelect :pinned-tokens="runeTokens" v-if="coinCategory === CoinCategory.Rune" />
+      <RunesModalTokenSelect :pinned-tokens="runeTokens" v-if="coinCategory === CoinCategory.Runes" />
       <div :class="['flex items-center gap-1 rounded-full bg-gray-100 p-1 px-2 text-xl']" v-else>
         <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" class="w-6 h-6 text-xs" />
         <div class="mr-1" :class="['text-sm font-medium']">

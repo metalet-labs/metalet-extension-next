@@ -30,10 +30,10 @@ const runeId = ref(route.params.runeId as string)
 const transactionResult = ref<TransactionResult>()
 const address = ref(route.params.address as string)
 
-const tags = getTags(CoinCategory.Rune)
+const tags = getTags(CoinCategory.Runes)
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
+const logo = computed(() => getIcon(CoinCategory.Runes, route.params.runeId as string) || '')
 
 const { data: asset } = useRuneDetailQuery(address, runeId, {
   enabled: computed(() => !!address.value && !!runeId.value),
@@ -197,7 +197,7 @@ async function send() {
       symbol: asset.value!.symbol,
       amount: amount.value,
       address: recipient.value,
-      coinCategory: CoinCategory.Rune,
+      coinCategory: CoinCategory.Runes,
     },
   })
 }

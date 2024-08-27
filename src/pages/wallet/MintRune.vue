@@ -32,7 +32,7 @@ const address = ref(route.params.address as string)
 const { currentBTCWallet } = useChainWalletsStore()
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.Rune, runeId.value) || '')
+const logo = computed(() => getIcon(CoinCategory.Runes, runeId.value) || '')
 
 const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(address, runeId, {
   enabled: computed(() => !!address.value && !!runeId.value),
@@ -192,7 +192,7 @@ async function send() {
       symbol: asset.value!.tokenName,
       amount: 'Mint ' + amount.value,
       address: address.value,
-      coinCategory: CoinCategory.Rune,
+      coinCategory: CoinCategory.Runes,
     },
   })
 }

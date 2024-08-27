@@ -76,7 +76,7 @@ const tags: Tag[] = [
     color: '#787FFF',
   },
   {
-    name: 'Rune',
+    name: "Runes",
     bg: 'rgba(225, 194, 255, 0.3)',
     color: '#835AFF',
   },

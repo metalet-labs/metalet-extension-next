@@ -240,7 +240,7 @@ async function send() {
       symbol: asset.value!.symbol,
       amount: amount.value,
       address: recipient.value,
-      coinCategory: CoinCategory.Rune,
+      coinCategory: CoinCategory.Runes,
     },
   })
 }

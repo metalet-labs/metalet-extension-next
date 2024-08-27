@@ -36,7 +36,7 @@ function toRune(asset: RuneAsset, address: string) {
       :key="index"
       :asset="asset"
       :address="address"
-      :coinCategory="CoinCategory.Rune"
+      :coinCategory="CoinCategory.Runes"
       v-for="(asset, index) in runes"
       @click="toRune(asset, address)"
     />

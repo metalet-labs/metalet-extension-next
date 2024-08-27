@@ -33,7 +33,7 @@ export enum CoinCategory {
   Native = 'Native',
   BRC20 = 'BRC-20',
   MetaContract = 'MetaContract',
-  Rune = 'Rune',
+  Runes = 'Runes',
   MRC20 = 'MRC-20',
 }
 

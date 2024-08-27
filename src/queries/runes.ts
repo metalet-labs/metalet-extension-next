@@ -9,6 +9,7 @@ import { Balance_QUERY_INTERVAL } from './constants'
 import { AddressRunesTokenSummary } from './types/rune'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import { metaletApiV3, unisatApi, ordersApi, swapApi } from './request'
+import { CoinCategory } from './exchange-rates'
 
 export type SwapType = '1x' | 'x2' | '2x' | 'x1'
 
@@ -53,7 +54,7 @@ export async function fetchRunesList(
         total: new Decimal(data.amount),
       },
       runeId: data.runeid,
-      contract: 'Runes',
+      contract: CoinCategory.Runes,
     })) as RuneAsset[]
 
     cursor += size

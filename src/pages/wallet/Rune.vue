@@ -29,7 +29,7 @@ const { isLoading: isRuneDetailLoading, data: asset } = useRuneDetailQuery(addre
   enabled: computed(() => !!address.value && !!runeId.value),
 })
 
-const tags = getTags(CoinCategory.Rune)
+const tags = getTags(CoinCategory.Runes)
 
 const assetUSD = computed(() => {
   const usdRate = new Decimal(0)
@@ -42,7 +42,7 @@ const assetUSD = computed(() => {
 })
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.Rune, route.params.runeId as string) || '')
+const logo = computed(() => getIcon(CoinCategory.Runes, route.params.runeId as string) || '')
 
 watch(assetUSD, (_assetUSD) => {
   if (asset.value && _assetUSD) {
@@ -142,7 +142,7 @@ const toSend = () => {
         :asset="asset"
         :exchangeRate="0"
         :address="address"
-        :coinCategory="CoinCategory.Rune"
+        :coinCategory="CoinCategory.Runes"
       />
       <LoadingText text="Activities Loading..." v-else />
     </div>
