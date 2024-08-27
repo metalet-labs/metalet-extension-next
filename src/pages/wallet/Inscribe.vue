@@ -130,17 +130,17 @@ const popConfirm = async () => {
       fee,
       txInputs,
       txOutputs,
-      rawTx: _rawTx
+      rawTx: _rawTx,
     } = currentBTCWallet.value!.signTx(SignType.SEND, {
+      amount: order.needAmount,
       recipient: order.payAddress,
-      amount: order.needAmount / 1e8,
       feeRate: currentRateFee.value!,
       utxos,
     })
     rawTx.value = _rawTx
     inputUTXOs.value = txInputs
     outputUTXOs.value = txOutputs
-    paymentNetworkFee.value =Number(fee) 
+    paymentNetworkFee.value = Number(fee)
     inscribeOrder.value = order
     orderId.value = order.orderId
     total.value = paymentNetworkFee.value + order.needAmount

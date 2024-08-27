@@ -1,20 +1,18 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { sleep } from '@/lib/helpers'
-import { ERRORS } from '@/data/errors'
-import { Asset, BTCAsset, MetaContractAsset } from '@/data/assets'
+import { BTCAsset, MetaContractAsset } from '@/data/assets'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { useMutation } from '@tanstack/vue-query'
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, ref, toRaw, watch, watchEffect } from 'vue'
 import { useBTCBalanceQuery } from '@/queries/balance'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
+import { Chain } from '@metalet/utxo-wallet-service'
 import BridgeSideWithInput from './BridgeSideWithInput.vue'
 import BridgeFrictionStats from './BridgeFrictionStats.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import BridgeSelectPairs from './BridgeSelectPairs.vue'
 import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
-import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon, FileClockIcon } from 'lucide-vue-next'
+import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon } from 'lucide-vue-next'
 import { SwapType } from '@/queries/runes'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useMetaContractAssetQuery } from '@/queries/metacontract'
@@ -24,18 +22,23 @@ import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
 import { useRouter } from 'vue-router'
 import BridgeHistory from './BridgeHistory.vue'
+import { toast } from '@/components/ui/toast'
 
 const router = useRouter()
+const loading = ref(false)
+const hasAmount = ref(false)
+const hasEnough = ref(false)
+const serviceFee = ref<string>()
+const networkFee = ref<string>()
 const flippedControl = ref(false)
 const calculatingPay = ref(false)
 const token1Amount = ref<string>()
 const token2Amount = ref<string>()
-const symbol = ref(BTCAsset.symbol)
+const moreThanThreshold = ref(false)
+const lessThanThreshold = ref(false)
 const currentRateFee = ref<number>()
-const bridgeType = ref<SwapType>('1x')
 const calculatingReceive = ref(false)
-const serviceFee = ref<string>()
-const networkFee = ref<string>()
+const bridgeType = ref<SwapType>('1x')
 const flipped = computed(() => ['2x', 'x1'].includes(bridgeType.value))
 const calculating = computed(() => calculatingPay.value || calculatingReceive.value)
 
@@ -52,7 +55,7 @@ const bridgePairs = computed(() => bridgePairInfo.value?.assetList.filter((item)
 
 const { data: balance } = useBTCBalanceQuery(btcAddress, {
   enabled: computed(() => {
-    return !!btcAddress.value && !!symbol.value
+    return !!btcAddress.value
   }),
 })
 
@@ -91,29 +94,15 @@ const metaContractAsset = computed(
 )
 
 const sourceAmount = computed(() => {
-  if (bridgeType.value.includes('1')) {
-    return token1Amount.value
-  } else {
-    return token2Amount.value
-  }
+  return bridgeType.value.includes('1') ? token1Amount.value : token2Amount.value
 })
 
 const sourceSymbol = computed(() => {
-  if (bridgeType.value.includes('1')) {
-    return btcAsset.value.symbol
-  } else {
-    return metaContractAsset.value.symbol
-  }
+  return bridgeType.value.includes('1') ? btcAsset.value.symbol : metaContractAsset.value.symbol
 })
 
-watch(sourceAmount, (sourceAmount) => {
-  if (!sourceAmount) {
-    token1Amount.value = undefined
-    token2Amount.value = undefined
-  }
-})
-
-const mint = async () => {
+const bridge = async () => {
+  loading.value = true
   try {
     if (
       sourceAmount.value &&
@@ -122,49 +111,41 @@ const mint = async () => {
       currentMVCWallet.value &&
       bridgePairInfo.value
     ) {
-      if (bridgeType.value.includes('1')) {
-        const { txId, recipient } = await mintBtc(
-          new Decimal(sourceAmount.value).toNumber(),
-          selectedPair.value.originTokenId,
-          currentBTCWallet.value.getScriptType(),
-          currentBTCWallet.value,
-          currentMVCWallet.value,
-          bridgePairInfo.value.feeBtc
-        )
-        router.replace({
-          name: 'SendSuccess',
-          params: {
-            txId,
-            chain: btcAsset.value.chain,
-            symbol: btcAsset.value.symbol,
-            amount: new Decimal(sourceAmount.value).div(10 ** btcAsset.value.decimal).toFixed(),
-            address: recipient,
-            coinCategory: CoinCategory.Native,
-          },
-        })
-      } else {
-        const { txId, recipient } = await redeemBtc(
-          new Decimal(sourceAmount.value).toNumber(),
-          selectedPair.value,
-          currentBTCWallet.value.getScriptType(),
-          currentBTCWallet.value,
-          currentMVCWallet.value
-        )
-        router.replace({
-          name: 'SendSuccess',
-          params: {
-            txId,
-            chain: metaContractAsset.value.chain,
-            symbol: metaContractAsset.value.symbol,
-            amount: new Decimal(sourceAmount.value).div(10 ** metaContractAsset.value.decimal).toFixed(),
-            address: recipient,
-            coinCategory: CoinCategory.MetaContract,
-          },
-        })
-      }
+      const { txId, recipient } = bridgeType.value.includes('1')
+        ? await mintBtc(
+            new Decimal(sourceAmount.value).toNumber(),
+            selectedPair.value.originTokenId,
+            currentBTCWallet.value.getScriptType(),
+            currentBTCWallet.value,
+            currentMVCWallet.value,
+            bridgePairInfo.value.feeBtc
+          )
+        : await redeemBtc(
+            new Decimal(sourceAmount.value).toNumber(),
+            selectedPair.value,
+            currentBTCWallet.value.getScriptType(),
+            currentBTCWallet.value,
+            currentMVCWallet.value
+          )
+
+      router.replace({
+        name: 'SendSuccess',
+        params: {
+          txId,
+          chain: bridgeType.value.includes('1') ? btcAsset.value.chain : metaContractAsset.value.chain,
+          symbol: bridgeType.value.includes('1') ? btcAsset.value.symbol : metaContractAsset.value.symbol,
+          amount: new Decimal(sourceAmount.value)
+            .div(10 ** (bridgeType.value.includes('1') ? btcAsset.value.decimal : metaContractAsset.value.decimal))
+            .toFixed(),
+          address: recipient,
+          coinCategory: bridgeType.value.includes('1') ? CoinCategory.Native : CoinCategory.MetaContract,
+        },
+      })
     }
-  } catch (err) {
-    console.log(err)
+  } catch (err: any) {
+    toast({ toastType: 'fail', title: err?.message || err })
+  } finally {
+    loading.value = false
   }
 }
 
@@ -178,58 +159,36 @@ const conditions = ref<
   }[]
 >([
   {
-    condition: 'insufficient-liquidity',
-    message: 'Insufficient liquidity',
-    priority: 3,
-    met: true,
-  },
-  {
     condition: 'enter-amount',
     message: 'Enter an amount',
-    priority: 4,
+    priority: 1,
     met: false,
   },
   {
     condition: 'insufficient-balance',
     message: 'Insufficient balance',
-    priority: 5,
+    priority: 2,
+    met: false,
+  },
+  {
+    condition: 'less-than-threshold',
+    message: 'Amount too small',
+    priority: 3,
     met: false,
   },
   {
     condition: 'more-than-threshold',
-    message: 'Amount too small',
-    priority: 6,
+    message: 'Amount too large',
+    priority: 4,
     met: false,
-  },
-  {
-    condition: 'return-is-positive',
-    message: 'Negative return',
-    priority: 7,
-    met: true,
   },
 ])
 
-const hasUnmet = computed(() => {
-  return conditions.value.some((c) => !c.met)
-})
-
-const unmet = computed(() => {
-  // use highest priority unmet condition
-  if (!hasUnmet.value) {
-    return
-  }
-
-  const unmets = conditions.value.filter((c) => !c.met)
-
-  return unmets.reduce((prev, curr) => {
-    return prev.priority < curr.priority ? prev : curr
-  }, unmets[0])
-})
+const hasUnmet = computed(() => conditions.value.some((c) => !c.met))
+const unmet = computed(() => conditions.value.filter((c) => c.met).sort((a, b) => a.priority - b.priority)[0])
 
 const flipAsset = async () => {
   flippedControl.value = !flippedControl.value
-
-  await sleep(200)
 
   switch (bridgeType.value) {
     case '1x':
@@ -244,134 +203,64 @@ const flipAsset = async () => {
     case 'x2':
       bridgeType.value = '2x'
       break
+    default:
+      bridgeType.value = '1x'
+      break
   }
 
   hasAmount.value = false
-  moreThanThreshold.value = true
   token1Amount.value = undefined
   token2Amount.value = undefined
+  lessThanThreshold.value = false
+  moreThanThreshold.value = false
 }
 
-watch(
-  () => sourceAmount.value,
-  () => {
-    if (sourceAmount.value) {
-      try {
-        calculatingReceive.value = true
-        if (bridgeType.value.includes('1')) {
-          const info = calcMintBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
-          serviceFee.value = info.bridgeFee.toString()
-          networkFee.value = info.minerFee.toString()
-          token2Amount.value = new Decimal(10).pow(metaContractAsset.value!.decimal).mul(info.receiveAmount).toFixed()
-        } else {
-          const info = calcRedeemBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
-          serviceFee.value = info.bridgeFee.toString()
-          networkFee.value = info.minerFee.toString()
-          token1Amount.value = new Decimal(10).pow(btcAsset.value!.decimal).mul(info.receiveAmount).toFixed()
-        }
-        calculatingReceive.value = false
-      } catch (error) {
-        if (bridgeType.value.includes('1')) {
-          token2Amount.value = undefined
-        } else {
-          token1Amount.value = undefined
-        }
+watchEffect(() => {
+  if (!sourceAmount.value) {
+    token1Amount.value = undefined
+    token2Amount.value = undefined
+  } else {
+    calculatingReceive.value = true
+    try {
+      const info = bridgeType.value.includes('1')
+        ? calcMintBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
+        : calcRedeemBtcInfo(Number(sourceAmount.value), bridgePairInfo.value!)
+
+      serviceFee.value = info.bridgeFee.toString()
+      networkFee.value = info.minerFee.toString()
+      if (bridgeType.value.includes('1')) {
+        token2Amount.value = new Decimal(10).pow(metaContractAsset.value.decimal).mul(info.receiveAmount).toFixed()
+      } else {
+        token1Amount.value = new Decimal(10).pow(btcAsset.value.decimal).mul(info.receiveAmount).toFixed()
       }
+    } catch {
+      if (bridgeType.value.includes('1')) {
+        token2Amount.value = undefined
+      } else {
+        token1Amount.value = undefined
+      }
+    } finally {
+      calculatingReceive.value = false
     }
   }
-)
+})
 
-const hasAmount = ref(false)
-watch(
-  () => hasAmount.value,
-  (hasAmount) => {
-    if (hasAmount) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'enter-amount') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'enter-amount') {
-          c.met = false
-        }
-        return c
-      })
+watchEffect(() => {
+  conditions.value.forEach((c) => {
+    if (c.condition === 'enter-amount') {
+      c.met = !sourceAmount.value
     }
-  },
-  { immediate: true }
-)
-
-const hasEnough = ref(true)
-watch(
-  () => hasEnough.value,
-  (hasEnough) => {
-    if (hasEnough) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'insufficient-balance') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'insufficient-balance') {
-          c.met = false
-        }
-        return c
-      })
+    if (c.condition === 'insufficient-balance') {
+      c.met = !hasEnough.value
     }
-  },
-  { immediate: true }
-)
-
-const returnIsPositive = ref(true)
-watch(
-  () => returnIsPositive.value,
-  (returnIsPositive) => {
-    if (returnIsPositive) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'return-is-positive') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'return-is-positive') {
-          c.met = false
-        }
-        return c
-      })
+    if (c.condition === 'less-than-threshold') {
+      c.met = lessThanThreshold.value
     }
-  },
-  { immediate: true }
-)
-
-const moreThanThreshold = ref(true)
-watch(
-  () => moreThanThreshold.value,
-  (moreThanThreshold) => {
-    if (moreThanThreshold) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'more-than-threshold') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'more-than-threshold') {
-          c.met = false
-        }
-        return c
-      })
+    if (c.condition === 'more-than-threshold') {
+      c.met = moreThanThreshold.value
     }
-  },
-  { immediate: true }
-)
+  })
+})
 </script>
 
 <template>
@@ -387,14 +276,14 @@ watch(
         :asset="btcAsset"
         :calculating="calculatingPay"
         v-model:amount="token1Amount"
-        @has-enough="hasEnough = true"
-        @not-enough="hasEnough = false"
         @became-source="bridgeType = '1x'"
-        @amount-entered="hasAmount = true"
-        @amount-cleared="hasAmount = false"
         :coinCategory="CoinCategory.Native"
         :limit-maximum="bridgePairInfo?.amountLimitMaximum"
         :limit-minimum="bridgePairInfo?.amountLimitMinimum"
+        @has-amount="(_hasAmount) => (hasAmount = _hasAmount)"
+        @has-enough="(_hasEnough) => (hasEnough = _hasEnough)"
+        @less-than-threshold="(_lessThanThreshold) => (lessThanThreshold = _lessThanThreshold)"
+        @more-than-threshold="(_moreThanThreshold) => (moreThanThreshold = _moreThanThreshold)"
       />
       <BridgeSideWithInput
         side="pay"
@@ -402,12 +291,14 @@ watch(
         :asset="metaContractAsset"
         :calculating="calculatingPay"
         v-model:amount="token2Amount"
-        @has-enough="hasEnough = true"
-        @not-enough="hasEnough = false"
         @became-source="bridgeType = '2x'"
         :coinCategory="CoinCategory.MetaContract"
-        @amount-entered="hasAmount = true"
-        @amount-cleared="hasAmount = false"
+        :limit-maximum="bridgePairInfo?.amountLimitMaximum"
+        :limit-minimum="bridgePairInfo?.amountLimitMinimum"
+        @has-amount="(_hasAmount) => (hasAmount = _hasAmount)"
+        @has-enough="(_hasEnough) => (hasEnough = _hasEnough)"
+        @more-than-threshold="(_moreThanThreshold) => (moreThanThreshold = _moreThanThreshold)"
+        @less-than-threshold="(_lessThanThreshold) => (moreThanThreshold = _lessThanThreshold)"
       />
 
       <div class="relative z-30 my-0.5 flex h-0 justify-center">
@@ -434,8 +325,8 @@ watch(
         v-if="!flipped"
         :asset="metaContractAsset"
         v-model:amount="token2Amount"
-        @became-source="bridgeType = 'x2'"
         :calculating="calculatingReceive"
+        @became-source="bridgeType = 'x2'"
         :coinCategory="CoinCategory.MetaContract"
       />
 
@@ -444,11 +335,9 @@ watch(
         v-if="flipped"
         :asset="btcAsset"
         v-model:amount="token1Amount"
-        @became-source="bridgeType = 'x1'"
         :calculating="calculatingReceive"
+        @became-source="bridgeType = 'x1'"
         :coinCategory="CoinCategory.Native"
-        @more-than-threshold="moreThanThreshold = true"
-        @less-than-threshold="moreThanThreshold = false"
       />
 
       <BridgePriceDisclosure
@@ -459,7 +348,7 @@ watch(
         :decimal="btcAsset.decimal"
         :token1-symbol="btcAsset.symbol"
         :token2-symbol="metaContractAsset.symbol"
-        v-if="Number(sourceAmount)"
+        v-if="!!Number(sourceAmount) && !hasUnmet"
       />
 
       <!-- FIXME: asset decimal not allow more than 8 -->
@@ -482,9 +371,10 @@ watch(
     >
       {{ unmet.message || '' }}
     </RunesMainBtn>
+    <RunesMainBtn v-else-if="loading" :disabled="loading" :class="['disabled']">Loading...</RunesMainBtn>
 
     <!-- confirm button -->
-    <RunesMainBtn v-else @click="mint">Bridge</RunesMainBtn>
+    <RunesMainBtn v-else @click="bridge">Bridge</RunesMainBtn>
   </div>
 </template>
 

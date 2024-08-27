@@ -1,50 +1,30 @@
 <script setup lang="ts">
 import Decimal from 'decimal.js'
-import { computed, watch, ref } from 'vue'
 import { calcBalance } from '@/lib/formatters'
+import { computed, ref, watchEffect } from 'vue'
 import AssetLogo from '@/components/AssetLogo.vue'
-import { FTAsset, type Asset } from '@/data/assets'
 import { useIconsStore } from '@/stores/IconsStore'
+import { FTAsset, type Asset } from '@/data/assets'
 import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
-const props = defineProps({
-  side: {
-    type: String,
-    required: true,
-    validator: (side: string) => ['pay', 'receive'].includes(side),
-  },
-  asset: {
-    type: Object as () => Asset,
-    required: false,
-  },
-  coinCategory: {
-    type: String as () => CoinCategory,
-    required: true,
-  },
-  calculating: {
-    type: Boolean,
-    default: false,
-  },
-  limitMaximum: {
-    type: String,
-    default: false,
-  },
-  limitMinimum: {
-    type: String,
-    default: false,
-  },
-})
+const props = defineProps<{
+  side: string
+  asset?: Asset
+  calculating: boolean
+  limitMinimum?: string
+  limitMaximum?: string
+  coinCategory: CoinCategory
+}>()
 
-const emit = defineEmits(['hasEnough', 'notEnough', 'becameSource', 'amountCleared', 'amountEntered', 'update:symbol'])
+const emit = defineEmits(['hasEnough', 'hasAmount', 'becameSource', 'moreThanThreshold', 'lessThanThreshold'])
 
-const symbol = ref(props.asset?.symbol || '--')
 const asset = computed(() => props.asset)
 const coinCategory = ref(props.coinCategory)
+const symbol = ref(props.asset?.symbol || '--')
 const balance = computed(() => props.asset?.balance)
 
 const { getIcon } = useIconsStore()
-
 const icon = computed(() => {
   if (asset.value) {
     return (
@@ -65,12 +45,10 @@ const { data: exchangeRate } = useExchangeRatesQuery(symbol, coinCategory, {
 })
 
 const amount = defineModel('amount', { type: String })
-
 const normalizedAmount = computed(() => {
   if (amount.value === undefined || asset.value === undefined) {
     return ''
   }
-
   return new Decimal(amount.value).dividedBy(10 ** asset.value.decimal).toFixed()
 })
 
@@ -87,6 +65,52 @@ const updateAmount = (_amount: string) => {
 
   emit('becameSource')
 }
+
+const balanceDisplay = computed(() => {
+  if (balance.value) {
+    return calcBalance(balance.value.total.toNumber(), asset.value?.decimal || 0, asset.value?.symbol || '--')
+  }
+  return '--'
+})
+
+const fiatPrice = computed(() => {
+  if (amount.value && exchangeRate.value) {
+    const unit = new Decimal(amount.value).dividedBy(10 ** (asset.value?.decimal || 0))
+    return unit.mul(new Decimal(exchangeRate.value?.price || 0))
+  }
+})
+
+const useTotalBalance = () => {
+  if (balance.value?.total) {
+    amount.value = balance.value.total.toFixed()
+    emit('becameSource')
+  }
+}
+
+const clear = () => {
+  amount.value = undefined
+}
+
+const hasEnough = computed(() => {
+  if (!amount.value || !balance.value || !asset.value || props.side === 'receive') {
+    return true
+  }
+  return new Decimal(amount.value).lte(balance.value.total)
+})
+
+watchEffect(() => {
+  emit('hasAmount', !!amount.value)
+  emit('hasEnough', hasEnough.value)
+
+  if (props.side === 'pay' && amount.value && props.limitMaximum) {
+    const moreThanThreshold = new Decimal(amount.value).gt(props.limitMaximum)
+    emit('moreThanThreshold', moreThanThreshold)
+  }
+  if (props.side === 'pay' && amount.value && props.limitMinimum) {
+    const lessThanThreshold = new Decimal(amount.value).lt(props.limitMinimum)
+    emit('lessThanThreshold', lessThanThreshold)
+  }
+})
 
 const amountTextSize = computed(() => {
   if (!amount.value) {
@@ -115,67 +139,6 @@ const amountTextSize = computed(() => {
 
   return 'text-4xl'
 })
-
-const balanceDisplay = computed(() => {
-  if (balance.value) {
-    return calcBalance(balance.value.total.toNumber(), asset.value?.decimal || 0, asset.value?.symbol || '--')
-  }
-  return '--'
-})
-
-const fiatPrice = computed(() => {
-  if (amount.value && exchangeRate.value) {
-    const unit = new Decimal(amount.value).dividedBy(10 ** (asset.value?.decimal || 0))
-    return unit.mul(new Decimal(exchangeRate.value?.price || 0))
-  }
-})
-
-const hasEnough = computed(() => {
-  if (!amount.value) {
-    return true
-  }
-
-  if (props.side === 'receive') {
-    return true
-  }
-
-  return new Decimal(amount.value).lte(balance.value?.total || 0)
-})
-
-watch(
-  () => hasEnough.value,
-  (hasEnough) => {
-    if (hasEnough) {
-      emit('hasEnough')
-    } else {
-      emit('notEnough')
-    }
-  }
-)
-
-// watch for change of amount; emit event
-watch(
-  () => amount.value,
-  (amount) => {
-    if (amount) {
-      emit('amountEntered')
-    } else {
-      emit('amountCleared')
-    }
-  }
-)
-
-const useTotalBalance = () => {
-  if (balance.value?.total) {
-    amount.value = balance.value?.total.toFixed()
-    emit('becameSource')
-  }
-}
-
-const clear = () => {
-  amount.value = undefined
-  emit('amountCleared')
-}
 </script>
 
 <template>
@@ -214,11 +177,11 @@ const clear = () => {
       <div :class="['flex items-center gap-1 rounded-full bg-white p-1 px-2 text-xl shadow-sm']">
         <AssetLogo
           :logo="icon"
+          logo-size="size-2.5"
           :chain="asset?.chain"
-          :symbol="asset?.symbol"
           class="size-6 text-xs"
+          :symbol="asset?.symbol"
           :type="asset?.isNative ? undefined : 'network'"
-          logo-size="size-[10px]"
         />
         <div class="mr-1" :class="['text-sm font-medium']">
           {{ asset?.symbol || '--' }}

@@ -44,7 +44,7 @@
 import { ref, onMounted } from 'vue'
 import { prettyTimestamp } from '@/lib/utils'
 import { getBridgeHistory, useBridgeInfoQuery } from '@/queries/bridge'
-import Empty from './empty.vue'
+import Empty from './Empty.vue'
 import btc from '@/assets/icons-v3/network_btc.svg'
 import mvc from '@/assets/icons-v3/network_mvc.svg'
 import { ArrowRight } from 'lucide-vue-next'
