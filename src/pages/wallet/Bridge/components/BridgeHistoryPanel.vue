@@ -1,10 +1,10 @@
 <template>
   <div class="no-scrollbar min-h-96 h-96 overflow-y-scroll w-full nicer-scrollbar">
-    <Empty v-if="list.length === 0 && !loading">
+    <!-- <Empty v-if="list.length === 0 && !loading">
       <template #description>
         <span class="font-sm mt-1 text-[#37463A]">No Transfers yet</span>
       </template>
-    </Empty>
+    </Empty> -->
 
     <div v-for="item in list" :key="item.originTxid" class="bg-panel/70 mt-3 rounded-xl py-5 px-3 w-full">
       <div class="flex items-center justify-between w-full">
@@ -44,7 +44,7 @@
 import { ref, onMounted } from 'vue'
 import { prettyTimestamp } from '@/lib/utils'
 import { getBridgeHistory, useBridgeInfoQuery } from '@/queries/bridge'
-import Empty from './Empty.vue'
+// import Empty from './Empty.vue'
 import btc from '@/assets/icons-v3/network_btc.svg'
 import mvc from '@/assets/icons-v3/network_mvc.svg'
 import { ArrowRight } from 'lucide-vue-next'
