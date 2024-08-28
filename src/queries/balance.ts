@@ -68,11 +68,18 @@ export const useBalanceQuery = (
   })
 }
 
-export const useBTCBalanceQuery = (address: Ref<string>, options: { enabled: ComputedRef<boolean> }) => {
+export const useBTCBalanceQuery = (
+  address: Ref<string>,
+  options?: {
+    needRawTx?: boolean
+    useUnconfirmed?: boolean
+    enabled: ComputedRef<boolean>
+  }
+) => {
   return useQuery({
     queryKey: ['BTC Balance', { address }],
     queryFn: () => {
-      return getBtcUtxos(address.value)
+      return getBtcUtxos(address.value, options?.needRawTx || false, options?.useUnconfirmed || true)
     },
     select: (utxos) => {
       const balance = utxos.reduce((acc, utxo) => acc.add(utxo.satoshis), new Decimal(0))

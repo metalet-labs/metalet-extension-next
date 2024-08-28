@@ -548,7 +548,7 @@ export async function mintBtc(
       publicKeyReceiveSign,
     })
 
-    const utxos = await getBtcUtxos(btcWallet.getAddress(), btcWallet.getScriptType() === ScriptType.P2PKH)
+    const utxos = await getBtcUtxos(btcWallet.getAddress(), btcWallet.getScriptType() === ScriptType.P2PKH, false)
 
     const { rawTx, txId } = btcWallet.signTx(SignType.SEND, {
       utxos,
@@ -592,7 +592,7 @@ export async function mintMrc20(
   })
   const { orderId, bridgeAddress } = createResp
   const needRawTx = btcWallet.getScriptType() === ScriptType.P2PKH
-  const utxos = await getBtcUtxos(btcWallet.getAddress(), needRawTx)
+  const utxos = await getBtcUtxos(btcWallet.getAddress(), needRawTx, false)
   const mrc20Utxos = await getMRC20Utxos(btcWallet.getAddress(), selectedPair.originTokenId, needRawTx)
   const { commitTx, revealTx } = btcWallet.signTx(SignType.MRC20_TRANSFER, {
     utxos,

@@ -24,13 +24,12 @@ export class BtcWallet {
     return wallet
   }
 
-  async merge(feeRate: number) {
+  async merge(feeRate: number, utxos: UTXO[]) {
     const wallet = await getCurrentWallet(Chain.BTC)
     const btcNetwork = await getBtcNetwork()
     const address = wallet.getAddress()
     const addressType = await getAddressType('btc')
     const payment = await createPayment(addressType)
-    const utxos = (await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)) || []
 
     const buildPsbt = async (utxos: UTXO[], amount: Decimal) => {
       const psbt = new Psbt({ network: btcNetwork }).addOutput({
@@ -60,7 +59,9 @@ export class BtcWallet {
 
     psbt = await buildPsbt(utxos, total.minus(fee))
 
-    return await this.broadcast(psbt)
+    return { txId: psbt.extractTransaction().getId(), total, fee, rawTx: psbt.extractTransaction().toHex() }
+
+    // return await this.broadcast(psbt)
   }
 
   async broadcast(psbt: Psbt) {

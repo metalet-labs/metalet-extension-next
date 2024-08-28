@@ -6,7 +6,7 @@ import { useMutation } from '@tanstack/vue-query'
 import { computed, ref, toRaw, watch, watchEffect } from 'vue'
 import { useBTCBalanceQuery } from '@/queries/balance'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { Chain } from '@metalet/utxo-wallet-service'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import BridgeSideWithInput from './BridgeSideWithInput.vue'
 import BridgeFrictionStats from './BridgeFrictionStats.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
@@ -54,9 +54,9 @@ const { data: bridgePairInfo } = useBridgeInfoQuery()
 const bridgePairs = computed(() => bridgePairInfo.value?.assetList.filter((item) => item.network === 'BTC'))
 
 const { data: balance } = useBTCBalanceQuery(btcAddress, {
-  enabled: computed(() => {
-    return !!btcAddress.value
-  }),
+  useUnconfirmed: false,
+  enabled: computed(() => !!btcAddress.value),
+  needRawTx: currentBTCWallet.value?.getScriptType() === ScriptType.P2PKH,
 })
 
 const btcAsset = computed(() => {
