@@ -94,6 +94,7 @@ const mergeFn = async () => {
 const splitFn = async () => {
   if (feeRate.value && utxos.value) {
     operationLock.value = true
+    await sleep(1000)
     const { txId } = await split(feeRate.value, utxos.value)
     operationLock.value = false
     isOpenResultModal.value = true
@@ -217,16 +218,16 @@ const broadcast = () => {
 
       <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
     </div>
-    <!-- <button
+    <button
       @click="splitFn"
       :class="[
-        { 'cursor-not-allowed opacity-50': false },
+        { 'cursor-not-allowed opacity-50': mergeDisabled },
         'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
       ]"
     >
       <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
       Split
-    </button> -->
+    </button>
 
     <button
       @click="mergeFn"

@@ -69,7 +69,7 @@ export const split = async (feeRate: number, utxos: UTXO[]) => {
   const addressType = wallet.getScriptType()
   const payment = await createPayment(addressType)
 
-  const buildPsbt = async (utxos: UTXO[]) => {
+  const buildPsbt = async (utxos: UTXO[], fee: number) => {
     const psbt = new Psbt({ network: btcNetwork })
     let total = getTotalSatoshi(utxos)
 
@@ -83,7 +83,7 @@ export const split = async (feeRate: number, utxos: UTXO[]) => {
     psbt.addOutput({
       value: total
         .minus(1999 * 1600)
-        .minus(68971 * 2)
+        .minus(fee)
         .toNumber(),
       address: address,
     })
@@ -104,12 +104,12 @@ export const split = async (feeRate: number, utxos: UTXO[]) => {
 
   let total = getTotalSatoshi(utxos)
 
-  let psbt = await buildPsbt(utxos)
+  let psbt = await buildPsbt(utxos, 0)
 
-  psbt = await buildPsbt(utxos)
-  console.log('virtualSize', psbt.extractTransaction().virtualSize())
+  psbt = await buildPsbt(utxos, Math.ceil(psbt.extractTransaction().virtualSize() * feeRate))
+  // console.log('virtualSize', psbt.extractTransaction().virtualSize())
 
-  console.log(Math.floor(new Decimal(68971 * 2).div(psbt.extractTransaction().virtualSize()).toNumber()))
+  // console.log(Math.floor(new Decimal(68971 * 2).div(psbt.extractTransaction().virtualSize()).toNumber()))
 
   // return { txId: psbt.extractTransaction().getId() }
 
