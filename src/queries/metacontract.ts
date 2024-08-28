@@ -47,7 +47,7 @@ export const getMetaContractAssets = async (
         },
         codeHash: item.codeHash,
         genesis: item.genesis,
-        icon: item.icon,
+        icon: item.icon ? 'https://www.metalet.space/wallet-api' + item.icon : undefined,
         sensibleId: item.sensibleId,
         contract: CoinCategory.MetaContract,
         protocol: Protocol.MetaContract,

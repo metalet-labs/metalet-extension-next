@@ -70,20 +70,20 @@ watch(
       >
         <div class="flex">
           <AssetLogo
-            :logo="getIcon(getCoinCategory(selectedPair.network), selectedPair.originSymbol)"
-            :symbol="selectedPair.originSymbol"
-            class="size-5 text-xs z-10"
             chain="btc"
-            type="network"
             logo-size="size-2"
+            class="size-5 text-xs z-10"
+            :symbol="selectedPair.originSymbol"
+            :type="selectedPair.network === 'BTC' ? undefined : 'network'"
+            :logo="getIcon(getCoinCategory(selectedPair.network), selectedPair.originSymbol)"
           />
           <AssetLogo
-            :logo="getIcon(CoinCategory.MetaContract, selectedPair.targetTokenGenesis)"
-            :symbol="selectedPair.targetSymbol"
-            class="size-5 text-xs -ml-2"
             chain="mvc"
             type="network"
             logo-size="size-2"
+            class="size-5 text-xs -ml-2"
+            :symbol="selectedPair.targetSymbol"
+            :logo="getIcon(CoinCategory.MetaContract, selectedPair.targetTokenGenesis)"
           />
         </div>
 
@@ -119,19 +119,19 @@ watch(
             <div class="flex">
               <AssetLogo
                 chain="btc"
-                type="network"
                 logo-size="size-2"
                 class="size-5 text-xs z-10"
-                :symbol="selectedPair.originSymbol"
-                :logo="getIcon(getCoinCategory(selectedPair.network), selectedPair.originSymbol)"
+                :symbol="pair.originSymbol"
+                :type="pair.network === 'BTC' ? undefined : 'network'"
+                :logo="getIcon(getCoinCategory(selectedPair.network), pair.originSymbol)"
               />
               <AssetLogo
                 chain="mvc"
                 type="network"
                 logo-size="size-2"
                 class="size-5 text-xs -ml-2"
-                :symbol="selectedPair.targetSymbol"
-                :logo="getIcon(CoinCategory.MetaContract, selectedPair.targetTokenGenesis)"
+                :symbol="pair.targetSymbol"
+                :logo="getIcon(CoinCategory.MetaContract, pair.targetTokenGenesis)"
               />
             </div>
 

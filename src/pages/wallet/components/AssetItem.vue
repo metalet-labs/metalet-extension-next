@@ -13,7 +13,7 @@ import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset, MRC20Asset } fro
 const props = defineProps<{
   address: string
   coinCategory: CoinCategory
-  asset: Asset | BRC20Asset | FTAsset
+  asset: Asset | BRC20Asset | FTAsset | MRC20Asset
 }>()
 
 const asset = computed(() => props.asset)
@@ -48,7 +48,11 @@ const { isLoading: isBalanceLoading, data: balance } = useBalanceQuery(address, 
 
 const rateEnabled = computed(() => !!address && !!asset.value.symbol)
 const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRatesQuery(
-  ref(asset.value.symbol),
+  ref(
+    coinCategory.value === CoinCategory.MRC20
+      ? `${(asset.value as MRC20Asset).mrc20Id}/${asset.value.symbol}`
+      : asset.value.symbol
+  ),
   ref(coinCategory),
   {
     enabled: rateEnabled,
@@ -94,7 +98,6 @@ watch(
 <template>
   <div class="group relative transition hover:z-10">
     <div class="flex gap-2 cursor-pointer items-center justify-between rounded-full py-3">
-      <!-- left part -->
       <div class="flex flex-shrink-0 items-center gap-x-3">
         <AssetLogo
           :chain="asset.chain"
@@ -135,8 +138,7 @@ watch(
           </div>
           <div class="text-xs text-gray-primary">
             <span v-if="assetUSD">
-              <!-- TODO： put into utils -->
-              {{ `$${assetUSD.toDecimalPlaces(2, Decimal.ROUND_FLOOR).toNumber().toFixed(2)}` }}
+              ≈ {{ `$${assetUSD.toDecimalPlaces(2, Decimal.ROUND_FLOOR).toNumber().toFixed(2)}` }}
             </span>
           </div>
         </div>

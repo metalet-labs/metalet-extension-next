@@ -12,7 +12,7 @@ import { PencilIcon } from '@heroicons/vue/20/solid'
 import { Chain } from '@metalet/utxo-wallet-service'
 import FilterIcon from '@/assets/icons-v3/filter.svg'
 import { useMRC20DetailQuery } from '@/queries/mrc20'
-import { CoinCategory } from '@/queries/exchange-rates'
+import { CoinCategory, useExchangeRatesQuery } from '@/queries/exchange-rates'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { calcBalance, truncateStr } from '@/lib/formatters'
@@ -36,13 +36,16 @@ const balance = computed(() => {
 
 const tags = getTags(CoinCategory.MRC20)
 
+const rateEnabled = computed(() => !!address.value)
+const { data: exchangeRate } = useExchangeRatesQuery(ref(`${mrc20Id.value}/${symbol}`), ref(CoinCategory.MRC20), {
+  enabled: rateEnabled,
+})
+
 const assetUSD = computed(() => {
-  const usdRate = new Decimal(0)
-  if (asset.value) {
-    if (asset.value?.balance) {
-      const balanceInStandardUnit = asset.value.balance.total.dividedBy(10 ** asset.value.decimal)
-      return usdRate.mul(balanceInStandardUnit)
-    }
+  const usdRate = new Decimal(exchangeRate.value?.price || 0)
+  if (asset.value?.balance) {
+    const balanceInStandardUnit = asset.value.balance.total.dividedBy(10 ** asset.value.decimal)
+    return usdRate.mul(balanceInStandardUnit)
   }
 })
 

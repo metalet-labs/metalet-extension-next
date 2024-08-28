@@ -7,14 +7,23 @@ import { SymbolTicker, DEFAULT_SYMBOLS } from '@/lib/asset-symbol'
 type RawRates = Record<string, number | undefined>
 
 export const fetchExchangeRates = async (): Promise<RawRates> => {
+  const net = getNet()
   return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/price`)
-    .get()
+    .get({ net })
     .then((res) => res.priceInfo)
 }
 
-export const fetchTickExchangeRates = async (): Promise<RawRates> => {
+export const fetchMRC20ExchangeRates = async (): Promise<RawRates> => {
+  const net = getNet()
+  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/mrc20/price`)
+    .get({ net })
+    .then((res) => res.priceInfo)
+}
+
+export const fetchBRC20ExchangeRates = async (): Promise<RawRates> => {
+  const net = getNet()
   return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/brc20/price`)
-    .get()
+    .get({ net })
     .then((res) => res.priceInfo)
 }
 
@@ -46,20 +55,27 @@ export const useExchangeRatesQuery = (
     queryKey: ['exchangeRates', { coinType }],
     queryFn: async () => {
       const net = getNet()
-      if (['testnet', 'regtest'].includes(net)) {
+      if (['testnet', 'regtest'].includes(net) && coinType.value !== CoinCategory.MRC20) {
         return doNothing(symbol.value)
       }
-      if (coinType.value === 'BRC-20') {
-        return fetchTickExchangeRates()
-      } else if (coinType.value === 'MetaContract') {
+      if (coinType.value === CoinCategory.BRC20) {
+        return fetchBRC20ExchangeRates()
+      } else if (coinType.value === CoinCategory.MRC20) {
+        return fetchMRC20ExchangeRates()
+      } else if (coinType.value === CoinCategory.MetaContract) {
         return fetchFTExchangeRates()
-      } else if (coinType.value === 'Native') {
+      } else if (coinType.value === CoinCategory.Native) {
         return fetchExchangeRates()
       }
       return doNothing(symbol.value)
     },
     select: (rates: RawRates) => {
-      const rate = rates[coinType.value === 'MetaContract' ? symbol.value : symbol.value.toLowerCase()]
+      const rate =
+        rates[
+          [CoinCategory.MetaContract, CoinCategory.MRC20].includes(coinType.value)
+            ? symbol.value
+            : symbol.value.toLowerCase()
+        ]
       return { symbol: symbol.value, price: rate }
     },
     ...options,
@@ -74,14 +90,16 @@ export const useAllExchangeRatesQuery = (
     queryKey: ['exchangeRates', { coinType }],
     queryFn: async () => {
       const net = getNet()
-      if (net === 'testnet') {
+      if (net === 'testnet' && coinType.value !== CoinCategory.MRC20) {
         return {}
       }
-      if (coinType.value === 'BRC-20') {
-        return fetchTickExchangeRates()
-      } else if (coinType.value === 'MetaContract') {
+      if (coinType.value === CoinCategory.BRC20) {
+        return fetchBRC20ExchangeRates()
+      } else if (coinType.value === CoinCategory.MRC20) {
+        return fetchMRC20ExchangeRates()
+      } else if (coinType.value === CoinCategory.MetaContract) {
         return fetchFTExchangeRates()
-      } else if (coinType.value === 'Native') {
+      } else if (coinType.value === CoinCategory.Native) {
         return fetchExchangeRates()
       }
       return {}

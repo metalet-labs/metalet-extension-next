@@ -2,15 +2,15 @@
   <Dialog>
     <DialogTrigger as-child>
       <Button
-        variant="secondary"
         size="icon"
+        variant="secondary"
         class="group origin-bottom-right w-7 h-7 cursor-pointer rounded-md transition duration-200 hover:scale-110"
       >
         <FileClockIcon class="text-gray-primary cursor-pointer" />
       </Button>
     </DialogTrigger>
 
-    <DialogContent class="p-1 xs:p-4 bg-white rounded-xl">
+    <DialogContent class="p-1 xs:p-4 bg-white rounded-xl w-[350px] xs:w-[508px]">
       <DialogHeader>
         <DialogTitle class="text-xl">History</DialogTitle>
         <DialogClose class="right-0 top-0" />
@@ -27,7 +27,7 @@
             {{ item.label }}
           </TabsTrigger>
         </TabsList>
-        <TabsContent v-for="item in items" :key="item.key" :value="item.key" class="w-full">
+        <TabsContent v-for="item in items" :key="item.key" :value="item.key" class="w-full mt-0">
           <component :is="item.component" :type="item.type" />
         </TabsContent>
       </Tabs>
