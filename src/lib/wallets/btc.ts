@@ -1,78 +1,14 @@
 import Decimal from 'decimal.js'
-import { raise } from '../helpers'
 import { getBtcNetwork } from '../network'
-import { getXOnlyPublicKey } from '../btc-util'
-import { createPayment } from '../bip32-deriver'
-import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
-import { getBtcUtxos, type UTXO } from '@/queries/utxos'
-import { Payment, Psbt, Transaction } from 'bitcoinjs-lib'
-import { fetchBtcTxHex, broadcastBTCTx } from '@/queries/transaction'
-import { Account, getCurrentAccount, getAddressType, getAddress, getSigner } from '@/lib/account'
+import { type UTXO } from '@/queries/utxos'
 import { getCurrentWallet } from '../wallet'
+import { createPayment } from '../bip32-deriver'
+import { Account, getAddressType } from '@/lib/account'
+import { Payment, Psbt, Transaction } from 'bitcoinjs-lib'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
+import { fetchBtcTxHex, broadcastBTCTx } from '@/queries/transaction'
 
 // TODO: add safe utxo
-export class BtcWallet {
-  private account?: Account = undefined
-
-  constructor() {}
-
-  static async create() {
-    const wallet = new BtcWallet()
-
-    wallet.account = (await getCurrentAccount()) ?? raise('No account found')
-
-    return wallet
-  }
-
-  async merge(feeRate: number, utxos: UTXO[]) {
-    const wallet = await getCurrentWallet(Chain.BTC)
-    const btcNetwork = await getBtcNetwork()
-    const address = wallet.getAddress()
-    const addressType = await getAddressType('btc')
-    const payment = await createPayment(addressType)
-
-    const buildPsbt = async (utxos: UTXO[], amount: Decimal) => {
-      const psbt = new Psbt({ network: btcNetwork }).addOutput({
-        value: amount.toNumber(),
-        address: address,
-      })
-
-      for (const utxo of utxos) {
-        try {
-          const payInput = await createPayInput({ utxo, payment, addressType })
-          psbt.addInput(payInput)
-        } catch (e: any) {
-          throw new Error(e.message)
-        }
-      }
-
-      const signer = await getSigner(Chain.BTC)
-      psbt.signAllInputs(signer).finalizeAllInputs()
-      return psbt
-    }
-
-    let total = getTotalSatoshi(utxos)
-
-    let psbt = await buildPsbt(utxos, total.minus(546))
-
-    let fee = calculateFee(psbt, feeRate)
-
-    psbt = await buildPsbt(utxos, total.minus(fee))
-
-    return { txId: psbt.extractTransaction().getId(), total, fee, rawTx: psbt.extractTransaction().toHex() }
-
-    // return await this.broadcast(psbt)
-  }
-
-  async broadcast(psbt: Psbt) {
-    const tx = psbt.extractTransaction()
-
-    const rawTx = tx.toHex()
-
-    const txId = await broadcastBTCTx(rawTx)
-    return { txId }
-  }
-}
 
 function calculateFee(psbt: Psbt, feeRate: number): number {
   const tx = psbt.extractTransaction()
@@ -108,7 +44,8 @@ async function createPayInput({
   }
 
   if (['P2TR'].includes(addressType)) {
-    payInput['tapInternalKey'] = await getXOnlyPublicKey()
+    const wallet = await getCurrentWallet(Chain.BTC)
+    payInput['tapInternalKey'] = wallet.getPublicKey().subarray(1)
     payInput['witnessUtxo'] = { value: utxo.satoshis, script: payment.output }
   }
 
@@ -123,4 +60,101 @@ async function createPayInput({
   }
 
   return payInput
+}
+
+export const split = async (feeRate: number, utxos: UTXO[]) => {
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const btcNetwork = await getBtcNetwork()
+  const address = wallet.getAddress()
+  const addressType = wallet.getScriptType()
+  const payment = await createPayment(addressType)
+
+  const buildPsbt = async (utxos: UTXO[]) => {
+    const psbt = new Psbt({ network: btcNetwork })
+    let total = getTotalSatoshi(utxos)
+
+    for (let i = 0; i < 1600; i++) {
+      psbt.addOutput({
+        value: 1999,
+        address: address,
+      })
+    }
+
+    psbt.addOutput({
+      value: total
+        .minus(1999 * 1600)
+        .minus(68971 * 2)
+        .toNumber(),
+      address: address,
+    })
+
+    for (const utxo of utxos) {
+      try {
+        const payInput = await createPayInput({ utxo, payment, addressType })
+        psbt.addInput(payInput)
+      } catch (e: any) {
+        throw new Error(e.message)
+      }
+    }
+
+    const signer = wallet.getSigner()
+    psbt.signAllInputs(signer).finalizeAllInputs()
+    return psbt
+  }
+
+  let total = getTotalSatoshi(utxos)
+
+  let psbt = await buildPsbt(utxos)
+
+  psbt = await buildPsbt(utxos)
+  console.log('virtualSize', psbt.extractTransaction().virtualSize())
+
+  console.log(Math.floor(new Decimal(68971 * 2).div(psbt.extractTransaction().virtualSize()).toNumber()))
+
+  // return { txId: psbt.extractTransaction().getId() }
+
+  const txId = await broadcastBTCTx(psbt.extractTransaction().toHex())
+  return { txId }
+}
+
+export const merge = async (feeRate: number, utxos: UTXO[]) => {
+  console.log('start merge')
+
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const btcNetwork = await getBtcNetwork()
+  const address = wallet.getAddress()
+  const addressType = wallet.getScriptType()
+  const payment = await createPayment(addressType)
+
+  const buildPsbt = async (utxos: UTXO[], amount: Decimal) => {
+    const psbt = new Psbt({ network: btcNetwork }).addOutput({
+      value: amount.toNumber(),
+      address: address,
+    })
+
+    for (const utxo of utxos) {
+      try {
+        const payInput = await createPayInput({ utxo, payment, addressType })
+        psbt.addInput(payInput)
+      } catch (e: any) {
+        throw new Error(e.message)
+      }
+    }
+
+    const signer = wallet.getSigner()
+    psbt.signAllInputs(signer).finalizeAllInputs()
+    return psbt
+  }
+
+  let total = getTotalSatoshi(utxos)
+
+  let psbt = await buildPsbt(utxos, total.minus(546))
+
+  let fee = calculateFee(psbt, feeRate)
+
+  psbt = await buildPsbt(utxos, total.minus(fee))
+
+  return { txId: psbt.extractTransaction().getId(), total, fee, rawTx: psbt.extractTransaction().toHex() }
+
+  // return await this.broadcast(psbt)
 }

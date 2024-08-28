@@ -6,12 +6,13 @@ import { mvc } from 'meta-contract'
 import * as bitcoinjs from 'bitcoinjs-lib'
 import type { Payment, Network as btcNetwork } from 'bitcoinjs-lib'
 import ECPairFactory from 'ecpair'
-import { ScriptType } from '@metalet/utxo-wallet-service'
+import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 
 import { raise } from './helpers'
 import { type Network, getBtcNetwork } from './network'
 import { getPublicKey } from './account'
 import { Buffer } from 'buffer'
+import { getCurrentWallet } from './wallet'
 
 export { ScriptType as AddressType }
 
@@ -204,19 +205,19 @@ function deriveBtcAddress(mnemonic: string, path: string, network: Network): str
 // TODO support deriveBtcAddress function
 export async function createPayment(addressType: string): Promise<Payment> {
   bitcoinjs.initEccLib(ecc)
+  const wallet = await getCurrentWallet(Chain.BTC)
   const { payments } = bitcoinjs
   const btcNetwork = await getBtcNetwork()
-  const publicKey = await getPublicKey('btc')
-  const pubkey = Buffer.from(publicKey, 'hex')
+  const pubkey = wallet.getPublicKey()
 
   switch (addressType) {
-    case 'P2PKH':
+    case ScriptType.P2PKH:
       return payments.p2pkh({ pubkey, network: btcNetwork }) ?? raise('Invalid Payment')
-    case 'P2SH-P2WPKH':
+    case ScriptType.P2SH_P2WPKH:
       return payments.p2sh({ redeem: payments.p2wpkh({ pubkey }) }) ?? raise('Invalid Payment')
-    case 'P2WPKH':
+    case ScriptType.P2WPKH:
       return payments.p2wpkh({ pubkey, network: btcNetwork }) ?? raise('Invalid Payment')
-    case 'P2TR':
+    case ScriptType.P2TR:
       return payments.p2tr({ internalPubkey: pubkey.subarray(1), network: btcNetwork }) ?? raise('Invalid Payment')
     default:
       return payments.p2pkh({ pubkey, network: btcNetwork }) ?? raise('Invalid Payment')
