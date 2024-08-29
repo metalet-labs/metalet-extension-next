@@ -45,7 +45,7 @@ const transactions = ref<
 >([])
 
 const { data: balance } = useBTCBalanceQuery(address, {
-  useUnconfirmed: true,
+  useUnconfirmed: false,
   enabled: computed(() => !!currentBTCWallet.value && !!address.value),
   needRawTx: currentBTCWallet.value?.getScriptType() === ScriptType.P2PKH,
 })
@@ -55,7 +55,7 @@ watch(
   (newAddress) => {
     if (newAddress) {
       const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-      getBtcUtxos(newAddress, needRawTx, true).then((_utxos) => {
+      getBtcUtxos(newAddress, needRawTx, false).then((_utxos) => {
         utxos.value = _utxos
         isLoading.value = false
       })
@@ -218,7 +218,7 @@ const broadcast = () => {
 
       <TransactionResultModal v-model:is-open-result="isOpenResultModal" :result="transactionResult" />
     </div>
-    <button
+    <!-- <button
       @click="splitFn"
       :class="[
         { 'cursor-not-allowed opacity-50': mergeDisabled },
@@ -227,7 +227,7 @@ const broadcast = () => {
     >
       <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
       Split
-    </button>
+    </button> -->
 
     <button
       @click="mergeFn"
