@@ -33,3 +33,6 @@ export const swap = (import.meta.env.VITE_HOST_SWAP || 'https://api-swap.orders.
 
 export const OCTOPUS_HOST = 'https://api.octopus.space/api-bridge/'
 export const OCTOPUS_TESTNET_HOST = 'https://api.octopus.space/api-bridge-testnet/'
+
+export const OCTOPUS_REPOST_HOST = 'https://api.octopus.space/api-bridge-repost/bridge'
+export const OCTOPUS_REPOST_TESTNET_HOST = 'https://api.octopus.space/api-bridge-repost-testnet/bridge'

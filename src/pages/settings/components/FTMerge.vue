@@ -77,7 +77,7 @@ const split = async (genesis: string, codehash: string, symbol: string, decimal:
       status: 'success',
       txId: splitTxId,
       fromAddress: address.value,
-      toAdddress: address.value,
+      toAddress: address.value,
       amount: receivers.reduce((acc, cur) => acc + Number(cur.amount), 0),
       token: {
         symbol: symbol,

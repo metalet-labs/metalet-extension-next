@@ -538,15 +538,16 @@ export async function mintBtc(
   const publicKeyReceiveSign = mvcWallet.signMessage(publicKeyReceive, 'base64')
 
   try {
-    const { orderId, bridgeAddress } = await createPrepayOrderMintBtc({
-      amount: mintAmount,
-      originTokenId,
-      addressType: scriptType,
-      publicKey,
-      publicKeySign,
-      publicKeyReceive,
-      publicKeyReceiveSign,
-    })
+    const { orderId, bridgeAddress, bridgeRuleServiceAddress, bridgeRuleServiceMintFee } =
+      await createPrepayOrderMintBtc({
+        amount: mintAmount,
+        originTokenId,
+        addressType: scriptType,
+        publicKey,
+        publicKeySign,
+        publicKeyReceive,
+        publicKeyReceiveSign,
+      })
 
     const utxos = await getBtcUtxos(btcWallet.getAddress(), btcWallet.getScriptType() === ScriptType.P2PKH, false)
 
@@ -646,10 +647,8 @@ export async function redeemBtc(
     const createResp = await createPrepayOrderRedeemBtc(createPrepayOrderDto)
     const { orderId, bridgeAddress } = createResp
     const { targetTokenCodeHash, targetTokenGenesis, decimals } = selectedPair
-    const {
-      txids: [, txId],
-    } = await sendToken({
-      broadcast: true,
+    const res = await sendToken({
+      broadcast: false,
       tasks: [
         {
           codehash: targetTokenCodeHash,
@@ -661,12 +660,13 @@ export async function redeemBtc(
 
     const submitPrepayOrderRedeemDto = {
       orderId,
-      txid: txId,
+      txid: res.res[0].txid,
+      txHexList: [res.res[0].routeCheckTxHex, res.res[0].txHex],
     }
     await sleep(3000)
     await submitPrepayOrderRedeemBtc(submitPrepayOrderRedeemDto)
 
-    return { txId, recipient: bridgeAddress }
+    return { txId: res.res[0].txid, recipient: bridgeAddress }
   } catch (error) {
     throw new Error(error as any)
   }
@@ -696,10 +696,8 @@ export async function redeemMrc20(
     const createResp = await createPrepayOrderRedeemMrc20(createPrepayOrderDto)
     const { orderId, bridgeAddress } = createResp
     const { targetTokenCodeHash, targetTokenGenesis, decimals } = selectedPair
-    const {
-      txids: [, txId],
-    } = await sendToken({
-      broadcast: true,
+    const res = await sendToken({
+      broadcast: false,
       tasks: [
         {
           codehash: targetTokenCodeHash,
@@ -710,11 +708,12 @@ export async function redeemMrc20(
     })
     const submitPrepayOrderRedeemDto = {
       orderId,
-      txid: txId,
+      txid: res.res[0].txid,
+      txHexList: [res.res[0].routeCheckTxHex, res.res[0].txHex],
     }
     await sleep(3000)
     await submitPrepayOrderRedeemMrc20(submitPrepayOrderRedeemDto)
-    return { txId, recipient: bridgeAddress }
+    return { txId: res.res[0].txid, recipient: bridgeAddress }
   } catch (error) {
     throw new Error(error as any)
   }

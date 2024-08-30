@@ -143,7 +143,7 @@ async function send() {
     status: 'success',
     txId: txId,
     fromAddress: address.value,
-    toAdddress: recipient.value,
+    toAddress: recipient.value,
     amount: amount.value,
     token: {
       symbol,

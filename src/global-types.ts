@@ -5,7 +5,7 @@ type SuccessResult = {
   status: 'success'
   txId: string
   fromAddress: string
-  toAdddress: string
+  toAddress: string
   amount: number
   confirmText?: string
   token: {

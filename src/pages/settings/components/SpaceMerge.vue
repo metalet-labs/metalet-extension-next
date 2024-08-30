@@ -39,7 +39,7 @@ const merge = async () => {
     status: 'success',
     txId,
     fromAddress: address.value,
-    toAdddress: address.value,
+    toAddress: address.value,
     amount: balance.total.toNumber(),
     token: {
       symbol: 'SPACE',

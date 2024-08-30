@@ -103,7 +103,7 @@ const splitFn = async () => {
       status: 'success',
       txId,
       fromAddress: address.value,
-      toAdddress: address.value,
+      toAddress: address.value,
       amount: balance.value!.total.toNumber(),
       token: {
         symbol: 'BTC',
@@ -120,16 +120,16 @@ const splitFn = async () => {
 }
 
 const broadcast = () => {
-  isOpenResultModal.value = true
   sleep(1000)
   Promise.all(transactions.value.map((tx) => broadcastBTCTx(tx.rawTx))).then((txIds: string[]) => {
     operationLock.value = false
+    isOpenResultModal.value = true
     transactionResult.value = {
       chain: 'btc',
       status: 'success',
       txId: txIds[0],
       fromAddress: address.value,
-      toAdddress: address.value,
+      toAddress: address.value,
       amount: balance.value!.total.toNumber(),
       token: {
         symbol: 'BTC',

@@ -14,6 +14,8 @@ import {
   API_RUNES_TESTNET_ORDERS_EXCHANGE,
   OCTOPUS_HOST,
   OCTOPUS_TESTNET_HOST,
+  OCTOPUS_REPOST_HOST,
+  OCTOPUS_REPOST_TESTNET_HOST,
 } from '@/data/hosts'
 
 type OptionParams = Record<string, string | number | undefined>
@@ -247,6 +249,14 @@ export const octopusApiOuter = <T>(path: string) => {
   return {
     get: (params?: OptionParams) => request<T>(`${octopusHost}${path}`, { method: 'GET', params }),
     post: (data?: OptionData) => request<T>(`${octopusHost}${path}`, { method: 'POST', data }),
+  }
+}
+
+export const octopusRepostApi = <T>(path: string) => {
+  const octopusRepostHost = network.value === 'mainnet' ? OCTOPUS_REPOST_HOST : OCTOPUS_REPOST_TESTNET_HOST
+  return {
+    get: (params?: OptionParams) => octopusApiRequest<T>(`${octopusRepostHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) => octopusApiRequest<T>(`${octopusRepostHost}${path}`, { method: 'POST', data }),
   }
 }
 

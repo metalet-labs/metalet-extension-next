@@ -5,14 +5,7 @@ import { useBTCRateQuery } from '@/queries/transaction'
 import { FlexBox, Button, LoadingText } from '@/components'
 import SelectIcon from '@/assets/icons-v3/select_active.svg'
 import ArrowRightIcon from '@/assets/icons-v3/arrow_right.svg'
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from '@/components/ui/drawer'
+import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader, DrawerTitle } from '@/components/ui/drawer'
 
 const open = ref(false)
 const isCustom = ref(false)
@@ -59,7 +52,7 @@ const selectCustom = () => {
       <div class="text-sm">Fee Rate</div>
       <FlexBox ai="center" jc="center" class="text-xs text-gray-primary">
         <span>{{ feeRate }} sat/vB</span>
-        <ArrowRightIcon class="text-gray-primary"/>
+        <ArrowRightIcon class="text-gray-primary" />
       </FlexBox>
     </FlexBox>
     <Drawer v-model:open="open">
@@ -106,7 +99,7 @@ const selectCustom = () => {
               type="number"
               placeholder="sat/vB"
               class="border-none focus:outline-none w-full text-xs"
-              @input="(e) => rateOnChange(Number((e.currentTarget as HTMLInputElement).value), -1)"
+              @input="(e: Event) => rateOnChange(Number((e.currentTarget as HTMLInputElement).value), -1)"
             />
             <SelectIcon class="absolute top-0 right-0" v-if="isCustom" />
           </FlexBox>

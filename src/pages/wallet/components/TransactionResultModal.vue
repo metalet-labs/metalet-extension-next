@@ -17,7 +17,7 @@ type SuccessResult = {
   status: 'success'
   txId: string
   fromAddress: string
-  toAdddress: string
+  toAddress: string
   amount: number
   confirmText?: string
   token: {
@@ -130,10 +130,10 @@ const toResultTxs = async (txId: string) => {
         <div class="flex justify-between">
           <div class="label">To</div>
           <div class="text-xs flex items-center gap-2">
-            <div class="hover:underline hover:text-blue-primary cursor-pointer" :title="result.toAdddress">
-              {{ prettifyAddress(result.toAdddress) }}
+            <div class="hover:underline hover:text-blue-primary cursor-pointer" :title="result.toAddress">
+              {{ prettifyAddress(result.toAddress) }}
             </div>
-            <Copy :text="result.toAdddress" />
+            <Copy :text="result.toAddress" />
           </div>
         </div>
 
