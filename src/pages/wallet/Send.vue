@@ -128,10 +128,9 @@ const popConfirm = async () => {
       const utxos = await getBtcUtxos(address.value, needRawTx, true)
 
       const { fee, rawTx } = currentBTCWallet.value!.signTx(SignType.SEND, {
-        recipient: recipient.value.trim(),
-        amount: amountInSats.value.toNumber(),
-        feeRate: currentRateFee.value!,
         utxos,
+        feeRate: currentRateFee.value!,
+        outputs: [{ address: recipient.value.trim(), satoshis: amountInSats.value.toNumber() }],
       })
       cost.value = amountInSats.value.add(fee).toNumber()
       txHex.value = rawTx

@@ -83,7 +83,7 @@ export async function process({
   //   psbt.signInput(v.index, keyPair, v.sighashTypes)
   // })
   for (let i = 0; i < options.toSignInputs.length; i++) {
-    const keyPair = wallet.getSigner(options!.toSignInputs![i].treehash)
+    const keyPair = wallet.getSigner({ treeHash: options!.toSignInputs![i].treehash })
     const v = options.toSignInputs[i]
     psbt.signInput(v.index, keyPair, v.sighashTypes)
   }

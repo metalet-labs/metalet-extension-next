@@ -3,12 +3,9 @@ import { getBtcNetwork } from '../network'
 import { type UTXO } from '@/queries/utxos'
 import { getCurrentWallet } from '../wallet'
 import { createPayment } from '../bip32-deriver'
-import { Account, getAddressType } from '@/lib/account'
+import { Chain } from '@metalet/utxo-wallet-service'
 import { Payment, Psbt, Transaction } from 'bitcoinjs-lib'
-import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { fetchBtcTxHex, broadcastBTCTx } from '@/queries/transaction'
-
-// TODO: add safe utxo
 
 function calculateFee(psbt: Psbt, feeRate: number): number {
   const tx = psbt.extractTransaction()
@@ -107,11 +104,6 @@ export const split = async (feeRate: number, utxos: UTXO[]) => {
   let psbt = await buildPsbt(utxos, 0)
 
   psbt = await buildPsbt(utxos, Math.ceil(psbt.extractTransaction().virtualSize() * feeRate))
-  // console.log('virtualSize', psbt.extractTransaction().virtualSize())
-
-  // console.log(Math.floor(new Decimal(68971 * 2).div(psbt.extractTransaction().virtualSize()).toNumber()))
-
-  // return { txId: psbt.extractTransaction().getId() }
 
   const txId = await broadcastBTCTx(psbt.extractTransaction().toHex())
   return { txId }
@@ -155,6 +147,4 @@ export const merge = async (feeRate: number, utxos: UTXO[]) => {
   psbt = await buildPsbt(utxos, total.minus(fee))
 
   return { txId: psbt.extractTransaction().getId(), total, fee, rawTx: psbt.extractTransaction().toHex() }
-
-  // return await this.broadcast(psbt)
 }

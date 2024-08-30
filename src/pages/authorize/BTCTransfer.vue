@@ -45,10 +45,9 @@ watch(
         const address = wallet.getAddress()
         const utxos = await getBtcUtxos(address, wallet.getScriptType() === ScriptType.P2PKH, true)
         const { txInputs, txOutputs } = wallet.signTx(SignType.SEND, {
-          recipient: props.params.toAddress,
-          amount: new Decimal(props.params.satoshis).div(1e8).toNumber(),
-          feeRate: _currentFeeRate,
           utxos,
+          feeRate: _currentFeeRate,
+          outputs: [{ address: props.params.toAddress, satoshis: new Decimal(props.params.satoshis).toNumber() }],
         })
         inputs.value = txInputs
         outputs.value = txOutputs

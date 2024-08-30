@@ -79,7 +79,11 @@ export const useBTCBalanceQuery = (
   return useQuery({
     queryKey: ['BTC Balance', { address }],
     queryFn: () => {
-      return getBtcUtxos(address.value, options?.needRawTx || false, options?.useUnconfirmed || true)
+      return getBtcUtxos(
+        address.value,
+        options?.needRawTx === undefined ? false : options?.needRawTx,
+        options?.useUnconfirmed === undefined ? true : options?.useUnconfirmed
+      )
     },
     select: (utxos) => {
       const balance = utxos.reduce((acc, utxo) => acc.add(utxo.satoshis), new Decimal(0))

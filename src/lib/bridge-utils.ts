@@ -540,23 +540,50 @@ export async function mintBtc(
   try {
     const { orderId, bridgeAddress, bridgeRuleServiceAddress, bridgeRuleServiceMintFee } =
       await createPrepayOrderMintBtc({
-        amount: mintAmount,
-        originTokenId,
-        addressType: scriptType,
         publicKey,
+        originTokenId,
         publicKeySign,
         publicKeyReceive,
         publicKeyReceiveSign,
+        addressType: scriptType,
+        amount: mintAmount.toString(),
       })
+
+    const outputs = [
+      {
+        address: bridgeAddress,
+        satoshis: Number(mintAmount),
+      },
+    ]
+
+    console.log('bridgeRuleServiceAddress', bridgeRuleServiceAddress)
+    console.log('bridgeRuleServiceMintFee', bridgeRuleServiceMintFee)
+
+    if (bridgeRuleServiceAddress && bridgeRuleServiceMintFee) {
+      outputs.push({
+        address: bridgeRuleServiceAddress,
+        satoshis: bridgeRuleServiceMintFee,
+      })
+    }
+
+    console.log('outputs', outputs)
 
     const utxos = await getBtcUtxos(btcWallet.getAddress(), btcWallet.getScriptType() === ScriptType.P2PKH, false)
 
-    const { rawTx, txId } = btcWallet.signTx(SignType.SEND, {
+    console.log('utxos', utxos)
+    console.log('feeRate', feeRate)
+    console.log('outputs', outputs)
+
+    const { rawTx, txId, txInputs, txOutputs } = btcWallet.signTx(SignType.SEND, {
       utxos,
-      amount: mintAmount,
-      recipient: bridgeAddress,
+      outputs,
       feeRate,
     })
+
+    console.log('txId', txId)
+    console.log('rawTx', rawTx)
+    console.log('txInputs', txInputs)
+    console.log('txOutputs', txOutputs)
 
     await submitPrepayOrderMintBtc({
       orderId,
@@ -565,6 +592,8 @@ export async function mintBtc(
 
     return { txId, recipient: bridgeAddress }
   } catch (error) {
+    console.log('error', error)
+
     throw new Error((error as any).message || (error as any).msg)
   }
 }
@@ -582,16 +611,17 @@ export async function mintMrc20(
   const publicKeyReceive = mvcWallet.getPublicKey().toString('hex')
   const publicKeyReceiveSign = mvcWallet.signMessage(publicKeyReceive, 'base64')
 
-  const createResp = await createPrepayOrderMintMrc20({
-    amount: new Decimal(mintAmount).div(10 ** selectedPair.decimals).toFixed(),
-    originTokenId: selectedPair.originTokenId,
-    addressType: scriptType,
-    publicKey: publicKey,
-    publicKeySign: publicKeySign,
-    publicKeyReceive,
-    publicKeyReceiveSign: publicKeyReceiveSign,
-  })
-  const { orderId, bridgeAddress } = createResp
+  const { orderId, bridgeAddress, bridgeRuleServiceAddress, bridgeRuleServiceMintFee } =
+    await createPrepayOrderMintMrc20({
+      amount: new Decimal(mintAmount).div(10 ** selectedPair.decimals).toFixed(),
+      originTokenId: selectedPair.originTokenId,
+      addressType: scriptType,
+      publicKey: publicKey,
+      publicKeySign: publicKeySign,
+      publicKeyReceive,
+      publicKeyReceiveSign: publicKeyReceiveSign,
+    })
+
   const needRawTx = btcWallet.getScriptType() === ScriptType.P2PKH
   const utxos = await getBtcUtxos(btcWallet.getAddress(), needRawTx, false)
   const mrc20Utxos = await getMRC20Utxos(btcWallet.getAddress(), selectedPair.originTokenId, needRawTx)
@@ -610,6 +640,13 @@ export async function mintMrc20(
       },
     ]),
     revealAddr: bridgeAddress,
+    service:
+      bridgeRuleServiceAddress && bridgeRuleServiceMintFee
+        ? {
+            address: bridgeRuleServiceAddress,
+            satoshis: bridgeRuleServiceMintFee,
+          }
+        : undefined,
   })
 
   const submitPrepayOrderMintDto = {

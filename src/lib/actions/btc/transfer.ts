@@ -28,10 +28,9 @@ export async function process(params: TransferParameters): Promise<{ txId: strin
   const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH, true)
 
   const { rawTx } = wallet.signTx(SignType.SEND, {
-    recipient: params.toAddress,
-    amount: new Decimal(params.satoshis).toNumber(),
-    feeRate,
     utxos,
+    feeRate,
+    outputs: [{ address: params.toAddress, satoshis: new Decimal(params.satoshis).toNumber() }],
   })
 
   if (params.options?.noBroadcast) {

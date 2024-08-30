@@ -4,7 +4,7 @@ import { FEEB } from '@/data/config'
 import { Avatar } from '@/components'
 import { getApiHost } from '@/lib/host'
 import { getNetwork } from '@/lib/network'
-import { useMVCUTXOQuery } from '@/queries/utxos'
+import { useMVCUtxosQuery } from '@/queries/utxos'
 import { prettifyAddress } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { fetchSpaceBalance } from '@/queries/balance'
@@ -48,7 +48,7 @@ const merge = async () => {
   }
 }
 
-const { isLoading, data } = useMVCUTXOQuery(address, { enabled: computed(() => !!address.value) })
+const { isLoading, data } = useMVCUtxosQuery(address, { enabled: computed(() => !!address.value) })
 </script>
 
 <template>

@@ -36,7 +36,12 @@ export const useBTCRateQuery = (options?: { enabled: ComputedRef<boolean> }) => 
   return useQuery({
     queryKey: ['BTCTRate'],
     queryFn: () => getBTCTRate(),
-    select: (result) => result.list.reverse(),
+    select: (result) => {
+      if (result.list.length && result.list[0].title === 'Fast') {
+        return result.list.reverse()
+      }
+      return result.list
+    },
     ...options,
   })
 }

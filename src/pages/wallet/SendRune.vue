@@ -119,7 +119,6 @@ const popConfirm = async () => {
       recipient: recipient.value,
       runeUtxos,
       runeAmount: amount.value.toString(),
-      divisibility: asset.value!.decimal,
     })
     // txPsbt.value = psbt
     rawTx.value = _rawTx

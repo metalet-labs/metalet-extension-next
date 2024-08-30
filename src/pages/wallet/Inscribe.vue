@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
+import Decimal from 'decimal.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -132,10 +133,9 @@ const popConfirm = async () => {
       txOutputs,
       rawTx: _rawTx,
     } = currentBTCWallet.value!.signTx(SignType.SEND, {
-      amount: order.needAmount,
-      recipient: order.payAddress,
-      feeRate: currentRateFee.value!,
       utxos,
+      feeRate: currentRateFee.value!,
+      outputs: [{ address: order.payAddress, satoshis: new Decimal(order.needAmount).toNumber() }],
     })
     rawTx.value = _rawTx
     inputUTXOs.value = txInputs

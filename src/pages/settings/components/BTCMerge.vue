@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { getBtcUtxos } from '@/queries/utxos'
+import { getBtcUtxos, useBTCUtxosQuery } from '@/queries/utxos'
 import { prettifyAddress, prettifyTxId } from '@/lib/formatters'
 import { useBTCBalanceQuery } from '@/queries/balance'
 import LoadingIcon from '@/components/LoadingIcon.vue'
@@ -24,9 +24,7 @@ import { broadcastBTCTx } from '@/queries/transaction'
 import { sleep } from '@/lib/helpers'
 import Copy from '@/components/Copy.vue'
 
-const utxos = ref()
 const mergeNum = ref('50')
-const isLoading = ref(true)
 const feeRate = ref<number>()
 const operationLock = ref(false)
 const isOpenResultModal = ref(false)
@@ -49,20 +47,11 @@ const { data: balance } = useBTCBalanceQuery(address, {
   enabled: computed(() => !!currentBTCWallet.value && !!address.value),
   needRawTx: currentBTCWallet.value?.getScriptType() === ScriptType.P2PKH,
 })
-
-watch(
-  address,
-  (newAddress) => {
-    if (newAddress) {
-      const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-      getBtcUtxos(newAddress, needRawTx, false).then((_utxos) => {
-        utxos.value = _utxos
-        isLoading.value = false
-      })
-    }
-  },
-  { immediate: true }
-)
+const { data: utxos, isLoading } = useBTCUtxosQuery(address, {
+  useUnconfirmed: false,
+  enabled: computed(() => !!currentBTCWallet.value && !!address.value),
+  needRawTx: currentBTCWallet.value?.getScriptType() === ScriptType.P2PKH,
+})
 
 const mergeDisabled = computed(() => {
   return !utxos.value || utxos.value.length < 5 || !feeRate.value || operationLock.value
@@ -188,27 +177,29 @@ const broadcast = () => {
         </Select>
       </div>
 
-      <div class="h-80 overflow-y-auto nicer-scrollbar -mr-8 pr-8 w-full overflow-x-hidden" v-if="transactions.length">
-        <table class="min-w-full table-auto w-full">
+      <div class="h-80 overflow-y-auto nicer-scrollbar -mr-4 pr-4 w-full overflow-x-hidden" v-if="transactions.length">
+        <table class="w-full table-fixed">
           <thead>
             <tr>
-              <th class="px-4 py-2 text-xs"></th>
-              <th class="px-4 py-2 text-xs">TxID</th>
-              <th class="px-4 py-2 text-xs">Fee</th>
-              <th class="px-4 py-2 text-xs">Total Input</th>
-              <th class="px-4 py-2 text-xs">Total Output</th>
+              <th class="text-xs w-6"></th>
+              <th class="text-xs w-28">TxID</th>
+              <th class="text-xs">Fee</th>
+              <th class="text-xs">Total Input</th>
+              <th class="text-xs">Total Output</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(transaction, index) in transactions" :key="index">
-              <td class="border px-4 py-2 text-xs">{{ index + 1 }}</td>
-              <td class="border px-4 py-2 text-xs flex items-center gap-2">
-                {{ prettifyTxId(transaction.txId, 4) }}
-                <Copy title="RawTx Copied" :text="transaction.rawTx" :show-content="false" />
+            <tr v-for="(transaction, index) in transactions" :key="transaction.txId">
+              <td class="border text-xs text-center p-1">{{ index + 1 }}</td>
+              <td class="border text-xs p-1">
+                <div class="flex items-center justify-center gap-2">
+                  {{ prettifyTxId(transaction.txId, 4) }}
+                  <Copy title="RawTx Copied" :text="transaction.rawTx" :show-content="false" class="size-5" />
+                </div>
               </td>
-              <td class="border px-4 py-2 text-xs">{{ new Decimal(transaction.fee).div(1e8).toFixed() }} BTC</td>
-              <td class="border px-4 py-2 text-xs">{{ transaction.total.div(1e8).toFixed() }} BTC</td>
-              <td class="border px-4 py-2 text-xs">
+              <td class="border text-xs p-1">{{ new Decimal(transaction.fee).div(1e8).toFixed() }} BTC</td>
+              <td class="border text-xs p-1">{{ transaction.total.div(1e8).toFixed() }} BTC</td>
+              <td class="border text-xs p-1">
                 {{ transaction.total.minus(transaction.fee).div(1e8).toFixed() }} BTC
               </td>
             </tr>
@@ -229,27 +220,17 @@ const broadcast = () => {
       Split
     </button> -->
 
-    <button
-      @click="mergeFn"
-      v-if="!transactions.length"
-      :disabled="mergeDisabled"
-      :class="[
-        { 'cursor-not-allowed opacity-50': mergeDisabled },
-        'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
-      ]"
-    >
+    <button @click="mergeFn" v-if="!transactions.length" :disabled="mergeDisabled" :class="[
+      { 'cursor-not-allowed opacity-50': mergeDisabled },
+      'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
+    ]">
       <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
       Merge
     </button>
-    <button
-      v-else
-      @click="broadcast"
-      :disabled="!transactions.length"
-      :class="[
-        { 'cursor-not-allowed opacity-50': mergeDisabled },
-        'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
-      ]"
-    >
+    <button v-else @click="broadcast" :disabled="!transactions.length" :class="[
+      { 'cursor-not-allowed opacity-50': mergeDisabled },
+      'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
+    ]">
       <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
       Broadcast
     </button>

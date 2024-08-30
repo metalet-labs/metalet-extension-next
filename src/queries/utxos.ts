@@ -228,10 +228,31 @@ export async function getUtxos(address: string): Promise<UTXO[]> {
   return utxos.map((utxo) => formatMempoolUTXO(utxo))
 }
 
-export const useMVCUTXOQuery = (address: Ref<string>, options: { enabled: ComputedRef<boolean> }) => {
+export const useMVCUtxosQuery = (address: Ref<string>, options: { enabled: ComputedRef<boolean> }) => {
   return useQuery({
     queryKey: ['MVCUTXOs', { address }],
     queryFn: () => fetchMVCUtxos(address.value),
+    ...options,
+  })
+}
+
+export const useBTCUtxosQuery = (
+  address: Ref<string>,
+  options?: {
+    needRawTx?: boolean
+    useUnconfirmed?: boolean
+    enabled: ComputedRef<boolean>
+  }
+) => {
+  return useQuery({
+    queryKey: ['BTC Balance', { address }],
+    queryFn: () => {
+      return getBtcUtxos(
+        address.value,
+        options?.needRawTx === undefined ? false : options?.needRawTx,
+        options?.useUnconfirmed === undefined ? true : options?.useUnconfirmed
+      )
+    },
     ...options,
   })
 }
