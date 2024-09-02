@@ -3,17 +3,29 @@ import { mvc } from 'meta-contract'
 import { encrypt, decrypt } from './crypto'
 import { toast } from '@/components/ui/toast'
 import { generateRandomString } from './helpers'
-import { type DerivedAccountDetail } from '@/lib/types'
+import { V3Wallet, type DerivedAccountDetail } from '@/lib/types'
 import { getBackupV3Wallet, setBackupV3Wallet } from './backup'
 import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import { AddressTypeRecord, migrateV3AddressTypeStorage } from './addressType'
 import { AddressType as ScriptType, deriveAllAddresses } from './bip32-deriver'
+import {
+  MigrateErrorVersion,
+  MigrateErrorAccount,
+  ACCOUNT_Sync_Migrated_KEY,
+  ACCOUNT_V1_Migrated_KEY,
+  ACCOUNT_V2_Migrated_KEY,
+  ACCOUNT_V3_Encrypted_KEY,
+  V3_ENCRYPTED_WALLETS_STORAGE_KEY,
+  Error_Accounts_Migrate_Log_Key,
+} from '@/lib/storage/key'
 import {
   getV3Wallets,
   setV3WalletsNum,
   getV3WalletsStorage,
   setV3WalletsStorage,
   setCurrentWalletId,
+  getV3EncryptedWallets,
+  setV3EncryptedWalletsStorage,
 } from '@/lib/wallet'
 import {
   type Account,
@@ -27,23 +39,7 @@ import {
   getCurrentAccountId,
 } from './account'
 
-export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
-export const ACCOUNT_V1_Migrated_KEY = 'accounts_v1_migrated'
-export const ACCOUNT_V2_Migrated_KEY = 'accounts_v2_migrated'
-export const ACCOUNT_V2_Encrypted_KEY = 'accounts_v2_encrypted'
-export const Error_Accounts_Migrate_Log_Key = 'error_accounts_migrate_log'
-
 const storage = useStorage()
-
-type MigrateErrorVersion = 'V0' | 'V1' | 'V2'
-
-interface MigrateErrorAccount {
-  timeStamp: number
-  version: MigrateErrorVersion
-  mnemonic: string
-  storage: string
-  errorLog: string
-}
 
 const getMigrateErrorAccounts = async (): Promise<MigrateErrorAccount[]> => {
   return await storage.get<MigrateErrorAccount[]>(Error_Accounts_Migrate_Log_Key, { defaultValue: [] })
@@ -88,6 +84,51 @@ async function needMigrateV0ToV2(): Promise<boolean> {
   const needed = await hasV0Account()
   if (!needed) {
     await storage.set(ACCOUNT_Sync_Migrated_KEY, true)
+  }
+  return needed
+}
+
+async function needMigrateV1ToV2(): Promise<boolean> {
+  if (await storage.get(ACCOUNT_V1_Migrated_KEY)) {
+    return false
+  }
+  const v1Records = await getLegacyAccounts()
+  const v2Records = await getV2Accounts()
+  const v1Mnemonics = v1Records.map((record) => record.mnemonic)
+  const v2Mnemonics = Array.from(v2Records.values()).map((record) => record.mnemonic)
+  const needed = v1Mnemonics.some((mne) => !v2Mnemonics.includes(mne))
+  if (!needed) {
+    await storage.set(ACCOUNT_V1_Migrated_KEY, true)
+  }
+  return needed
+}
+
+async function needMigrateV2ToV3(): Promise<boolean> {
+  if (await storage.get(ACCOUNT_V2_Migrated_KEY)) {
+    return false
+  }
+  const v2Records = await getV2Accounts()
+  const v2Mnemonics = Array.from(v2Records.values()).map((record) => record.mnemonic)
+  const v3Wallets = await getV3Wallets()
+  const v3Mnemonics = v3Wallets.map((record) => record.mnemonic)
+  const needed = v2Mnemonics.some((mne) => !v3Mnemonics.includes(mne))
+
+  if (!needed) {
+    await storage.set(ACCOUNT_V2_Migrated_KEY, true)
+  }
+  return needed
+}
+
+async function needEncryptV3(): Promise<boolean> {
+  if (await storage.get(ACCOUNT_V3_Encrypted_KEY)) {
+    return false
+  }
+  const v3Wallets = await getV3Wallets()
+  const v3EncryptedWallets = await getV3EncryptedWallets()
+  const needed = v3Wallets.some((mne) => !v3EncryptedWallets.includes(mne))
+
+  if (!needed) {
+    await storage.set(ACCOUNT_V3_Encrypted_KEY, true)
   }
   return needed
 }
@@ -186,21 +227,6 @@ async function migrateSyncToV2(): Promise<MigrateResult> {
     code: MigrateResultCode.UNDO,
     message: 'No cache, no migration needed.',
   }
-}
-
-async function needMigrateV1ToV2(): Promise<boolean> {
-  if (await storage.get(ACCOUNT_V1_Migrated_KEY)) {
-    return false
-  }
-  const v1Records = await getLegacyAccounts()
-  const v2Records = await getV2Accounts()
-  const v1Mnemonics = v1Records.map((record) => record.mnemonic)
-  const v2Mnemonics = Array.from(v2Records.values()).map((record) => record.mnemonic)
-  const needed = v1Mnemonics.some((mne) => !v2Mnemonics.includes(mne))
-  if (!needed) {
-    await storage.set(ACCOUNT_V1_Migrated_KEY, true)
-  }
-  return needed
 }
 
 async function migrateV1ToV2(): Promise<MigrateResult> {
@@ -310,22 +336,6 @@ export async function migrateToV2() {
       toast({ title, toastType: 'success', description: message })
     }
   }
-}
-
-async function needMigrateV2ToV3(): Promise<boolean> {
-  if (await storage.get(ACCOUNT_V2_Migrated_KEY)) {
-    return false
-  }
-  const v2Records = await getV2Accounts()
-  const v2Mnemonics = Array.from(v2Records.values()).map((record) => record.mnemonic)
-  const v3Wallets = await getV3Wallets()
-  const v3Mnemonics = v3Wallets.map((record) => record.mnemonic)
-  const needed = v2Mnemonics.some((mne) => !v3Mnemonics.includes(mne))
-
-  if (!needed) {
-    await storage.set(ACCOUNT_V2_Migrated_KEY, true)
-  }
-  return needed
 }
 
 export async function needMigrate() {
@@ -466,6 +476,25 @@ export async function migrateToV3() {
   } else if (code === MigrateResultCode.UNDO) {
     toast({ title, toastType: 'info', description })
   }
+}
+
+async function encryptV3Accounts(password: string) {
+  const v3Wallets = await getV3Wallets()
+  const v3EncryptedWallets = await getV3EncryptedWallets()
+
+  const encryptedMnemonics = new Set(v3EncryptedWallets.map((wallet) => wallet.mnemonic))
+
+  v3Wallets.forEach((wallet) => {
+    if (!encryptedMnemonics.has(wallet.mnemonic)) {
+      v3EncryptedWallets.push({ ...wallet, mnemonic: encrypt(wallet.mnemonic, password) })
+    }
+  })
+  setV3EncryptedWalletsStorage(
+    v3EncryptedWallets.reduce<Record<string, V3Wallet>>((acc, wallet) => {
+      acc[wallet.id] = wallet
+      return acc
+    }, {})
+  )
 }
 
 export async function encryptV2Accounts(password: string): Promise<void> {

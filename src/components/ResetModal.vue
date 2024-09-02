@@ -4,7 +4,7 @@ import useStorage from '@/lib/storage'
 import { PASSWORD_KEY } from '@/lib/password'
 import { Checkbox } from '@/components/ui/checkbox'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { V3_WALLETS_STORAGE_KEY } from '@/lib/wallet'
+import { V3_WALLETS_STORAGE_KEY } from '@/lib/storage/key'
 
 defineProps<{
   show: boolean

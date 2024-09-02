@@ -1,5 +1,5 @@
 import { goToTab } from '@/lib/utils'
-import { isLocked } from './lib/lock'
+import { getPassword, isLocked } from './lib/lock'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
@@ -617,6 +617,7 @@ const authPages = [
 ]
 
 router.beforeEach(async (to, _, next) => {
+  const password = await getPassword()
   if (to.fullPath !== '/migrateV2' && (await needMigrate())) {
     next('/migrateV2')
   } else if (!authPages.includes(to.path)) {
@@ -627,7 +628,7 @@ router.beforeEach(async (to, _, next) => {
       next('/manage/wallets')
     } else if (!(await hasPassword())) {
       next('/wallet/set-password')
-    } else if (await isLocked()) {
+    } else if ((await isLocked()) || !password) {
       next('/lock')
     } else {
       if (['asset', 'token', 'brc20'].includes(to.name as string)) {

@@ -81,7 +81,7 @@ onMounted(fetchHistory)
 </script>
 
 <template>
-  <div class="no-scrollbar min-h-96 h-96 overflow-y-scroll w-full nicer-scrollbar flex flex-col gap-y-4 pr-2 -mr-2">
+  <div class="overflow-y-auto w-full nicer-scrollbar flex flex-col gap-y-4 pr-2 -mr-2 h-96">
     <Empty v-if="list.length === 0 && !loading">
       <template #description>
         <span class="font-sm mt-1 text-[#37463A]">No Transfers yet</span>

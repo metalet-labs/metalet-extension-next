@@ -6,16 +6,26 @@ import browser from 'webextension-polyfill'
 import exActions from './data/extension-actions'
 import { getCurrentAccountId } from './lib/account'
 import { Chain } from '@metalet/utxo-wallet-service'
+import usePasswordStore from '@/stores/PasswordStore'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
 import { getCurrentWalletId, hasWallets, getCurrentWallet } from './lib/wallet'
 
 // const browser = window.browser as typeof chromex
 browser.runtime.onMessage.addListener(async (msg, sender) => {
+  const { password, setPassword } = usePasswordStore()
   try {
     if (msg.channel === 'to-bg') {
       if (msg.eventName === 'networkChanged') {
         network.value = msg.args[0]
-        // console.log('network', network.value)
+      } else if (msg.eventName === 'getPassword') {
+        return password.value
+      } else if (msg.eventName === 'setPassword') {
+        if (!msg.args[0]) {
+          return { code: 0 }
+        } else {
+          setPassword(msg.args[0])
+          return { code: 1 }
+        }
       }
       return
     }

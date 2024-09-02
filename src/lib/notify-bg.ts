@@ -10,7 +10,7 @@ async function emit(params: EmitParams) {
     return
   }
 
-  window.browser.runtime.sendMessage({ ...params, channel: 'to-bg' })
+  return window.browser.runtime.sendMessage({ ...params, channel: 'to-bg' })
 }
 
 export function notifyBg(eventName: string) {

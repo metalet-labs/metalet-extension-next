@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import passwordManager from '@/lib/password'
 import { PasswordInput } from '@/components'
-import { setLastLockTime, unlock } from '@/lib/lock'
 import ResetModal from '@/components/ResetModal.vue'
+import { setLastLockTime, unlock } from '@/lib/lock'
 import MetaletLogo from '@/assets/images/metalet-logo-v3.svg?url'
 
 const error = ref('')
@@ -36,13 +36,10 @@ const tryUnlock = async () => {
     <PasswordInput v-model:password="password" v-model:error="error" class="mt-12" />
 
     <div class="mt-14 flex flex-col items-center justify-center">
-      <button
-        @click="tryUnlock"
-        :class="[
-          'bg-blue-primary w-61.5 rounded-3xl py-4 text-ss text-white',
-          { 'opacity-50 cursor-not-allowed': !password },
-        ]"
-      >
+      <button @click="tryUnlock" :class="[
+        'bg-blue-primary w-61.5 rounded-3xl py-4 text-ss text-white',
+        { 'opacity-50 cursor-not-allowed': !password },
+      ]">
         Unlock
       </button>
       <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary">Forget password?</button>
