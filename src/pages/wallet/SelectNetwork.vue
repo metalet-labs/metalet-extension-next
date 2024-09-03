@@ -107,7 +107,7 @@ const selectChain = (chain: Chain) => {
                     'bg-[rgba(247,147,26,0.2)] text-[#F7931A]',
                   ]"
                 >
-                  Bitcoin sizechain
+                  Bitcoin sidechain
                 </div>
               </div>
             </FormLabel>
