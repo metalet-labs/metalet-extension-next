@@ -1,11 +1,9 @@
 import useStorage from './storage'
 import { IS_DEV } from '@/data/config'
 import { notifyBg } from './notify-bg'
-import usePasswordStore from '@/stores/PasswordStore'
-import { checkPassword, hasPassword } from './password'
+import { checkPassword, hasPassword, getEncryptedPassword } from './password'
 
 const storage = useStorage()
-const { password, setPassword } = usePasswordStore()
 
 const LOCK_KEY = 'locked'
 const LAST_LOCK_TIME_KEY = 'LAST_LOCK_TIME'
@@ -27,9 +25,7 @@ export async function unlock(password: string) {
   if (!isCorrect) {
     throw new Error('Password incorrect')
   }
-  if (IS_DEV) {
-    setPassword(password)
-  } else {
+  if (!IS_DEV) {
     await notifyBg('setPassword')(password)
   }
   await storage.set(LOCK_KEY, false)
@@ -50,10 +46,10 @@ export async function setLastLockTime() {
   return await storage.set(LAST_LOCK_TIME_KEY, Date.now())
 }
 
-export async function getPassword() {
+export async function getPassword():Promise<string> {
   if (IS_DEV) {
-    return password.value
+    return (await getEncryptedPassword()) || ''
   } else {
-    return await notifyBg('getPassword')()
+    return (await notifyBg('getPassword')()) || ''
   }
 }

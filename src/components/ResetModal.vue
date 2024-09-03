@@ -4,7 +4,7 @@ import useStorage from '@/lib/storage'
 import { PASSWORD_KEY } from '@/lib/password'
 import { Checkbox } from '@/components/ui/checkbox'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { V3_WALLETS_STORAGE_KEY } from '@/lib/storage/key'
+import { V3_ENCRYPTED_WALLETS_STORAGE_KEY } from '@/lib/storage/key'
 
 defineProps<{
   show: boolean
@@ -24,7 +24,7 @@ const checkedAll = computed(() => checked1.value && checked2.value && checked3.v
 const disconnect = async () => {
   emit('update:show', false)
   await storage.delete(PASSWORD_KEY)
-  await storage.delete(V3_WALLETS_STORAGE_KEY)
+  await storage.delete(V3_ENCRYPTED_WALLETS_STORAGE_KEY)
   window.location.reload()
 }
 
@@ -44,10 +44,8 @@ const close = () => {
   <Teleport to="main" v-if="show">
     <div class="absolute inset-0 isolate z-50 flex items-end bg-black/20 backdrop-blur-sm flex-col overflow-hidden">
       <div class="grow w-full" @click="close"></div>
-      <div
-        :data-state="modalState"
-        class="data-[state=open]:animate-drawer-modal-up data-[state=closed]:animate-drawer-modal-down"
-      >
+      <div :data-state="modalState"
+        class="data-[state=open]:animate-drawer-modal-up data-[state=closed]:animate-drawer-modal-down">
         <div class="rounded-t-xl bg-white p-4 pb-8">
           <div class="flex items-center justify-between border-b border-gray-100 pb-4">
             <span class="text-base">Reset Wallet</span>
@@ -83,27 +81,18 @@ const close = () => {
                 To confirm wallet reset, please enter:
                 <span class="text-red-500">RESET</span>
               </p>
-              <input
-                type="text"
-                class="w-full rounded-lg focus:outline-blue-primary border p-4 text-sm"
-                v-model="resetText"
-                placeholder="RESET"
-              />
+              <input type="text" class="w-full rounded-lg focus:outline-blue-primary border p-4 text-sm"
+                v-model="resetText" placeholder="RESET" />
             </div>
 
             <div class="flex items-center justify-center gap-2">
-              <button
-                class="w-30 h-12 bg-blue-light text-blue-primary rounded-3xl text-ss"
-                @click="$emit('update:show', false)"
-              >
+              <button class="w-30 h-12 bg-blue-light text-blue-primary rounded-3xl text-ss"
+                @click="$emit('update:show', false)">
                 Cancel
               </button>
-              <button
-                @click="disconnect"
-                :disabled="!checkedAll"
+              <button @click="disconnect" :disabled="!checkedAll"
                 class="w-30 h-12 bg-red-600 text-white rounded-3xl text-ss"
-                :class="[checkedAll ? 'cursor-pointer' : 'cursor-not-allowed opacity-50 saturate-50']"
-              >
+                :class="[checkedAll ? 'cursor-pointer' : 'cursor-not-allowed opacity-50 saturate-50']">
                 Reset
               </button>
             </div>

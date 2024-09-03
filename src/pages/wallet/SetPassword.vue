@@ -5,6 +5,9 @@ import passwordManager from '@/lib/password'
 import { PasswordInput } from '@/components'
 import { toast } from '@/components/ui/toast'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
+import { backupV3EncryptedWalletsStorage, getV3EncryptedWalletsStorage, setV3EncryptedWalletsStorage } from '@/lib/wallet'
+import { decrypt, encrypt, hashWithSha256 } from '@/lib/crypto'
+import { IS_DEV } from '@/data/config'
 
 const router = useRouter()
 const phase = ref<1 | 2>(1)
@@ -46,6 +49,14 @@ const next = async () => {
     if (password.value !== confirmPassword.value) {
       error.value = "Passwords don't match. Try again."
     } else {
+      await backupV3EncryptedWalletsStorage()
+      const wallets = await getV3EncryptedWalletsStorage()
+      for (const key in wallets) {
+        if (wallets.hasOwnProperty(key)) {
+          wallets[key].mnemonic = encrypt(wallets[key].mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value);
+        }
+      }
+      await setV3EncryptedWalletsStorage(wallets)
       await passwordManager.set(password.value)
       toast({ title: 'Set Password successfully.', toastType: 'success' })
       router.push('/wallet')
@@ -57,7 +68,7 @@ const next = async () => {
 <template>
   <div class="flex h-full flex-col">
     <div class="h-15 -my-3 flex items-center gap-3">
-      <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="back" />
+      <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="$router.back()" />
     </div>
     <div class="space-y-2 pt-4">
       <h3 class="text-2xl font-medium">Change Password</h3>
@@ -67,13 +78,8 @@ const next = async () => {
       </p>
     </div>
     <div class="grow">
-      <PasswordInput
-        v-if="phase === 1"
-        v-model:password="password"
-        title="Old Password"
-        v-model:error="error"
-        class="mt-9"
-      />
+      <PasswordInput v-if="phase === 1" v-model:password="password" title="Old Password" v-model:error="error"
+        class="mt-9" />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
         <PasswordInput v-model:password="password" title="New Password" :validate="true" />
@@ -82,12 +88,8 @@ const next = async () => {
     </div>
     <div class="flex items-center justify-center gap-2 my-6">
       <button class="w-30 h-12 bg-blue-light rounded-3xl text-blue-primary" @click="back">Back</button>
-      <button
-        class="w-30 h-12 bg-blue-primary rounded-3xl text-white"
-        :class="!canPass && 'opacity-50 cursor-not-allowed'"
-        :disabled="!canPass"
-        @click="next"
-      >
+      <button class="w-30 h-12 bg-blue-primary rounded-3xl text-white"
+        :class="!canPass && 'opacity-50 cursor-not-allowed'" :disabled="!canPass" @click="next">
         Next
       </button>
     </div>

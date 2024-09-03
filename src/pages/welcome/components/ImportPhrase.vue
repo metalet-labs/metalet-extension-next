@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed, watch } from 'vue'
-import { getV3Wallets } from '@/lib/wallet'
+import { getV3EncryptedWallets } from '@/lib/wallet'
 import BrushIcon from '@/assets/icons-v3/brush.svg'
 import { FlexBox, Button, SeedPhrase } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
@@ -42,7 +42,7 @@ const onPasteWords = (e: ClipboardEvent, index: number) => {
 }
 
 const next = async () => {
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   const hasWallet = wallets.find((wallet) => wallet.mnemonic === props.words.join(' '))
   if (hasWallet) {
     error.value = 'Wallet already exists.'

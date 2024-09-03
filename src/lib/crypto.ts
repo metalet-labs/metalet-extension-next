@@ -543,3 +543,7 @@ export function decrypt(encryptedText: string, password: string) {
   const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8)
   return decryptedStr.toString()
 }
+
+export function hashWithSha256(data: string) {
+  return CryptoJS.SHA256(data).toString()
+}

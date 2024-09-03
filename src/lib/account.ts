@@ -5,7 +5,7 @@ import { fetchUtxos } from '@/queries/utxos'
 import { notifyContent } from '@/lib/notify-content'
 import { generateRandomString } from '@/lib/helpers'
 import { getBtcNetwork, getNetwork } from '@/lib/network'
-import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
+import { getActiveWalletOnlyAccount, getCurrentWallet, getV3EncryptedWallets } from './wallet'
 import type { V1Account, V2Account, Chain, ChainDetail } from './types'
 import { ScriptType, Chain as UtxoChain } from '@metalet/utxo-wallet-service'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
@@ -128,7 +128,17 @@ export async function getAccount(accountId: string): Promise<V2Account | undefin
 }
 
 export async function getCurrentAccountId() {
-  return await storage.get(CURRENT_ACCOUNT_ID)
+  const currentAccountId = await storage.get(CURRENT_ACCOUNT_ID)
+  if (!currentAccountId) {
+    const wallets = await getV3EncryptedWallets()
+    if (wallets.length && wallets[0].accounts.length) {
+      await setCurrentAccountId(wallets[0].accounts[0].id)
+      return wallets[0].accounts[0].id
+    } else {
+      throw new Error('current account id not found')
+    }
+  }
+  return currentAccountId
 }
 
 export async function setCurrentAccountId(accountId: string) {

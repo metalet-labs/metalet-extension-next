@@ -1,11 +1,11 @@
 import { goToTab } from '@/lib/utils'
-import { getPassword, isLocked } from './lib/lock'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
 import { assetList } from '@/lib/balance'
 import { needMigrate } from './lib/migrate'
 import { hasPassword } from './lib/password'
 import Wallet from './pages/wallet/Index.vue'
+import { getPassword, isLocked } from './lib/lock'
 import { getCurrentAccountId } from './lib/account'
 import { getCurrentWalletId, hasWallets } from './lib/wallet'
 
@@ -24,8 +24,6 @@ const routes = [
         },
       },
       {
-        // path: '/migrate',
-        // component: () => import('./pages/migrate/Index.vue'),
         path: '/migrateV2',
         component: () => import('./pages/migrateV2/Index.vue'),
         name: 'migrateV2',
@@ -617,8 +615,9 @@ const authPages = [
 ]
 
 router.beforeEach(async (to, _, next) => {
-  const password = await getPassword()
-  if (to.fullPath !== '/migrateV2' && (await needMigrate())) {
+  if (to.fullPath !== '/wallet/set-password' && !(await hasPassword())) {
+    next('/wallet/set-password')
+  } else if (to.fullPath !== '/migrateV2' && (await needMigrate())) {
     next('/migrateV2')
   } else if (!authPages.includes(to.path)) {
     if (!(await hasWallets())) {
@@ -626,9 +625,7 @@ router.beforeEach(async (to, _, next) => {
       next('/welcome')
     } else if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
       next('/manage/wallets')
-    } else if (!(await hasPassword())) {
-      next('/wallet/set-password')
-    } else if ((await isLocked()) || !password) {
+    } else if ((await isLocked()) || !(await getPassword())) {
       next('/lock')
     } else {
       if (['asset', 'token', 'brc20'].includes(to.name as string)) {

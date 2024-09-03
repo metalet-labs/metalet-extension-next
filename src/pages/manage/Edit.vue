@@ -12,7 +12,7 @@ import PencilIcon from '@/assets/icons-v3/pencil.svg'
 import { EllipsisHorizontalIcon } from '@heroicons/vue/24/solid'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
-import { deleteV3Wallet, getCurrentWalletId, setCurrentWalletId, getV3WalletsStorage, getV3Wallets } from '@/lib/wallet'
+import { deleteV3Wallet, getCurrentWalletId, setCurrentWalletId, getV3WalletsStorage, getV3EncryptedWallets } from '@/lib/wallet'
 
 const { updateAllWallets } = useChainWalletsStore()
 
@@ -72,7 +72,7 @@ const updataAccountName = (walletId: string, accountId: string, accountName: str
 
 const deleteWallet = async (walletId: string) => {
   await deleteV3Wallet(walletId)
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   if (wallets.length) {
     await setCurrentWalletId(wallets[0].id)
     await setCurrentAccountId(wallets[0].accounts[0].id)
@@ -88,13 +88,8 @@ const deleteWallet = async (walletId: string) => {
 <template>
   <div class="flex flex-col w-full -mt-3 relative h-full">
     <DeleteWallet v-model:open="deleteWalletOpen" :name="editName" :confirm="() => deleteWallet(editWalletId)" />
-    <EditName
-      :name="editName"
-      :type="editNameType"
-      :walletId="editWalletId"
-      :accountId="editAccountId"
-      v-model:open="editNameOpen"
-    />
+    <EditName :name="editName" :type="editNameType" :walletId="editWalletId" :accountId="editAccountId"
+      v-model:open="editNameOpen" />
     <div class="flex items-center justify-end w-full h-15 shrink-0">
       <div @click="$router.go(-1)" class="text-sm cursor-pointer text-blue-primary">Done</div>
     </div>
@@ -102,34 +97,24 @@ const deleteWallet = async (walletId: string) => {
       <div class="flex flex-col w-full">
         <div class="w-full" v-for="wallet in Object.values(walletObj)">
           <div class="flex items-center gap-2 w-full h-15" :key="wallet.id" :value="wallet.id">
-            <RemoveIcon
-              class="cursor-pointer"
-              @click="
-                () => {
-                  deleteWalletOpen = true
-                  editName = wallet.name
-                  editWalletId = wallet.id
-                }
-              "
-            />
+            <RemoveIcon class="cursor-pointer" @click="() => {
+                deleteWalletOpen = true
+                editName = wallet.name
+                editWalletId = wallet.id
+              }
+              " />
             <span>{{ wallet.name }}</span>
             <PencilIcon class="w-3.5 hover:text-blue-primary" @click.stop="updataWalletName(wallet.id, wallet.name)" />
             <EllipsisHorizontalIcon class="w-8 font-bold ml-auto cursor-pointer" v-if="false" />
           </div>
           <div>
-            <div
-              :key="account.id"
-              class="h-15 cursor-pointer flex items-center justify-between"
-              v-for="account in wallet.accounts"
-              @click="relaodAccout(wallet.id, account.id)"
-            >
+            <div :key="account.id" class="h-15 cursor-pointer flex items-center justify-between"
+              v-for="account in wallet.accounts" @click="relaodAccout(wallet.id, account.id)">
               <div class="flex items-center gap-3">
                 <Avatar :id="account.id" />
                 <span>{{ account.name }}</span>
-                <PencilIcon
-                  class="w-3.5 hover:text-blue-primary"
-                  @click.stop="updataAccountName(wallet.id, account.id, account.name)"
-                />
+                <PencilIcon class="w-3.5 hover:text-blue-primary"
+                  @click.stop="updataAccountName(wallet.id, account.id, account.name)" />
               </div>
               <EllipsisHorizontalIcon class="w-8 font-bold cursor-pointer" v-if="false" />
             </div>

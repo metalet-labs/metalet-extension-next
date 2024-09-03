@@ -21,7 +21,7 @@ import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { getCurrentWalletId, setV3WalletsStorage, getV3WalletsStorage, setCurrentWalletId } from '@/lib/wallet'
+import { getCurrentWalletId, setV3EncryptedWalletsStorage, setCurrentWalletId, getV3EncryptedWalletsStorage } from '@/lib/wallet'
 
 const { updateAllWallets, getAddress } = useChainWalletsStore()
 
@@ -39,7 +39,7 @@ const backupWallets = ref<string[]>([])
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
 
-getV3WalletsStorage().then(async (_wallets) => {
+getV3EncryptedWalletsStorage().then(async (_wallets) => {
   walletObj.value = _wallets
 })
 
@@ -63,9 +63,8 @@ const addAccount = async (wallet: V3Wallet) => {
     addressIndex: maxAddressIndex + 1,
   })
   wallet.accounts.push(account)
-  setV3WalletsStorage(walletObj.value)
+  setV3EncryptedWalletsStorage(walletObj.value)
   toast({ title: 'New account created', toastType: 'success' })
-  // TODO: put into function
   currentWalletId.value = wallet.id
   currentAccountId.value = account.id
   await setCurrentWalletId(wallet.id)

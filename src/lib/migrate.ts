@@ -38,6 +38,7 @@ import {
   getLegacyAccounts,
   getCurrentAccountId,
 } from './account'
+import { getPassword } from './lock'
 
 const storage = useStorage()
 
@@ -125,7 +126,11 @@ async function needEncryptV3(): Promise<boolean> {
   }
   const v3Wallets = await getV3Wallets()
   const v3EncryptedWallets = await getV3EncryptedWallets()
-  const needed = v3Wallets.some((mne) => !v3EncryptedWallets.includes(mne))
+  const v3EncryptedMnemonics = v3EncryptedWallets.map((encryptedWallet) => encryptedWallet.mnemonic)
+  const password = await getPassword()
+  const needed = v3Wallets.some((wallet) => !v3EncryptedMnemonics.includes(encrypt(wallet.mnemonic, password)))
+
+  console.log('needEncryptV3', needed)
 
   if (!needed) {
     await storage.set(ACCOUNT_V3_Encrypted_KEY, true)
@@ -339,7 +344,9 @@ export async function migrateToV2() {
 }
 
 export async function needMigrate() {
-  return (await needMigrateV1ToV2()) || (await needMigrateV0ToV2()) || (await needMigrateV2ToV3())
+  return (
+    (await needMigrateV1ToV2()) || (await needMigrateV0ToV2()) || (await needMigrateV2ToV3()) || (await needEncryptV3())
+  )
 }
 
 async function migrateV2ToV3(): Promise<MigrateResult> {
@@ -467,44 +474,82 @@ async function migrateV2ToV3(): Promise<MigrateResult> {
 }
 
 export async function migrateToV3() {
-  const title = 'Migrate V2 account'
-  const { code, message: description } = await migrateV2ToV3()
-  if (code === MigrateResultCode.FAILED) {
-    toast({ title, toastType: 'fail', description })
-  } else if (code === MigrateResultCode.SUCCESS) {
-    toast({ title, toastType: 'success', description })
-  } else if (code === MigrateResultCode.UNDO) {
-    toast({ title, toastType: 'info', description })
+  if (await needMigrateV2ToV3()) {
+    const title = 'Migrate V2 account'
+    const { code, message: description } = await migrateV2ToV3()
+    if (code === MigrateResultCode.FAILED) {
+      toast({ title, toastType: 'fail', description })
+    } else if (code === MigrateResultCode.SUCCESS) {
+      toast({ title, toastType: 'success', description })
+    } else if (code === MigrateResultCode.UNDO) {
+      toast({ title, toastType: 'info', description })
+    }
   }
 }
 
-async function encryptV3Accounts(password: string) {
+async function encryptV3Accounts(): Promise<MigrateResult> {
   const v3Wallets = await getV3Wallets()
   const v3EncryptedWallets = await getV3EncryptedWallets()
 
   const encryptedMnemonics = new Set(v3EncryptedWallets.map((wallet) => wallet.mnemonic))
 
+  let totalEncryptions = v3Wallets.length
+  let successfulEncryptions = 0
+  let alreadyEncryptedCount = 0
+  let failedEncryptions = 0
+
+  const password = await getPassword()
+
   v3Wallets.forEach((wallet) => {
-    if (!encryptedMnemonics.has(wallet.mnemonic)) {
-      v3EncryptedWallets.push({ ...wallet, mnemonic: encrypt(wallet.mnemonic, password) })
+    try {
+      if (!encryptedMnemonics.has(encrypt(wallet.mnemonic, password))) {
+        v3EncryptedWallets.push({ ...wallet, mnemonic: encrypt(wallet.mnemonic, password) })
+        successfulEncryptions++
+      } else {
+        alreadyEncryptedCount++
+      }
+    } catch (e: any) {
+      addMigrateErrorAccount(wallet.mnemonic, JSON.stringify(wallet), 'V3', e)
+      failedEncryptions++
     }
   })
+
   setV3EncryptedWalletsStorage(
     v3EncryptedWallets.reduce<Record<string, V3Wallet>>((acc, wallet) => {
       acc[wallet.id] = wallet
       return acc
     }, {})
   )
+
+  let code = MigrateResultCode.UNDO
+  if (failedEncryptions === totalEncryptions) {
+    code = MigrateResultCode.FAILED
+  } else if (successfulEncryptions > 0 && failedEncryptions === 0) {
+    code = MigrateResultCode.SUCCESS
+  }
+
+  return {
+    code,
+    message: `
+    Encryption Summary:\n
+    - Total Wallets Processed: ${totalEncryptions}\n
+    - Successful Encryptions: ${successfulEncryptions}\n
+    - Already Encrypted Wallets: ${alreadyEncryptedCount}\n
+    - Failed Encryptions: ${failedEncryptions}
+    `,
+  }
 }
 
-export async function encryptV2Accounts(password: string): Promise<void> {
-  const v2Accounts = await getV2AccountsObj()
-  console.log('v2Accounts', v2Accounts)
-
-  const encryptedText = encrypt(JSON.stringify(v2Accounts), password)
-  console.log('encryptedText', encryptedText)
-
-  const decryptedText = decrypt(encryptedText, password)
-  console.log('decryptedText', decryptedText)
-  console.log('JSON decryptedText', JSON.parse(decryptedText))
+export async function migrateToV3Encrypted() {
+  if (await needEncryptV3()) {
+    const title = 'Encrypt V3 wallet'
+    const { code, message: description } = await encryptV3Accounts()
+    if (code === MigrateResultCode.FAILED) {
+      toast({ title, toastType: 'fail', description })
+    } else if (code === MigrateResultCode.SUCCESS) {
+      toast({ title, toastType: 'success', description })
+    } else if (code === MigrateResultCode.UNDO) {
+      toast({ title, toastType: 'info', description })
+    }
+  }
 }

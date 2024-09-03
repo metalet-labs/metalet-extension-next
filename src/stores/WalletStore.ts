@@ -12,6 +12,8 @@ import {
   getActiveWalletOnlyAccount,
   getActiveWalletOtherAccounts,
 } from '@/lib/wallet'
+import { getPassword } from '@/lib/lock'
+import { decrypt } from '@/lib/crypto'
 
 let walletManager: WalletManager | null = null
 
@@ -21,11 +23,12 @@ const initWalletManager = async (): Promise<WalletManager> => {
     return walletManager
   }
   try {
+    const password = await getPassword()
     const activeWallet = await getActiveWalletOnlyAccount()
     const walletsOptions = [
       {
         id: activeWallet.id,
-        mnemonic: activeWallet.mnemonic,
+        mnemonic: decrypt(activeWallet.mnemonic, password),
         name: activeWallet.name,
         mvcTypes: activeWallet.mvcTypes,
         accountsOptions: activeWallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),

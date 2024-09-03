@@ -4,19 +4,15 @@ import { type V3Wallet } from './types'
 import { getCurrentAccountId } from './account'
 import { getV3AddressTypeStorage } from './addressType'
 import { Chain, MvcWallet, BtcWallet, AddressType, CoinType } from '@metalet/utxo-wallet-service'
-
 import {
   WALLET_NUM,
   CURRENT_WALLET_ID,
   V3_WALLETS_STORAGE_KEY,
   V3_ENCRYPTED_WALLETS_STORAGE_KEY,
+  V3_ENCRYPTED_WALLETS_STORAGE_BACKUP_KEY,
 } from '@/lib/storage/key'
 
 const storage = useStorage()
-
-export async function hasV3Wallets(): Promise<boolean> {
-  return !!(await storage.get<Record<string, V3Wallet>>(V3_WALLETS_STORAGE_KEY))
-}
 
 export async function getV3WalletsStorage() {
   return await storage.get<Record<string, V3Wallet>>(V3_WALLETS_STORAGE_KEY, {
@@ -24,22 +20,39 @@ export async function getV3WalletsStorage() {
   })
 }
 
+export async function getV3Wallets() {
+  return Object.values(await getV3WalletsStorage())
+}
+
+export async function setV3WalletsStorage(wallets: Record<string, V3Wallet>) {
+  await storage.set(V3_WALLETS_STORAGE_KEY, JSON.stringify(wallets))
+}
+
+export async function hasV3EncryptedWallets(): Promise<boolean> {
+  return !!(await storage.get<Record<string, V3Wallet>>(V3_ENCRYPTED_WALLETS_STORAGE_KEY))
+}
+
 export async function getV3EncryptedWalletsStorage() {
-  return await storage.get<Record<string, V3Wallet>>(V3_WALLETS_STORAGE_KEY, {
+  return await storage.get<Record<string, V3Wallet>>(V3_ENCRYPTED_WALLETS_STORAGE_KEY, {
     defaultValue: {},
   })
+}
+
+export async function setV3EncryptedWalletsStorage(wallets: Record<string, V3Wallet>) {
+  await storage.set(V3_ENCRYPTED_WALLETS_STORAGE_KEY, JSON.stringify(wallets))
+}
+
+export async function backupV3EncryptedWalletsStorage() {
+  const wallets = await getV3EncryptedWalletsStorage()
+  await storage.set(V3_ENCRYPTED_WALLETS_STORAGE_BACKUP_KEY, JSON.stringify(wallets))
 }
 
 export async function getV3EncryptedWallets() {
   return Object.values(await getV3EncryptedWalletsStorage())
 }
 
-export async function getV3Wallets() {
-  return Object.values(await getV3WalletsStorage())
-}
-
 export async function getV3WalletsNum() {
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   return await storage.get<number>(WALLET_NUM, {
     defaultValue: wallets.length,
   })
@@ -50,25 +63,27 @@ export async function setV3WalletsNum(num: number) {
 }
 
 export async function addV3Wallet(wallet: V3Wallet) {
-  const v3Wallet = await getV3Wallets()
+  const v3Wallet = await getV3EncryptedWallets()
   if (v3Wallet.find((w) => w.mnemonic === wallet.mnemonic)) {
     throw new Error('Wallet already exists')
   }
-  const wallets = await getV3WalletsStorage()
+  const wallets = await getV3EncryptedWalletsStorage()
   wallets[wallet.id] = wallet
-  await setV3WalletsStorage(wallets)
-}
-
-export async function setV3WalletsStorage(wallets: Record<string, V3Wallet>) {
-  await storage.set(V3_WALLETS_STORAGE_KEY, JSON.stringify(wallets))
-}
-
-export async function setV3EncryptedWalletsStorage(wallets: Record<string, V3Wallet>) {
-  await storage.set(V3_ENCRYPTED_WALLETS_STORAGE_KEY, JSON.stringify(wallets))
+  await setV3EncryptedWalletsStorage(wallets)
 }
 
 export async function getCurrentWalletId() {
-  return await storage.get(CURRENT_WALLET_ID)
+  const currentWalletId = await storage.get(CURRENT_WALLET_ID)
+  if (!currentWalletId) {
+    const wallets = await getV3EncryptedWallets()
+    if (wallets.length) {
+      await setCurrentWalletId(wallets[0].id)
+      return wallets[0].id
+    } else {
+      throw new Error('current wallet id not found')
+    }
+  }
+  return currentWalletId
 }
 
 export async function setCurrentWalletId(walletId: string) {
@@ -80,7 +95,7 @@ export async function getV3CurrentWallet() {
   if (!walletId) {
     throw new Error('current wallet id not found')
   }
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   if (!wallets.length) {
     throw new Error('wallets not found')
   }
@@ -95,7 +110,7 @@ export async function getWalletOnlyAccount(walletId: string, accountId: string) 
   if (!walletId) {
     throw new Error('wallet id not found')
   }
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   if (!wallets.length) {
     throw new Error('wallets not found')
   }
@@ -122,13 +137,7 @@ export async function getWalletOnlyAccount(walletId: string, accountId: string) 
 
 export async function getActiveWalletOnlyAccount() {
   const currentWalletId = await getCurrentWalletId()
-  if (!currentWalletId) {
-    throw new Error('current wallet id not found')
-  }
   const currentAccountId = await getCurrentAccountId()
-  if (!currentAccountId) {
-    throw new Error('current account id not found')
-  }
   return getWalletOnlyAccount(currentWalletId, currentAccountId)
 }
 
@@ -137,7 +146,7 @@ export async function getInactiveWallets() {
   if (!currentWalletId) {
     throw new Error('Current wallet id not found.')
   }
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   if (!wallets.length) {
     throw new Error('No wallets found. Please create a wallet first.')
   }
@@ -148,7 +157,7 @@ export async function getWalletOtherAccounts(walletId: string, accountId: string
   if (!walletId) {
     throw new Error('wallet id not found')
   }
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   if (!wallets.length) {
     throw new Error('wallets not found')
   }
@@ -183,7 +192,7 @@ export async function getActiveWalletOtherAccounts() {
 
 export async function getV3CurrentAccount() {
   const walletId = await getCurrentWalletId()
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   if (!walletId || !wallets.length) {
     throw new Error('current wallet id not found')
   }
@@ -208,7 +217,7 @@ export async function getV3CurrentAccount() {
 }
 
 export async function updateWalletName(walletId: string, name: string) {
-  const walletsMap = await getV3WalletsStorage()
+  const walletsMap = await getV3EncryptedWalletsStorage()
   if (!walletsMap) {
     throw new Error('V3 wallets storage not found.')
   }
@@ -217,11 +226,11 @@ export async function updateWalletName(walletId: string, name: string) {
     throw new Error(`Wallet not found with id ${walletId}.`)
   }
   wallet.name = name
-  await setV3WalletsStorage(walletsMap)
+  await setV3EncryptedWalletsStorage(walletsMap)
 }
 
 export async function updateAccountName(walletId: string, accountId: string, name: string) {
-  const walletsMap = await getV3WalletsStorage()
+  const walletsMap = await getV3EncryptedWalletsStorage()
   if (!walletsMap) {
     throw new Error('V3 wallets storage not found.')
   }
@@ -238,11 +247,11 @@ export async function updateAccountName(walletId: string, accountId: string, nam
     throw new Error(`Account not found with id ${accountId}.`)
   }
   account.name = name
-  await setV3WalletsStorage(walletsMap)
+  await setV3EncryptedWalletsStorage(walletsMap)
 }
 
 export async function hasWallets() {
-  const wallets = await getV3Wallets()
+  const wallets = await getV3EncryptedWallets()
   return !!wallets.length
 }
 
@@ -269,10 +278,10 @@ export async function getCurrentWallet<T extends Chain>(chain: T, _addressIndex?
 }
 
 export async function deleteV3Wallet(walletId: string) {
-  const walletsMap = await getV3WalletsStorage()
+  const walletsMap = await getV3EncryptedWalletsStorage()
   if (!walletsMap) {
     throw new Error('V3 wallets storage not found.')
   }
   delete walletsMap[walletId]
-  await setV3WalletsStorage(walletsMap)
+  await setV3EncryptedWalletsStorage(walletsMap)
 }
