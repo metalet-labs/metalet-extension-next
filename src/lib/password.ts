@@ -1,8 +1,7 @@
 import hash from 'object-hash'
 import CryptoJS from 'crypto-js'
 import useStorage from './storage'
-
-export const PASSWORD_KEY = 'password'
+import { PASSWORD_KEY } from './storage/key'
 
 const storage = useStorage()
 

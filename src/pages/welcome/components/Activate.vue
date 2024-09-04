@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Button } from '@/components'
 import { useForm } from 'vee-validate'
 import { encrypt } from '@/lib/crypto'
@@ -36,7 +36,7 @@ const props = defineProps<{
 }>()
 
 const type = computed(() => props.type)
-const words = computed(() => props.words)
+const mnemonic = computed(() => props.words.join(' '))
 const mvcTypes = computed(() => props.mvcTypes)
 
 const loading = ref(false)
@@ -99,15 +99,17 @@ const onSubmit = handleSubmit(async ({ chains }) => {
   await updateServiceNetwork(chains as Chain[])
 })
 
-const mnemonic = words.value.join(' ')
-if (!mnemonic) {
-  router.go(0)
-}
+watch(mnemonic, (mnemonic) => {
+  if (!mnemonic) {
+    router.go(0)
+  }
+})
 
 const addWallet = async () => {
   try {
+    const password = await getPassword()
     const wallets = await getV3EncryptedWallets()
-    const hasWallet = wallets.find((wallet) => wallet.mnemonic === mnemonic)
+    const hasWallet = wallets.find((wallet) => wallet.mnemonic === encrypt(mnemonic.value, password))
     if (hasWallet) {
       loading.value = false
       error.value = 'Wallet already exists.'
@@ -116,11 +118,12 @@ const addWallet = async () => {
     const walletId = genUID()
     const accountId = genUID()
     const walletNum = await getV3WalletsNum()
-    const password = await getPassword()
+    const encryptedMnemonic = encrypt(mnemonic.value, password)
+
     await addV3Wallet({
       id: walletId,
       name: `Wallet ${formatIndex(walletNum + 1)}`,
-      mnemonic: encrypt(mnemonic, password),
+      mnemonic: encryptedMnemonic,
       mvcTypes: mvcTypes.value,
       accounts: [
         {

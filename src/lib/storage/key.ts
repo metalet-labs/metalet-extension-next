@@ -13,7 +13,8 @@ export interface MigrateErrorAccount {
   errorLog: string
 }
 
-// Account/Wallet
+// wallet
+export const BACKUP_V3_KEY = 'backup_v3'
 export const CURRENT_ACCOUNT_ID = 'currentAccountId'
 export const V0_ACCOUNT_STORAGE_KEY = 'currentAccount'
 export const V1_ACCOUNTS_STORAGE_KEY = 'accounts'
@@ -23,3 +24,14 @@ export const CURRENT_WALLET_ID = 'currentWalletId'
 export const V3_WALLETS_STORAGE_KEY = 'wallets_v3'
 export const V3_ENCRYPTED_WALLETS_STORAGE_KEY = 'encrypted_wallets_v3'
 export const V3_ENCRYPTED_WALLETS_STORAGE_BACKUP_KEY = 'encrypted_wallets_v3_backup'
+
+// network
+export const NETWORK_KEY = 'network'
+export const SERVICE_NETWORK_KEY = 'service_network'
+
+// password
+export const PASSWORD_KEY = 'password'
+
+// lock
+export const LOCK_KEY = 'locked'
+export const LAST_LOCK_TIME_KEY = 'last_lock_time'

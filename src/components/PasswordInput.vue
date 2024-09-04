@@ -45,24 +45,19 @@ const levelColors = computed(() => {
 <template>
   <form @submit.prevent>
     <h4 class="mb-2 text-sm">{{ title || 'Password' }}</h4>
-    <div class="relative">
-      <input
-        name="password"
-        autocomplete="on"
-        :type="passwordInputType"
-        @input="(event) => emit('update:password', (event.target as HTMLInputElement).value)"
-        :class="[
+    <div class="relative h-15">
+      <input name="password" autocomplete="on" :type="passwordInputType"
+        @input="(event: Event) => emit('update:password', (event.target as HTMLInputElement).value)" :class="[
           'block w-full rounded-md border border-gray-soft outline-blue-primary p-4 pr-12',
           { 'border-red-500': !!error },
-        ]"
-      />
-      <div class="absolute right-0 top-0 flex h-full items-center pr-4">
+        ]" />
+      <div class="absolute right-0 top-0 h-full flex items-center pr-4">
         <button type="button" @click="isCovered = !isCovered">
-          <EyeIcon v-if="isCovered" class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
-          <EyeSlashIcon v-else class="h-5 w-5 text-gray-400 transition hover:text-blue-500" />
+          <EyeIcon v-if="isCovered" class="size-5 text-gray-400 transition hover:text-blue-500" />
+          <EyeSlashIcon v-else class="size-5 text-gray-400 transition hover:text-blue-500" />
         </button>
       </div>
-      <div class="absolute -bottom-8 left-0 flex items-center justify-between w-full text-sm" v-if="validate">
+      <div class="absolute py-1 left-0 flex items-center justify-between w-full text-sm" v-if="validate">
         <div class="flex items-center gap-1">
           <div :class="['w-8 h-1.5 rounded-md', bgColor]" v-for="(bgColor, index) in levelColors" :key="index"></div>
         </div>
@@ -70,7 +65,7 @@ const levelColors = computed(() => {
           <span :class="securityColor">{{ securityLevel }}</span>
         </div>
       </div>
-      <p v-if="error" class="absolute -bottom-8 left-0 text-sm text-red-500">{{ error }}</p>
+      <p v-if="error" class="absolute py-1 left-0 text-sm text-red-500">{{ error }}</p>
     </div>
   </form>
 </template>

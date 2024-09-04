@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
 import useStorage from '@/lib/storage'
-import { PASSWORD_KEY } from '@/lib/password'
 import { Checkbox } from '@/components/ui/checkbox'
 import { XMarkIcon } from '@heroicons/vue/20/solid'
-import { V3_ENCRYPTED_WALLETS_STORAGE_KEY } from '@/lib/storage/key'
 
 defineProps<{
   show: boolean
@@ -22,9 +20,8 @@ const checked3 = ref(false)
 const checkedAll = computed(() => checked1.value && checked2.value && checked3.value && resetText.value === 'RESET')
 
 const disconnect = async () => {
+  await storage.clear()
   emit('update:show', false)
-  await storage.delete(PASSWORD_KEY)
-  await storage.delete(V3_ENCRYPTED_WALLETS_STORAGE_KEY)
   window.location.reload()
 }
 

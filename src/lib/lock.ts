@@ -1,12 +1,11 @@
 import useStorage from './storage'
 import { IS_DEV } from '@/data/config'
 import { notifyBg } from './notify-bg'
+import { LAST_LOCK_TIME_KEY, LOCK_KEY } from './storage/key'
 import { checkPassword, hasPassword, getEncryptedPassword } from './password'
 
 const storage = useStorage()
 
-const LOCK_KEY = 'locked'
-const LAST_LOCK_TIME_KEY = 'LAST_LOCK_TIME'
 
 export async function lock() {
   await storage.set(LOCK_KEY, true)

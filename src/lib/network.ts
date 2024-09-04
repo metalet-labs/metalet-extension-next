@@ -5,24 +5,23 @@ import { notifyBg } from '@/lib/notify-bg'
 import { getCurrentAccountId } from './account'
 import { notifyContent } from '@/lib/notify-content'
 import { Chain, type Net } from '@metalet/utxo-wallet-service'
+import { SERVICE_NETWORK_KEY, NETWORK_KEY } from './storage/key'
 
 // TODO: refactor to use global state
 
-export type Service = Chain[] 
+export type Service = Chain[]
 export type ServiceStorage = { [accountId: string]: Chain[] }
 
 export type Network = 'mainnet' | 'testnet' | 'regtest'
 
-export const Service_Network_Key = 'service_network'
-
 const storage = useStorage()
 
 export async function setServiceNetwork(_service: ServiceStorage) {
-  await storage.set(Service_Network_Key, _service)
+  await storage.set(SERVICE_NETWORK_KEY, _service)
 }
 
 export async function getServiceNetworkStorage(): Promise<ServiceStorage> {
-  return await storage.get(Service_Network_Key, { defaultValue: {} })
+  return await storage.get(SERVICE_NETWORK_KEY, { defaultValue: {} })
 }
 
 export async function getServiceNetwork(): Promise<Chain[]> {
@@ -35,19 +34,19 @@ export async function getServiceNetwork(): Promise<Chain[]> {
 }
 
 export async function hasServiceNetwork(): Promise<boolean> {
-  return !!(await storage.get(Service_Network_Key))
+  return !!(await storage.get(SERVICE_NETWORK_KEY))
 }
-export const network = ref<Network>(await storage.get('network', { defaultValue: 'mainnet' }))
+export const network = ref<Network>(await storage.get(NETWORK_KEY, { defaultValue: 'mainnet' }))
 
 export async function setNetwork(_network: Network) {
   network.value = _network
   notifyBg('networkChanged')(_network)
   notifyContent('networkChanged')(_network)
-  await storage.set('network', _network)
+  await storage.set(NETWORK_KEY, _network)
 }
 
 export async function getNetwork(): Promise<Network> {
-  return await storage.get('network', { defaultValue: 'mainnet' })
+  return await storage.get(NETWORK_KEY, { defaultValue: 'mainnet' })
 }
 
 export function getBtcNetwork() {

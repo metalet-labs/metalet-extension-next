@@ -5,6 +5,7 @@ interface Storage {
   get<T = string>(key: string, option: { defaultValue: T }): Promise<T>
   set(key: string, value: any): Promise<void>
   delete(key: string): Promise<void>
+  clear(): Promise<void>
 }
 
 let globalStorage: Storage
@@ -31,6 +32,7 @@ function useStorage(storageType: StorageType = 'local'): Storage {
     get: <T>(key: string) => Promise<T | string | undefined>
     set: (key: string, value: string) => Promise<void>
     remove: (key: string) => Promise<void>
+    clear: () => Promise<void>
   }
   if (IS_DEV) {
     const _storage = getDevStorage(storageType)
@@ -43,6 +45,9 @@ function useStorage(storageType: StorageType = 'local'): Storage {
       },
       remove: async function (key: string) {
         _storage.removeItem(key)
+      },
+      clear: async function () {
+        _storage.clear()
       },
     }
   } else {
@@ -68,6 +73,9 @@ function useStorage(storageType: StorageType = 'local'): Storage {
       },
       remove: async function (key: string) {
         await _storage.remove(key)
+      },
+      clear: async function () {
+        await _storage.clear()
       },
     }
   }
@@ -95,6 +103,9 @@ function useStorage(storageType: StorageType = 'local'): Storage {
     },
     async delete(key: string): Promise<void> {
       return await storage.remove(key)
+    },
+    async clear(): Promise<void> {
+      return await storage.clear()
     },
   }
 

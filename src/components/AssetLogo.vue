@@ -28,14 +28,14 @@ withDefaults(
         <div
           class="aspect-square flex items-center justify-center rounded-full text-white bg-blue-primary shrink-0 shadow"
         >
-          {{ symbol?.[0].toLocaleUpperCase() }}
+          {{ symbol?.[0]?.toLocaleUpperCase() }}
         </div>
       </template>
       <template #error>
         <div
           class="aspect-square flex items-center justify-center rounded-full text-white bg-blue-primary shrink-0 shadow"
         >
-          {{ symbol?.[0].toLocaleUpperCase() }}
+          {{ symbol?.[0]?.toLocaleUpperCase() }}
         </div>
       </template>
     </UseImage>

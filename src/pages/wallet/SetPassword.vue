@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
+import { IS_DEV } from '@/data/config'
 import { useRouter } from 'vue-router'
 import passwordManager from '@/lib/password'
 import { PasswordInput } from '@/components'
 import { toast } from '@/components/ui/toast'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
-import { backupV3EncryptedWalletsStorage, getV3EncryptedWalletsStorage, setV3EncryptedWalletsStorage } from '@/lib/wallet'
 import { decrypt, encrypt, hashWithSha256 } from '@/lib/crypto'
-import { IS_DEV } from '@/data/config'
+import { backupV3EncryptedWalletsStorage, getV3EncryptedWalletsStorage, setV3EncryptedWalletsStorage } from '@/lib/wallet'
 
 const router = useRouter()
 const phase = ref<1 | 2>(1)
@@ -19,11 +19,12 @@ passwordManager.has().then((_hasPassword) => {
 })
 
 const error = ref('')
+const oldPassword = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
 const canPass = computed(() => {
-  return password.value.length >= 6
+  return (oldPassword.value.length >= 6 && phase.value === 1) || (password.value.length >= 6 && confirmPassword.value.length >= 6 && phase.value === 2)
 })
 
 // 按钮
@@ -37,23 +38,26 @@ const back = () => {
 
 const next = async () => {
   if (phase.value === 1) {
-    const isCorrect = await passwordManager.check(password.value)
+    const isCorrect = await passwordManager.check(oldPassword.value)
     if (isCorrect) {
-      password.value = ''
       error.value = ''
       phase.value = 2
     } else {
       error.value = 'Incorrect password. Try again.'
     }
   } else {
-    if (password.value !== confirmPassword.value) {
+    if (password.value === oldPassword.value) {
+      error.value = "New password can't be the same as old password."
+    }
+    else if (password.value !== confirmPassword.value) {
       error.value = "Passwords don't match. Try again."
     } else {
       await backupV3EncryptedWalletsStorage()
       const wallets = await getV3EncryptedWalletsStorage()
       for (const key in wallets) {
         if (wallets.hasOwnProperty(key)) {
-          wallets[key].mnemonic = encrypt(wallets[key].mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value);
+          const mnemonic = decrypt(wallets[key].mnemonic, IS_DEV ? hashWithSha256(oldPassword.value) : oldPassword.value)
+          wallets[key].mnemonic = encrypt(mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value)
         }
       }
       await setV3EncryptedWalletsStorage(wallets)
@@ -78,7 +82,7 @@ const next = async () => {
       </p>
     </div>
     <div class="grow">
-      <PasswordInput v-if="phase === 1" v-model:password="password" title="Old Password" v-model:error="error"
+      <PasswordInput v-if="phase === 1" v-model:password="oldPassword" title="Old Password" v-model:error="error"
         class="mt-9" />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
