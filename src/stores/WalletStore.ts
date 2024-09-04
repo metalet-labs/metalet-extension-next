@@ -28,9 +28,9 @@ const initWalletManager = async (): Promise<WalletManager> => {
     const walletsOptions = [
       {
         id: activeWallet.id,
-        mnemonic: decrypt(activeWallet.mnemonic, password),
         name: activeWallet.name,
         mvcTypes: activeWallet.mvcTypes,
+        mnemonic: decrypt(activeWallet.mnemonic, password),
         accountsOptions: activeWallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),
       },
     ]
@@ -125,13 +125,14 @@ const getCurrentChainWallet = async (chain: Chain) => {
 }
 
 const addWalletOnlyAccount = async (walletId: string, accountId: string) => {
+  const password = await getPassword()
   const manager = await getWalletManager()
   const wallet = await getWalletOnlyAccount(walletId, accountId)
   manager.addWallet({
     id: wallet.id,
     name: wallet.name,
-    mnemonic: wallet.mnemonic,
     mvcTypes: wallet.mvcTypes,
+    mnemonic: decrypt(wallet.mnemonic, password),
     accountsOptions: wallet.accounts.map(({ id, name, addressIndex }) => ({ id, name, addressIndex })),
   })
 }

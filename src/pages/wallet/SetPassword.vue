@@ -11,8 +11,10 @@ import { backupV3EncryptedWalletsStorage, getV3EncryptedWalletsStorage, setV3Enc
 
 const router = useRouter()
 const phase = ref<1 | 2>(1)
+const hasPassword = ref(true)
 
 passwordManager.has().then((_hasPassword) => {
+  hasPassword.value = _hasPassword
   if (!_hasPassword) {
     phase.value = 2
   }
@@ -71,11 +73,11 @@ const next = async () => {
 
 <template>
   <div class="flex h-full flex-col">
-    <div class="h-15 -my-3 flex items-center gap-3">
+    <div class="h-15 -my-3 flex items-center gap-3" v-if="hasPassword">
       <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="$router.back()" />
     </div>
     <div class="space-y-2 pt-4">
-      <h3 class="text-2xl font-medium">Change Password</h3>
+      <h3 class="text-2xl font-medium">{{ hasPassword ? 'Change' : 'Set' }} Password</h3>
       <p class="mt-2 text-sm text-gray-primary">
         Set a password to manage your wallet. Note that we don't store your password and can't restore it for you. If
         you forget your password, you can set a new one by resetting your wallet and re-importing it.
