@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import * as z from 'zod'
-import { computed, ref, watch } from 'vue'
 import { Button } from '@/components'
 import { useForm } from 'vee-validate'
-import { encrypt } from '@/lib/crypto'
+import { decrypt, encrypt } from '@/lib/crypto'
 import { useRouter } from 'vue-router'
 import { getPassword } from '@/lib/lock'
+import { computed, ref, watch } from 'vue'
 import { toast } from '@/components/ui/toast'
 import { toTypedSchema } from '@vee-validate/zod'
 import FailIcon from '@/assets/icons-v3/fail.svg'
@@ -119,7 +119,6 @@ const addWallet = async () => {
     const accountId = genUID()
     const walletNum = await getV3WalletsNum()
     const encryptedMnemonic = encrypt(mnemonic.value, password)
-
     await addV3Wallet({
       id: walletId,
       name: `Wallet ${formatIndex(walletNum + 1)}`,

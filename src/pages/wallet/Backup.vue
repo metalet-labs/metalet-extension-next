@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { computed, Ref, ref } from 'vue'
 import { IS_DEV } from '@/data/config'
-import { decrypt, hashWithSha256 } from '@/lib/crypto'
 import { useRouter } from 'vue-router'
 import passwordManager from '@/lib/password'
 import { toast } from '@/components/ui/toast'
 import { EyeIcon } from '@heroicons/vue/24/solid'
 import ResetModal from '@/components/ResetModal.vue'
+import { decrypt, hashWithSha256 } from '@/lib/crypto'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
 import { getCurrentWalletId, getV3CurrentWallet } from '@/lib/wallet'
 import { PasswordInput, SeedPhrase, VerifySeedPhrase } from '@/components'
@@ -28,10 +28,6 @@ getV3CurrentWallet().then((_wallet) => {
 
 const mnemonic = computed(() => {
   if (wallet.value && password) {
-    console.log("mnemonic", wallet.value.mnemonic, "password", password.value, "hash password", hashWithSha256(password.value))
-    console.log("decrypt", decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value))
-
-
     return decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value)
   }
   return ''
@@ -137,7 +133,6 @@ const back = () => {
       <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary" v-if="phase === 1">
         Forget password?
       </button>
-      <p v-if="error" class="absolute bottom-[100%] left-0 text-sm text-red-500 text-center w-full">{{ error }}</p>
     </div>
     <ResetModal v-model:show="showResetModal" />
   </div>

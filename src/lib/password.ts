@@ -1,6 +1,8 @@
 import hash from 'object-hash'
 import CryptoJS from 'crypto-js'
 import useStorage from './storage'
+import { IS_DEV } from '@/data/config'
+import { notifyBg } from './notify-bg'
 import { PASSWORD_KEY } from './storage/key'
 
 const storage = useStorage()
@@ -22,6 +24,9 @@ export async function checkPassword(password: string) {
 }
 
 export async function setPassword(password: string) {
+  if (!IS_DEV) {
+    await notifyBg('setPassword')(password)
+  }
   const hashed = CryptoJS.SHA256(password).toString()
   await storage.set(PASSWORD_KEY, hashed)
 }
