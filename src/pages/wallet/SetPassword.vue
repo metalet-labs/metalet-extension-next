@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import hash from 'object-hash'
 import { computed, ref } from 'vue'
 import { IS_DEV } from '@/data/config'
 import { useRouter } from 'vue-router'
@@ -7,7 +8,11 @@ import { PasswordInput } from '@/components'
 import { toast } from '@/components/ui/toast'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
 import { decrypt, encrypt, hashWithSha256 } from '@/lib/crypto'
-import { backupV3EncryptedWalletsStorage, getV3EncryptedWalletsStorage, setV3EncryptedWalletsStorage } from '@/lib/wallet'
+import {
+  backupV3EncryptedWalletsStorage,
+  getV3EncryptedWalletsStorage,
+  setV3EncryptedWalletsStorage,
+} from '@/lib/wallet'
 
 const router = useRouter()
 const phase = ref<1 | 2>(1)
@@ -26,7 +31,10 @@ const password = ref('')
 const confirmPassword = ref('')
 
 const canPass = computed(() => {
-  return (oldPassword.value.length >= 6 && phase.value === 1) || (password.value.length >= 6 && confirmPassword.value.length >= 6 && phase.value === 2)
+  return (
+    (oldPassword.value.length >= 6 && phase.value === 1) ||
+    (password.value.length >= 6 && confirmPassword.value.length >= 6 && phase.value === 2)
+  )
 })
 
 // 按钮
@@ -50,19 +58,34 @@ const next = async () => {
   } else {
     if (password.value === oldPassword.value) {
       error.value = "New password can't be the same as old password."
-    }
-    else if (password.value !== confirmPassword.value) {
+    } else if (password.value !== confirmPassword.value) {
       error.value = "Passwords don't match. Try again."
     } else {
       await backupV3EncryptedWalletsStorage()
       const wallets = await getV3EncryptedWalletsStorage()
-      for (const key in wallets) {
-        if (wallets.hasOwnProperty(key)) {
-          const mnemonic = decrypt(wallets[key].mnemonic, IS_DEV ? hashWithSha256(oldPassword.value) : oldPassword.value)
-          wallets[key].mnemonic = encrypt(mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value)
+      try {
+        for (const key in wallets) {
+          if (wallets.hasOwnProperty(key)) {
+            const mnemonic = decrypt(
+              wallets[key].mnemonic,
+              IS_DEV ? hashWithSha256(oldPassword.value) : oldPassword.value
+            )
+
+            wallets[key].mnemonic = encrypt(mnemonic, password.value)
+            console.log('new password', password.value)
+            decrypt(wallets[key].mnemonic, password.value)
+
+            console.log('encrypt mnemonic:', wallets[key].mnemonic, encrypt(mnemonic, password.value))
+
+            console.log('decrypt mnemonic:', decrypt(wallets[key].mnemonic, password.value))
+          }
         }
+      } catch (e: any) {
+        toast({ title: 'Set Password failed.', toastType: 'fail', description: e.message })
+        return
       }
-      await setV3EncryptedWalletsStorage(wallets)
+
+      // await setV3EncryptedWalletsStorage(wallets)
       await passwordManager.set(password.value)
       toast({ title: 'Set Password successfully.', toastType: 'success' })
       router.push('/wallet')
@@ -84,8 +107,13 @@ const next = async () => {
       </p>
     </div>
     <div class="grow">
-      <PasswordInput v-if="phase === 1" v-model:password="oldPassword" title="Old Password" v-model:error="error"
-        class="mt-9" />
+      <PasswordInput
+        v-if="phase === 1"
+        v-model:password="oldPassword"
+        title="Old Password"
+        v-model:error="error"
+        class="mt-9"
+      />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
         <PasswordInput v-model:password="password" title="New Password" :validate="true" />
@@ -94,8 +122,12 @@ const next = async () => {
     </div>
     <div class="flex items-center justify-center gap-2 my-6">
       <button class="w-30 h-12 bg-blue-light rounded-3xl text-blue-primary" @click="back">Back</button>
-      <button class="w-30 h-12 bg-blue-primary rounded-3xl text-white"
-        :class="!canPass && 'opacity-50 cursor-not-allowed'" :disabled="!canPass" @click="next">
+      <button
+        class="w-30 h-12 bg-blue-primary rounded-3xl text-white"
+        :class="!canPass && 'opacity-50 cursor-not-allowed'"
+        :disabled="!canPass"
+        @click="next"
+      >
         Next
       </button>
     </div>

@@ -24,7 +24,6 @@ import { getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { addV3Wallet, getV3EncryptedWallets, getV3WalletsNum, setCurrentWalletId, setV3WalletsNum } from '@/lib/wallet'
 
-
 const { updateAllWallets } = useChainWalletsStore()
 
 type ActivateType = 'Create' | 'Import'
@@ -118,6 +117,8 @@ const addWallet = async () => {
     const walletId = genUID()
     const accountId = genUID()
     const walletNum = await getV3WalletsNum()
+    console.log('mnemonic:', mnemonic.value)
+
     const encryptedMnemonic = encrypt(mnemonic.value, password)
     await addV3Wallet({
       id: walletId,
@@ -159,8 +160,10 @@ const addWallet = async () => {
 <template>
   <div class="flex flex-col w-82">
     <!-- TODO: Add a loading screen -->
-    <div v-if="loading"
-      class="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-10">
+    <div
+      v-if="loading"
+      class="absolute top-0 left-0 w-screen h-screen bg-black bg-opacity-50 flex items-center justify-center z-10"
+    >
       <div class="w-[108px] h-[108px] bg-white rounded-lg flex flex-col items-center justify-center gap-4">
         <LoadingIcon class="text-blue-primary" />
         <span>Loading</span>
@@ -183,29 +186,45 @@ const addWallet = async () => {
         <form @submit="onSubmit" class="mt-9 relative w-full">
           <FormField name="chains">
             <FormItem class="flex flex-col items-center gap-8 w-full relative">
-              <FormField name="chains" :key="chain.id" type="checkbox" :value="chain.id" v-for="chain in chains"
-                :unchecked-value="false" v-slot="{ value, handleChange }">
-                <FormItem :class="[
-                  'flex items-center justify-between cursor-pointer px-[18px] py-3 bg-[#F8F8FA] w-full rounded-lg gap-2 relative',
-                  { 'border border-blue-primary': selectedChains.includes(chain.id) },
-                ]">
+              <FormField
+                name="chains"
+                :key="chain.id"
+                type="checkbox"
+                :value="chain.id"
+                v-for="chain in chains"
+                :unchecked-value="false"
+                v-slot="{ value, handleChange }"
+              >
+                <FormItem
+                  :class="[
+                    'flex items-center justify-between cursor-pointer px-[18px] py-3 bg-[#F8F8FA] w-full rounded-lg gap-2 relative',
+                    { 'border border-blue-primary': selectedChains.includes(chain.id) },
+                  ]"
+                >
                   <FormLabel class="flex items-center gap-2 cursor-pointer">
                     <img :src="chain.logo" alt="Bitcoin" class="inline-block size-10" />
                     <div class="text-xs flex flex-col gap-1">
                       <span>{{ chain.name }}</span>
-                      <span v-if="chain.name === 'MicrovisionChain'"
-                        class="text-xs px-2 py-1 scale-75 origin-left rounded-full bg-[#F7931A]/20 text-[#F7931A]">
+                      <span
+                        v-if="chain.name === 'MicrovisionChain'"
+                        class="text-xs px-2 py-1 scale-75 origin-left rounded-full bg-[#F7931A]/20 text-[#F7931A]"
+                      >
                         Bitcoin sidechain
                       </span>
                     </div>
                   </FormLabel>
                   <FormControl>
-                    <Checkbox @click="selectChain(chain.id)" @update:checked="handleChange"
+                    <Checkbox
+                      @click="selectChain(chain.id)"
+                      @update:checked="handleChange"
                       :checked="value.includes(chain.id)"
-                      class="rounded-full data-[state=checked]:bg-green-success data-[state=checked]:border-none w-5 h-5 text-xs" />
+                      class="rounded-full data-[state=checked]:bg-green-success data-[state=checked]:border-none w-5 h-5 text-xs"
+                    />
                   </FormControl>
-                  <p class="absolute -bottom-8 left-0 flex items-center gap-x-1 text-sm"
-                    v-if="chain.name === 'MicrovisionChain' && value.includes(chain.id) && type === 'Import'">
+                  <p
+                    class="absolute -bottom-8 left-0 flex items-center gap-x-1 text-sm"
+                    v-if="chain.name === 'MicrovisionChain' && value.includes(chain.id) && type === 'Import'"
+                  >
                     <span class="text-gray-primary">Choose</span>
                     <span class="underline text-blue-primary" @click="$emit('openSelectMvcPath')">MVC Address</span>
                     <span v-tooltip="'Import the MVC wallet by modifying the HD Path.'">
@@ -218,10 +237,13 @@ const addWallet = async () => {
             <FormMessage class="text-red-500 text-ss text-center absolute bottom-[60px] w-full" />
           </FormField>
 
-          <button type="submit" :class="[
-            'w-full rounded-3xl py-4 text-center text-ss text-white bg-blue-primary mt-16',
-            { 'opacity-50 cursor-not-allowed': !selectedChains.length },
-          ]">
+          <button
+            type="submit"
+            :class="[
+              'w-full rounded-3xl py-4 text-center text-ss text-white bg-blue-primary mt-16',
+              { 'opacity-50 cursor-not-allowed': !selectedChains.length },
+            ]"
+          >
             Launch Metalet
           </button>
         </form>

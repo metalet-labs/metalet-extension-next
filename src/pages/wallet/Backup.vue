@@ -27,12 +27,14 @@ getV3CurrentWallet().then((_wallet) => {
 })
 
 const mnemonic = computed(() => {
-  if (wallet.value && password) {
+  if (wallet.value && password.value) {
+    console.log('password', IS_DEV ? hashWithSha256(password.value) : password.value)
+    console.log('mnemonic', decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value))
+
     return decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value)
   }
   return ''
 })
-
 
 const next = async () => {
   if (phase.value === 1) {
@@ -101,10 +103,14 @@ const back = () => {
         </div>
         <div class="relative mt-2">
           <SeedPhrase :words="mnemonic.split(' ')" :edit="false" :noCopied="true" />
-          <div v-if="isCoveredMne"
-            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 rounded-lg bg-gray-100/30 backdrop-blur">
-            <button class="w- flex w-32 items-center justify-center gap-x-2 rounded-full border border-black py-2"
-              @click="isCoveredMne = false">
+          <div
+            v-if="isCoveredMne"
+            class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 rounded-lg bg-gray-100/30 backdrop-blur"
+          >
+            <button
+              class="w- flex w-32 items-center justify-center gap-x-2 rounded-full border border-black py-2"
+              @click="isCoveredMne = false"
+            >
               <EyeIcon class="h-5 w-5" />
               <span>Show</span>
             </button>
@@ -124,10 +130,14 @@ const back = () => {
 
     <!-- buttons -->
     <div class="flex flex-col items-center justify-center py-5 relative">
-      <button @click="next" :disabled="!password" :class="[
-        'bg-blue-primary w-61.5 h-12 rounded-3xl py-4 text-ss leading-none text-white',
-        !password && 'opacity-50 saturate-50 cursor-not-allowed',
-      ]">
+      <button
+        @click="next"
+        :disabled="!password"
+        :class="[
+          'bg-blue-primary w-61.5 h-12 rounded-3xl py-4 text-ss leading-none text-white',
+          !password && 'opacity-50 saturate-50 cursor-not-allowed',
+        ]"
+      >
         {{ [1, 3].includes(phase) ? 'Continue' : phase === 2 ? "OK, I've noted them down." : 'Confirm' }}
       </button>
       <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary" v-if="phase === 1">

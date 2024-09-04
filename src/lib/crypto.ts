@@ -535,12 +535,18 @@ export function decrypt(encryptedText: string, password: string) {
   const { SECRET_KEY, SECRET_IV } = getSecretData(password)
   const encryptedHexStr = CryptoJS.enc.Hex.parse(encryptedText)
   const str = CryptoJS.enc.Base64.stringify(encryptedHexStr)
+  console.log(11111);
+  
   const decrypt = CryptoJS.AES.decrypt(str, SECRET_KEY, {
     iv: SECRET_IV,
     mode: CryptoJS.mode.CBC,
     padding: CryptoJS.pad.Pkcs7,
   })
+  console.log(222222);
+  
   const decryptedStr = decrypt.toString(CryptoJS.enc.Utf8)
+  console.log(3333);
+  
   return decryptedStr.toString()
 }
 
