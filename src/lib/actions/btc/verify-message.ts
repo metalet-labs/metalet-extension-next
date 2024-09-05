@@ -8,8 +8,8 @@ interface verifyMessageParams {
   encoding?: BufferEncoding
 }
 
-export async function process(params: verifyMessageParams) {
+export async function process(params: verifyMessageParams, { password }: { password: string }) {
   const { text, sig: signature, publicKey, encoding } = params
-  const wallet = await getCurrentWallet(Chain.BTC)
+  const wallet = await getCurrentWallet(Chain.BTC, { password })
   return wallet.verifyMessage({ text, signature, publicKey, encoding })
 }

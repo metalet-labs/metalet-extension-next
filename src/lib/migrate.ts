@@ -130,8 +130,6 @@ async function needEncryptV3(): Promise<boolean> {
   const password = await getPassword()
   const needed = v3Wallets.some((wallet) => !v3EncryptedMnemonics.includes(encrypt(wallet.mnemonic, password)))
 
-  console.log('needEncryptV3', needed)
-
   if (!needed) {
     await storage.set(ACCOUNT_V3_Encrypted_KEY, true)
   }

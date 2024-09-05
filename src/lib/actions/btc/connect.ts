@@ -8,7 +8,7 @@ interface AccountInfo {
   pubKey: string
 }
 
-export async function process(_: unknown, host: string): Promise<AccountInfo> {
+export async function process(_: unknown, { host }: { host: string }): Promise<AccountInfo> {
   const wallet = await getCurrentWallet(Chain.BTC)
   const currentAccountId = await getCurrentAccountId()
   if (!wallet || !currentAccountId) {

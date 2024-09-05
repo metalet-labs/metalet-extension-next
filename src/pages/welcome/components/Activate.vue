@@ -117,7 +117,6 @@ const addWallet = async () => {
     const walletId = genUID()
     const accountId = genUID()
     const walletNum = await getV3WalletsNum()
-    console.log('mnemonic:', mnemonic.value)
 
     const encryptedMnemonic = encrypt(mnemonic.value, password)
     await addV3Wallet({

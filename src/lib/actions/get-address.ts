@@ -2,8 +2,8 @@ import connector from '../connector'
 import { getCurrentWallet } from '../wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
 
-export async function process(_: unknown, host: string) {
-  const wallet = await getCurrentWallet(Chain.MVC)
+export async function process(_: unknown, { host, password }: { host: string; password: string }) {
+  const wallet = await getCurrentWallet(Chain.MVC, { password })
   const address = wallet.getAddress()
 
   // 检查连接状态

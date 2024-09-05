@@ -1,3 +1,4 @@
+import hash from 'object-hash'
 import { isLocked } from './lib/lock'
 import connector from './lib/connector'
 import { network } from '@/lib/network'
@@ -60,7 +61,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
     // 如果连接状态为未连接，且请求的 action 不是connect或者IsConnected，则返回错误
     let failedStatus: string = ''
-    if (await isLocked()) {
+    if ((await isLocked()) || !password.value) {
       failedStatus = 'locked'
     } else if (!(await hasWallets())) {
       failedStatus = 'no-wallets'
@@ -113,6 +114,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
     // authorize actions
     if (msg.action?.startsWith('authorize')) {
+      console.log('authorize', msg)
+
       const icon = sender.tab?.favIconUrl || msg.icon || ''
       const rawUrl = 'popup.html#authorize'
       // 拼接授权页的参数
@@ -193,7 +196,12 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       // call corresponding process function
       const action = actions[actionName]
       if (action) {
-        const processed = await action.process(msg.params, msg.host as string)
+        console.log('password', password.value, hash(password.value))
+
+        const processed = await action.process(msg.params, {
+          host: msg.host,
+          password: hash(password.value),
+        })
 
         const response = {
           nonce: msg.nonce,

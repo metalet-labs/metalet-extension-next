@@ -1,6 +1,6 @@
 import { mvc } from 'meta-contract'
 import useStorage from '@/lib/storage'
-import { signMessage } from '@/lib/crypto'
+import { decrypt, signMessage } from '@/lib/crypto'
 import { fetchUtxos } from '@/queries/utxos'
 import { notifyContent } from '@/lib/notify-content'
 import { generateRandomString } from '@/lib/helpers'
@@ -10,6 +10,7 @@ import type { V1Account, V2Account, Chain, ChainDetail } from './types'
 import { ScriptType, Chain as UtxoChain } from '@metalet/utxo-wallet-service'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
 import { deriveSigner, deriveAddress, derivePublicKey, inferAddressType, derivePrivateKey } from '@/lib/bip32-deriver'
+import { getPassword } from './lock'
 
 const CURRENT_WALLET_ID = 'currentWalletId'
 
@@ -230,9 +231,9 @@ async function getAccountProperty(chain: Chain, key: keyof ChainDetail[Chain]): 
   return account[chain][key]
 }
 
-export async function getAddress(chain: Chain = 'mvc', path?: string): Promise<string> {
+export async function getAddress(chain: Chain = 'mvc', path?: string, password?: string): Promise<string> {
   const addressIndex = path ? Number(path.charAt(path.length - 1)) : undefined
-  const wallet = await getCurrentWallet(chain as UtxoChain, addressIndex)
+  const wallet = await getCurrentWallet(chain as UtxoChain, { addressIndex, password })
   return wallet.getAddress()
 }
 
@@ -317,10 +318,11 @@ export async function getPublicKey(chain: Chain = 'mvc', path?: string): Promise
   }
 }
 
-export async function getXPublicKey() {
+export async function getXPublicKey(password?: string) {
+  password = password ?? (await getPassword())
   const activeWallet = await getActiveWalletOnlyAccount()
   const network = await getNetwork()
-  const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
+  const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
   const mvcWallet = await getCurrentWallet(UtxoChain.MVC)
   const rootPath = mvcWallet.getPath()
   const xPublicKey = mneObj
@@ -330,8 +332,8 @@ export async function getXPublicKey() {
   return xPublicKey
 }
 
-export async function getBalance(chain: UtxoChain) {
-  const wallet = await getCurrentWallet(chain)
+export async function getBalance(chain: UtxoChain, password?: string) {
+  const wallet = await getCurrentWallet(chain, { password })
   const address = wallet.getAddress()
 
   switch (chain) {
@@ -345,8 +347,8 @@ export async function getBalance(chain: UtxoChain) {
   }
 }
 
-export async function getUtxos(chain: Chain = 'mvc', params?: { path?: string }) {
-  const address = await getAddress(chain, params?.path)
+export async function getUtxos(chain: Chain = 'mvc', params?: { path?: string }, password?: string) {
+  const address = await getAddress(chain, params?.path, password)
   return await fetchUtxos(chain, address)
 }
 

@@ -60,8 +60,11 @@ const isFinished = ref(false)
 const processTxids = ref([])
 const runAction = async () => {
   running.value = true
+  console.log('actionName', actionName)
 
   const process = action.process
+  console.log('action', action.process)
+
   let processRes: any = null
 
   try {

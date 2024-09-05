@@ -29,9 +29,6 @@ getV3CurrentWallet().then((_wallet) => {
 
 const mnemonic = computed(() => {
   if (wallet.value && password.value) {
-    console.log('password', IS_DEV ? hashWithSha256(password.value) : hash(password.value))
-    console.log('mnemonic', decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : hash(password.value)))
-
     return decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : hash(password.value))
   }
   return ''

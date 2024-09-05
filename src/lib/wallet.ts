@@ -11,6 +11,8 @@ import {
   V3_ENCRYPTED_WALLETS_STORAGE_KEY,
   V3_ENCRYPTED_WALLETS_STORAGE_BACKUP_KEY,
 } from '@/lib/storage/key'
+import { getPassword } from './lock'
+import { decrypt } from './crypto'
 
 const storage = useStorage()
 
@@ -260,11 +262,18 @@ interface WalletMap {
   [Chain.MVC]: MvcWallet
 }
 
-export async function getCurrentWallet<T extends Chain>(chain: T, _addressIndex?: number): Promise<WalletMap[T]> {
+export async function getCurrentWallet<T extends Chain>(
+  chain: T,
+  options?: {
+    password?: string
+    addressIndex?: number
+  }
+): Promise<WalletMap[T]> {
   const network = getNet()
   const activeWallet = await getActiveWalletOnlyAccount()
-  const mnemonic = activeWallet.mnemonic
-  const addressIndex = _addressIndex ?? activeWallet.accounts[0].addressIndex
+  const password = options?.password || (await getPassword())
+  const mnemonic = decrypt(activeWallet.mnemonic, password)
+  const addressIndex = options?.addressIndex ?? activeWallet.accounts[0].addressIndex
   const addressType = await getV3AddressTypeStorage(chain)
   if (chain === Chain.BTC) {
     const coinType = addressType === AddressType.SameAsMvc ? activeWallet.mvcTypes[0] : CoinType.BTC
