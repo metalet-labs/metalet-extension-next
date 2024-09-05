@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import { computed, Ref, ref } from 'vue'
+import hash from 'object-hash'
 import { IS_DEV } from '@/data/config'
 import { useRouter } from 'vue-router'
+import { computed, Ref, ref } from 'vue'
 import passwordManager from '@/lib/password'
 import { toast } from '@/components/ui/toast'
 import { EyeIcon } from '@heroicons/vue/24/solid'
@@ -28,10 +29,10 @@ getV3CurrentWallet().then((_wallet) => {
 
 const mnemonic = computed(() => {
   if (wallet.value && password.value) {
-    console.log('password', IS_DEV ? hashWithSha256(password.value) : password.value)
-    console.log('mnemonic', decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value))
+    console.log('password', IS_DEV ? hashWithSha256(password.value) : hash(password.value))
+    console.log('mnemonic', decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : hash(password.value)))
 
-    return decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : password.value)
+    return decrypt(wallet.value.mnemonic, IS_DEV ? hashWithSha256(password.value) : hash(password.value))
   }
   return ''
 })

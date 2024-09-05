@@ -27,13 +27,13 @@ passwordManager.has().then((_hasPassword) => {
 
 const error = ref('')
 const oldPassword = ref('')
-const password = ref('')
+const newPassword = ref('')
 const confirmPassword = ref('')
 
 const canPass = computed(() => {
   return (
     (oldPassword.value.length >= 6 && phase.value === 1) ||
-    (password.value.length >= 6 && confirmPassword.value.length >= 6 && phase.value === 2)
+    (newPassword.value.length >= 6 && confirmPassword.value.length >= 6 && phase.value === 2)
   )
 })
 
@@ -56,9 +56,11 @@ const next = async () => {
       error.value = 'Incorrect password. Try again.'
     }
   } else {
-    if (password.value === oldPassword.value) {
+    if (newPassword.value === oldPassword.value) {
       error.value = "New password can't be the same as old password."
-    } else if (password.value !== confirmPassword.value) {
+    } else if (newPassword.value.length < 6) {
+      error.value = 'Password must be at least 6 characters long.'
+    } else if (newPassword.value !== confirmPassword.value) {
       error.value = "Passwords don't match. Try again."
     } else {
       await backupV3EncryptedWalletsStorage()
@@ -66,18 +68,10 @@ const next = async () => {
       try {
         for (const key in wallets) {
           if (wallets.hasOwnProperty(key)) {
-            const mnemonic = decrypt(
-              wallets[key].mnemonic,
-              IS_DEV ? hashWithSha256(oldPassword.value) : oldPassword.value
-            )
-
-            wallets[key].mnemonic = encrypt(mnemonic, password.value)
-            console.log('new password', password.value)
-            decrypt(wallets[key].mnemonic, password.value)
-
-            console.log('encrypt mnemonic:', wallets[key].mnemonic, encrypt(mnemonic, password.value))
-
-            console.log('decrypt mnemonic:', decrypt(wallets[key].mnemonic, password.value))
+            let password = IS_DEV ? hashWithSha256(oldPassword.value) : hash(oldPassword.value)
+            const mnemonic = decrypt(wallets[key].mnemonic, password)
+            password = IS_DEV ? hashWithSha256(newPassword.value) : hash(newPassword.value)
+            wallets[key].mnemonic = encrypt(mnemonic, password)
           }
         }
       } catch (e: any) {
@@ -85,8 +79,8 @@ const next = async () => {
         return
       }
 
-      // await setV3EncryptedWalletsStorage(wallets)
-      await passwordManager.set(password.value)
+      await setV3EncryptedWalletsStorage(wallets)
+      await passwordManager.set(newPassword.value)
       toast({ title: 'Set Password successfully.', toastType: 'success' })
       router.push('/wallet')
     }
@@ -116,7 +110,7 @@ const next = async () => {
       />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
-        <PasswordInput v-model:password="password" title="New Password" :validate="true" />
+        <PasswordInput v-model:password="newPassword" title="New Password" :validate="true" />
         <PasswordInput v-model:password="confirmPassword" title="Confirm" v-model:error="error" />
       </div>
     </div>

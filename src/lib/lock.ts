@@ -1,3 +1,4 @@
+import hash from 'object-hash'
 import useStorage from './storage'
 import { IS_DEV } from '@/data/config'
 import { notifyBg } from './notify-bg'
@@ -5,7 +6,6 @@ import { LAST_LOCK_TIME_KEY, LOCK_KEY } from './storage/key'
 import { checkPassword, hasPassword, getEncryptedPassword } from './password'
 
 const storage = useStorage()
-
 
 export async function lock() {
   await storage.set(LOCK_KEY, true)
@@ -45,10 +45,14 @@ export async function setLastLockTime() {
   return await storage.set(LAST_LOCK_TIME_KEY, Date.now())
 }
 
-export async function getPassword():Promise<string> {
+export async function getPassword(): Promise<string> {
   if (IS_DEV) {
     return (await getEncryptedPassword()) || ''
   } else {
-    return (await notifyBg('getPassword')()) || ''
+    const password = await notifyBg('getPassword')()
+    if (password) {
+      return hash(password)
+    }
+    return ''
   }
 }
