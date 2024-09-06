@@ -329,6 +329,7 @@ export const payTransactions = async (
             if (typeof metaIdMessages[i] !== 'string') continue
 
             if (metaIdMessages[i].includes(prevTxids[j])) {
+              replaceFound = true
               metaIdMessages[i] = (metaIdMessages[i] as string).replace(prevTxids[j], txids.get(prevTxids[j])!)
             }
           }
