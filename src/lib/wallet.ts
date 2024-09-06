@@ -265,14 +265,18 @@ interface WalletMap {
 export async function getCurrentWallet<T extends Chain>(
   chain: T,
   options?: {
+    mnemonic?: string
     password?: string
     addressIndex?: number
   }
 ): Promise<WalletMap[T]> {
   const network = getNet()
   const activeWallet = await getActiveWalletOnlyAccount()
-  const password = options?.password || (await getPassword())
-  const mnemonic = decrypt(activeWallet.mnemonic, password)
+  let mnemonic = options?.mnemonic
+  if (!mnemonic) {
+    const password = options?.password || (await getPassword())
+    mnemonic = decrypt(activeWallet.mnemonic, password)
+  }
   const addressIndex = options?.addressIndex ?? activeWallet.accounts[0].addressIndex
   const addressType = await getV3AddressTypeStorage(chain)
   if (chain === Chain.BTC) {

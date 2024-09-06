@@ -44,7 +44,7 @@ connector.connect = async function (accountId, host, logo?: string) {
 }
 
 connector.isConnected = async function (accountId, host) {
-  const connections = await getConnections()
+  const connections = await getConnections()  
   const accountConnections = connections[accountId] || {}
   return !!accountConnections[host]
 }

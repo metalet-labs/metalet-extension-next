@@ -114,8 +114,6 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
     // authorize actions
     if (msg.action?.startsWith('authorize')) {
-      console.log('authorize', msg)
-
       const icon = sender.tab?.favIconUrl || msg.icon || ''
       const rawUrl = 'popup.html#authorize'
       // 拼接授权页的参数
@@ -196,8 +194,6 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       // call corresponding process function
       const action = actions[actionName]
       if (action) {
-        console.log('password', password.value, hash(password.value))
-
         const processed = await action.process(msg.params, {
           host: msg.host,
           password: hash(password.value),

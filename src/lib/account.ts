@@ -322,8 +322,9 @@ export async function getXPublicKey(password?: string) {
   password = password ?? (await getPassword())
   const activeWallet = await getActiveWalletOnlyAccount()
   const network = await getNetwork()
-  const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
-  const mvcWallet = await getCurrentWallet(UtxoChain.MVC)
+  const mnemonic = decrypt(activeWallet.mnemonic, password)
+  const mneObj = mvc.Mnemonic.fromString(mnemonic)
+  const mvcWallet = await getCurrentWallet(UtxoChain.MVC, { mnemonic })
   const rootPath = mvcWallet.getPath()
   const xPublicKey = mneObj
     .toHDPrivateKey('', network)
