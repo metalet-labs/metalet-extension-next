@@ -8,6 +8,7 @@ import { type MvcUtxo, fetchUtxos } from '@/queries/utxos'
 import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import { DERIVE_MAX_DEPTH, FEEB, P2PKH_UNLOCK_SIZE } from '@/data/config'
 import { Chain } from '@metalet/utxo-wallet-service'
+import { getPassword } from '@/lib/lock'
 
 export function eciesEncrypt(message: string, privateKey: mvc.PrivateKey): string {
   const publicKey = privateKey.toPublicKey()
@@ -90,8 +91,9 @@ export const signTransaction = async (
   returnsTransaction: boolean = false
 ) => {
   const network = await getNetwork()
+  const password = await getPassword()
   const activeWallet = await getActiveWalletOnlyAccount()
-  const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
+  const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
   const mvcWallet = await getCurrentWallet(Chain.MVC)
   const hdpk = mneObj.toHDPrivateKey('', network)
   const rootPath = await getMvcRootPath()
@@ -136,8 +138,9 @@ export const signTransaction = async (
 
 export const signTransactions = async (toSignTransactions: ToSignTransaction[]) => {
   const network = await getNetwork()
+  const password = await getPassword()
   const activeWallet = await getActiveWalletOnlyAccount()
-  const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
+  const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
   const hdpk = mneObj.toHDPrivateKey('', network)
   const rootPath = await getMvcRootPath()
   const wallet = await getCurrentWallet(Chain.MVC)
@@ -271,6 +274,7 @@ export const payTransactions = async (
   const network = await getNetwork()
   const wallet = await getCurrentWallet(Chain.MVC)
   const activeWallet = await getActiveWalletOnlyAccount()
+  const password = await getPassword()
   const address = wallet.getAddress()
   let usableUtxos = ((await fetchUtxos('mvc', address)) as MvcUtxo[]).map((u) => {
     return {
@@ -317,6 +321,8 @@ export const payTransactions = async (
       const { messages: metaIdMessages, outputIndex } = await parseLocalTransaction(tx)
 
       if (outputIndex !== null) {
+        let replaceFound = false
+
         // find out if any of the messages contains the wrong txid
         // how to find out the wrong txid?
         // it's the keys of txids Map
@@ -328,19 +334,22 @@ export const payTransactions = async (
             if (typeof metaIdMessages[i] !== 'string') continue
 
             if (metaIdMessages[i].includes(prevTxids[j])) {
+              replaceFound = true
               metaIdMessages[i] = (metaIdMessages[i] as string).replace(prevTxids[j], txids.get(prevTxids[j])!)
             }
           }
         }
 
-        // update the OP_RETURN
-        const opReturnOutput = new mvc.Transaction.Output({
-          script: mvc.Script.buildSafeDataOut(metaIdMessages),
-          satoshis: 0,
-        })
+        if (replaceFound) {
+          // update the OP_RETURN
+          const opReturnOutput = new mvc.Transaction.Output({
+            script: mvc.Script.buildSafeDataOut(metaIdMessages),
+            satoshis: 0,
+          })
 
-        // update the OP_RETURN output in tx
-        tx.outputs[outputIndex] = opReturnOutput
+          // update the OP_RETURN output in tx
+          tx.outputs[outputIndex] = opReturnOutput
+        }
       }
     }
 
@@ -374,7 +383,7 @@ export const payTransactions = async (
     const changeOutput = txComposer.getOutput(changeIndex)
 
     // sign
-    const mneObj = mvc.Mnemonic.fromString(activeWallet.mnemonic)
+    const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
     const hdpk = mneObj.toHDPrivateKey('', network)
 
     const rootPath = await getMvcRootPath()
