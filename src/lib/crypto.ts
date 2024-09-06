@@ -317,6 +317,7 @@ export const payTransactions = async (
       const { messages: metaIdMessages, outputIndex } = await parseLocalTransaction(tx)
 
       if (outputIndex !== null) {
+        let replaceFound = false
         // find out if any of the messages contains the wrong txid
         // how to find out the wrong txid?
         // it's the keys of txids Map
@@ -333,14 +334,16 @@ export const payTransactions = async (
           }
         }
 
-        // update the OP_RETURN
-        const opReturnOutput = new mvc.Transaction.Output({
-          script: mvc.Script.buildSafeDataOut(metaIdMessages),
-          satoshis: 0,
-        })
+        if (replaceFound) {
+          // update the OP_RETURN
+          const opReturnOutput = new mvc.Transaction.Output({
+            script: mvc.Script.buildSafeDataOut(metaIdMessages),
+            satoshis: 0,
+          })
 
-        // update the OP_RETURN output in tx
-        tx.outputs[outputIndex] = opReturnOutput
+          // update the OP_RETURN output in tx
+          tx.outputs[outputIndex] = opReturnOutput
+        }
       }
     }
 
