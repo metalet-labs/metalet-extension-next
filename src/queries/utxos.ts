@@ -2,11 +2,10 @@ import { Chain } from '@/lib/types'
 import { MRC20UTXO } from './mrc20'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
-import { getSafeUtxos } from '@/lib/utxo'
 import { useQuery } from '@tanstack/vue-query'
 import { UNISAT_ENABLED } from '@/data/config'
 import { fetchBtcTxHex } from '@/queries/transaction'
-import { mvcApi, mempoolApi, metaletApiV3, unisatApi } from './request'
+import { mvcApi, mempoolApi, metaletApiV3, unisatApi, metaletApiV4 } from './request'
 
 export interface UTXO {
   txId: string
@@ -31,8 +30,17 @@ export type MvcUtxo = {
   height: number
 }
 
-const fetchMVCUtxos = async (address: string): Promise<MvcUtxo[]> => {
-  return (await mvcApi<MvcUtxo[]>(`/address/${address}/utxo`)).get()
+const fetchMVCUtxos = async (address: string, useUnconfirmed = true): Promise<MvcUtxo[]> => {
+  const net = getNet()
+  let { list = [] } = await metaletApiV4<{ list: MvcUtxo[] }>('/mvc/address/utxo-list').get({
+    address,
+    net,
+  })
+  list = list.filter((utxo) => utxo.value >= 600)
+  if (!useUnconfirmed) {
+    list = list.filter((utxo) => utxo.height > 0)
+  }
+  return list
 }
 
 export type Utxo = {
