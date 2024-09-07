@@ -485,7 +485,7 @@ function pickUtxo(utxos: SA_utxo[], amount: number) {
     .sort(() => Math.random() - 0.5)
   const unconfirmedUtxos = utxos
     .filter((utxo) => {
-      return utxo.height < 0
+      return utxo.height <= 0
     })
     .sort(() => Math.random() - 0.5)
 
