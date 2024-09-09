@@ -42,6 +42,7 @@ const fetchMVCUtxos = async (address: string, useUnconfirmed = true): Promise<Mv
       net,
       flag,
     })
+    flag = list[list.length - 1]?.flag
     let filteredList = list.filter((utxo) => utxo.value >= 600)
     if (!useUnconfirmed) {
       filteredList = filteredList.filter((utxo) => utxo.height > 0)
@@ -49,7 +50,6 @@ const fetchMVCUtxos = async (address: string, useUnconfirmed = true): Promise<Mv
 
     allUtxos = [...allUtxos, ...filteredList]
     hasMore = list.length > 0
-    flag = filteredList[filteredList.length - 1]?.flag
   }
 
   return allUtxos
