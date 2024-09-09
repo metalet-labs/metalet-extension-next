@@ -322,7 +322,6 @@ export const payTransactions = async (
 
       if (outputIndex !== null) {
         let replaceFound = false
-
         // find out if any of the messages contains the wrong txid
         // how to find out the wrong txid?
         // it's the keys of txids Map
@@ -490,7 +489,7 @@ function pickUtxo(utxos: SA_utxo[], amount: number) {
     .sort(() => Math.random() - 0.5)
   const unconfirmedUtxos = utxos
     .filter((utxo) => {
-      return utxo.height < 0
+      return utxo.height <= 0
     })
     .sort(() => Math.random() - 0.5)
 

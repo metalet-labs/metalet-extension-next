@@ -235,17 +235,7 @@ const toReceive = () => {
         <div>{{ currentMVCWallet?.getAddressType() }}</div>
         <div class="flex items-center justify-between text-gray-primary gap-4">
           <div class="break-all">{{ currentMVCWallet?.getAddress() }}</div>
-          <Copy
-            :text="address"
-            class="w-[22px]"
-            @click="
-              toast({
-                title: `${currentMVCWallet?.getAddressType()}  Address Copied`,
-                toastType: 'success',
-                description: address,
-              })
-            "
-          />
+          <Copy :text="address" class="w-[22px]" />
         </div>
       </div>
 

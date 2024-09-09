@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { toast } from '@/components/ui/toast'
 import { prettifyTxId } from '@/lib/formatters'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { useIconsStore } from '@/stores/IconsStore'
@@ -51,7 +50,13 @@ const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
     </div>
     <div class="p-4 grow">
       <div class="w-full h-full rounded-xl bg-white flex flex-col items-center py-6">
-        <AssetLogo :chain="chain" type="network" :symbol="symbol" :logo="logo" class="w-15" />
+        <AssetLogo
+          :logo="logo"
+          class="w-15"
+          :chain="chain"
+          :symbol="symbol"
+          :type="['SPACE', 'BTC'].includes(symbol) ? undefined : 'network'"
+        />
         <div class="mt-3 font-medium">
           <span>{{ symbol }}</span>
         </div>

@@ -85,9 +85,12 @@ const assetUSD = computed(() => {
 })
 
 const toReceive = () => {
-  router.push(
-    `/wallet/receive/${CoinCategory.BRC20}/${symbol.value}/${address.value}?tag=${currentBTCWallet.value?.getAddressType()}`
-  )
+  router.push({
+    path: `/wallet/receive/${CoinCategory.BRC20}/${symbol.value}/${address.value}?tag=${currentBTCWallet.value?.getAddressType()}`,
+    query: {
+      chain: Chain.BTC,
+    },
+  })
 }
 
 watch(assetUSD, (_assetUSD) => {
