@@ -32,15 +32,27 @@ export type MvcUtxo = {
 
 const fetchMVCUtxos = async (address: string, useUnconfirmed = true): Promise<MvcUtxo[]> => {
   const net = getNet()
-  let { list = [] } = await metaletApiV4<{ list: MvcUtxo[] }>('/mvc/address/utxo-list').get({
-    address,
-    net,
-  })
-  list = list.filter((utxo) => utxo.value >= 600)
-  if (!useUnconfirmed) {
-    list = list.filter((utxo) => utxo.height > 0)
+  let allUtxos: MvcUtxo[] = []
+  let page = 1
+  let hasMore = true
+
+  while (hasMore) {
+    const { list = [] } = await metaletApiV4<{ list: MvcUtxo[] }>('/mvc/address/utxo-list').get({
+      address,
+      net,
+      page,
+    })
+    let filteredList = list.filter((utxo) => utxo.value >= 600)
+    if (!useUnconfirmed) {
+      filteredList = filteredList.filter((utxo) => utxo.height > 0)
+    }
+
+    allUtxos = [...allUtxos, ...filteredList]
+    hasMore = list.length > 0
+    page += 1
   }
-  return list
+
+  return allUtxos
 }
 
 export type Utxo = {
