@@ -1,4 +1,5 @@
 import { IS_DEV } from '@/data/config'
+import usePasswordStore from '@/stores/PasswordStore'
 
 interface EmitParams {
   args: unknown[]
@@ -10,7 +11,12 @@ async function emit(params: EmitParams) {
     return
   }
 
-  return window.browser.runtime.sendMessage({ ...params, channel: 'to-bg' })
+  try {
+    return window.browser.runtime.sendMessage({ ...params, channel: 'to-bg' })
+  } catch {
+    const { password } = usePasswordStore()
+    return password.value
+  }
 }
 
 export function notifyBg(eventName: string) {
