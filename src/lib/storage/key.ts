@@ -35,3 +35,6 @@ export const PASSWORD_KEY = 'password'
 // lock
 export const LOCK_KEY = 'locked'
 export const LAST_LOCK_TIME_KEY = 'last_lock_time'
+
+// lang
+export const LANG_KEY = 'lang'

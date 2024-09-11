@@ -56,7 +56,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         >
           <ArrowUpIcon class="w-4" />
         </div>
-        <span>Send</span>
+        <span>{{ $t('HomePage.Send') }}</span>
       </div>
       <div
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
@@ -67,7 +67,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         >
           <ArrowDownIcon class="w-4" />
         </div>
-        <span>Receive</span>
+        <span>{{ $t('HomePage.Receive') }}</span>
       </div>
       <a
         v-if="!IS_DEV"
@@ -80,7 +80,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         >
           <SwapIcon class="w-4" />
         </div>
-        <span>Swap</span>
+        <span>{{ $t('HomePage.Swap') }}</span>
       </a>
       <div
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
@@ -91,7 +91,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         >
           <SwapIcon class="w-4" />
         </div>
-        <span>Swap</span>
+        <span>{{ $t('HomePage.Swap') }}</span>
       </div>
       <div
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
@@ -102,7 +102,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         >
           <BridgeIcon />
         </div>
-        <span>Bridge</span>
+        <span>{{ $t('HomePage.Bridge') }}</span>
       </div>
     </div>
   </div>

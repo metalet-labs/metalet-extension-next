@@ -1,11 +1,12 @@
 import './style.css'
+import i18n from './i18n'
 import Main from './Main.vue'
 import router from './router'
 import { Buffer } from 'buffer'
+import tooltip from '@/lib/tooltip'
 import { createApp, ref } from 'vue'
 import * as Sentry from '@sentry/vue'
 import { IS_DEV } from '@/data/config'
-import tooltip from '@/lib/tooltip';
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import Notification from './components/Notification.vue'
 
@@ -46,7 +47,8 @@ if (!IS_DEV) {
   })
 }
 
+app.use(i18n)
 app.use(router)
 app.use(VueQueryPlugin)
-app.directive('tooltip', tooltip);
+app.directive('tooltip', tooltip)
 app.mount('#app')

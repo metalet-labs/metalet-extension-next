@@ -1,12 +1,14 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { Languages } from 'lucide-vue-next'
 import passwordManager from '@/lib/password'
 import { IS_DEV, VERSION } from '@/data/config'
 import ResetModal from '@/components/ResetModal.vue'
 import LinkIcon from '@/assets/icons-v3/link.svg?url'
 import SelectNetwork from './components/SelectNetwork.vue'
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
+import SelectLanguage from './components/SelectLanguage.vue'
 import ManageIcon from '@/assets/icons-v3/setting/manage.svg'
 import BackupIcon from '@/assets/icons-v3/setting/backup.svg'
 import NetworkIcon from '@/assets/icons-v3/setting/network.svg'
@@ -80,7 +82,7 @@ const showResetModal = ref(false)
     >
       <div class="flex items-center gap-3">
         <BackupIcon />
-        <span>Backup</span>
+        <span>{{ $t('SettingPage.Backup') }}</span>
       </div>
       <img :src="ArrowRightIcon" alt="" />
     </router-link>
@@ -90,7 +92,7 @@ const showResetModal = ref(false)
     >
       <div class="flex items-center gap-3">
         <SecurityIcon />
-        <span>Wallet Security</span>
+        <span>{{ $t('SettingPage.Security') }}</span>
       </div>
       <img :src="ArrowRightIcon" alt="" />
     </router-link>
@@ -100,16 +102,28 @@ const showResetModal = ref(false)
     >
       <div class="flex items-center gap-3">
         <ManageIcon />
-        <span>Management</span>
+        <span>{{ $t('SettingPage.Management') }}</span>
       </div>
       <img :src="ArrowRightIcon" alt="" />
     </router-link>
     <div class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4">
       <div class="flex items-center gap-3">
         <NetworkIcon />
-        <span>Network</span>
+        <span>{{ $t('SettingPage.Network') }}</span>
       </div>
       <SelectNetwork />
+    </div>
+    <div
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+      v-if="IS_DEV"
+    >
+      <div class="flex items-center gap-3">
+        <div class="size-[38px] rounded-full bg-[#f3f6f8] flex items-center justify-center">
+          <Languages class="scale-[0.8]" />
+        </div>
+        <span>{{ $t('SettingPage.Language') }}</span>
+      </div>
+      <SelectLanguage />
     </div>
     <router-link
       to="/settings/about"
@@ -117,7 +131,7 @@ const showResetModal = ref(false)
     >
       <div class="flex items-center gap-3">
         <MetaletIcon />
-        <span>About Metalet</span>
+        <span>{{ $t('SettingPage.About') }}</span>
       </div>
       <div class="flex items-center gap-1">
         <span class="text-sm text-gray-primary">{{ VERSION }}</span>
@@ -130,7 +144,7 @@ const showResetModal = ref(false)
     >
       <div class="flex items-center gap-3">
         <ToolkitIcon />
-        <span>Toolkit</span>
+        <span>{{ $t('SettingPage.Toolkit') }}</span>
       </div>
       <img :src="ArrowRightIcon" alt="" />
     </router-link>

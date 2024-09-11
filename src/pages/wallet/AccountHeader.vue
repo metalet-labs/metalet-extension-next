@@ -112,10 +112,15 @@ const copy = (address: string, addressType: string, type: string) => {
 
         <template v-if="btcAddress !== mvcAddress && serviceNetwork.includes(Chain.MVC)">
           <Avatar :id="mvcAddress" :class="{ '-ml-5': serviceNetwork.includes(Chain.BTC) }" v-if="!mvcMetaidInfo" />
-          <UseImage v-else :src="mvcMetaidInfo.avatar" :class="serviceNetwork.includes(Chain.BTC)
-            ? '-ml-5 z-10 h-10 w-10 rounded-full border border-gray-soft'
-            : 'z-10 h-10 w-10 rounded-full border border-gray-soft'
-            ">
+          <UseImage
+            v-else
+            :src="mvcMetaidInfo.avatar"
+            :class="
+              serviceNetwork.includes(Chain.BTC)
+                ? '-ml-5 z-10 h-10 w-10 rounded-full border border-gray-soft'
+                : 'z-10 h-10 w-10 rounded-full border border-gray-soft'
+            "
+          >
             <template #loading>
               <Avatar :id="mvcAddress" :class="{ '-ml-5': serviceNetwork.includes(Chain.BTC) }" />
             </template>
@@ -130,8 +135,9 @@ const copy = (address: string, addressType: string, type: string) => {
           <span>{{ wallet.name }}</span>
         </div>
         <div class="flex items-center gap-x-2 text-gray-black">
-          <span class="text-ss max-w-28 truncate">{{ btcMetaidInfo?.name || mvcMetaidInfo?.name || account.name
-            }}</span>
+          <span class="text-ss max-w-28 truncate">
+            {{ btcMetaidInfo?.name || mvcMetaidInfo?.name || account.name }}
+          </span>
           <!-- <template v-if="btcAddress !== mvcAddress && mvcMetaidInfo?.name">
             <span>/</span>
             <span class="text-ss">{{ mvcMetaidInfo?.name }}</span>
@@ -177,13 +183,16 @@ const copy = (address: string, addressType: string, type: string) => {
             </div>
             <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(btcWallet.address) }}</div>
           </div>
-          <CopyIcon class="cursor-pointer hover:text-blue-primary w-4.5" @click="
-            copy(
-              btcWallet.address,
-              btcWallet.addressType === 'Same as MVC' ? 'Default' : btcWallet.addressType,
-              'Bitcoin'
-            )
-            " />
+          <CopyIcon
+            class="cursor-pointer hover:text-blue-primary w-4.5"
+            @click="
+              copy(
+                btcWallet.address,
+                btcWallet.addressType === 'Same as MVC' ? 'Default' : btcWallet.addressType,
+                'Bitcoin'
+              )
+            "
+          />
         </FlexBox>
         <FlexBox ai="center" :gap="2" v-if="chainWallets.mvc" v-for="mvcWallet in chainWallets.mvc">
           <img :src="SpaceLogo" alt="Bitcoin" class="w-8" />
@@ -194,8 +203,10 @@ const copy = (address: string, addressType: string, type: string) => {
             </div>
             <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(mvcWallet.address) }}</div>
           </div>
-          <CopyIcon class="cursor-pointer hover:text-blue-primary w-4.5"
-            @click="copy(mvcWallet.address, mvcWallet.addressType, 'MicrovisionChain')" />
+          <CopyIcon
+            class="cursor-pointer hover:text-blue-primary w-4.5"
+            @click="copy(mvcWallet.address, mvcWallet.addressType, 'MicrovisionChain')"
+          />
         </FlexBox>
       </FlexBox>
     </DrawerContent>
