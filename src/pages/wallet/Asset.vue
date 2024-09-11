@@ -2,7 +2,6 @@
 import Decimal from 'decimal.js'
 import { computed, ref, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
-import { toast } from '@/components/ui/toast'
 import { calcBalance } from '@/lib/formatters'
 import { Copy, LoadingText } from '@/components'
 import { useRoute, useRouter } from 'vue-router'

@@ -1,7 +1,7 @@
 import { getNet } from './network'
 import useStorage from '@/lib/storage'
 import { type V3Wallet } from './types'
-import { getCurrentAccountId } from './account'
+import { getCurrentAccountId, setCurrentAccountId } from './account'
 import { getV3AddressTypeStorage } from './addressType'
 import { Chain, MvcWallet, BtcWallet, AddressType, CoinType } from '@metalet/utxo-wallet-service'
 import {
@@ -116,9 +116,14 @@ export async function getWalletOnlyAccount(walletId: string, accountId: string) 
   if (!wallets.length) {
     throw new Error('wallets not found')
   }
-  const wallet = wallets.find((wallet) => wallet.id === walletId)
+  let wallet = wallets.find((wallet) => wallet.id === walletId)
   if (!wallet) {
-    throw new Error('Plese select a wallet first.')
+    if (wallets.length) {
+      wallet = wallets[0]
+      await setCurrentWalletId(wallets[0].id)
+    } else {
+      throw new Error('wallets not found')
+    }
   }
 
   const { accounts } = wallet
@@ -129,9 +134,14 @@ export async function getWalletOnlyAccount(walletId: string, accountId: string) 
   if (!accountId) {
     throw new Error('account id not found')
   }
-  const account = accounts.find((account) => account.id === accountId)
+  let account = accounts.find((account) => account.id === accountId)
   if (!account) {
-    throw new Error('current account not found')
+    if (accounts.length) {
+      account = accounts[0]
+      await setCurrentAccountId(accounts[0].id)
+    } else {
+      throw new Error('wallets not found')
+    }
   }
   wallet.accounts = [account]
   return wallet

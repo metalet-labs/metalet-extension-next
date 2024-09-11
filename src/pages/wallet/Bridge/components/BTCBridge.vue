@@ -128,20 +128,20 @@ const bridge = async () => {
     ) {
       const { txId, recipient } = bridgeType.value.includes('1')
         ? await mintBtc(
-          new Decimal(sourceAmount.value).toNumber(),
-          selectedPair.value.originTokenId,
-          currentBTCWallet.value.getScriptType(),
-          currentBTCWallet.value,
-          currentMVCWallet.value,
-          bridgePairInfo.value.feeBtc
-        )
+            new Decimal(sourceAmount.value).toNumber(),
+            selectedPair.value.originTokenId,
+            currentBTCWallet.value.getScriptType(),
+            currentBTCWallet.value,
+            currentMVCWallet.value,
+            bridgePairInfo.value.feeBtc
+          )
         : await redeemBtc(
-          new Decimal(sourceAmount.value).toNumber(),
-          selectedPair.value,
-          currentBTCWallet.value.getScriptType(),
-          currentBTCWallet.value,
-          currentMVCWallet.value
-        )
+            new Decimal(sourceAmount.value).toNumber(),
+            selectedPair.value,
+            currentBTCWallet.value.getScriptType(),
+            currentBTCWallet.value,
+            currentMVCWallet.value
+          )
 
       router.replace({
         name: 'SendSuccess',
@@ -275,7 +275,7 @@ watchEffect(() => {
       c.met = !hasEnough.value
     }
     if (c.condition === 'merge-utxo') {
-      c.met = bridgeType.value === '1x' ? ((btcUtxos.value?.length || 0) >= 50) : ((mvcUtxos.value?.length || 0) >= 5)
+      c.met = bridgeType.value === '1x' ? (btcUtxos.value?.length || 0) >= 50 : (mvcUtxos.value?.length || 0) >= 5
     }
     if (c.condition === 'less-than-threshold') {
       c.met = lessThanThreshold.value
@@ -295,67 +295,118 @@ watchEffect(() => {
     </div>
     <div class="w-full">
       <GoToMerge v-model:open="open" />
-      <BridgeSideWithInput side="pay" v-if="!flipped" :asset="btcAsset" :calculating="calculatingPay"
-        v-model:amount="token1Amount" @became-source="bridgeType = '1x'" :coinCategory="CoinCategory.Native"
-        :limit-maximum="bridgePairInfo?.amountLimitMaximum" :limit-minimum="bridgePairInfo?.amountLimitMinimum"
+      <BridgeSideWithInput
+        side="pay"
+        v-if="!flipped"
+        :asset="btcAsset"
+        :calculating="calculatingPay"
+        v-model:amount="token1Amount"
+        @became-source="bridgeType = '1x'"
+        :coinCategory="CoinCategory.Native"
+        :limit-maximum="bridgePairInfo?.amountLimitMaximum"
+        :limit-minimum="bridgePairInfo?.amountLimitMinimum"
         @has-amount="(_hasAmount: boolean) => (hasAmount = _hasAmount)"
         @has-enough="(_hasEnough: boolean) => (hasEnough = _hasEnough)"
         @less-than-threshold="(_lessThanThreshold: boolean) => (lessThanThreshold = _lessThanThreshold)"
-        @more-than-threshold="(_moreThanThreshold: boolean) => (moreThanThreshold = _moreThanThreshold)" />
-      <BridgeSideWithInput side="pay" v-else-if="flipped" :asset="metaContractAsset" :calculating="calculatingPay"
-        v-model:amount="token2Amount" @became-source="bridgeType = '2x'" :coinCategory="CoinCategory.MetaContract"
-        :limit-maximum="bridgePairInfo?.amountLimitMaximum" :limit-minimum="bridgePairInfo?.amountLimitMinimum"
+        @more-than-threshold="(_moreThanThreshold: boolean) => (moreThanThreshold = _moreThanThreshold)"
+      />
+      <BridgeSideWithInput
+        side="pay"
+        v-else-if="flipped"
+        :asset="metaContractAsset"
+        :calculating="calculatingPay"
+        v-model:amount="token2Amount"
+        @became-source="bridgeType = '2x'"
+        :coinCategory="CoinCategory.MetaContract"
+        :limit-maximum="bridgePairInfo?.amountLimitMaximum"
+        :limit-minimum="bridgePairInfo?.amountLimitMinimum"
         @has-amount="(_hasAmount: boolean) => (hasAmount = _hasAmount)"
         @has-enough="(_hasEnough: boolean) => (hasEnough = _hasEnough)"
         @more-than-threshold="(_moreThanThreshold: boolean) => (moreThanThreshold = _moreThanThreshold)"
-        @less-than-threshold="(_lessThanThreshold: boolean) => (moreThanThreshold = _lessThanThreshold)" />
+        @less-than-threshold="(_lessThanThreshold: boolean) => (moreThanThreshold = _lessThanThreshold)"
+      />
 
       <div class="relative z-30 my-0.5 flex h-0 justify-center">
         <div
-          class="group absolute -translate-y-1/2 rounded-xl bg-white p-1 transition-all duration-500 hover:scale-110 lg:duration-150 text-gray-line">
+          class="group absolute -translate-y-1/2 rounded-xl bg-white p-1 transition-all duration-500 hover:scale-110 lg:duration-150 text-gray-line"
+        >
           <ArrowDownIcon class="box-content inline h-4 w-4 rounded-lg bg-gray-soft p-2 group-hover:hidden" />
 
-          <button @click="flipAsset" :class="[
-            'box-content hidden rounded-lg bg-gray-secondary p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
-            { 'rotate-180': flippedControl },
-          ]">
+          <button
+            @click="flipAsset"
+            :class="[
+              'box-content hidden rounded-lg bg-gray-secondary p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
+              { 'rotate-180': flippedControl },
+            ]"
+          >
             <ArrowUpDownIcon class="h-4 w-4" />
           </button>
         </div>
       </div>
 
       <!-- FIXME: wbtc logo do not load -->
-      <BridgeSideWithInput side="receive" v-if="!flipped" :asset="metaContractAsset" v-model:amount="token2Amount"
-        :calculating="calculatingReceive" @became-source="bridgeType = 'x2'"
-        :coinCategory="CoinCategory.MetaContract" />
+      <BridgeSideWithInput
+        side="receive"
+        v-if="!flipped"
+        :asset="metaContractAsset"
+        v-model:amount="token2Amount"
+        :calculating="calculatingReceive"
+        @became-source="bridgeType = 'x2'"
+        :coinCategory="CoinCategory.MetaContract"
+      />
 
-      <BridgeSideWithInput side="receive" v-if="flipped" :asset="btcAsset" v-model:amount="token1Amount"
-        :calculating="calculatingReceive" @became-source="bridgeType = 'x1'" :coinCategory="CoinCategory.Native" />
+      <BridgeSideWithInput
+        side="receive"
+        v-if="flipped"
+        :asset="btcAsset"
+        v-model:amount="token1Amount"
+        :calculating="calculatingReceive"
+        @became-source="bridgeType = 'x1'"
+        :coinCategory="CoinCategory.Native"
+      />
 
-      <BridgePriceDisclosure :service-fee="serviceFee" :network-fee="networkFee" :symbol="btcAsset.symbol"
-        :calculating="calculating" :decimal="btcAsset.decimal" :token1-symbol="btcAsset.symbol"
-        :token2-symbol="metaContractAsset.symbol" v-if="!!Number(sourceAmount) && !hasUnmet" />
+      <BridgePriceDisclosure
+        :service-fee="serviceFee"
+        :network-fee="networkFee"
+        :symbol="btcAsset.symbol"
+        :calculating="calculating"
+        :decimal="btcAsset.decimal"
+        :token1-symbol="btcAsset.symbol"
+        :token2-symbol="metaContractAsset.symbol"
+        v-if="!!Number(sourceAmount) && !hasUnmet"
+      />
 
-      <BridgeFrictionStats @fee-rate-onchange="(_currentRateFee: number) => (currentRateFee = _currentRateFee)"
+      <BridgeFrictionStats
+        @fee-rate-onchange="(_currentRateFee: number) => (currentRateFee = _currentRateFee)"
         :limit-minimum="calcBalance(Number(bridgePairInfo?.amountLimitMinimum), btcAsset.decimal, sourceSymbol)"
-        :limit-maximum="calcBalance(Number(bridgePairInfo?.amountLimitMaximum), btcAsset.decimal, sourceSymbol)" />
+        :limit-maximum="calcBalance(Number(bridgePairInfo?.amountLimitMaximum), btcAsset.decimal, sourceSymbol)"
+      />
     </div>
 
     <RunesMainBtn class="disabled" v-if="calculating" :disabled="true">
       <Loader2Icon class="mx-auto animate-spin text-zinc-400" />
     </RunesMainBtn>
-    <RunesMainBtn v-else-if="unmet" :disabled="!unmet.handler" :class="[!unmet?.handler && 'disabled']"
-      @click="!!unmet?.handler && unmet?.handler()">
+    <RunesMainBtn
+      v-else-if="unmet"
+      :disabled="!unmet.handler"
+      :class="[!unmet?.handler && 'disabled']"
+      @click="!!unmet?.handler && unmet?.handler()"
+    >
       {{ unmet.message || '' }}
     </RunesMainBtn>
     <RunesMainBtn v-else-if="loading" :disabled="loading" class="disabled">Loading...</RunesMainBtn>
     <RunesMainBtn v-else @click="bridge">Bridge</RunesMainBtn>
 
-    <RouterLink :to="`/settings/toolkit/${bridgeType === '1x' ? 'btc' : 'space'}-merge`" v-if="unmet?.priority === 3"
-      class="text-xs underline text-gray-primary flex items-center gap-x-1">
-      <span>Go to {{ bridgeType === '1x' ? "BTC" : "MVC" }} Merge</span>
-      <QuestionMarkCircleIcon class="w-3.5"
-        v-tooltip="'Too many UTXOs can cause transaction failures. Please use the tool to merge these UTXOs.'" />
+    <RouterLink
+      :to="`/settings/toolkit/${bridgeType === '1x' ? 'btc' : 'space'}-merge`"
+      v-if="unmet?.priority === 3"
+      class="text-xs underline text-gray-primary flex items-center gap-x-1"
+    >
+      <span>Go to {{ bridgeType === '1x' ? 'BTC' : 'MVC' }} Merge</span>
+      <QuestionMarkCircleIcon
+        class="w-3.5"
+        v-tooltip="'Too many UTXOs can cause transaction failures. Please use the tool to merge these UTXOs.'"
+      />
     </RouterLink>
   </div>
 </template>

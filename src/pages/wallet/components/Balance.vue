@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-// import { IS_DEV } from '@/data/config'
+import { IS_DEV } from '@/data/config'
 import { useRouter } from 'vue-router'
 import { totalBalance } from '@/lib/balance'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
@@ -10,7 +10,6 @@ import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import { network, getServiceNetwork } from '@/lib/network'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-// import { ArrowUpRightIcon, QrCodeIcon } from '@heroicons/vue/20/solid'
 
 const router = useRouter()
 
@@ -71,6 +70,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         <span>Receive</span>
       </div>
       <a
+        v-if="!IS_DEV"
         :href="network === 'testnet' ? 'https://testnet.orders.exchange/swap' : 'https://app.orders.exchange/swap'"
         target="_blank"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
@@ -84,6 +84,17 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
       </a>
       <div
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
+        @click="$router.push('/wallet/swap')"
+      >
+        <div
+          class="w-12 h-12 text-white flex items-center justify-center rounded-full bg-gradient-to-b from-blue-primary to-[#69DFF7] hover:to-blue-primary"
+        >
+          <SwapIcon class="w-4" />
+        </div>
+        <span>Swap</span>
+      </div>
+      <div
+        class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
         @click="$router.push('/wallet/bridge')"
       >
         <div
@@ -94,17 +105,6 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         <span>Bridge</span>
       </div>
     </div>
-
-    <!-- <div class="grid grid-cols-2 gap-2 mt-4 text-ss" v-else>
-      <button class="button" @click="toSelectAsset('send')">
-        <ArrowUpRightIcon class="mr-1 h-4 w-4" />
-        <span>Send</span>
-      </button>
-      <button class="button" @click="toSelectAsset('receive')">
-        <QrCodeIcon class="mr-1 h-4 w-4" />
-        <span>Receive</span>
-      </button>
-    </div> -->
   </div>
 </template>
 
