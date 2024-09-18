@@ -83,6 +83,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         <span>{{ $t('HomePage.Swap') }}</span>
       </a>
       <div
+        v-else
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
         @click="$router.push('/wallet/swap')"
       >

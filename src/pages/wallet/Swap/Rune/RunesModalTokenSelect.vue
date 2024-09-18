@@ -1,11 +1,15 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
+import { Asset, BTCAsset } from '@/data/assets'
 import { refDebounced } from '@vueuse/core'
 import { useRoute, useRouter } from 'vue-router'
+import { runeTokens } from '@/data/pinned-tokens'
 import RunesTokenIcon from './RunesTokenIcon.vue'
+import AssetLogo from '@/components/AssetLogo.vue'
+import { useIconsStore } from '@/stores/IconsStore'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { Dialog, DialogPanel } from '@headlessui/vue'
-import { type RuneToken } from '@/data/pinned-tokens'
+import { CoinCategory } from '@/queries/exchange-rates'
 import { useRunesPool } from '@/hooks/swap/useRunesPool'
 import RunesSwapTokenButton from './RunesSwapTokenButton.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
@@ -24,9 +28,12 @@ const { data: runeAsset } = useRuneDetailQuery(address, runeId, {
   enabled: computed(() => !!address.value && !!runeId.value),
 })
 
-const props = defineProps<{
-  pinnedTokens: RuneToken[]
+defineProps<{
+  btcAsset: Asset
 }>()
+
+const { getIcon } = useIconsStore()
+
 const emit = defineEmits(['selectToken'])
 
 function selectToken(token: string) {
@@ -53,13 +60,16 @@ const { data: tokens, isLoading: isLoadingTokens } = getRunesTokensQuery(
     v-bind="$attrs"
     v-if="runeAsset"
     @click="() => (isOpen = true)"
-    class="flex items-center gap-1 rounded-full bg-gray-soft p-1 px-2 text-base"
+    class="flex items-center gap-1 rounded-full bg-gray-secondary p-1 px-2 text-base"
   >
     <div :class="['flex']" v-if="pairStr">
-      <RunesTokenIcon :symbol="runeAsset.symbol" class="size-6 rounded-full" />
-    </div>
-    <div class="mr-1 text-xs" v-if="pairStr">
-      {{ runeAsset?.symbol }}
+      <AssetLogo
+        class="w-6 h-6 text-xs"
+        :chain="btcAsset.chain"
+        :symbol="btcAsset.symbol"
+        :logo="getIcon(CoinCategory.Native, btcAsset.symbol)"
+      />
+      <RunesTokenIcon :symbol="runeAsset.symbol" class="size-6 rounded-full -ml-2" />
     </div>
     <div v-else class="pl-2 text-base text-runes">Select token</div>
 
@@ -99,11 +109,11 @@ const { data: tokens, isLoading: isLoadingTokens } = getRunesTokensQuery(
           <h6 class="text-sm text-zinc-500">Popular Runes</h6>
           <div class="mt-2 flex flex-wrap gap-2">
             <RunesSwapTokenButton
-              v-for="token in props.pinnedTokens"
-              :token="token.spacedRune"
               :symbol="token.symbol"
+              :token="token.spacedRune"
+              v-for="token in runeTokens"
               @click="selectToken(token.runeid)"
-            ></RunesSwapTokenButton>
+            />
           </div>
         </div>
 

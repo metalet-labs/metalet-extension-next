@@ -68,7 +68,7 @@ const updateAmount = (_amount: string) => {
 
 const balanceDisplay = computed(() => {
   if (balance.value) {
-    return calcBalance(balance.value.total.toNumber(), asset.value?.decimal || 0, asset.value?.symbol || '--')
+    return calcBalance(balance.value.confirmed.toNumber(), asset.value?.decimal || 0, asset.value?.symbol || '--')
   }
   return '--'
 })
@@ -81,8 +81,8 @@ const fiatPrice = computed(() => {
 })
 
 const useTotalBalance = () => {
-  if (balance.value?.total) {
-    amount.value = balance.value.total.toFixed()
+  if (balance.value) {
+    amount.value = balance.value.confirmed.toFixed()
     emit('becameSource')
   }
 }
@@ -215,7 +215,11 @@ const amountTextSize = computed(() => {
       <button
         v-if="side === 'pay'"
         @click="useTotalBalance"
-        class="text-xs text-zinc-400 hover:text-runes hover:underline"
+        :disabled="!balance?.confirmed.toNumber()"
+        :class="[
+          'text-xs text-zinc-400',
+          !!balance?.confirmed.toNumber() ? 'hover:underline hover:text-bridge' : 'cursor-not-allowed',
+        ]"
       >
         Balance: {{ balanceDisplay }}
       </button>

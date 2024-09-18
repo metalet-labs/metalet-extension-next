@@ -11,6 +11,7 @@ import { SWAP_THRESHOLD_AMOUNT } from '@/data/constants'
 import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
 import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
+import RunesTokenIcon from './RunesTokenIcon.vue'
 
 const props = defineProps({
   side: {
@@ -192,7 +193,7 @@ const clear = () => {
 </script>
 
 <template>
-  <div class="rounded-2xl border px-4 py-5 border-gray-soft hover:border-blue-primary">
+  <div class="rounded-2xl border border-gray-secondary px-4 py-5 bg-gray-secondary hover:border-gray-soft">
     <div class="text-black-primary">You {{ side }}</div>
 
     <div class="flex h-16 items-center justify-between space-x-2">
@@ -222,9 +223,9 @@ const clear = () => {
 
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
-      <RunesModalTokenSelect :pinned-tokens="runeTokens" v-if="coinCategory === CoinCategory.Runes" />
-      <div :class="['flex items-center gap-1 rounded-full bg-gray-100 p-1 px-2 text-xl']" v-else>
-        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" class="w-6 h-6 text-xs" />
+      <div :class="['flex items-center gap-1 rounded-full bg-white p-1 px-2 text-xl shadow-sm']" v-else>
+        <RunesTokenIcon :symbol="asset.symbol" class="size-6 text-xs" v-if="coinCategory === CoinCategory.Runes" />
+        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" class="size-6 text-xs" v-else />
         <div class="mr-1" :class="['text-sm font-medium']">
           {{ asset.symbol }}
         </div>

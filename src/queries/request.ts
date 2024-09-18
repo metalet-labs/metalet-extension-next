@@ -233,6 +233,15 @@ export const swapApi = <T>(path: string) => {
   }
 }
 
+export const runesApi = <T>(path: string) => {
+  const swapHost = network.value === 'mainnet' ? API_RUNES_ORDERS_EXCHANGE : API_RUNES_TESTNET_ORDERS_EXCHANGE
+  return {
+    get: (params?: OptionParams) => request<T>(`${swapHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) =>
+      request<T>(`${swapHost}${path}`, { method: 'POST', data, withCredential: true, message: 'orders.exchange' }),
+  }
+}
+
 interface OctopusResult<T> {
   success: boolean
   data: T

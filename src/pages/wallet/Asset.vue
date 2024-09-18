@@ -65,7 +65,7 @@ const balanceEnabled = computed(() => {
   return false
 })
 
-const { isLoading, data: balance } = useBalanceQuery(address, symbol, { enabled: balanceEnabled })
+const { data: balance } = useBalanceQuery(address, symbol, { enabled: balanceEnabled })
 
 const rateEnabled = computed(() => {
   if (asset.value) {

@@ -1,12 +1,9 @@
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { toast } from '@/components/ui/toast'
 import { useRunesPool } from './useRunesPool'
 import { useRouteParams } from '@vueuse/router'
 import { Protocol } from '@/lib/types/protocol'
 import { Chain } from '@metalet/utxo-wallet-service'
-
-const router = useRouter()
 
 export function useSwapPool() {
   const chain = useRouteParams<string>('chain')
@@ -22,7 +19,6 @@ export function useSwapPool() {
       protocol.value = Protocol.MetaContract.toLocaleLowerCase()
     } else {
       toast({ toastType: 'warning', title: 'Unsupported chain type.' })
-      router.go(-1)
       return { token1: ref(''), token2: ref(''), chain: ref('') }
     }
   }
@@ -31,8 +27,7 @@ export function useSwapPool() {
     return { ...useRunesPool(), chain }
   } else {
     toast({ toastType: 'warning', title: 'Unsupported protocol type.' })
-    // FIXME: go undefined
-    router.go(-1)
+    window.history.back()
   }
 
   return { token1: ref(''), token2: ref(''), chain: ref('') }

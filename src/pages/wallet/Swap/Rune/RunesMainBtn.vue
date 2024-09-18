@@ -18,3 +18,15 @@ defineProps({
     </span>
   </button>
 </template>
+
+<style scoped>
+.gorgeous-btn-bg-for-runes {
+  background: conic-gradient(
+    from 90deg at 50% 50%,
+    #14b8a6 0%,
+    #075985 30%,
+    #14b8a6 100%
+  );
+  animation: spin 2s linear infinite;
+}
+</style>

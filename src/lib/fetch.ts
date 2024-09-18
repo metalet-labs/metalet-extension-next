@@ -312,45 +312,6 @@ export async function proxyApiFetch(url: string, options?: ApiOptions) {
   return jsoned.data
 }
 
-export async function runesApiFetch(url: string, options?: ApiOptions) {
-  if (!options)
-    options = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }
-
-  if (options.headers && 'Content-Type' in options.headers) {
-  } else {
-    options.headers = { ...options.headers, 'Content-Type': 'application/json' }
-  }
-  if (options.auth) {
-    const { publicKey, signature } = await getCredential({ message: 'orders.exchange' })
-
-    options.headers = {
-      ...options.headers,
-      'X-Signature': signature,
-      'X-Public-Key': publicKey,
-    }
-  }
-
-  const jsoned:
-    | {
-        status: 'ok'
-        data: any
-      }
-    | {
-        status: 'error'
-        message: string
-      } = await fetchWrapper(`${runes}/${url}`, options)
-
-  if (jsoned.status === 'error') {
-    throw new Error(jsoned.message)
-  }
-
-  return jsoned.data
-}
-
 export async function ordersV3Fetch(url: string, options?: ApiOptions) {
   const prefix = network.value === 'mainnet' ? 'api-book' : 'api-book-testnet'
   const ordersApiUrl = `https://www.orders.exchange/${prefix}/${url}`

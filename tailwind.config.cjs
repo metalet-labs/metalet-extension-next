@@ -13,8 +13,8 @@ module.exports = {
 
     extend: {
       spacing: {
-        4.5: "1.125rem",
-        7.5: "1.875rem",
+        4.5: '1.125rem',
+        7.5: '1.875rem',
       },
       colors: {
         'black-primary': '#141416',
@@ -32,6 +32,8 @@ module.exports = {
         'slate-light': '#606266',
         'red-primary': '#FA5151',
         'green-success': '#00B578',
+        runes: '#14b8a6',
+        bridge: '#6e66fa',
       },
       fontSize: {
         ss: ['0.8125rem', '1.125rem'],

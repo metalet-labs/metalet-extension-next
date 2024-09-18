@@ -26,6 +26,10 @@ import {
   build2xSwap,
   buildX1Swap,
 } from '@/queries/runes'
+import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
+import EmptyPoolMessage from './EmptyPoolMessage.vue'
+import { usePoolStatusQuery } from '@/queries/runes/pool-status.query'
+import BridgeHistory from '../../Bridge/components/BridgeHistory.vue'
 
 const flippedControl = ref(false)
 const calculatingPay = ref(false)
@@ -63,11 +67,18 @@ const { mutate: mutateBuildSwap } = useMutation({
   mutationFn: buildSwapFn,
 })
 
-const { token1, token2: runeId } = useSwapPool()
-
 const { getAddress, currentBTCWallet } = useChainWalletsStore()
 
 const address = getAddress(Chain.BTC)
+
+const { token1, token2: runeId } = useSwapPool()
+
+const { data: poolStatus } = usePoolStatusQuery(
+  token1,
+  runeId,
+  address,
+  computed(() => !!address.value && !!token1.value && !!runeId.value)
+)
 
 const conditions = ref<
   {
@@ -342,7 +353,7 @@ watch([token1Amount, token2Amount], async ([newToken1Amount, newToken2Amount], [
   if (!sourceChanging) return
 
   // if (!sourceAmount.value) return
-  
+
   if (!sourceAmount.value) {
     token1Amount.value = undefined
     token2Amount.value = undefined
@@ -576,6 +587,10 @@ async function doSwap() {
 
 <template>
   <div class="flex flex-col items-center gap-y-4">
+    <div class="flex flex-row-reverse w-full items-center justify-between h-8">
+      <BridgeHistory protocolType="btc" :bridgeType="swapType === '1x' ? 'mint' : 'redeem'" />
+      <RunesModalTokenSelect :btcAsset="btcAsset" />
+    </div>
     <div class="w-full">
       <RunesSwapSideWithInput
         side="pay"
@@ -608,14 +623,14 @@ async function doSwap() {
 
       <div class="relative z-30 my-0.5 flex h-0 justify-center">
         <div
-          class="group absolute -translate-y-1/2 rounded-xl bg-gray-soft p-1 transition-all duration-500 hover:scale-110 lg:duration-150 text-gray-primary"
+          class="group absolute -translate-y-1/2 rounded-xl bg-white p-1 transition-all duration-500 hover:scale-110 lg:duration-150 text-gray-line"
         >
           <ArrowDownIcon class="box-content inline h-4 w-4 rounded-lg bg-gray-soft p-2 group-hover:hidden" />
 
           <button
             @click="flipAsset"
             :class="[
-              'box-content hidden rounded-lg bg-gray-soft p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
+              'box-content hidden rounded-lg bg-gray-secondary p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
               { 'rotate-180': flippedControl },
             ]"
           >
@@ -668,6 +683,8 @@ async function doSwap() {
         @return-became-positive="returnIsPositive = true"
         @return-became-negative="returnIsPositive = false"
       />
+
+      <!-- <EmptyPoolMessage :isEmpty="isEmpty" /> -->
     </div>
 
     <RunesMainBtn class="disabled" v-if="calculating" :disabled="true">
