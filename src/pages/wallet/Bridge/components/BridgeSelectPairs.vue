@@ -68,7 +68,7 @@ watch(
         class="inline-flex w-full items-center justify-center gap-x-1.5 bg-gray-secondary rounded-full px-3 py-1.5 text-sm font-semibold text-primary shadow-sm transition-all hover:bg-opacity-80"
         v-slot="{ open }"
       >
-        <div class="flex">
+        <div class="flex items-center">
           <AssetLogo
             chain="btc"
             logo-size="size-2"

@@ -21,8 +21,8 @@ const emit = defineEmits(['hasEnough', 'hasAmount', 'becameSource', 'moreThanThr
 
 const asset = computed(() => props.asset)
 const coinCategory = ref(props.coinCategory)
-const symbol = ref(props.asset?.symbol || '--')
 const balance = computed(() => props.asset?.balance)
+const symbol = computed(() => props.asset?.symbol || '--')
 
 const { getIcon } = useIconsStore()
 const icon = computed(() => {
@@ -53,7 +53,7 @@ const normalizedAmount = computed(() => {
 })
 
 const updateAmount = (_amount: string) => {
-  if (!asset) {
+  if (!asset.value) {
     return
   }
   if (_amount === '') {
@@ -184,7 +184,7 @@ const amountTextSize = computed(() => {
           :type="asset?.isNative ? undefined : 'network'"
         />
         <div class="mr-1" :class="['text-sm font-medium']">
-          {{ asset?.symbol || '--' }}
+          {{ symbol }}
         </div>
       </div>
     </div>

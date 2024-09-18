@@ -1,6 +1,6 @@
 import { network } from './network'
 import { getCredential } from '@/lib/account'
-import { proxy, runes, swap } from '@/data/hosts'
+import { API2_ORDERS_EXCHANGE, swap } from '@/data/hosts'
 
 export type ApiOptions = { headers?: HeadersInit } & RequestInit & {
     auth?: boolean
@@ -303,7 +303,7 @@ export async function proxyApiFetch(url: string, options?: ApiOptions) {
     code: number
     msg: string
     data: any
-  } = await fetchWrapper(`${proxy}/${url}`, options)
+  } = await fetchWrapper(`${API2_ORDERS_EXCHANGE}/${url}`, options)
 
   if (jsoned.code !== 0) {
     throw new Error(jsoned.msg)

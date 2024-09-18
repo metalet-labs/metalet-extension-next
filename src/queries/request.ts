@@ -224,21 +224,37 @@ export const ordersApi = <T>(path: string) => {
   }
 }
 
+interface OrderSwapResult<T> {
+  status: 'ok' | 'error'
+  message: string
+  data: T
+}
+
+const orderSwapRequest = <T>(url: string, options: RequestOption): Promise<T> =>
+  request<OrderSwapResult<T>>(url, options).then((res) => {
+    if (res.status === 'error') {
+      throw new Error(res.message)
+    }
+    return res.data
+  })
+
 export const swapApi = <T>(path: string) => {
   const swapHost = network.value === 'mainnet' ? API_RUNES_ORDERS_EXCHANGE : API_RUNES_TESTNET_ORDERS_EXCHANGE
   return {
-    get: (params?: OptionParams) => request<T>(`${swapHost}${path}`, { method: 'GET', params }),
+    get: (params?: OptionParams) =>
+      orderSwapRequest<T>(`${swapHost}${path}`, {
+        params,
+        method: 'GET',
+        withCredential: true,
+        message: 'orders.exchange',
+      }),
     post: (data?: OptionData) =>
-      request<T>(`${swapHost}${path}`, { method: 'POST', data, withCredential: true, message: 'orders.exchange' }),
-  }
-}
-
-export const runesApi = <T>(path: string) => {
-  const swapHost = network.value === 'mainnet' ? API_RUNES_ORDERS_EXCHANGE : API_RUNES_TESTNET_ORDERS_EXCHANGE
-  return {
-    get: (params?: OptionParams) => request<T>(`${swapHost}${path}`, { method: 'GET', params }),
-    post: (data?: OptionData) =>
-      request<T>(`${swapHost}${path}`, { method: 'POST', data, withCredential: true, message: 'orders.exchange' }),
+      orderSwapRequest<T>(`${swapHost}${path}`, {
+        data,
+        method: 'POST',
+        withCredential: true,
+        message: 'orders.exchange',
+      }),
   }
 }
 

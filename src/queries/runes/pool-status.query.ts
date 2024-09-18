@@ -4,34 +4,34 @@ import { POOL_QUERY_INTERVAL } from '../constants'
 import { swapApi } from '../request'
 
 interface PoolStatus {
-  token1: string;
-  token2: string;
-  token1Pool: number;
-  token2Pool: number;
-  token2PoolConfirmed: number;
-  poolEquity: string;
+  token1: string
+  token2: string
+  token1Pool: number
+  token2Pool: number
+  token2PoolConfirmed: number
+  poolEquity: string
 
-  token1ServiceAddress: string;
-  token2ServiceAddress: string;
-  token1ServicePubkey: string;
-  token2ServicePubkey: string;
-  token1PerToken2: string;
-  token2PerToken1: string;
-  token1PerToken2UsingBtcUnit: string;
-  token2PerToken1UsingBtcUnit: string;
+  token1ServiceAddress: string
+  token2ServiceAddress: string
+  token1ServicePubkey: string
+  token2ServicePubkey: string
+  token1PerToken2: string
+  token2PerToken1: string
+  token1PerToken2UsingBtcUnit: string
+  token2PerToken1UsingBtcUnit: string
 
-  addressEquityOverall: string;
-  addressEquityAvailable: string;
-  addressEquityPending: string;
+  addressEquityOverall: string
+  addressEquityAvailable: string
+  addressEquityPending: string
 
-  poolShareAvailable: string;
-  poolSharePending: string;
-  token1AmountAvailable: string;
-  token2AmountAvailable: string;
-  token1AmountPending: string;
-  token2AmountPending: string;
-  token1AmountUsingBtcUnitAvailable: string;
-  token1AmountUsingBtcUnitPending: string;
+  poolShareAvailable: string
+  poolSharePending: string
+  token1AmountAvailable: string
+  token2AmountAvailable: string
+  token1AmountPending: string
+  token2AmountPending: string
+  token1AmountUsingBtcUnitAvailable: string
+  token1AmountUsingBtcUnitPending: string
 }
 
 export const getPoolStatus = async ({

@@ -60,18 +60,22 @@ const { data: tokens, isLoading: isLoadingTokens } = getRunesTokensQuery(
     v-bind="$attrs"
     v-if="runeAsset"
     @click="() => (isOpen = true)"
-    class="flex items-center gap-1 rounded-full bg-gray-secondary p-1 px-2 text-base"
+    class="flex items-center gap-1 rounded-full bg-gray-secondary px-3 py-1.5 text-sm font-semibold shadow-sm transition-all hover:bg-opacity-80 text-runes"
   >
-    <div :class="['flex']" v-if="pairStr">
+    <div class="flex items-center" v-if="pairStr">
       <AssetLogo
-        class="w-6 h-6 text-xs"
+        class="size-6 text-xs"
         :chain="btcAsset.chain"
         :symbol="btcAsset.symbol"
         :logo="getIcon(CoinCategory.Native, btcAsset.symbol)"
       />
       <RunesTokenIcon :symbol="runeAsset.symbol" class="size-6 rounded-full -ml-2" />
     </div>
-    <div v-else class="pl-2 text-base text-runes">Select token</div>
+
+    <div class="text-xs" v-if="pairStr">
+      {{ btcAsset.tokenName + '-' + runeAsset.tokenName }}
+    </div>
+    <div v-else class="pl-2">Select token</div>
 
     <ChevronDownIcon class="h-4 w-4" />
   </button>

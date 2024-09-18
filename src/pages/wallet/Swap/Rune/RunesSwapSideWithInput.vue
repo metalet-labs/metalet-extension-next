@@ -3,17 +3,18 @@ import Decimal from 'decimal.js'
 import { type Asset } from '@/data/assets'
 import { computed, watch, ref } from 'vue'
 import { calcBalance } from '@/lib/formatters'
-import { SymbolTicker } from '@/lib/asset-symbol'
-import { runeTokens } from '@/data/pinned-tokens'
+import RunesTokenIcon from './RunesTokenIcon.vue'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { SWAP_THRESHOLD_AMOUNT } from '@/data/constants'
-import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
 import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
-import RunesTokenIcon from './RunesTokenIcon.vue'
 
 const props = defineProps({
+  disabled: {
+    type: Boolean,
+    required: false,
+  },
   side: {
     type: String,
     required: true,
@@ -21,7 +22,7 @@ const props = defineProps({
   },
   asset: {
     type: Object as () => Asset,
-    required: true,
+    required: false,
   },
   coinCategory: {
     type: String as () => CoinCategory,
@@ -44,13 +45,17 @@ const emit = defineEmits([
   'lessThanThreshold',
 ])
 
-const symbol = ref(props.asset.symbol)
 const asset = computed(() => props.asset)
 const coinCategory = ref(props.coinCategory)
-const balance = computed(() => props.asset.balance)
+const balance = computed(() => props.asset?.balance)
+const symbol = computed(() => props.asset?.symbol || '--')
 
 const { getIcon } = useIconsStore()
-const icon = computed(() => getIcon(CoinCategory.Native, asset.value.symbol as SymbolTicker) || '')
+const icon = computed(() => {
+  if (asset.value) {
+    return asset.value.icon || getIcon(coinCategory.value, asset.value.symbol) || ''
+  }
+})
 
 const { data: exchangeRate } = useExchangeRatesQuery(symbol, coinCategory, {
   enabled: computed(() => {
@@ -61,14 +66,16 @@ const { data: exchangeRate } = useExchangeRatesQuery(symbol, coinCategory, {
 const amount = defineModel('amount', { type: String })
 
 const normalizedAmount = computed(() => {
-  if (amount.value === undefined) {
+  if (amount.value === undefined || asset.value === undefined) {
     return ''
   }
-
   return new Decimal(amount.value).dividedBy(10 ** asset.value.decimal).toFixed()
 })
 
 const updateAmount = (_amount: string) => {
+  if (!asset.value) {
+    return
+  }
   if (_amount === '') {
     amount.value = undefined
     return
@@ -109,14 +116,14 @@ const amountTextSize = computed(() => {
 
 const balanceDisplay = computed(() => {
   if (balance.value) {
-    return calcBalance(balance.value.total.toNumber(), asset.value.decimal, asset.value.symbol)
+    return calcBalance(balance.value.confirmed.toNumber(), asset.value?.decimal || 0, asset.value?.symbol || '--')
   }
   return '--'
 })
 
 const fiatPrice = computed(() => {
   if (amount.value && exchangeRate.value) {
-    const unit = new Decimal(amount.value).dividedBy(10 ** asset.value.decimal)
+    const unit = new Decimal(amount.value).dividedBy(10 ** (asset.value?.decimal || 0))
     return unit.mul(new Decimal(exchangeRate.value?.price || 0))
   }
 })
@@ -199,10 +206,12 @@ const clear = () => {
     <div class="flex h-16 items-center justify-between space-x-2">
       <input
         min="0"
+        :disabled="disabled"
         :id="`${side}Amount`"
-        class="quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none"
         :class="[
+          'quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none',
           amountTextSize,
+          disabled && 'cursor-not-allowed',
           hasEnough
             ? calculating
               ? 'text-gray-primary'
@@ -224,10 +233,10 @@ const clear = () => {
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
       <div :class="['flex items-center gap-1 rounded-full bg-white p-1 px-2 text-xl shadow-sm']" v-else>
-        <RunesTokenIcon :symbol="asset.symbol" class="size-6 text-xs" v-if="coinCategory === CoinCategory.Runes" />
-        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol" class="size-6 text-xs" v-else />
+        <RunesTokenIcon :symbol="asset?.symbol" class="size-6 text-xs" v-if="coinCategory === CoinCategory.Runes" />
+        <AssetLogo :logo="icon" :chain="asset?.chain" :symbol="asset?.symbol" class="size-6 text-xs" v-else />
         <div class="mr-1" :class="['text-sm font-medium']">
-          {{ asset.symbol }}
+          {{ symbol }}
         </div>
       </div>
     </div>
@@ -247,9 +256,10 @@ const clear = () => {
       <div class="w-1" v-else></div>
 
       <button
-        v-if="side === 'pay'"
+        :disabled="disabled"
         @click="useTotalBalance"
-        class="text-xs text-zinc-400 hover:text-runes hover:underline"
+        v-if="balance?.confirmed.toNumber()"
+        :class="['text-xs text-zinc-400 hover:text-runes hover:underline', { 'cursor-not-allowed': disabled }]"
       >
         Balance: {{ balanceDisplay }}
       </button>

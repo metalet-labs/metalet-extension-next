@@ -254,9 +254,9 @@ export const getRunesTokensQuery = (
   })
 
 export const previewSwap = async ({
-  address,
   token1,
   token2,
+  address,
   swapType,
   sourceAmount,
 }: {
@@ -274,24 +274,21 @@ export const previewSwap = async ({
   targetAmount: string
   priceImpact: string
 }> => {
-  const { data } = await swapApi<{
-    data: {
-      gas: string
-      ratio: string
-      poolRatio: string
-      serviceFee: string
-      sourceAmount: string
-      targetAmount: string
-      priceImpact: string
-    }
+  return await swapApi<{
+    gas: string
+    ratio: string
+    poolRatio: string
+    serviceFee: string
+    sourceAmount: string
+    targetAmount: string
+    priceImpact: string
   }>('/preview/swap').post({
-    address,
     token1,
     token2,
+    address,
     swapType,
     sourceAmount,
   })
-  return data
 }
 
 export const build1xSwap = async ({

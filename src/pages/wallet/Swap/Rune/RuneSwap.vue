@@ -6,35 +6,40 @@ import { BTCAsset } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { useMutation } from '@tanstack/vue-query'
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, ref, toRaw, watch, watchEffect } from 'vue'
 import { useBalanceQuery } from '@/queries/balance'
 import { getRuneUtxos, UTXO } from '@/queries/utxos'
+import EmptyPoolMessage from './EmptyPoolMessage.vue'
 import { useSwapPool } from '@/hooks/swap/useSwapPool'
 import { CoinCategory } from '@/queries/exchange-rates'
+import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import RunesSwapSideWithInput from './RunesSwapSideWithInput.vue'
 import RunesSwapFrictionStats from './RunesSwapFrictionStats.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import RunesSwapPriceDisclosure from './RunesSwapPriceDisclosure.vue'
+import BridgeHistory from '../../Bridge/components/BridgeHistory.vue'
+import { usePoolStatusQuery } from '@/queries/runes/pool-status.query'
 import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon } from 'lucide-vue-next'
 import {
-  useRuneDetailQuery,
   SwapType,
   previewSwap,
   build1xSwap,
   buildX2Swap,
   build2xSwap,
   buildX1Swap,
+  useRuneDetailQuery,
 } from '@/queries/runes'
-import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
-import EmptyPoolMessage from './EmptyPoolMessage.vue'
-import { usePoolStatusQuery } from '@/queries/runes/pool-status.query'
-import BridgeHistory from '../../Bridge/components/BridgeHistory.vue'
 
+const hasEnough = ref(true)
+const hasAmount = ref(false)
+const lowLiquidity = ref(false)
 const flippedControl = ref(false)
 const calculatingPay = ref(false)
 const token1Amount = ref<string>()
 const token2Amount = ref<string>()
+const returnIsPositive = ref(true)
+const moreThanThreshold = ref(true)
 const symbol = ref(BTCAsset.symbol)
 const currentRateFee = ref<number>()
 const swapType = ref<SwapType>('1x')
@@ -48,6 +53,130 @@ const calculating = computed(() => calculatingPay.value || calculatingReceive.va
 const hasImpactWarning = computed(() => {
   // greater than 15%
   return priceImpact.value.gte(15)
+})
+
+const { getAddress, currentBTCWallet } = useChainWalletsStore()
+
+const address = getAddress(Chain.BTC)
+
+const { token1, token2: runeId } = useSwapPool()
+
+const balanceEnabled = computed(() => {
+  return !!address.value && !!symbol.value
+})
+
+const { data: balance } = useBalanceQuery(address, symbol, { enabled: balanceEnabled })
+
+const btcAsset = computed(() => {
+  if (balance.value) {
+    return { ...BTCAsset, balance: toRaw(balance.value) }
+  }
+  return BTCAsset
+})
+
+const { data: runeAsset } = useRuneDetailQuery(address, runeId, {
+  enabled: computed(() => !!address.value && !!runeId.value),
+})
+
+const { data: poolStatus } = usePoolStatusQuery(
+  address,
+  token1,
+  runeId,
+  computed(() => !!address.value && !!token1.value && !!runeId.value)
+)
+
+const isEmpty = computed(() => {
+  if (!poolStatus.value) return false
+  return Number(poolStatus.value.poolEquity) <= 0
+})
+
+const conditions = ref<
+  {
+    condition: string
+    message: string
+    priority: number
+    met: boolean
+    handler?: Function
+  }[]
+>([
+  {
+    condition: 'insufficient-liquidity',
+    message: 'Insufficient liquidity',
+    priority: 0,
+    met: true,
+  },
+  {
+    condition: 'enter-amount',
+    message: 'Enter an amount',
+    priority: 1,
+    met: false,
+  },
+  {
+    condition: 'insufficient-balance',
+    message: 'Insufficient balance',
+    priority: 2,
+    met: false,
+  },
+  {
+    condition: 'more-than-threshold',
+    message: 'Amount too small',
+    priority: 3,
+    met: false,
+  },
+  {
+    condition: 'return-is-positive',
+    message: 'Negative return',
+    priority: 4,
+    met: true,
+  },
+])
+
+const hasUnmet = computed(() => conditions.value.some((c) => !c.met))
+const unmet = computed(() => conditions.value.filter((c) => c.met).sort((a, b) => a.priority - b.priority)[0])
+
+const flipAsset = async () => {
+  flippedControl.value = !flippedControl.value
+
+  switch (swapType.value) {
+    case '1x':
+      swapType.value = '2x'
+      break
+    case '2x':
+      swapType.value = '1x'
+      break
+    case 'x1':
+      swapType.value = '1x'
+      break
+    case 'x2':
+      swapType.value = '2x'
+      break
+  }
+
+  hasAmount.value = false
+  token1Amount.value = undefined
+  token2Amount.value = undefined
+  moreThanThreshold.value = true
+}
+
+const sourceAmount = computed(() => {
+  if (swapType.value.includes('1')) {
+    return token1Amount.value
+  } else {
+    return token2Amount.value
+  }
+})
+
+const targetAmount = computed({
+  get() {
+    return swapType.value.includes('1') ? token2Amount.value : token1Amount.value
+  },
+  set(value) {
+    if (swapType.value.includes('1')) {
+      token2Amount.value = value
+    } else {
+      token1Amount.value = value
+    }
+  },
 })
 
 const buildSwapFn = computed(() => {
@@ -67,346 +196,62 @@ const { mutate: mutateBuildSwap } = useMutation({
   mutationFn: buildSwapFn,
 })
 
-const { getAddress, currentBTCWallet } = useChainWalletsStore()
-
-const address = getAddress(Chain.BTC)
-
-const { token1, token2: runeId } = useSwapPool()
-
-const { data: poolStatus } = usePoolStatusQuery(
-  token1,
-  runeId,
-  address,
-  computed(() => !!address.value && !!token1.value && !!runeId.value)
-)
-
-const conditions = ref<
-  {
-    condition: string
-    message: string
-    priority: number
-    met: boolean
-    handler?: Function
-  }[]
->([
-  {
-    condition: 'insufficient-liquidity',
-    message: 'Insufficient liquidity',
-    priority: 3,
-    met: true,
-  },
-  {
-    condition: 'enter-amount',
-    message: 'Enter an amount',
-    priority: 4,
-    met: false,
-  },
-  {
-    condition: 'insufficient-balance',
-    message: 'Insufficient balance',
-    priority: 5,
-    met: false,
-  },
-  {
-    condition: 'more-than-threshold',
-    message: 'Amount too small',
-    priority: 6,
-    met: false,
-  },
-  {
-    condition: 'return-is-positive',
-    message: 'Negative return',
-    priority: 7,
-    met: true,
-  },
-])
-
-const hasUnmet = computed(() => {
-  return conditions.value.some((c) => !c.met)
-})
-
-const unmet = computed(() => {
-  // use highest priority unmet condition
-  if (!hasUnmet.value) {
-    return
-  }
-
-  const unmets = conditions.value.filter((c) => !c.met)
-
-  return unmets.reduce((prev, curr) => {
-    return prev.priority < curr.priority ? prev : curr
-  }, unmets[0])
-})
-
-const flipAsset = async () => {
-  flippedControl.value = !flippedControl.value
-
-  await sleep(200)
-
-  switch (swapType.value) {
-    case '1x':
-      swapType.value = '2x'
-      break
-    case '2x':
-      swapType.value = '1x'
-      break
-    case 'x1':
-      swapType.value = '1x'
-      break
-    case 'x2':
-      swapType.value = '2x'
-      break
-  }
-
-  token1Amount.value = undefined
-  token2Amount.value = undefined
-  hasAmount.value = false
-  moreThanThreshold.value = true
-}
-
-const balanceEnabled = computed(() => {
-  return !!address.value && !!symbol.value
-})
-
-const { data: balance } = useBalanceQuery(address, symbol, { enabled: balanceEnabled })
-
-const btcAsset = computed(() => {
-  if (balance.value) {
-    return { ...BTCAsset, balance: toRaw(balance.value) }
-  }
-  return BTCAsset
-})
-
-const { data: runeAsset } = useRuneDetailQuery(address, runeId, {
-  enabled: computed(() => !!address.value && !!runeId.value),
-})
-
-const sourceAmount = computed(() => {
-  if (swapType.value.includes('1')) {
-    return token1Amount.value
-  } else {
-    return token2Amount.value
-  }
-})
-
-const hasAmount = ref(false)
-watch(
-  () => hasAmount.value,
-  (hasAmount) => {
-    if (hasAmount) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'enter-amount') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'enter-amount') {
-          c.met = false
-        }
-        return c
-      })
+watchEffect(() => {
+  conditions.value.forEach((c) => {
+    if (c.condition === 'insufficient-liquidity') {
+      c.met = isEmpty.value || lowLiquidity.value
     }
-  },
-  { immediate: true }
-)
-
-const hasEnough = ref(true)
-watch(
-  () => hasEnough.value,
-  (hasEnough) => {
-    if (hasEnough) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'insufficient-balance') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'insufficient-balance') {
-          c.met = false
-        }
-        return c
-      })
+    if (c.condition === 'enter-amount') {
+      c.met = !sourceAmount.value
     }
-  },
-  { immediate: true }
-)
-
-const returnIsPositive = ref(true)
-watch(
-  () => returnIsPositive.value,
-  (returnIsPositive) => {
-    if (returnIsPositive) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'return-is-positive') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'return-is-positive') {
-          c.met = false
-        }
-        return c
-      })
+    if (c.condition === 'insufficient-balance') {
+      c.met = !hasEnough.value
     }
-  },
-  { immediate: true }
-)
-
-const moreThanThreshold = ref(true)
-watch(
-  () => moreThanThreshold.value,
-  (moreThanThreshold) => {
-    if (moreThanThreshold) {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'more-than-threshold') {
-          c.met = true
-        }
-        return c
-      })
-    } else {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'more-than-threshold') {
-          c.met = false
-        }
-        return c
-      })
+    if (c.condition === 'more-than-threshold') {
+      c.met = !moreThanThreshold.value
     }
-  },
-  { immediate: true }
-)
-
-watch(swapType, async (newSwapType) => {
-  if (!sourceAmount.value) return
-
-  // if is flipping to x1 or 2x, clear every amounts and return (since arbitrary brc as input is not supported)
-  if (flipped.value) {
-    token1Amount.value = undefined
-    token2Amount.value = undefined
-    return
-  }
-
-  // calculating
-  if (newSwapType.indexOf('x') === 0) {
-    calculatingPay.value = true
-  } else {
-    calculatingReceive.value = true
-  }
-
-  previewSwap({
-    address: address.value,
-    token1: token1.value.toLowerCase(),
-    token2: runeId.value.toLowerCase(),
-    swapType: newSwapType,
-    sourceAmount: sourceAmount.value,
+    if (c.condition === 'return-is-positive') {
+      c.met = !returnIsPositive.value
+    }
   })
-    .then((preview) => {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'insufficient-liquidity') {
-          c.met = true
-        }
-        return c
-      })
-
-      ratio.value = new Decimal(preview.ratio)
-      poolRatio.value = new Decimal(preview.poolRatio)
-      priceImpact.value = new Decimal(preview.priceImpact)
-
-      if (newSwapType.includes('1')) {
-        token2Amount.value = preview.targetAmount
-      } else {
-        token1Amount.value = preview.targetAmount
-      }
-    })
-    .catch((e) => {
-      if (e.message === ERRORS.INSUFFICIENT_LIQUIDITY) {
-        if (newSwapType.includes('1')) {
-          token2Amount.value = undefined
-        } else {
-          token1Amount.value = undefined
-        }
-
-        conditions.value = conditions.value.map((c) => {
-          if (c.condition === 'insufficient-liquidity') {
-            c.met = false
-          }
-          return c
-        })
-      }
-    })
-    .finally(() => {
-      calculatingPay.value = false
-      calculatingReceive.value = false
-    })
 })
 
-// watch for sourceAmount
-watch([token1Amount, token2Amount], async ([newToken1Amount, newToken2Amount], [oldToken1Amount, oldToken2Amount]) => {
-  const sourceChanging = swapType.value.includes('1')
-    ? newToken1Amount !== oldToken1Amount
-    : newToken2Amount !== oldToken2Amount
-  if (!sourceChanging) return
-
-  // if (!sourceAmount.value) return
-
+watchEffect(async () => {
   if (!sourceAmount.value) {
     token1Amount.value = undefined
     token2Amount.value = undefined
     return
   }
+  if (Number(sourceAmount.value) === 0) {
+    return
+  }
 
-  // calculating
   if (swapType.value.indexOf('x') === 0) {
     calculatingPay.value = true
   } else {
     calculatingReceive.value = true
   }
 
-  previewSwap({
+  await previewSwap({
     address: address.value,
-    token1: token1.value.toLowerCase(),
-    token2: runeId.value.toLowerCase(),
     swapType: swapType.value,
     sourceAmount: sourceAmount.value,
+    token1: token1.value.toLowerCase(),
+    token2: runeId.value.toLowerCase(),
   })
     .then((preview) => {
-      conditions.value = conditions.value.map((c) => {
-        if (c.condition === 'insufficient-liquidity') {
-          c.met = true
-        }
-        return c
-      })
-
       ratio.value = new Decimal(preview.ratio)
+      targetAmount.value = preview.targetAmount
       poolRatio.value = new Decimal(preview.poolRatio)
-      priceImpact.value = new Decimal(preview.priceImpact)
       serviceFee.value = new Decimal(preview.serviceFee)
-
-      if (swapType.value.includes('1')) {
-        token2Amount.value = preview.targetAmount
-      } else {
-        token1Amount.value = preview.targetAmount
-      }
+      priceImpact.value = new Decimal(preview.priceImpact)
     })
-    .catch((e) => {
-      if (e.message === ERRORS.INSUFFICIENT_LIQUIDITY) {
-        if (swapType.value.includes('1')) {
-          token2Amount.value = undefined
-        } else {
-          token1Amount.value = undefined
-        }
-
-        conditions.value = conditions.value.map((c) => {
-          if (c.condition === 'insufficient-liquidity') {
-            c.met = false
-          }
-          return c
-        })
+    .catch((error) => {
+      if (error.message === 'Insufficient liquidity for this trade.') {
+        lowLiquidity.value = true
+        targetAmount.value = undefined
+      } else {
+        console.log('runes swap error', error)
       }
     })
     .finally(() => {
@@ -594,8 +439,9 @@ async function doSwap() {
     <div class="w-full">
       <RunesSwapSideWithInput
         side="pay"
+        v-if="!flipped"
         :asset="btcAsset"
-        v-if="btcAsset && !flipped"
+        :disabled="isEmpty"
         :calculating="calculatingPay"
         v-model:amount="token1Amount"
         @has-enough="hasEnough = true"
@@ -610,11 +456,12 @@ async function doSwap() {
       <RunesSwapSideWithInput
         side="pay"
         :asset="runeAsset"
+        :disabled="isEmpty"
+        v-else-if="flipped"
         :calculating="calculatingPay"
         v-model:amount="token2Amount"
         @has-enough="hasEnough = true"
         @not-enough="hasEnough = false"
-        v-else-if="runeAsset && flipped"
         @became-source="swapType = '2x'"
         :coinCategory="CoinCategory.Runes"
         @amount-entered="hasAmount = true"
@@ -629,9 +476,11 @@ async function doSwap() {
 
           <button
             @click="flipAsset"
+            :disabled="isEmpty"
             :class="[
               'box-content hidden rounded-lg bg-gray-secondary p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
               { 'rotate-180': flippedControl },
+              { 'cursor-not-allowed': isEmpty },
             ]"
           >
             <ArrowUpDownIcon class="h-4 w-4 text-runes" />
@@ -641,8 +490,9 @@ async function doSwap() {
 
       <RunesSwapSideWithInput
         side="receive"
+        v-if="!flipped"
         :asset="runeAsset"
-        v-if="runeAsset && !flipped"
+        :disabled="isEmpty"
         v-model:amount="token2Amount"
         @became-source="swapType = 'x2'"
         :calculating="calculatingReceive"
@@ -651,8 +501,9 @@ async function doSwap() {
 
       <RunesSwapSideWithInput
         side="receive"
+        v-if="flipped"
         :asset="btcAsset"
-        v-if="btcAsset && flipped"
+        :disabled="isEmpty"
         v-model:amount="token1Amount"
         @became-source="swapType = 'x1'"
         :calculating="calculatingReceive"
@@ -660,6 +511,8 @@ async function doSwap() {
         @more-than-threshold="moreThanThreshold = true"
         @less-than-threshold="moreThanThreshold = false"
       />
+
+      <EmptyPoolMessage v-if="isEmpty" class="mt-2" />
 
       <RunesSwapPriceDisclosure
         :ratio="ratio"
@@ -671,20 +524,18 @@ async function doSwap() {
         :calculating="calculating"
         :price-impact="priceImpact"
         :has-impact-warning="hasImpactWarning"
-        v-if="runeAsset && Number(sourceAmount)"
+        v-if="runeAsset && Number(sourceAmount) && !hasUnmet"
       />
 
       <RunesSwapFrictionStats
         :task-type="swapType"
         :service-fee="serviceFee"
         :token-1-amount="token1Amount"
-        v-show="!!Number(sourceAmount)"
-        @fee-rate-onchange="(_currentRateFee) => (currentRateFee = _currentRateFee)"
+        v-show="!!Number(sourceAmount) && !hasUnmet"
         @return-became-positive="returnIsPositive = true"
         @return-became-negative="returnIsPositive = false"
+        @fee-rate-onchange="(_currentRateFee) => (currentRateFee = _currentRateFee)"
       />
-
-      <!-- <EmptyPoolMessage :isEmpty="isEmpty" /> -->
     </div>
 
     <RunesMainBtn class="disabled" v-if="calculating" :disabled="true">

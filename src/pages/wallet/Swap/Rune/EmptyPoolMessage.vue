@@ -1,7 +1,6 @@
 <template>
   <div
-    class="mb-4 flex items-center gap-4 rounded-xl border border-runes/30 bg-black/60 p-4 text-xs text-zinc-300 shadow shadow-runes/10"
-    v-if="isEmpty"
+    class="mb-4 flex items-center gap-4 rounded-xl border border-runes/30 bg-gray-secondary p-4 text-xs shadow shadow-runes/10"
   >
     <DropletsIcon class="h-6 w-6 text-runes" />
     <div class="space-y-1">
@@ -11,18 +10,8 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'EmptyPoolMessage',
-  props: {
-    isEmpty: {
-      type: Boolean,
-      required: true,
-    },
-  },
-}
+<script setup>
+import { DropletsIcon } from 'lucide-vue-next'
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
