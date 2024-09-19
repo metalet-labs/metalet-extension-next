@@ -1,17 +1,16 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { sleep } from '@/lib/helpers'
 import { ERRORS } from '@/data/errors'
 import { BTCAsset } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { useMutation } from '@tanstack/vue-query'
-import { computed, ref, toRaw, watch, watchEffect } from 'vue'
 import { useBalanceQuery } from '@/queries/balance'
 import { getRuneUtxos, UTXO } from '@/queries/utxos'
 import EmptyPoolMessage from './EmptyPoolMessage.vue'
 import { useSwapPool } from '@/hooks/swap/useSwapPool'
 import { CoinCategory } from '@/queries/exchange-rates'
+import { computed, ref, toRaw, watchEffect } from 'vue'
 import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import RunesSwapSideWithInput from './RunesSwapSideWithInput.vue'
@@ -103,7 +102,7 @@ const conditions = ref<
     condition: 'insufficient-liquidity',
     message: 'Insufficient liquidity',
     priority: 0,
-    met: true,
+    met: false,
   },
   {
     condition: 'enter-amount',
@@ -127,12 +126,12 @@ const conditions = ref<
     condition: 'return-is-positive',
     message: 'Negative return',
     priority: 4,
-    met: true,
+    met: false,
   },
 ])
 
-const hasUnmet = computed(() => conditions.value.some((c) => !c.met))
-const unmet = computed(() => conditions.value.filter((c) => c.met).sort((a, b) => a.priority - b.priority)[0])
+const hasUnmet = computed(() => conditions.value.every((c) => !c.met))
+const firstMet = computed(() => conditions.value.filter((c) => c.met).sort((a, b) => a.priority - b.priority)[0])
 
 const flipAsset = async () => {
   flippedControl.value = !flippedControl.value
@@ -264,9 +263,9 @@ async function doSwap() {
   if (!hasEnough.value) return
   if (!hasAmount.value) return
   if (!sourceAmount.value) return
-  if (unmet.value) {
-    if (unmet.value.handler) {
-      unmet.value.handler()
+  if (firstMet.value) {
+    if (firstMet.value.handler) {
+      firstMet.value.handler()
     }
     return
   }
@@ -524,14 +523,14 @@ async function doSwap() {
         :calculating="calculating"
         :price-impact="priceImpact"
         :has-impact-warning="hasImpactWarning"
-        v-if="runeAsset && Number(sourceAmount) && !hasUnmet"
+        v-if="runeAsset && Number(sourceAmount) && hasUnmet"
       />
 
       <RunesSwapFrictionStats
         :task-type="swapType"
         :service-fee="serviceFee"
         :token-1-amount="token1Amount"
-        v-show="!!Number(sourceAmount) && !hasUnmet"
+        v-show="!!Number(sourceAmount) && hasUnmet"
         @return-became-positive="returnIsPositive = true"
         @return-became-negative="returnIsPositive = false"
         @fee-rate-onchange="(_currentRateFee) => (currentRateFee = _currentRateFee)"
@@ -543,12 +542,12 @@ async function doSwap() {
     </RunesMainBtn>
 
     <RunesMainBtn
-      v-else-if="unmet"
-      :disabled="!unmet.handler"
-      :class="[!unmet?.handler && 'disabled']"
-      @click="!!unmet?.handler && unmet?.handler()"
+      v-else-if="firstMet"
+      :disabled="!firstMet.handler"
+      :class="[!firstMet?.handler && 'disabled']"
+      @click="!!firstMet?.handler && firstMet?.handler()"
     >
-      {{ unmet.message || '' }}
+      {{ firstMet.message || '' }}
     </RunesMainBtn>
 
     <!-- confirm button -->

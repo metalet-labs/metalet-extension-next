@@ -18,8 +18,8 @@ const btnDisabled = computed(
 
 const submit = async () => {
   error.value = undefined
-  if (password.value.length < 8) {
-    error.value = 'Password must be at least 8 characters.'
+  if (password.value.length < 6) {
+    error.value = 'Password must be at least 6 characters.'
     return
   }
   if (password.value !== confirmPassword.value) {
@@ -45,7 +45,7 @@ const submit = async () => {
       wallet and re-import it to establish a new one.
     </p>
     <FlexBox d="col" class="mt-9 gap-y-10">
-      <PasswordInput v-model:password="password" title="New Password (at least 8 characters)" :validate="true" />
+      <PasswordInput v-model:password="password" title="New Password (at least 6 characters)" :validate="true" />
       <PasswordInput v-model:password="confirmPassword" title="Confirm" v-model:error="error" />
     </FlexBox>
     <FlexBox d="col" ai="center" jc="center" class="mt-16" :gap="4">
