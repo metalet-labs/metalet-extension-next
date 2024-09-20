@@ -21,7 +21,12 @@ import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { getCurrentWalletId, setV3EncryptedWalletsStorage, setCurrentWalletId, getV3EncryptedWalletsStorage } from '@/lib/wallet'
+import {
+  getCurrentWalletId,
+  setV3EncryptedWalletsStorage,
+  setCurrentWalletId,
+  getV3EncryptedWalletsStorage,
+} from '@/lib/wallet'
 
 const { updateAllWallets, getAddress } = useChainWalletsStore()
 
@@ -74,7 +79,14 @@ const addAccount = async (wallet: V3Wallet) => {
 }
 
 const reloadAccount = async (_walletId: string, _accountId: string) => {
+  console.log('reloadAccount', 'selected wallet id', _walletId, 'selected account id', _accountId)
+  console.log('current wallet id', currentWalletId.value, 'current account id', currentAccountId.value)
+
+  console.log('reloadAccount', _walletId, _accountId)
+
   if (currentWalletId.value === _walletId) {
+    console.log(1111)
+
     if (currentAccountId.value === _accountId) {
       return
     } else {
@@ -82,18 +94,31 @@ const reloadAccount = async (_walletId: string, _accountId: string) => {
       await setCurrentAccountId(_accountId)
     }
   } else {
+    console.log(22222)
+
     const wallets = await WalletsStore.getWallets()
+    console.log('wallets', wallets)
+
     const wallet = wallets.find((wallet) => wallet.id === _walletId)
+    console.log('wallet', wallet)
+
     if (!wallet) {
       await WalletsStore.addWalletOnlyAccount(_walletId, _accountId)
       WalletsStore.loadWalletOtherAccounts(_walletId, _accountId)
     }
     currentWalletId.value = _walletId
     currentAccountId.value = _accountId
+    console.log('setCurrentWalletId', _walletId)
+
     await setCurrentWalletId(_walletId)
+    console.log('setCurrentAccountId', _accountId)
     await setCurrentAccountId(_accountId)
   }
+  console.log('updateAllWallets')
+
   await updateAllWallets()
+  console.log('notifyContent')
+
   notifyContent('accountsChanged')({ mvcAddress: mvcAddress.value, btcAddress: btcAddress.value })
   goToPage('/wallet')
 }

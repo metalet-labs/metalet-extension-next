@@ -2,7 +2,6 @@ import hash from 'object-hash'
 import useStorage from './storage'
 import { IS_DEV } from '@/data/config'
 import { notifyBg } from './notify-bg'
-import usePasswordStore from '@/stores/PasswordStore'
 import { LAST_LOCK_TIME_KEY, LOCK_KEY } from './storage/key'
 import { checkPassword, hasPassword, getEncryptedPassword } from './password'
 
@@ -51,6 +50,7 @@ export async function getPassword(): Promise<string> {
     return (await getEncryptedPassword()) || ''
   } else {
     const password = await notifyBg('getPassword')()
+
     if (password) {
       return hash(password)
     }

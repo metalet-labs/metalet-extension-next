@@ -593,7 +593,7 @@ const routes = [
   },
   {
     path: '/test',
-    component: () => import('./pages/tests/Auth.vue'),
+    component: () => import('./pages/tests/Index.vue'),
   },
 ]
 
@@ -617,7 +617,7 @@ const authPages = [
 router.beforeEach(async (to, _, next) => {
   if (to.fullPath !== '/wallet/set-password' && !(await hasPassword())) {
     next('/wallet/set-password')
-  } else if (to.fullPath !== '/migrateV2' && (await needMigrate())) {
+  } else if (to.fullPath !== '/migrateV2' && (await hasPassword()) && (await needMigrate())) {
     next('/migrateV2')
   } else if (!authPages.includes(to.path)) {
     if (!(await hasWallets())) {

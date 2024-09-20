@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
+import { parsePsbt } from '@/lib/psbt'
 import Copy from '@/components/Copy.vue'
-import { getBtcNetwork } from '@/lib/network'
 import actions from '@/data/authorize-actions'
 import { getCurrentWallet } from '@/lib/wallet'
 import { Psbt, PsbtTxOutput } from 'bitcoinjs-lib'
 import { isTaprootInput } from 'bitcoinjs-lib/src/psbt/bip371'
-import { fetchRuneUtxoDetail, decipherRuneScript } from '@/queries/runes'
-import { AddressType, Chain, getAddressFromScript, Transaction } from '@metalet/utxo-wallet-service'
+import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import { prettifyTxId, prettifyBalance, prettifyBalanceFixed, calcBalance } from '@/lib/formatters'
 import { CheckBadgeIcon, ChevronDoubleRightIcon, ChevronLeftIcon } from '@heroicons/vue/24/solid'
 
@@ -99,84 +98,24 @@ const inputs = ref<
     value: number
     runes: {
       chain: string
-      isNative: boolean
-      queryable: boolean
       symbol: string
       amount: string
       runeId: string
-      tokenName: string
       decimal: number
+      isNative: boolean
+      tokenName: string
+      queryable: boolean
     }[]
   }[]
 >([])
 const outputs = ref<{ address: string; value: number; script: string }[]>([])
 
 onMounted(async () => {
-  const btcNetwork = getBtcNetwork()
   const wallet = await getCurrentWallet(Chain.BTC)
-  const psbt = Psbt.fromHex(psbtHex, { network: btcNetwork })
-  let myInputValue = 0
-  let totalInputValue = 0
-  let totalOutputValue = 0
-  let changeOutputValue = 0
-  for (let index = 0; index < psbt.data.inputs.length; index++) {
-    const inputData = psbt.data.inputs[index]
-    const runes = await fetchRuneUtxoDetail(
-      Buffer.from(psbt.txInputs[index].hash).reverse().toString('hex'),
-      psbt.txInputs[index].index
-    )
-    let address = ''
-    let value = 0
-    if (inputData?.witnessUtxo?.script) {
-      // TODO: getAddressFromScript exception handling
-      address = getAddressFromScript(inputData.witnessUtxo.script, btcNetwork)
-      value = inputData.witnessUtxo?.value || 0
-    }
-    if (inputData?.nonWitnessUtxo) {
-      const tx = Transaction.fromBuffer(inputData.nonWitnessUtxo)
-      const output = tx.outs[psbt.txInputs[index].index]
-      address = getAddressFromScript(output.script, btcNetwork)
-      value = output.value
-    }
-    inputs.value.push({ address, value, runes })
-    totalInputValue += value
-    if (address === wallet.getAddress()) {
-      myInputValue += value
-    }
-  }
-
-  for (let index = 0; index < psbt.txOutputs.length; index++) {
-    const out = psbt.txOutputs[index]
-    let script = out.script.toString('hex')
-    try {
-      if (getAddressFromScript(out.script, btcNetwork) === out.address) {
-        script = ''
-      }
-    } catch (error) {
-      console.log('No address script:', error)
-    }
-
-    if (script) {
-      try {
-        script = await decipherRuneScript(out.script.toString('hex'))
-      } catch (error) {
-        console.log('No rune script:', error)
-      }
-    }
-
-    outputs.value.push({
-      script,
-      value: out.value,
-      address: out.address || '',
-    })
-    totalOutputValue += out.value
-    if (out.address === wallet.getAddress()) {
-      changeOutputValue += out.value
-    }
-  }
-  fee.value = totalInputValue - totalOutputValue
-  transferAmount.value = myInputValue - changeOutputValue
-  feeRate.value = (totalInputValue - totalOutputValue) / calcSize(psbt, wallet.getAddressType() === AddressType.Taproot)
+  const { fee, psbt, inputs: _inputs, outputs: _outputs } = await parsePsbt(psbtHex)
+  inputs.value = _inputs
+  outputs.value = _outputs
+  feeRate.value = fee / calcSize(psbt, wallet.getAddressType() === AddressType.Taproot)
 })
 </script>
 

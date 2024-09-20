@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js'
+import { getBtcUtxos } from './utxos'
 import { ComputedRef, Ref } from 'vue'
 import { getNet } from '@/lib/network'
 import { useQuery } from '@tanstack/vue-query'
@@ -7,7 +8,6 @@ import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
 import { metaletApiV3, mvcApi, unisatApi } from './request'
 import { Balance, BitcoinBalance, BTCBalance } from './types/balance'
-import { getBtcUtxos } from './utxos'
 
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
   const balance = await mvcApi<Omit<Balance, 'total'>>(`/address/${address}/balance`).get()

@@ -5,7 +5,7 @@ import { BTCAsset } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { useMutation } from '@tanstack/vue-query'
-import { useBalanceQuery } from '@/queries/balance'
+import { useBTCBalanceQuery } from '@/queries/balance'
 import { getRuneUtxos, UTXO } from '@/queries/utxos'
 import EmptyPoolMessage from './EmptyPoolMessage.vue'
 import { useSwapPool } from '@/hooks/swap/useSwapPool'
@@ -29,6 +29,7 @@ import {
   buildX1Swap,
   useRuneDetailQuery,
 } from '@/queries/runes'
+import { parsePsbt } from '@/lib/psbt'
 
 const hasEnough = ref(true)
 const hasAmount = ref(false)
@@ -64,7 +65,7 @@ const balanceEnabled = computed(() => {
   return !!address.value && !!symbol.value
 })
 
-const { data: balance } = useBalanceQuery(address, symbol, { enabled: balanceEnabled })
+const { data: balance } = useBTCBalanceQuery(address, { enabled: balanceEnabled })
 
 const btcAsset = computed(() => {
   if (balance.value) {
@@ -191,8 +192,8 @@ const buildSwapFn = computed(() => {
   }
 })
 
-const { mutate: mutateBuildSwap } = useMutation({
-  mutationFn: buildSwapFn,
+const { mutateAsync: mutateBuildSwap } = useMutation({
+  mutationFn: buildSwapFn.value,
 })
 
 watchEffect(() => {
@@ -260,16 +261,6 @@ watchEffect(async () => {
 })
 
 async function doSwap() {
-  if (!hasEnough.value) return
-  if (!hasAmount.value) return
-  if (!sourceAmount.value) return
-  if (firstMet.value) {
-    if (firstMet.value.handler) {
-      firstMet.value.handler()
-    }
-    return
-  }
-
   const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
   let runeUtxos = [] as UTXO[]
 
@@ -287,15 +278,16 @@ async function doSwap() {
   }
 
   // go for it!
-  const data = mutateBuildSwap({
+  const res = await mutateBuildSwap({
     runeUtxos,
     address: address.value,
     feeRate: currentRateFee.value,
-    sourceAmount: sourceAmount.value,
+    sourceAmount: sourceAmount.value!,
     token1: token1.value.toLowerCase(),
     token2: runeId.value.toLowerCase(),
     pubkey: currentBTCWallet.value!.getPublicKey().toString('hex'),
   })
+  const data = await parsePsbt(res.rawPsbt)
   console.log('data', data)
 }
 

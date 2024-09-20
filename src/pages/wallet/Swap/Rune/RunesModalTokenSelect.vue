@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { computed, ref } from 'vue'
-import { Asset, BTCAsset } from '@/data/assets'
+import { Asset } from '@/data/assets'
 import { refDebounced } from '@vueuse/core'
+import { truncateStr } from '@/lib/formatters'
 import { useRoute, useRouter } from 'vue-router'
 import { runeTokens } from '@/data/pinned-tokens'
 import RunesTokenIcon from './RunesTokenIcon.vue'
@@ -73,7 +74,7 @@ const { data: tokens, isLoading: isLoadingTokens } = getRunesTokensQuery(
     </div>
 
     <div class="text-xs" v-if="pairStr">
-      {{ btcAsset.tokenName + '-' + runeAsset.tokenName }}
+      {{ btcAsset.tokenName + '-' + truncateStr(runeAsset.tokenName, 5) }}
     </div>
     <div v-else class="pl-2">Select token</div>
 

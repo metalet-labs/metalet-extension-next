@@ -7,14 +7,19 @@ import AssetTabs from './components/AssetTabs.vue'
 import { WalletsStore } from '@/stores/WalletStore'
 import BackupTips from './components/BackupTips.vue'
 import { hasBackupCurrentWallet } from '@/lib/backup'
+import { hasPassword } from '@/lib/password'
 
 const noBackup = ref(true)
 hasBackupCurrentWallet().then((_backup) => {
   noBackup.value = !_backup
 })
 
-hasWallets().then(async (_hasWallets) => {
-  await WalletsStore.initWalletManager()
+hasPassword().then((_hasPassword) => {
+  if (!_hasPassword) {
+    hasWallets().then(async (_hasWallets) => {
+      await WalletsStore.initWalletManager()
+    })
+  }
 })
 </script>
 
