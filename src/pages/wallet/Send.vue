@@ -268,7 +268,7 @@ async function send() {
       </div>
 
       <div class="space-y-2 w-full">
-        <div>Receiver</div>
+        <div>{{ $t('Common.Receiver') }}</div>
         <textarea
           v-model="recipient"
           class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
@@ -277,7 +277,7 @@ async function send() {
 
       <div class="space-y-2 w-full">
         <div class="flex items-center justify-between">
-          <span>Amount</span>
+          <span>{{ $t('Common.Amount') }}</span>
           <span class="text-gray-primary text-xs">
             <span>Max:</span>
             <span v-if="balance !== undefined">
@@ -304,7 +304,7 @@ async function send() {
         </div> -->
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary flex items-end gap-1">
-            <span>Pending</span>
+            <span>{{$t('Common.Pending')}}</span>
             <span
               v-tooltip="
                 'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'
@@ -318,7 +318,7 @@ async function send() {
           </span>
         </div>
         <div class="flex items-center justify-between w-full">
-          <span class="text-xs text-gray-primary">Available</span>
+          <span class="text-xs text-gray-primary">{{$t('Common.Available')}}</span>
           <span class="text-xs text-gray-primary">
             {{ prettifyBalanceFixed(balanceData?.confirmed.toNumber() || 0, symbol, asset.decimal) }}
           </span>
@@ -327,7 +327,7 @@ async function send() {
 
       <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
       <div class="flex items-center justify-between w-full" v-else-if="asset.chain === 'mvc'">
-        <span class="text-sm">Fee Rate</span>
+        <span class="text-sm">{{ $t('Common.FeeRate') }}</span>
         <span class="text-xs text-gray-primary">1 sat/vB</span>
       </div>
       <Drawer v-model:open="isOpenConfirmModal">

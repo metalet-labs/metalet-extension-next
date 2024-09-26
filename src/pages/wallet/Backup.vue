@@ -83,21 +83,21 @@ const back = () => {
         </button>
       </div>
       <div class="col-span-3 justify-self-center text-base">
-        <span>Backup</span>
+        <span>{{ $t('Common.Backup') }}</span>
       </div>
     </div>
     <div class="grow">
       <template v-if="phase === 1">
         <div class="pt-4 space-y-2">
-          <h3 class="mt-4 text-2xl font-medium">Verify password</h3>
+          <h3 class="mt-4 text-2xl font-medium">{{ $t('BackupPage.VerifyPassword') }}</h3>
         </div>
         <PasswordInput v-model:password="password" v-model:error="error" class="mt-4" />
       </template>
 
       <div v-else-if="phase === 2" class="space-y-8">
         <div class="pt-4 space-y-2">
-          <h3 class="text-2xl font-medium">Write down the words in order.</h3>
-          <p class="text-sm text-gray-primary">Make sure the keep them stored safely.</p>
+          <h3 class="text-2xl font-medium">{{ $t('BackupPage.WriteDownTips') }}</h3>
+          <p class="text-sm text-gray-primary">{{ $t('BackupPage.MakeSureTips') }}</p>
         </div>
         <div class="relative mt-2">
           <SeedPhrase :words="mnemonic.split(' ')" :edit="false" :noCopied="true" />
@@ -110,17 +110,17 @@ const back = () => {
               @click="isCoveredMne = false"
             >
               <EyeIcon class="h-5 w-5" />
-              <span>Show</span>
+              <span>{{ $t('Common.Show') }}</span>
             </button>
-            <div class="w-48 text-center">View your seed phrase. Make sure no one else is looking at your screen.</div>
+            <div class="w-48 text-center">{{ $t('BackupPage.ViewSeedTips') }}</div>
           </div>
         </div>
       </div>
 
       <div v-else-if="phase === 3">
         <div class="pt-4 space-y-2">
-          <h3 class="text-2xl font-medium">Verify your seed phrase</h3>
-          <p class="text-sm text-gray-primary">Check if you remember these words from your seed phrase in order.</p>
+          <h3 class="text-2xl font-medium">{{ $t('BackupPage.VerifySeedTips') }}</h3>
+          <p class="text-sm text-gray-primary">{{ $t('BackupPage.CheckSeedTips') }}</p>
         </div>
         <VerifySeedPhrase ref="verifySeedPhrase" :randomNum="4" :words="mnemonic.split(' ')" class="mt-8" />
       </div>
@@ -136,10 +136,16 @@ const back = () => {
           !password && 'opacity-50 saturate-50 cursor-not-allowed',
         ]"
       >
-        {{ [1, 3].includes(phase) ? 'Continue' : phase === 2 ? "OK, I've noted them down." : 'Confirm' }}
+        {{
+          [1, 3].includes(phase)
+            ? $t('Common.Continue')
+            : phase === 2
+              ? $t('BackupPage.NoteDownTips')
+              : $t('Common.Confirm')
+        }}
       </button>
       <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary" v-if="phase === 1">
-        Forget password?
+        {{ $t('BackupPage.ForgetPassword') }}?
       </button>
     </div>
     <ResetModal v-model:show="showResetModal" />

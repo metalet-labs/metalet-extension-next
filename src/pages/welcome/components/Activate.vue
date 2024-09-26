@@ -165,7 +165,7 @@ const addWallet = async () => {
     >
       <div class="w-[108px] h-[108px] bg-white rounded-lg flex flex-col items-center justify-center gap-4">
         <LoadingIcon class="text-blue-primary" />
-        <span>Loading</span>
+        <span>{{ $t('Common.Loading') }}</span>
       </div>
     </div>
 
@@ -175,11 +175,11 @@ const addWallet = async () => {
       <h1 class="text-2xl mt-6 font-medium">
         <span v-if="error">
           Wallet
-          <span v-if="$props.type === 'Create'">Created</span>
-          <span v-if="$props.type === 'Import'">Imported</span>
+          <span v-if="$props.type === 'Create'">{{ $t('WelcomePage.Created') }}</span>
+          <span v-if="$props.type === 'Import'">{{ $t('WelcomePage.Imported') }}</span>
           Failed
         </span>
-        <span v-else>Please select a network</span>
+        <span v-else>{{ $t('WelcomePage.SelectNetworkTips') }}</span>
       </h1>
       <template v-if="!error">
         <form @submit="onSubmit" class="mt-9 relative w-full">
@@ -208,7 +208,7 @@ const addWallet = async () => {
                         v-if="chain.name === 'MicrovisionChain'"
                         class="text-xs px-2 py-1 scale-75 origin-left rounded-full bg-[#F7931A]/20 text-[#F7931A]"
                       >
-                        Bitcoin sidechain
+                        {{ $t('Common.BitcoinSideChain') }}
                       </span>
                     </div>
                   </FormLabel>
@@ -224,8 +224,10 @@ const addWallet = async () => {
                     class="absolute -bottom-8 left-0 flex items-center gap-x-1 text-sm"
                     v-if="chain.name === 'MicrovisionChain' && value.includes(chain.id) && type === 'Import'"
                   >
-                    <span class="text-gray-primary">Choose</span>
-                    <span class="underline text-blue-primary" @click="$emit('openSelectMvcPath')">MVC Address</span>
+                    <span class="text-gray-primary">{{ $t('Common.Choose') }}</span>
+                    <span class="underline text-blue-primary" @click="$emit('openSelectMvcPath')">
+                      MVC {{ $t('Common.Address') }}
+                    </span>
                     <span v-tooltip="'Import the MVC wallet by modifying the HD Path.'">
                       <QuestionMarkCircleIcon class="w-3.5" />
                     </span>
@@ -243,11 +245,13 @@ const addWallet = async () => {
               { 'opacity-50 cursor-not-allowed': !selectedChains.length },
             ]"
           >
-            Launch Metalet
+            {{ $t('Common.Launch') }} Metalet
           </button>
         </form>
       </template>
-      <Button v-else :class="['mt-26 w-61.5']" @click="$router.replace('/welcome')">Back To Welcome Page</Button>
+      <Button v-else :class="['mt-26 w-61.5']" @click="$router.replace('/welcome')">
+        {{ $t('WelcomePage.BackToWelcomePageTips') }}
+      </Button>
       <div class="mt-4 text-center text-sm text-red-500" v-if="error">{{ error }}</div>
     </div>
   </div>

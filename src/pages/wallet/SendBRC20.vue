@@ -174,14 +174,14 @@ async function send() {
     </div>
 
     <div class="space-y-2">
-      <div>Receiver</div>
+      <div>{{ $t('Common.Receiver') }}</div>
       <textarea
         v-model="recipient"
         class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
       />
     </div>
     <div class="space-y-2">
-      <div>Amount</div>
+      <div>{{ $t('Common.Amount') }}</div>
       <div class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none">
         {{ amount }} {{ symbol }}
       </div>

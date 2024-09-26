@@ -73,7 +73,7 @@ console.log({ tx: TxComposer.deserialize(currentTransactionInfo.value.txComposer
               class="border-2 border-teal-300 bg-teal-100 rounded p-1"
               v-for="output in currentTransaction.getTx().outputs"
             >
-              <div>Address</div>
+              <div>{{ $t('Common.Address') }}</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(output.script.toAddress().toString(), 4) }}
               </div>

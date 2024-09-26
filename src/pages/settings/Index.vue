@@ -115,7 +115,6 @@ const showResetModal = ref(false)
     </div>
     <div
       class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
-      v-if="IS_DEV"
     >
       <div class="flex items-center gap-3">
         <div class="size-[38px] rounded-full bg-[#f3f6f8] flex items-center justify-center">

@@ -41,8 +41,8 @@ const currentRevealFeeRate = computed(() => {
   <div class="space-y-4">
     <h3 class="text-base">{{ action.title }}</h3>
     <div class="space-y-2">
-      <div class="label">Commit Fee Rate: {{ currentCommitFeeRate }}</div>
-      <div class="label">Reveal Fee Rate: {{ currentRevealFeeRate }}</div>
+      <div class="label">Commit {{ $t('Common.FeeRate') }}: {{ currentCommitFeeRate }}</div>
+      <div class="label">Reveal {{ $t('Common.FeeRate') }}: {{ currentRevealFeeRate }}</div>
       <div class="label break-all">Content: {{ params.body }}</div>
     </div>
   </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import i18n from '@/i18n'
 import Decimal from 'decimal.js'
 import { type Asset } from '@/data/assets'
 import { computed, watch, ref } from 'vue'
@@ -18,7 +19,7 @@ const props = defineProps({
   side: {
     type: String,
     required: true,
-    validator: (side: string) => ['pay', 'receive'].includes(side),
+    validator: (side: string) => [i18n.global.t('Common.Pay'), i18n.global.t('Common.Receive')].includes(side),
   },
   asset: {
     type: Object as () => Asset,
@@ -196,7 +197,7 @@ const clear = () => {
 
 <template>
   <div class="rounded-2xl border border-gray-secondary px-4 py-5 bg-gray-secondary hover:border-gray-soft">
-    <div class="text-black-primary">You {{ side }}</div>
+    <div class="text-black-primary">{{ $t('Common.You') }} {{ side }}</div>
 
     <div class="flex h-16 items-center justify-between space-x-2">
       <input

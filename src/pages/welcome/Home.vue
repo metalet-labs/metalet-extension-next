@@ -18,11 +18,9 @@ getAccounts().then((accounts) => {
     <FlexBox d="col" class="gap-y-15">
       <FlexBox d="col" :gap="3">
         <h3 class="text-2xl font-semibold w-80">
-          The Entrance
-          <br />
-          to the Web3 Blockchain
+          {{ $t('WelcomePage.Title') }}
         </h3>
-        <p class="text-gray-primary w-96">Metalet is the way to explore your crypto journey.</p>
+        <p class="text-gray-primary w-96">{{ $t('WelcomePage.Tips') }}</p>
       </FlexBox>
       <FlexBox d="col" :gap="4">
         <div class="flex gap-2">
@@ -32,7 +30,7 @@ getAccounts().then((accounts) => {
             @click="$router.push('/welcome/import')"
             :class="['w-32.5', !checked ? 'opacity-50' : undefined]"
           >
-            Import Wallet
+            {{ $t('WelcomePage.ImportWallet') }}
           </Button>
           <Button
             type="primary"
@@ -40,15 +38,15 @@ getAccounts().then((accounts) => {
             @click="$router.push('/welcome/create')"
             :class="['w-32.5', !checked ? 'opacity-50' : undefined]"
           >
-            Create Wallet
+            {{ $t('WelcomePage.CreateWallet') }}
           </Button>
         </div>
         <FlexBox :gap="1.5" ai="center">
           <Checkbox id="terms" v-model:checked="checked" />
           <span class="text-slate-light">
-            I agree to Metalet's
+            {{ $t('WelcomePage.AgreeTips') }}
             <a target="_blank" class="text-blue-primary" href="https://metalet.space/terms-of-service">
-              Terms of Service
+              {{ $t('WelcomePage.TermsOfService') }}
             </a>
           </span>
         </FlexBox>

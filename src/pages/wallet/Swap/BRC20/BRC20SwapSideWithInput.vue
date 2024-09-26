@@ -259,7 +259,7 @@ const clear = () => {
         v-if="balance?.confirmed.toNumber()"
         :class="['text-xs text-zinc-400 hover:text-brc20 hover:underline', { 'cursor-not-allowed': disabled }]"
       >
-        Balance: {{ balanceDisplay }}
+        {{ $t('Common.Balance') }}: {{ balanceDisplay }}
       </button>
 
       <div class="text-xs text-zinc-400" v-else>Balance: {{ balanceDisplay }}</div>

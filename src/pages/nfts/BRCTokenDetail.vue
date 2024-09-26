@@ -80,7 +80,7 @@ const toSendNFT = (id: string) => {
         </div>
       </div>
       <div class="row">
-        <span class="label">Address</span>
+        <span class="label">{{ $t('Common.Address') }}</span>
         <div :title="address">
           {{ shortestAddress(address) }}
         </div>

@@ -63,24 +63,26 @@ watch(
   <FlexBox d="col" class="w-82" :gap="6">
     <FlexBox ai="center" :gap="3">
       <ArrowLeftIcon @click="$router.go(-1)" class="cursor-pointer w-3.5" />
-      <div class="text-2xl font-medium">Import Wallet</div>
+      <div class="text-2xl font-medium">{{ $t('WelcomePage.ImportWallet') }}</div>
     </FlexBox>
     <Tabs default-value="phrase" class="w-full">
       <TabsList class="grid grid-cols-2 bg-gray-secondary rounded-lg text-gray-primary" v-if="false">
-        <TabsTrigger value="phrase" class="text-xs">Import Phrase</TabsTrigger>
+        <TabsTrigger value="phrase" class="text-xs">{{ $t('WelcomePage.ImportPhrase') }}</TabsTrigger>
         <TabsTrigger value="privateKey" class="text-xs" disabled>Import Private Key</TabsTrigger>
       </TabsList>
       <TabsContent value="phrase">
         <FlexBox d="col" :gap="4">
           <FlexBox ai="center" :gap="1">
-            <span>My mnemonic phrase is</span>
+            <span>{{ $t('WelcomePage.MyMnemonicPhraseTips') }}</span>
             <Select v-model:modelValue="wordsLen">
               <SelectTrigger class="w-30 text-base">
                 <SelectValue placeholder="Select a number of words" />
               </SelectTrigger>
               <SelectContent align="end">
                 <SelectGroup>
-                  <SelectItem :value="length.toString()" v-for="length of wordsLengths">{{ length }} words</SelectItem>
+                  <SelectItem :value="length.toString()" v-for="length of wordsLengths">
+                    {{ length }} {{ $t('WelcomePage.words') }}
+                  </SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -95,7 +97,7 @@ watch(
             :disabled="!finished || !!error"
             :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': !finished || error }]"
           >
-            Next
+            {{ $t('Common.Next') }}
           </Button>
 
           <!-- error -->

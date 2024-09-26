@@ -75,18 +75,18 @@ watch(
 
     <!-- detail body -->
     <div class="py-4 grow">
-      <div class="label mt-4">Fee Rate: {{ currentFeeRate }}</div>
+      <div class="label mt-4">{{ $t('Common.FeeRate') }}: {{ currentFeeRate }}</div>
       <div class="label mt-4">PSBT Structure</div>
       <div class="grid grid-cols-11 items-center mt-1">
         <div class="col-span-5 bg-sky-50 border-2 border-sky-300 border-dashed py-2 px-1 rounded-lg">
           <div class="text-center text-sm text-sky-900">Inputs</div>
           <div class="mt-2 space-2 text-xs flex flex-col gap-1">
             <div class="border-2 border-sky-300 bg-sky-300 rounded p-1" v-for="input in inputs">
-              <div>Address</div>
+              <div>{{ $t('Common.Address') }}</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(input.address, 4) }}
               </div>
-              <div class="mt-2">Amount</div>
+              <div class="mt-2">{{ $t('Common.Amount') }}</div>
               <div class="text-xs text-gray-500 break">
                 {{ prettifyBalance(input.value, 'BTC') }}
               </div>
@@ -102,7 +102,7 @@ watch(
           <div class="text-center text-sm text-teal-900">Outputs</div>
           <div class="mt-2 space-2 text-xs flex flex-col gap-1">
             <div class="border-2 border-teal-300 bg-teal-100 rounded p-1" v-for="output in outputs">
-              <div>Address</div>
+              <div>{{ $t('Common.Address') }}</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(output.address, 4) }}
               </div>

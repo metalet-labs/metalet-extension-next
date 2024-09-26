@@ -1,3 +1,4 @@
+import i18n from './i18n'
 import { goToTab } from '@/lib/utils'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
@@ -132,7 +133,7 @@ const routes = [
         name: 'Swap',
         meta: {
           secondaryHeader: true,
-          headerTitle: 'Swap',
+          headerTitle: i18n.global.t('Common.Swap'),
           noFooter: true,
         },
       },
@@ -279,7 +280,7 @@ const routes = [
         component: () => import('./pages/wallet/SelectNetwork.vue'),
         meta: {
           secondaryHeader: true,
-          headerTitle: 'Select Network',
+          headerTitle: i18n.global.t('Common.SelectNetwork'),
           noFooter: true,
         },
       },

@@ -44,10 +44,10 @@ const toScanUrl = async (txId: string) => {
         </div>
         <div>{{ amount }} {{ symbol }}</div>
       </FlexBox>
-      <div class="label mt-1">Amount</div>
+      <div class="label mt-1">{{ $t('Common.Amount') }}</div>
       <Divider :dashed="true" class="my-3.5 border-gray-soft w-full" />
       <div class="break-all text-center mb-1">{{ receiver }}</div>
-      <div class="label">Receiver</div>
+      <div class="label">{{ $t('Common.Receiver') }}</div>
     </div>
     <div class="flex items-center gap-1 hover:text-blue-primary text-xs hover:underline" @click="toScanUrl(txId)">
       <span>View on Block Explorer</span>

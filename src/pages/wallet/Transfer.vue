@@ -33,7 +33,7 @@ const toInscribe = () => {
   <LoadingText :text="`${symbol} Transfer info Loading...`" v-if="isLoading" />
   <FlexBox d="col" class="pt-1" :gap="4" v-else-if="asset">
     <div class="flex flex-col gap-3">
-      <div class="text-sm">Transfer Amount</div>
+      <div class="text-sm">{{ $t('Common.Amount') }}</div>
       <FlexBox d="col" class="p-4 border border-gary-soft rounded-lg">
         <FlexBox ai="center" jc="between" class="w-full">
           <span class="text-xl">{{ asset.balance.transferableBalance }} {{ symbol }}</span>

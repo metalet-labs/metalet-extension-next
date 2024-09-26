@@ -150,11 +150,11 @@ const updateAccountName = (walletId: string, accountId: string, accountName: str
     />
     <div class="flex items-center justify-between w-full h-15 shrink-0">
       <ArrowLeftIcon @click="$router.back()" class="w-3.5 cursor-pointer" />
-      <RouterLink to="/edit/wallets" class="text-sm">Edit wallet</RouterLink>
+      <RouterLink to="/edit/wallets" class="text-sm">{{ $t('ManageWalletsPage.EditWallet') }}</RouterLink>
     </div>
     <div class="flex flex-col grow overflow-hidden -mx-2">
       <div class="flex flex-col items-start justify-center gap-2 w-full py-6 px-2">
-        <div class="text-gray-primary">Current Account Asset</div>
+        <div class="text-gray-primary">{{ $t('ManageWalletsPage.CurrentAccountAsset') }}</div>
         <div class="font-bold text-[40px] leading-[50px]">$ {{ totalBalance.toFixed(2) }}</div>
       </div>
       <Divider />
@@ -223,7 +223,9 @@ const updateAccountName = (walletId: string, accountId: string, accountName: str
         </div>
       </div>
     </div>
-    <Button type="primary" @click="goToTab('/welcome', true)" class="w-61.5 mx-auto shrink-0 mt-3">Add Wallet</Button>
+    <Button type="primary" @click="goToTab('/welcome', true)" class="w-61.5 mx-auto shrink-0 mt-3">
+      {{ $t('ManageWalletsPage.AddWallet') }}
+    </Button>
   </div>
 </template>
 

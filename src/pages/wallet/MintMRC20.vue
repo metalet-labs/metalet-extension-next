@@ -259,7 +259,7 @@ async function send() {
         <div class="p-4 space-y-4 text-ss">
           <FlexBox ai="center" jc="between">
             <!-- TODO: add amount -->
-            <div class="text-gray-primary">Amount</div>
+            <div class="text-gray-primary">{{ $t('Common.Amount') }}</div>
             <!-- <div class="break-all">{{ (amount || 0) * (Number(asset.termsAmount) || 0) }}</div> -->
           </FlexBox>
           <FlexBox ai="center" jc="between">

@@ -179,7 +179,7 @@ async function transfer() {
           </div>
 
           <div class="space-y-1">
-            <div class="label">Recipient Address</div>
+            <div class="label">{{ $t('Common.Address') }}</div>
             <div class="value break-all text-sm">{{ recipient }}</div>
           </div>
         </div>

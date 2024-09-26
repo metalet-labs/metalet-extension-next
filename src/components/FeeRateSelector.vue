@@ -49,7 +49,7 @@ const selectCustom = () => {
 <template>
   <FlexBox ai="center" jc="between">
     <FlexBox ai="center" jc="between" @click="open = true" class="w-full cursor-pointer">
-      <div class="text-sm">Fee Rate</div>
+      <div class="text-sm">{{ $t('Common.FeeRate') }}</div>
       <FlexBox ai="center" jc="center" class="text-xs text-gray-primary">
         <span>{{ feeRate }} sat/vB</span>
         <ArrowRightIcon class="text-gray-primary" />

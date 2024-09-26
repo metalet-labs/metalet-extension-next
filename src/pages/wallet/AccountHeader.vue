@@ -164,7 +164,7 @@ const copy = (address: string, addressType: string, type: string) => {
     <DrawerContent class="bg-white">
       <DrawerHeader>
         <DrawerTitle class="text-center relative">
-          <span>Wallet Address</span>
+          <span>{{ $t('Common.Address') }}</span>
           <DrawerClose>
             <CloseIcon class="absolute right-0 top-0" />
           </DrawerClose>

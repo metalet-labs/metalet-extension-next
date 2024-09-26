@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
 import { ChevronRightIcon } from '@heroicons/vue/20/solid'
+import { IS_DEV } from '@/data/config'
 
 const router = useRouter()
 
@@ -29,7 +30,7 @@ const toSpaceMerge = () => {
             <ChevronRightIcon class="link-icon" />
           </div>
         </div>
-        <div class="setting-item group cursor-pointer" @click="toBTCSafeMark">
+        <div class="setting-item group cursor-pointer" @click="toBTCSafeMark" v-if="IS_DEV">
           <div class="text-gray-500 group-hover:underline">BTC Safe Mark</div>
           <div class="">
             <ChevronRightIcon class="link-icon" />

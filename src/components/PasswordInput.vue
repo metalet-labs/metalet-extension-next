@@ -44,13 +44,18 @@ const levelColors = computed(() => {
 
 <template>
   <form @submit.prevent>
-    <h4 class="mb-2 text-sm">{{ title || 'Password' }}</h4>
+    <h4 class="mb-2 text-sm">{{ title || $t('Common.Password') }}</h4>
     <div class="relative h-15">
-      <input name="password" autocomplete="on" :type="passwordInputType"
-        @input="(event: Event) => emit('update:password', (event.target as HTMLInputElement).value)" :class="[
+      <input
+        name="password"
+        autocomplete="on"
+        :type="passwordInputType"
+        @input="(event: Event) => emit('update:password', (event.target as HTMLInputElement).value)"
+        :class="[
           'block w-full rounded-md border border-gray-soft outline-blue-primary p-4 pr-12',
           { 'border-red-500': !!error },
-        ]" />
+        ]"
+      />
       <div class="absolute right-0 top-0 h-full flex items-center pr-4">
         <button type="button" @click="isCovered = !isCovered">
           <EyeIcon v-if="isCovered" class="size-5 text-gray-400 transition hover:text-blue-500" />

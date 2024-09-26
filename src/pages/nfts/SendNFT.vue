@@ -195,7 +195,7 @@ operationLock.value = false
         <Divider />
 
         <div class="space-y-2">
-          <div class="texg-sm font-medium">Receive Address</div>
+          <div class="text-sm font-medium">{{ $t('Common.Address') }}</div>
           <textarea
             v-model="recipient"
             placeholder="Recipient's address"

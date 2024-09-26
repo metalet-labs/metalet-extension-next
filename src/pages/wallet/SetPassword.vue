@@ -94,35 +94,38 @@ const next = async () => {
       <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="$router.back()" />
     </div>
     <div class="space-y-2 pt-4">
-      <h3 class="text-2xl font-medium">{{ hasPassword ? 'Change' : 'Set' }} Password</h3>
+      <h3 class="text-2xl font-medium">
+        {{ hasPassword ? $t('SetPasswordPage.ChangePassword') : $t('SetPasswordPage.SetPassword') }}
+      </h3>
       <p class="mt-2 text-sm text-gray-primary">
-        Set a password to manage your wallet. Note that we don't store your password and can't restore it for you. If
-        you forget your password, you can set a new one by resetting your wallet and re-importing it.
+        {{ $t('SetPasswordPage.SetPasswordTips') }}
       </p>
     </div>
     <div class="grow">
       <PasswordInput
         v-if="phase === 1"
         v-model:password="oldPassword"
-        title="Old Password"
+        :title="$t('SetPasswordPage.OldPassword')"
         v-model:error="error"
         class="mt-9"
       />
 
       <div v-if="phase === 2" class="mt-9 space-y-9">
-        <PasswordInput v-model:password="newPassword" title="New Password" :validate="true" />
-        <PasswordInput v-model:password="confirmPassword" title="Confirm" v-model:error="error" />
+        <PasswordInput v-model:password="newPassword" :title="$t('SetPasswordPage.OldPassword')" :validate="true" />
+        <PasswordInput v-model:password="confirmPassword" :title="$t('Common.Confirm')" v-model:error="error" />
       </div>
     </div>
     <div class="flex items-center justify-center gap-2 my-6">
-      <button class="w-30 h-12 bg-blue-light rounded-3xl text-blue-primary" @click="back">Back</button>
+      <button class="w-30 h-12 bg-blue-light rounded-3xl text-blue-primary" @click="back">
+        {{ $t('Common.Back') }}
+      </button>
       <button
         class="w-30 h-12 bg-blue-primary rounded-3xl text-white"
         :class="!canPass && 'opacity-50 cursor-not-allowed'"
         :disabled="!canPass"
         @click="next"
       >
-        Next
+        {{ $t('Common.Continue') }}
       </button>
     </div>
   </div>

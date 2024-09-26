@@ -129,7 +129,7 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
         <div class="text-xs flex gap-2">{{ totalCost / 1e8 }} BTC</div>
       </div>
       <div class="flex justify-between">
-        <div class="label">Fee Rate</div>
+        <div class="label">{{ $t('Common.FeeRate') }}</div>
         <div class="text-xs flex gap-2">{{ params.data.feeRate }} sat/vB</div>
       </div>
       <div class="flex justify-between text-gray-500">
@@ -172,7 +172,7 @@ actions.Inscribe.process({ ...props.params, options: { noBroadcast: true } })
           <div class="text-xs flex gap-2">{{ totalCost / 1e8 }} BTC</div>
         </div>
         <div class="flex justify-between">
-          <div class="label">Fee Rate</div>
+          <div class="label">{{ $t('Common.FeeRate') }}</div>
           <div class="text-xs flex gap-2">{{ params.data.feeRate }} sat/vB</div>
         </div>
       </div>

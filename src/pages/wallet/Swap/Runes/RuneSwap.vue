@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import i18n from '@/i18n'
 import Decimal from 'decimal.js'
 import Building from './Building.vue'
 import { ERRORS } from '@/data/errors'
@@ -104,31 +105,31 @@ const conditions = ref<
 >([
   {
     condition: 'insufficient-liquidity',
-    message: 'Insufficient liquidity',
+    message: i18n.global.t('SwapPage.conditions.InsufficientLiquidity'),
     priority: 0,
     met: false,
   },
   {
     condition: 'enter-amount',
-    message: 'Enter an amount',
+    message: i18n.global.t('SwapPage.conditions.EnterAmount'),
     priority: 1,
     met: false,
   },
   {
     condition: 'insufficient-balance',
-    message: 'Insufficient balance',
+    message: i18n.global.t('SwapPage.conditions.InsufficientBalance'),
     priority: 2,
     met: false,
   },
   {
     condition: 'less-than-threshold',
-    message: 'Amount too small',
+    message: i18n.global.t('SwapPage.conditions.LessThanThreshold'),
     priority: 3,
     met: false,
   },
   {
     condition: 'return-is-positive',
-    message: 'Negative return',
+    message: i18n.global.t('SwapPage.conditions.ReturnIsPositive'),
     priority: 4,
     met: false,
   },
@@ -328,7 +329,7 @@ async function doSwap() {
     </div>
     <div class="w-full">
       <RunesSwapSideWithInput
-        side="pay"
+        :side="$t('Common.Pay')"
         v-if="!flipped"
         :asset="btcAsset"
         :disabled="isEmpty"
@@ -343,7 +344,7 @@ async function doSwap() {
         @less-than-threshold="(_lessThanThreshold: boolean) => (lessThanThreshold = _lessThanThreshold)"
       />
       <RunesSwapSideWithInput
-        side="pay"
+        :side="$t('Common.Pay')"
         :asset="runeAsset"
         :disabled="isEmpty"
         v-else-if="flipped"
@@ -378,7 +379,7 @@ async function doSwap() {
       </div>
 
       <RunesSwapSideWithInput
-        side="receive"
+        :side="$t('Common.Receive')"
         v-if="!flipped"
         :asset="runeAsset"
         :disabled="isEmpty"
@@ -389,7 +390,7 @@ async function doSwap() {
       />
 
       <RunesSwapSideWithInput
-        side="receive"
+        :side="$t('Common.Receive')"
         v-if="flipped"
         :asset="btcAsset"
         :disabled="isEmpty"

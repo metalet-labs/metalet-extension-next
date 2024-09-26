@@ -210,7 +210,7 @@ const changeTabIdx = (idx: number) => {
       <Divider />
       <div>
         <div class="flex items-center justify-between">
-          <span class="text-sm">Amount</span>
+          <span class="text-sm">{{ $t('Common.Amount') }}</span>
           <span class="text-xs text-gray-primary">Available: {{ availableBalance }} {{ asset.symbol }}</span>
         </div>
         <input
@@ -256,7 +256,7 @@ const changeTabIdx = (idx: number) => {
           <span>{{ prettifyBalanceFixed(paymentNetworkFee || 0, 'BTC', 8) }}</span>
         </FlexBox>
         <FlexBox ai="center" jc="between">
-          <span class="label">Need Amount</span>
+          <span class="label">{{ $t('Common.Amount') }}</span>
           <span>{{ prettifyBalanceFixed(inscribeOrder?.needAmount || 0, 'BTC', 8) }}</span>
         </FlexBox>
         <Divider />

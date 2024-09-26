@@ -175,7 +175,7 @@ async function send() {
     </div>
 
     <div class="space-y-2">
-      <div>Receiver</div>
+      <div>{{ $t('Common.Receiver') }}</div>
       <textarea
         v-model="recipient"
         class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
@@ -183,7 +183,7 @@ async function send() {
     </div>
     <div class="space-y-2">
       <FlexBox ai="center" jc="between">
-        <span>Amount</span>
+        <span>{{ $t('Common.Amount') }}</span>
         <span class="text-gray-primary text-xs">
           <span>Balance:</span>
           <span v-if="balance">{{ balance }} {{ symbol }}</span>

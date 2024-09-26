@@ -104,7 +104,7 @@ const openEditNameModal = ref(false)
 
         <div class="mt-1 flex items-center gap-x-1">
           <div class="flex items-center gap-2">
-            <div class="text-xs text-gray-400">MVC(Bitcoin sidechain) Address</div>
+            <div class="text-xs text-gray-400">MVC(Bitcoin sidechain) {{ $t('Common.Address') }}</div>
             <div class="text-sm text-gray-500">{{ shortestAddress(mvcAddress) }}</div>
           </div>
 

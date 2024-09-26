@@ -20,8 +20,8 @@ const props = defineProps<{
       <thead>
         <tr>
           <th class="th-cell">Asset</th>
-          <th class="th-cell">Amount</th>
-          <th class="th-cell">Receiver</th>
+          <th class="th-cell">{{ $t('Common.Amount') }}</th>
+          <th class="th-cell">{{ $t('Common.Receiver') }}</th>
         </tr>
       </thead>
       <tbody>

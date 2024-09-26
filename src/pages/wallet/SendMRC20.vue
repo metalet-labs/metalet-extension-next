@@ -272,7 +272,7 @@ async function send() {
     </div>
 
     <div class="space-y-2 w-full">
-      <div>Receiver</div>
+      <div>{{ $t('Common.Receiver') }}</div>
       <textarea
         v-model="recipient"
         class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
@@ -281,7 +281,7 @@ async function send() {
 
     <div class="space-y-2 w-full">
       <FlexBox ai="center" jc="between">
-        <span>Amount</span>
+        <span>{{ $t('Common.Amount') }}</span>
         <span
           class="text-gray-primary text-xs cursor-pointer hover:underline"
           @click="amount = new Decimal(confirmBalance || 0).dividedBy(10 ** (asset?.decimal || 0)).toString()"

@@ -4,8 +4,8 @@
   >
     <DropletsIcon class="h-6 w-6 text-brc20" />
     <div class="space-y-1">
-      <p>No liquidity has been added to this pool yet.</p>
-      <p>Add liquidity to create a new pool.</p>
+      <p>{{ $t('SwapPage.NoLiquidityTips') }}</p>
+      <p>{{ $t('SwapPage.AddLiquidityTips') }}</p>
     </div>
   </div>
 </template>

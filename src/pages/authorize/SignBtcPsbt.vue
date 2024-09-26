@@ -139,7 +139,7 @@ onMounted(async () => {
           <div class="text-center text-sm text-sky-900">Inputs</div>
           <div class="mt-2 space-y-2 text-xs">
             <div class="border-2 border-sky-300 bg-sky-300 rounded p-1 space-y-2" v-for="input in inputs">
-              <div>Address</div>
+              <div>{{ $t('Common.Address') }}</div>
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(input.address, 4) }}
               </div>
@@ -154,7 +154,7 @@ onMounted(async () => {
                   <div class="text-xs text-gray-500 break-all">
                     {{ rune.tokenName }}
                   </div>
-                  <div>Amount</div>
+                  <div>{{ $t('Common.Amount') }}</div>
                   <div class="text-xs text-gray-500 break-all">
                     {{ prettifyBalanceFixed(Number(rune.amount), rune.symbol, rune.decimal) }}
                   </div>
@@ -173,7 +173,7 @@ onMounted(async () => {
           <div class="mt-2 space-y-2 text-xs">
             <div class="border-2 border-teal-300 bg-teal-100 rounded p-1 space-y-2" v-for="output in outputs">
               <template v-if="output.address">
-                <div>Address</div>
+                <div>{{ $t('Common.Address') }}</div>
                 <div class="text-xs text-gray-500 break-all">
                   {{ prettifyTxId(output.address, 4) }}
                 </div>
@@ -223,7 +223,7 @@ onMounted(async () => {
     </div>
 
     <div class="w-full flex items-center justify-between mt-2" v-if="Math.ceil(feeRate) > 0">
-      <span>Fee Rate</span>
+      <span>{{ $t('Common.FeeRate') }}</span>
       <span>≈{{ Math.ceil(feeRate) }} sat/vB</span>
     </div>
 
