@@ -1,7 +1,7 @@
 import dayjs from 'dayjs'
 import Decimal from 'decimal.js'
 
-export const calcBalance = (balance: number, decimal: number, symbol: string): string => {
+export const calcBalance = (balance: number|string, decimal: number, symbol: string): string => {
   if (!balance) return `0 ${symbol}`
 
   return `${new Decimal(balance).dividedBy(10 ** decimal).toFixed()} ${symbol}`
@@ -64,7 +64,7 @@ export const shortestAddress = (address: string, num = 4) => {
 }
 
 export const truncateStr = (str: string, charsPerSide = 4) => {
-  if (str.length < charsPerSide * 4) {
+  if (str.length < charsPerSide * 3) {
     return str
   }
   return `${str.slice(0, charsPerSide)}...${str.slice(-charsPerSide)}`

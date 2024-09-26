@@ -11,6 +11,7 @@ withDefaults(
     logo?: string
     chain?: Chain
     symbol?: string
+    bgColor?: string
     logoSize?: string
     type?: 'network' | 'activity'
     flow?: 'Send' | 'Receive' | 'Transfer' | string
@@ -26,7 +27,10 @@ withDefaults(
     <UseImage :src="logo!" class="w-full aspect-square rounded-full shadow" :key="logo">
       <template #loading>
         <div
-          class="aspect-square flex items-center justify-center rounded-full text-white bg-blue-primary shrink-0 shadow"
+          :class="[
+            'aspect-square flex items-center justify-center rounded-full text-white shrink-0 shadow',
+            bgColor ?? 'bg-blue-primary',
+          ]"
         >
           {{ symbol?.[0]?.toLocaleUpperCase() }}
         </div>

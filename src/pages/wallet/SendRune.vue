@@ -114,11 +114,10 @@ const popConfirm = async () => {
     const runeUtxos = await getRuneUtxos(address.value, asset.value!.runeId, needRawTx)
     const { fee, rawTx: _rawTx } = currentBTCWallet.value!.signTx(SignType.RUNE_SEND, {
       utxos,
+      runeUtxos,
       runeId: runeId.value,
       feeRate: currentRateFee.value,
-      recipient: recipient.value,
-      runeUtxos,
-      runeAmount: amount.value.toString(),
+      runeData: [{ address: recipient.value, amount: amount.value.toString() }],
     })
     // txPsbt.value = psbt
     rawTx.value = _rawTx

@@ -1,3 +1,5 @@
+import { network } from './network'
+
 export const raise = (msg: string) => {
   throw new Error(msg)
 }
@@ -23,20 +25,25 @@ export const sleep = (ms: number) => {
 
 export function transferToNumber(inputNumber: number | string): string {
   if (isNaN(Number(inputNumber))) {
-    return String(inputNumber);
+    return String(inputNumber)
   }
 
-  const numericInput = String(inputNumber);
-  const parsedInput = parseFloat(numericInput);
+  const numericInput = String(inputNumber)
+  const parsedInput = parseFloat(numericInput)
 
-  const eformat = parsedInput.toExponential(); // 转换为标准的科学计数法形式（字符串）
-  const tmpArray = eformat.match(/\d(?:\.(\d*))?e([+-]\d+)/); // 分离出小数值和指数值
+  const eformat = parsedInput.toExponential() // 转换为标准的科学计数法形式（字符串）
+  const tmpArray = eformat.match(/\d(?:\.(\d*))?e([+-]\d+)/) // 分离出小数值和指数值
 
   if (tmpArray) {
-    const [, decimalPart = '', exponent] = tmpArray;
-    const number = parsedInput.toFixed(Math.max(0, decimalPart.length - parseInt(exponent, 10)));
-    return number;
+    const [, decimalPart = '', exponent] = tmpArray
+    const number = parsedInput.toFixed(Math.max(0, decimalPart.length - parseInt(exponent, 10)))
+    return number
   }
 
-  return String(parsedInput);
+  return String(parsedInput)
+}
+
+export function getPreviewContentUrl(content: string) {
+  const prefix = network.value === 'mainnet' ? 'https://man.metaid.io' : 'https://man-test.metaid.io'
+  return `${prefix}${content}`
 }

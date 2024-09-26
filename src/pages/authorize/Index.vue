@@ -1,33 +1,32 @@
 <script lang="ts" setup>
-import { useRoute } from 'vue-router'
-import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
-import { LinkIcon } from '@heroicons/vue/20/solid'
-import { computed, ref } from 'vue'
-
-import { toTx } from '@/lib/helpers'
-import actions from '@/data/authorize-actions'
-import { getBrowserHost } from '@/lib/host'
-import { DEBUG } from '@/data/config'
-
-import TransferToken from './TransferToken.vue'
-import Transfer from './Transfer.vue'
-import Connect from './Connect.vue'
-import Disconnect from './Disconnect.vue'
-import SwitchNetwork from './SwitchNetwork.vue'
-import EciesEncrypt from './EciesEncrypt.vue'
-import EciesDecrypt from './EciesDecrypt.vue'
-import SignTransaction from './SignTransaction.vue'
-import SignTransactions from './SignTransactions.vue'
 import Pay from './Pay.vue'
+import Merge from './Merge.vue'
+import Connect from './Connect.vue'
+import { computed, ref } from 'vue'
+import { toTx } from '@/lib/helpers'
+import Inscribe from './Inscribe.vue'
+import { DEBUG } from '@/data/config'
+import { useRoute } from 'vue-router'
+import Transfer from './Transfer.vue'
+import MRC20Mint from './MRC20Mint.vue'
+import Disconnect from './Disconnect.vue'
+import BTCTransfer from './BTCTransfer.vue'
 import SignBTCPsbt from './SignBtcPsbt.vue'
 import SignMessage from './SignMessage.vue'
-import SignBTCMessage from './SignBTCMessage.vue'
-import Merge from './Merge.vue'
-import Inscribe from './Inscribe.vue'
-import BTCTransfer from './BTCTransfer.vue'
 import MRC20Deploy from './MRC20Deploy.vue'
-import MRC20Mint from './MRC20Mint.vue'
+import EciesEncrypt from './EciesEncrypt.vue'
+import EciesDecrypt from './EciesDecrypt.vue'
+import actions from '@/data/authorize-actions'
+import SwitchNetwork from './SwitchNetwork.vue'
 import MRC20Transfer from './MRC20Transfer.vue'
+import TransferToken from './TransferToken.vue'
+import SignBTCMessage from './SignBTCMessage.vue'
+import { LinkIcon } from '@heroicons/vue/20/solid'
+import SignTransaction from './SignTransaction.vue'
+import { Chain } from '@metalet/utxo-wallet-service'
+import SignTransactions from './SignTransactions.vue'
+import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
+import { getBrowserHost } from '@/lib/host'
 
 // 从query中获取数据
 const route = useRoute()
@@ -60,10 +59,8 @@ const isFinished = ref(false)
 const processTxids = ref([])
 const runAction = async () => {
   running.value = true
-  console.log('actionName', actionName)
 
   const process = action.process
-  console.log('action', action.process)
 
   let processRes: any = null
 

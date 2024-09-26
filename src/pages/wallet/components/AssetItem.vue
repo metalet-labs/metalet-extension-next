@@ -9,6 +9,7 @@ import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import { useOfficeGenesisStore } from '@/stores/FtTokenStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset, MRC20Asset } from '@/data/assets'
+import { truncateStr } from '@/lib/formatters'
 
 const props = defineProps<{
   address: string
@@ -113,7 +114,7 @@ watch(
               :title="asset.tokenName"
               :class="['truncate max-w-40', { 'max-w-24 truncate overflow-hidden': coinCategory === 'BRC-20' }]"
             >
-              {{ asset.tokenName }}
+              {{ truncateStr(asset.tokenName, 5) }}
             </span>
             <CheckBadgeIcon
               class="h-4 w-4 shrink-0 text-blue-500"

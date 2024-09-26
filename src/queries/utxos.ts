@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { UNISAT_ENABLED } from '@/data/config'
 import { fetchBtcTxHex } from '@/queries/transaction'
 import { mvcApi, mempoolApi, metaletApiV3, unisatApi, metaletApiV4 } from './request'
+import { extend } from 'dayjs'
 
 export interface UTXO {
   txId: string
@@ -13,12 +14,17 @@ export interface UTXO {
   satoshis: number
   confirmed: boolean
   rawTx?: string
-  // inscriptions:
-  //   | {
-  //       id: string
-  //       num: number
-  //     }[]
-  //   | null
+}
+
+export interface RunesUtxo extends UTXO {
+  runes: {
+    rune: string
+    runeId: string
+    amount: string
+    symbol: string
+    spacedRune: string
+    divisibility: number
+  }[]
 }
 
 export type MvcUtxo = {
@@ -174,13 +180,13 @@ export async function getMRC20Utxos(address: string, mrc20TickId: string, needRa
   })
 }
 
-export async function getRuneUtxos(address: string, runeId: string, needRawTx = false): Promise<UTXO[]> {
+export async function getRuneUtxos(address: string, runeId: string, needRawTx = false): Promise<RunesUtxo[]> {
   const net = getNet()
   const res =
     (await metaletApiV3<{
       total: number
       cursor: number
-      list: UTXO[]
+      list: RunesUtxo[]
     }>('/runes/address/utxo').get({ net, address, runeId })) || []
   if (needRawTx) {
     for (let utxo of res.list) {

@@ -16,6 +16,9 @@ import {
   OCTOPUS_TESTNET_HOST,
   OCTOPUS_REPOST_HOST,
   OCTOPUS_REPOST_TESTNET_HOST,
+  API_BRC20_ORDERS_EXCHANGE,
+  API_BRC20_TESTNET_ORDERS_EXCHANGE,
+  API_BOOK_ORDERS_EXCHANGE,
 } from '@/data/hosts'
 
 type OptionParams = Record<string, string | number | undefined>
@@ -224,6 +227,14 @@ export const ordersApi = <T>(path: string) => {
   }
 }
 
+export const orderCommonApi = <T>(path: string) => {
+  const ordersHost = network.value === 'mainnet' ? API_BOOK_ORDERS_EXCHANGE : API_BOOK_ORDERS_EXCHANGE
+  return {
+    get: (params?: OptionParams) => request<T>(`${ordersHost}${path}`, { method: 'GET', params }),
+    post: (data?: OptionData) => request<T>(`${ordersHost}${path}`, { method: 'POST', data, mode: 'cors' }),
+  }
+}
+
 interface OrderSwapResult<T> {
   status: 'ok' | 'error'
   message: string
@@ -240,6 +251,28 @@ const orderSwapRequest = <T>(url: string, options: RequestOption): Promise<T> =>
 
 export const swapApi = <T>(path: string) => {
   const swapHost = network.value === 'mainnet' ? API_RUNES_ORDERS_EXCHANGE : API_RUNES_TESTNET_ORDERS_EXCHANGE
+  return {
+    get: (params?: OptionParams) =>
+      orderSwapRequest<T>(`${swapHost}${path}`, {
+        params,
+        method: 'GET',
+        withCredential: true,
+        message: 'orders.exchange',
+      }),
+    post: (data?: OptionData) =>
+      orderSwapRequest<T>(`${swapHost}${path}`, {
+        data,
+        method: 'POST',
+        withCredential: true,
+        message: 'orders.exchange',
+      }),
+  }
+}
+
+export const swapBRC20Api = <T>(path: string) => {
+  const swapHost = network.value === 'mainnet' ? API_BRC20_ORDERS_EXCHANGE : API_BRC20_TESTNET_ORDERS_EXCHANGE
+  console.log('swapHost', swapHost);
+  
   return {
     get: (params?: OptionParams) =>
       orderSwapRequest<T>(`${swapHost}${path}`, {

@@ -581,10 +581,10 @@
   resolved "https://registry.yarnpkg.com/@magiceden-oss/runestone-lib/-/runestone-lib-1.0.2.tgz#524394b49119d1acace0edc351f9cd5d7ed1ad73"
   integrity sha512-C4XoE7tHxxaWQNzovBIEndXGrTesotshnKQA8DXlnoVDvriD6G26ezUoj9AlEb2UAPbEijSga4Dtwd86Z0a1jg==
 
-"@metalet/utxo-wallet-sdk@0.5.44":
-  version "0.5.44"
-  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-sdk/-/utxo-wallet-sdk-0.5.44.tgz#1d0b70d12a9cf1110d63ae02aa05d89630d1b965"
-  integrity sha512-NSxgDQ66nn+Qc05uFDlsSZwylWvm39NNTNm6wfyLo6MPryuWFAKEOzK0uJVc0hmEIsVwdtZV9tLHraPH1LbGJg==
+"@metalet/utxo-wallet-sdk@0.5.49":
+  version "0.5.49"
+  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-sdk/-/utxo-wallet-sdk-0.5.49.tgz#6985ac07e49f8e03430a4684a09f7c6c31a070a8"
+  integrity sha512-QHbklOE+hLuJKtiWWWO6RxbmHBJAjFFKt9EgYKNpxHU/OMXdtQ7coMYQf2jJWXXrL7lpml4sb/tXaldQ/tG2fQ==
   dependencies:
     "@bitcoinerlab/secp256k1" "^1.1.1"
     "@magiceden-oss/runestone-lib" "^1.0.2"
@@ -598,12 +598,12 @@
     ecpair "^2.1.0"
     undici "^6.19.2"
 
-"@metalet/utxo-wallet-service@0.3.19":
-  version "0.3.19"
-  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.3.19.tgz#061760f6daad9ff8d8627ade73a4f91422a717a4"
-  integrity sha512-rgzdoz9YOoCyjg+TmPCVIALuo3SMtsZB8g0yoIO5fn00SjaBu/Ik6ChrvfsCHvlgiufbttHAN/OvJjgHlCDi3A==
+"@metalet/utxo-wallet-service@0.3.20":
+  version "0.3.20"
+  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.3.20.tgz#440a860b7f3d099ec33836d2fe4fc8410abe1793"
+  integrity sha512-k+ro4wnNgNVCu3u3JeFApCVENfy8mVG4cgSxQPfz1ANolmh/gM1uFnQFjxer9FfrVmy8hVEiuY3dVU2xfDZ0iw==
   dependencies:
-    "@metalet/utxo-wallet-sdk" "0.5.44"
+    "@metalet/utxo-wallet-sdk" "0.5.49"
     crypto-js "^4.2.0"
     decimal.js "^10.4.3"
 
@@ -1244,10 +1244,22 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.36.1.tgz#79f8c1a539d47c83104210be2388813a7af2e524"
   integrity sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==
 
+"@tanstack/query-devtools@5.56.1":
+  version "5.56.1"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-devtools/-/query-devtools-5.56.1.tgz#319c362dd19c6cfe005e74a8777baefa4a4f72de"
+  integrity sha512-xnp9jq/9dHfSCDmmf+A5DjbIjYqbnnUL2ToqlaaviUQGRTapXQ8J+GxusYUu1IG0vZMaWdiVUA4HRGGZYAUU+A==
+
 "@tanstack/virtual-core@3.10.6":
   version "3.10.6"
   resolved "https://registry.yarnpkg.com/@tanstack/virtual-core/-/virtual-core-3.10.6.tgz#babe3989b2344a5f12fc64129f9bbed5d3402999"
   integrity sha512-1giLc4dzgEKLMx5pgKjL6HlG5fjZMgCjzlKAlpr7yoUtetVPELgER1NtephAI910nMwfPTHNyWKSFmJdHkz2Cw==
+
+"@tanstack/vue-query-devtools@^5.56.2":
+  version "5.56.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/vue-query-devtools/-/vue-query-devtools-5.56.2.tgz#44b9114c0430869303d462bda60340ce171f7b5f"
+  integrity sha512-XyMZTMsrAGlPfU5Fa9OQwMbdIhrq1rbpGgW5VxQ8Rxckwjd2VS7wMxZJUgWanPbYqRy/x9iA1hnwo8MDJnNuDQ==
+  dependencies:
+    "@tanstack/query-devtools" "5.56.1"
 
 "@tanstack/vue-query@^4.26.1":
   version "4.37.1"

@@ -135,7 +135,7 @@ const getHostAndToTx = async (txId: string) => {
         <span class="label">ID</span>
         <div :title="metaPin.id" class="flex items-center gap-x-1">
           {{ prettifyTxId(metaPin.id) }}
-          <Copy :text="metaPin.id!" title="MetaPin ID Copied" :show-content="true"/>
+          <Copy :text="metaPin.id!" title="MetaPin ID Copied" :show-content="true" />
         </div>
       </div>
       <div class="row">

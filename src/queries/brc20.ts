@@ -136,6 +136,7 @@ export async function fetchBRC20Detail(address: string, symbol: string): Promise
     address,
     ticker: encodeURIComponent(symbol),
   })
+
   return {
     symbol,
     tokenName: symbol,

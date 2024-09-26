@@ -1,7 +1,7 @@
 import { ComputedRef, Ref } from 'vue'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
-import { metaletApiV3 } from './request'
+import { metaletApiV3, metaletApiV4 } from './request'
 import { useQuery } from '@tanstack/vue-query'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { MetaContractAsset } from '@/data/assets'
@@ -30,7 +30,7 @@ export const getMetaContractAssets = async (
   genesis?: string
 ): Promise<MetaContractAsset[]> => {
   const net = getNet()
-  return await metaletApiV3<PageResult<TokenInfo>>(`/address/contract/ft/balance`)
+  return await metaletApiV4<PageResult<TokenInfo>>(`/address/contract/ft/balance`)
     .get({ net, address, codehash, genesis })
     .then(({ list }) =>
       list.map((item) => ({

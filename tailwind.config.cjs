@@ -33,7 +33,9 @@ module.exports = {
         'red-primary': '#FA5151',
         'green-success': '#00B578',
         runes: '#14b8a6',
+        bitcoin: '#F7931A',
         bridge: '#6e66fa',
+        brc20: '#FFA02A',
       },
       fontSize: {
         ss: ['0.8125rem', '1.125rem'],

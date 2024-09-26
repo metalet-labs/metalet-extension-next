@@ -70,7 +70,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         <span>{{ $t('HomePage.Receive') }}</span>
       </div>
       <a
-        v-if="!IS_DEV"
+        v-if="!IS_DEV && false"
         :href="network === 'testnet' ? 'https://testnet.orders.exchange/swap' : 'https://app.orders.exchange/swap'"
         target="_blank"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"

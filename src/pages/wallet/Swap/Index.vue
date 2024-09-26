@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import RuneSwap from './Rune/RuneSwap.vue'
+import RunesSwap from './Runes/RuneSwap.vue'
+import BRC20Swap from './BRC20/BRC20Swap.vue'
 import { Protocol } from '@/lib/types/protocol'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -8,7 +9,7 @@ import { useSwapPool } from '@/hooks/swap/useSwapPool'
 import { swapTabStore } from '@/stores/SwapTabTypeStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-const { chain } = useSwapPool()
+const { chain, protocol, pairStr } = useSwapPool()
 
 const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chain.value))
 </script>
@@ -23,25 +24,34 @@ const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chai
         Swapping on {{ (chain === Chain.MVC ? Chain.BTC : Chain.MVC).toLocaleUpperCase() }}
         <SwapIcon class="w-3 h-3" />
       </button>
-      <RouterLink to="/" class="underline">Pools</RouterLink>
+      <RouterLink to="/" class="underline hidden">Pools</RouterLink>
     </div>
-    <Tabs :modelValue="swapTabStore.selectedTab.name" class="flex flex-col items-start mt-3 rounded-lg">
+    <Tabs :modelValue="protocol" class="flex flex-col items-start mt-3 rounded-lg">
       <TabsList class="p-1 shrink-0 h-12 w-full bg-[#F5F7F9]" v-if="tabs.length > 1">
         <TabsTrigger
           :key="tab.id"
           :value="tab.name"
           v-for="tab in tabs"
-          @click="swapTabStore.selectedTab = tab"
+          @click="
+            () => {
+              pairStr = ''
+              swapTabStore.selectedTab = tab
+              protocol = tab.name.toLocaleLowerCase()
+            }
+          "
           :class="[
             'grow rounded-md h-full font-medium text-sm text-gray-primary',
-            { 'bg-white text-blue-primary': swapTabStore.selectedTab.name === tab.name },
+            { 'bg-white text-blue-primary': protocol === tab.name.toLocaleLowerCase() },
           ]"
         >
-          <span>{{ tab.name }}</span>
+          <span :class="[tab.textColor]">{{ tab.name }}</span>
         </TabsTrigger>
       </TabsList>
-      <TabsContent :value="Protocol.Runes" :key="Protocol.Runes" class="pt-4 w-full">
-        <RuneSwap />
+      <TabsContent :key="Protocol.Runes" :value="Protocol.Runes.toLocaleLowerCase()" class="pt-4 w-full">
+        <RunesSwap />
+      </TabsContent>
+      <TabsContent :key="Protocol.BRC20" :value="Protocol.BRC20.toLocaleLowerCase()" class="pt-4 w-full">
+        <BRC20Swap />
       </TabsContent>
     </Tabs>
   </div>
