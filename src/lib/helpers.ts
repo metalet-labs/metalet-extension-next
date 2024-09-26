@@ -1,4 +1,4 @@
-import { network } from './network'
+// import { network } from './network'
 
 export const raise = (msg: string) => {
   throw new Error(msg)
@@ -44,6 +44,7 @@ export function transferToNumber(inputNumber: number | string): string {
 }
 
 export function getPreviewContentUrl(content: string) {
-  const prefix = network.value === 'mainnet' ? 'https://man.metaid.io' : 'https://man-test.metaid.io'
-  return `${prefix}${content}`
+  // const prefix = network.value === 'mainnet' ? 'https://man.metaid.io' : 'https://man-test.metaid.io'
+  // return `${prefix}${content}`
+  return ''
 }
