@@ -10,6 +10,9 @@ import { useOfficeGenesisStore } from '@/stores/FtTokenStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset, MRC20Asset } from '@/data/assets'
 import { truncateStr } from '@/lib/formatters'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   address: string
@@ -39,7 +42,7 @@ const icon = computed(
 if (props.asset?.contract) {
   tag.value = getTagInfo(props.asset.contract)
 } else if (props.asset.symbol === 'SPACE') {
-  tag.value = { bg: 'rgba(247,147,26,0.2)', color: '#F7931A', name: 'Bitcoin sidechain' }
+  tag.value = { bg: 'rgba(247,147,26,0.2)', color: '#F7931A', name: t('Common.BitcoinSideChain') }
 }
 
 const balanceEnabled = computed(() => !!address.value && !!asset.value.symbol && !asset.value.balance)

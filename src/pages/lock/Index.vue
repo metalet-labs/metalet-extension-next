@@ -30,19 +30,24 @@ const tryUnlock = async () => {
 
     <div class="mt-5 text-center">
       <h1 class="text-3xl font-extrabold">Metalet</h1>
-      <p class="mt-2 text-sm text-gray-primary">Welcome Back</p>
+      <p class="mt-2 text-sm text-gray-primary">{{ $t('LockPage.WelcomeBack') }}</p>
     </div>
 
     <PasswordInput v-model:password="password" v-model:error="error" class="mt-12" />
 
     <div class="mt-14 flex flex-col items-center justify-center">
-      <button @click="tryUnlock" :class="[
-        'bg-blue-primary w-61.5 rounded-3xl py-4 text-ss text-white',
-        { 'opacity-50 cursor-not-allowed': !password },
-      ]">
-        Unlock
+      <button
+        @click="tryUnlock"
+        :class="[
+          'bg-blue-primary w-61.5 rounded-3xl py-4 text-ss text-white',
+          { 'opacity-50 cursor-not-allowed': !password },
+        ]"
+      >
+        {{ $t('LockPage.Unlock') }}
       </button>
-      <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary">Forget password?</button>
+      <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary">
+        {{ $t('Common.ForgetPassword') }}?
+      </button>
     </div>
     <ResetModal v-model:show="showResetModal" />
   </div>

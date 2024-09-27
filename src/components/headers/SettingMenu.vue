@@ -39,26 +39,26 @@ const lockWallet = async () => {
       <MenuItem>
         <router-link to="/settings" class="menu-item">
           <SettingIcon class="w-4.5" />
-          <span>Setting</span>
+          <span>{{ $t('Common.Setting') }}</span>
         </router-link>
       </MenuItem>
       <MenuItem>
         <router-link to="/wallet/connect-site" class="menu-item">
           <CollectionIcon />
-          <span>Dapp connection</span>
+          <span>{{ $t('SettingMenu.DappConnection') }}</span>
         </router-link>
       </MenuItem>
       <MenuItem v-if="!IS_DEV">
         <button @click="goToTab('/wallet', true)" class="menu-item">
           <BrowserIcon />
-          <span>Open in Window</span>
+          <span>{{ $t('SettingMenu.OpenInWindow') }}</span>
         </button>
       </MenuItem>
 
       <MenuItem>
         <button class="menu-item" v-if="hasPassword" @click="lockWallet">
           <LockIcon class="w-4.5" />
-          <span>Lock</span>
+          <span>{{ $t('Common.Lock') }}</span>
         </button>
         <router-link to="/wallet/set-password" class="menu-item" v-else>
           <LockIcon class="w-4.5" />

@@ -20,12 +20,14 @@ import {
   ListboxOptions,
   ListboxOption,
 } from '@headlessui/vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+const router = useRouter()
 
 // Remove the last one
 const selectableScripts = scripts.slice(0, -1)
 const selectedScript = ref(selectableScripts[0])
-
-const router = useRouter()
 
 // 12/24个单词
 const wordsLengths = [12, 24]
@@ -49,13 +51,12 @@ const onPasteWords = (e: ClipboardEvent) => {
     if (wordsArr.length === selectedWordsLength.value) {
       words.value = wordsArr
     } else {
-      error.value = 'Invalid secret phrase. Please check and try again.'
+      error.value = t('WelcomePage.InvalidPhraseTips')
     }
   }
 }
 
 const pathDepth = ref('10001')
-
 const useSamePath = ref(true)
 
 const finished = computed(() => words.value.every((word) => word.length > 0))

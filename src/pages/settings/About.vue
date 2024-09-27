@@ -17,19 +17,19 @@ import MetaletLogo from '@/assets/images/metalet-logo-v3.svg?url'
     <div class="w-64 mt-6 grow">
       <Divider />
       <a target="_blank" class="flex items-center justify-between py-4" href="https://metalet.space/terms-of-service">
-        <span class="text-sm font-medium">Terms of Service</span>
+        <span class="text-sm font-medium">{{ $t('Common.TermsOfService') }}</span>
         <LinkIcon class="w-4.5" />
       </a>
       <Divider />
       <a target="_blank" class="flex items-center justify-between py-4" href="https://metalet.space/privacy-policy">
-        <span class="text-sm font-medium">Privacy policy</span>
+        <span class="text-sm font-medium">{{ $t('Common.PrivacyPolicy') }}</span>
         <LinkIcon class="w-4.5" />
       </a>
       <Divider />
     </div>
 
-    <a href="https://metalet.space" target="_blank" class="text-center text-xs text-blue-primary py-12">
-      Go to the official website to learn more.
+    <a href="https://metalet.space" target="_blank" class="text-center text-xs text-blue-primary py-12 hover:underline hover:underline-offset-4">
+      {{ $t('AboutPage.LinkTips') }}
     </a>
   </div>
 </template>

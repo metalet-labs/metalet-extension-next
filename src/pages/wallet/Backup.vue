@@ -145,7 +145,7 @@ const back = () => {
         }}
       </button>
       <button @click="showResetModal = true" class="mt-4 text-ss text-gray-primary" v-if="phase === 1">
-        {{ $t('BackupPage.ForgetPassword') }}?
+        {{ $t('Common.ForgetPassword') }}?
       </button>
     </div>
     <ResetModal v-model:show="showResetModal" />

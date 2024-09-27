@@ -13,7 +13,7 @@ const password = ref()
 const checked = ref(false)
 const confirmPassword = ref()
 const btnDisabled = computed(
-  () => !checked.value || !password.value || password.value.length < 8 || !confirmPassword.value
+  () => !checked.value || !password.value || password.value.length < 6 || !confirmPassword.value
 )
 
 const submit = async () => {
@@ -52,7 +52,7 @@ const submit = async () => {
       <FlexBox ai="center" :gap="1.5">
         <Checkbox id="terms" v-model:checked="checked" />
         <span class="text-slate-light">
-          I agree to Metalet's
+          {{ $t('WelcomePage.AgreePrefixTips') }}
           <a target="_blank" class="text-blue-primary" href="https://metalet.space/terms-of-service">
             Terms of Service
           </a>

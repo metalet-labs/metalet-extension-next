@@ -1,4 +1,15 @@
 export default {
+  HeaderTitle: {
+    SelectAsset: 'Select Asset',
+    InscribeTransfer: 'Inscribe Transfer',
+    SelectNetwork: 'Select Network',
+    ManageAssets: 'Manage Assets',
+    PathFinder: 'Path Finder',
+    WalletSecurity: 'Wallet Security',
+    BTCMerge: 'BTC Merge',
+    SpaceMerge: 'Space Merge',
+    FtMerge: 'Ft Merge',
+  },
   Common: {
     Password: 'Password',
     Backup: 'Backup',
@@ -7,7 +18,6 @@ export default {
     Receive: 'Receive',
     Balance: 'Balance',
     Swap: 'Swap',
-    SelectNetwork: 'Select Network',
     BitcoinSideChain: 'Bitcoin SideChain',
     Continue: 'Continue',
     Confirm: 'Confirm',
@@ -23,17 +33,35 @@ export default {
     Amount: 'Amount',
     Pending: 'Pending',
     Available: 'Available',
-    FeeRate:'Fee Rate',
+    FeeRate: 'Fee Rate',
+    Send: 'Send',
+    Bridge: 'Bridge',
+    Mint: 'Mint',
+    Transfer: 'Transfer',
+    Connect: 'Connect',
+    Toolkit: 'Toolkit',
+    ForgetPassword: 'Forget Password',
+    Setting: 'Setting',
+    Lock: 'Lock',
+    TermsOfService: 'Terms of Service',
+    PrivacyPolicy: 'Privacy policy',
+  },
+  SettingMenu: {
+    DappConnection: 'Dapp Connection',
+    OpenInWindow: 'Open in Window',
   },
   BackupPage: {
     VerifyPassword: 'Verify Password',
-    ForgetPassword: 'Forget Password',
     NoteDownTips: "OK, I've noted them down.",
     WriteDownTips: 'Write down the words in order.',
     MakeSureTips: 'Make sure the keep them stored safely.',
     ViewSeedTips: 'View your seed phrase. Make sure no one else is looking at your screen.',
     VerifySeedTips: 'Verify your seed phrase',
     CheckSeedTips: 'Check if you remember these words from your seed phrase in order.',
+    BackupTitleTips: 'Backup your wallet',
+    BackupDescriptionTips:
+      'If you lose your device, reinstall the app, or if your app data is deleted, you might lose this wallet and its assets.',
+    BackupButton: 'Backup now',
   },
   SetPasswordPage: {
     SetPasswordTips:
@@ -61,15 +89,17 @@ export default {
     ImportPhrase: 'Import Phrase',
     MyMnemonicPhraseTips: 'My mnemonic phrase is',
     CreateWallet: 'Create Wallet',
-    AgreeTips: 'I agree to Metalet’s',
-    TermsOfService: 'Terms of Service',
+    AgreePrefixTips: "I agree to Metalet's",
     Title: 'The Entrance to the Web3 Blockchain',
     Tips: 'Metalet is the way to explore your crypto journey.',
     SelectNetworkTips: 'Please select a network',
     Created: 'Created',
-    Imported:'Imported',
+    Imported: 'Imported',
     BackToWelcomePageTips: 'Back to Welcome Page',
     words: 'words',
+    InvalidPhraseTips: 'Invalid secret phrase. Please check and try again.',
+    NoNetworkChooseTips: 'Choose at least one network.',
+    NoAccountSelectTips: 'Please select a account',
   },
   SwapPage: {
     conditions: {
@@ -86,10 +116,6 @@ export default {
     AddLiquidityTips: 'Add liquidity to create a new pool.',
   },
   HomePage: {
-    Send: 'Send',
-    Receive: 'Receive',
-    Swap: 'Swap',
-    Bridge: 'Bridge',
     Crypto: 'Crypto',
     NFTs: 'NFTs',
     MRC20: 'MRC20',
@@ -108,5 +134,15 @@ export default {
   Language: {
     en: 'English',
     zh_CN: '简体中文',
+  },
+  LockPage: {
+    WelcomeBack: 'Welcome Back',
+    Unlock: 'Unlock',
+  },
+  AboutPage: {
+    LinkTips: 'Go to the official website to learn more.',
+  },
+  AssetManagePage: {
+    placeholder: 'Search crypto',
   },
 }

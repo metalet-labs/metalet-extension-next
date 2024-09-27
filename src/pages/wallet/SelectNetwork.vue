@@ -107,7 +107,7 @@ const selectChain = (chain: Chain) => {
                     'bg-[rgba(247,147,26,0.2)] text-[#F7931A]',
                   ]"
                 >
-                  Bitcoin sidechain
+                  {{ $t('Common.BitcoinSideChain') }}
                 </div>
               </div>
             </FormLabel>
@@ -131,7 +131,7 @@ const selectChain = (chain: Chain) => {
         { 'opacity-50 cursor-not-allowed': !selectedChains.length },
       ]"
     >
-      Confirm
+      {{ $t('Common.Confirm') }}
     </button>
   </form>
 </template>

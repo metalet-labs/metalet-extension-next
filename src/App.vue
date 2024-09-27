@@ -1,29 +1,28 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import useStorage from './lib/storage'
 import { computed, onMounted } from 'vue'
+import { LANG_KEY } from './lib/storage/key'
 import { useQueryClient } from '@tanstack/vue-query'
 import BgHueImg from './assets/images/bg-hue.png?url'
 import TheFooter from './components/the-footer/Index.vue'
 import TheHeader from './components/headers/TheHeader.vue'
 import SecondaryHeader from './components/headers/SecondaryHeader.vue'
 
-import { useI18n } from 'vue-i18n'
-import { LANG_KEY } from './lib/storage/key'
-const storage = useStorage()
-const { locale } = useI18n()
-
-onMounted(async () => {
-  locale.value = await storage.get(LANG_KEY, { defaultValue: 'en' })
-})
-
 const route = useRoute()
+const storage = useStorage()
 
 const queryClient = useQueryClient()
 queryClient.setDefaultOptions({
   queries: {
-    staleTime: 1000 * 30, // 30 seconds
+    staleTime: 1000 * 30,
   },
+})
+
+const { t, locale } = useI18n()
+onMounted(async () => {
+  locale.value = await storage.get(LANG_KEY, { defaultValue: 'en' })
 })
 
 const noFooter = computed(() => {
@@ -31,7 +30,8 @@ const noFooter = computed(() => {
 })
 
 const secondaryHeaderTitle = computed(() => {
-  return route.meta.headerTitle
+  const headerTitleKey = route.meta?.headerTitleKey as string | undefined
+  return headerTitleKey ? t(headerTitleKey) : route.meta.headerTitle
 })
 
 const backRouter = computed(() => {
@@ -54,7 +54,7 @@ const backRouter = computed(() => {
       class="ext-app flex h-full w-full flex-col xs:relative xs:aspect-[1/2] xs:h-3/4 xs:w-auto xs:min-w-[25rem] xs:rounded-lg xs:border xs:border-gray-100 xs:bg-white xs:shadow-lg overflow-hidden"
     >
       <!-- Header -->
-      <SecondaryHeader v-if="route.meta.secondaryHeader" :backRouter="backRouter">
+      <SecondaryHeader v-if="secondaryHeaderTitle" :backRouter="backRouter">
         <template #title>
           {{ secondaryHeaderTitle }}
         </template>
@@ -62,6 +62,7 @@ const backRouter = computed(() => {
 
       <TheHeader v-if="false" />
 
+      <!-- content -->
       <div class="isolate grow px-4 py-3 overflow-y-auto nicer-scrollbar">
         <router-view></router-view>
       </div>

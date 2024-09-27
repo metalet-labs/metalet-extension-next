@@ -14,16 +14,15 @@ defineProps<{
       <DangerWarningIcon />
     </div>
     <div class="space-y-3">
-      <div class="font-medium">Backup your wallet</div>
+      <div class="font-medium">{{ $t('BackupPage.BackupTitleTips') }}</div>
       <div class="text-xs text-gray-primary">
-        If you lose your device, reinstall the app, or if your app data is deleted, you might lose this wallet and its
-        assets.
+        {{ $t('BackupPage.BackupDescriptionTips') }}
       </div>
       <button
         @click="$router.push('/wallet/backup')"
         class="round-md bg-blue-primary text-white text-ss font-medium px-6 py-2 rounded-3xl"
       >
-        Backup now
+        {{ $t('BackupPage.BackupButton') }}
       </button>
     </div>
   </div>

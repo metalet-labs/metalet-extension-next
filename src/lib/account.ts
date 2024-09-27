@@ -135,8 +135,6 @@ export async function getCurrentAccountId() {
     if (wallets.length && wallets[0].accounts.length) {
       await setCurrentAccountId(wallets[0].accounts[0].id)
       return wallets[0].accounts[0].id
-    } else {
-      throw new Error('current account id not found')
     }
   }
   return currentAccountId
@@ -393,34 +391,3 @@ export async function needsMigrationV2(): Promise<boolean> {
 
   return v1Mnemonics.some((mne) => !v2Mnemonics.includes(mne))
 }
-
-// type AccountManager = {
-//   all: () => Promise<Map<string, V2Account>>
-//   getCurrent: () => Promise<V2Account | undefined>
-//   removeCurrent: () => Promise<boolean>
-//   set: (account: V2Account) => Promise<void>
-//   add: (account: Omit<V2Account, 'id' | 'name'>) => Promise<void>
-//   connect: (accountId: string) => Promise<boolean>
-//   getPublicKey: (chain: Chain, path?: string) => Promise<string>
-//   getBalance: (chain: Chain, address?: string) => Promise<Awaited<ReturnType<typeof fetchSpaceBalance>> | null>
-//   getAddress: (chain: Chain, path?: string) => Promise<any>
-//   getXPublicKey: () => Promise<string | null>
-//   getUtxos: (chain: Chain, params?: any) => Promise<any>
-//   updateName: (name: string) => Promise<void>
-// }
-
-// const accountManager = {} as AccountManager
-// accountManager.all = getAccounts
-// accountManager.getCurrent = getCurrentAccount
-// accountManager.set = setAccount
-// accountManager.add = addAccount
-// accountManager.connect = connectAccount
-// accountManager.getAddress = getAddress
-// accountManager.getPublicKey = getPublicKey
-// accountManager.getXPublicKey = getXPublicKey
-// accountManager.getBalance = getBalance
-// accountManager.getUtxos = getUtxos
-// accountManager.removeCurrent = removeCurrentAccount
-// accountManager.updateName = updateName
-
-// export default accountManager

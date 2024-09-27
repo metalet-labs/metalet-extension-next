@@ -2,7 +2,7 @@
 import * as z from 'zod'
 import { Button } from '@/components'
 import { useForm } from 'vee-validate'
-import { decrypt, encrypt } from '@/lib/crypto'
+import { encrypt } from '@/lib/crypto'
 import { useRouter } from 'vue-router'
 import { getPassword } from '@/lib/lock'
 import { computed, ref, watch } from 'vue'
@@ -17,6 +17,7 @@ import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import BtcLogoIcon from '@/assets/icons-v3/btc-logo.svg?url'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
+import { useI18n } from 'vue-i18n'
 import { getBackupV3Wallet, setBackupV3Wallet } from '@/lib/backup'
 import { getCurrentAccountId, setCurrentAccountId } from '@/lib/account'
 import { genUID, formatIndex, Chain } from '@metalet/utxo-wallet-service'
@@ -24,6 +25,7 @@ import { getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { addV3Wallet, getV3EncryptedWallets, getV3WalletsNum, setCurrentWalletId, setV3WalletsNum } from '@/lib/wallet'
 
+const { t } = useI18n()
 const { updateAllWallets } = useChainWalletsStore()
 
 type ActivateType = 'Create' | 'Import'
@@ -60,7 +62,7 @@ const chains = [
 const formSchema = toTypedSchema(
   z.object({
     chains: z.array(z.string()).refine((value) => value.some((item) => item), {
-      message: 'Choose at least one network.',
+      message: t('WelcomePage.NoNetworkChooseTips'),
     }),
   })
 )
@@ -80,7 +82,7 @@ const updateServiceNetwork = async (chains: Chain[]) => {
     setServiceNetwork(service)
     router.replace('/wallet')
   } else {
-    toast({ title: 'Please select a account', toastType: 'warning' })
+    toast({ title: t('WelcomePage.NoAccountSelectTips'), toastType: 'warning' })
     router.replace('/manage/wallets')
   }
 }

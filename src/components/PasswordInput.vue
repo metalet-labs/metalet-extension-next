@@ -4,7 +4,7 @@ import { passwordStrength } from 'check-password-strength'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/vue/24/solid'
 
 const props = defineProps<{
-  password: string
+  password?: string
   title?: string
   error?: string
   validate?: boolean
@@ -14,7 +14,7 @@ const isCovered = ref(true)
 const emit = defineEmits(['update:password'])
 const passwordInputType = computed(() => (isCovered.value ? 'password' : 'text'))
 
-const securityLevel = computed(() => passwordStrength(props.password).value)
+const securityLevel = computed(() => passwordStrength(props?.password ?? '').value)
 
 const securityColor = computed(() => {
   if (['Too weak', 'Weak'].includes(securityLevel.value)) {

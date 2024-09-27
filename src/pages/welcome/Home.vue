@@ -44,9 +44,9 @@ getAccounts().then((accounts) => {
         <FlexBox :gap="1.5" ai="center">
           <Checkbox id="terms" v-model:checked="checked" />
           <span class="text-slate-light">
-            {{ $t('WelcomePage.AgreeTips') }}
+            {{ $t('WelcomePage.AgreePrefixTips') }}
             <a target="_blank" class="text-blue-primary" href="https://metalet.space/terms-of-service">
-              {{ $t('WelcomePage.TermsOfService') }}
+              {{ $t('Common.TermsOfService') }}
             </a>
           </span>
         </FlexBox>

@@ -13,7 +13,7 @@ const handleInput = (event) => {
     <SearchIcon class="absolute top-[9px] left-3" />
     <input
       @input="handleInput"
-      placeholder="Search crypto"
+      :placeholder="$t('AssetManagePage.placeholder')"
       class="w-full h-10 pl-[42px] bg-gray-secondary rounded-lg p-3 text-ss focus:outline-none placeholder:text-[#BFC2CC]"
     />
   </div>

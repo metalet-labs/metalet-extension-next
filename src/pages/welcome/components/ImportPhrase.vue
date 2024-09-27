@@ -6,6 +6,7 @@ import { FlexBox, Button, SeedPhrase } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   words: {
@@ -13,6 +14,8 @@ const props = defineProps({
     required: true,
   },
 })
+
+const { t } = useI18n()
 
 const wordsLen = ref('12')
 const error = ref<string>()
@@ -36,7 +39,7 @@ const onPasteWords = (e: ClipboardEvent, index: number) => {
     } else if (wordsArr.length === 1) {
       props.words[index] = wordsArr[0]
     } else {
-      error.value = 'Invalid secret phrase. Please check and try again.'
+      error.value = t('WelcomePage.InvalidPhraseTips')
     }
   }
 }

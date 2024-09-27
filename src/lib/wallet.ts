@@ -74,15 +74,13 @@ export async function addV3Wallet(wallet: V3Wallet) {
   await setV3EncryptedWalletsStorage(wallets)
 }
 
-export async function getCurrentWalletId() {
+export async function getCurrentWalletId(expectError = true) {
   const currentWalletId = await storage.get(CURRENT_WALLET_ID)
   if (!currentWalletId) {
     const wallets = await getV3EncryptedWallets()
     if (wallets.length) {
       await setCurrentWalletId(wallets[0].id)
       return wallets[0].id
-    } else {
-      throw new Error('current wallet id not found')
     }
   }
   return currentWalletId
@@ -150,6 +148,12 @@ export async function getWalletOnlyAccount(walletId: string, accountId: string) 
 export async function getActiveWalletOnlyAccount() {
   const currentWalletId = await getCurrentWalletId()
   const currentAccountId = await getCurrentAccountId()
+  if (!currentWalletId) {
+    throw new Error('current wallet id not found')
+  }
+  if (!currentAccountId) {
+    throw new Error('current account id not found')
+  }
   return getWalletOnlyAccount(currentWalletId, currentAccountId)
 }
 

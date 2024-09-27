@@ -1,4 +1,3 @@
-import i18n from './i18n'
 import { goToTab } from '@/lib/utils'
 import { IS_DEV } from '@/data/config'
 import * as VueRouter from 'vue-router'
@@ -42,15 +41,6 @@ const routes = [
         },
       },
       {
-        path: '/connected-dapps',
-        component: () => import('./pages/connected-dapps/Index.vue'),
-        meta: {
-          noFooter: true,
-          secondaryHeader: true,
-          headerTitle: 'Connected Dapps',
-        },
-      },
-      {
         path: '/authorize',
         component: () => import('./pages/authorize/Index.vue'),
         meta: {
@@ -70,8 +60,6 @@ const routes = [
         component: () => import('./pages/wallet/Backup.vue'),
         meta: {
           noFooter: true,
-          secondaryHeader: false,
-          headerTitle: 'Backup',
         },
       },
       {
@@ -85,7 +73,6 @@ const routes = [
         path: '/wallet/set-password',
         component: () => import('./pages/wallet/SetPassword.vue'),
         meta: {
-          secondaryHeader: false,
           noFooter: true,
           noMenu: true,
         },
@@ -103,8 +90,6 @@ const routes = [
         component: () => import('./pages/wallet/Receive.vue'),
         name: 'receive',
         meta: {
-          secondaryHeader: false,
-          headerTitle: 'Receive',
           noFooter: true,
         },
       },
@@ -112,8 +97,6 @@ const routes = [
         path: '/wallet/receive/:coinCategory/:symbol/:address',
         component: () => import('./pages/wallet/Receive.vue'),
         meta: {
-          secondaryHeader: false,
-          headerTitle: 'Receive',
           noFooter: true,
         },
       },
@@ -122,9 +105,9 @@ const routes = [
         component: () => import('./pages/wallet/Send.vue'),
         name: 'send',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Send',
           noFooter: true,
+          headerTitle: 'Send',
+          headerTitleKey: 'Common.Send',
         },
       },
       {
@@ -132,9 +115,9 @@ const routes = [
         component: () => import('./pages/wallet/Swap/Index.vue'),
         name: 'Swap',
         meta: {
-          secondaryHeader: true,
-          headerTitle: i18n.global.t('Common.Swap'),
           noFooter: true,
+          headerTitle: 'Swap',
+          headerTitleKey: 'Common.Swap',
         },
       },
       {
@@ -142,9 +125,9 @@ const routes = [
         component: () => import('./pages/wallet/Bridge/Index.vue'),
         name: 'Bridge',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Bridge',
           noFooter: true,
+          headerTitle: 'Bridge',
+          headerTitleKey: 'Common.Bridge',
         },
       },
       {
@@ -152,9 +135,9 @@ const routes = [
         component: () => import('./pages/wallet/SendBRC20.vue'),
         name: 'sendBRC20',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Send',
           noFooter: true,
+          headerTitle: 'Send',
+          headerTitleKey: 'Common.Send',
         },
       },
       {
@@ -162,9 +145,9 @@ const routes = [
         component: () => import('./pages/wallet/SendRune.vue'),
         name: 'SendRune',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Send Rune',
           noFooter: true,
+          headerTitle: 'Send',
+          headerTitleKey: 'Common.Send',
         },
       },
       {
@@ -172,8 +155,8 @@ const routes = [
         component: () => import('./pages/wallet/SendMRC20.vue'),
         name: 'SendMRC20',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Send MRC20',
+          headerTitle: 'Send',
+          headerTitleKey: 'Common.Send',
           noFooter: true,
         },
       },
@@ -182,8 +165,8 @@ const routes = [
         component: () => import('./pages/wallet/MintRune.vue'),
         name: 'MintRune',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Mint Rune',
+          headerTitle: 'Mint',
+          headerTitleKey: 'Common.Mint',
           noFooter: true,
         },
       },
@@ -192,8 +175,8 @@ const routes = [
         component: () => import('./pages/wallet/MintMRC20.vue'),
         name: 'MintMRC20',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Mint MRC20',
+          headerTitle: 'Mint',
+          headerTitleKey: 'Common.Mint',
           noFooter: true,
         },
       },
@@ -202,7 +185,6 @@ const routes = [
         component: () => import('./pages/wallet/SendSuccess.vue'),
         name: 'SendSuccess',
         meta: {
-          secondaryHeader: false,
           noFooter: true,
         },
       },
@@ -211,8 +193,8 @@ const routes = [
         component: () => import('./pages/wallet/Inscribe.vue'),
         name: 'inscribe',
         meta: {
-          secondaryHeader: true,
           headerTitle: 'Inscribe Transfer',
+          headerTitleKey: 'HeaderTitle.InscribeTransfer',
           noFooter: true,
         },
       },
@@ -221,8 +203,8 @@ const routes = [
         component: () => import('./pages/wallet/Transfer.vue'),
         name: 'transfer',
         meta: {
-          secondaryHeader: true,
           headerTitle: 'Transfer',
+          headerTitleKey: 'Common.Transfer',
           noFooter: true,
         },
       },
@@ -231,8 +213,6 @@ const routes = [
         component: () => import('./pages/wallet/InscribeSuccess.vue'),
         name: 'inscribe-success',
         meta: {
-          secondaryHeader: true,
-          headerTitle: '',
           noFooter: true,
         },
       },
@@ -241,7 +221,6 @@ const routes = [
         component: () => import('./pages/wallet/InscribeQuery.vue'),
         name: 'inscribe-query',
         meta: {
-          headerTitle: '',
           noFooter: true,
         },
       },
@@ -250,8 +229,8 @@ const routes = [
         component: () => import('./pages/wallet/SendToken.vue'),
         name: 'send-token',
         meta: {
-          secondaryHeader: true,
-          headerTitle: 'Send Token',
+          headerTitle: 'Send',
+          headerTitleKey: 'Common.Send',
           noFooter: true,
         },
       },
@@ -260,8 +239,8 @@ const routes = [
         component: () => import('./pages/wallet/SelectAsset.vue'),
         name: 'select-asset',
         meta: {
-          secondaryHeader: true,
           headerTitle: 'Select Asset',
+          headerTitleKey: 'HeaderTitle.SelectAsset',
           noFooter: true,
         },
       },
@@ -270,8 +249,8 @@ const routes = [
         component: () => import('./pages/wallet/ConnectSite.vue'),
         name: 'connect-site',
         meta: {
-          secondaryHeader: true,
           headerTitle: 'Connect',
+          headerTitleKey: 'Common.Connect',
           noFooter: true,
         },
       },
@@ -279,8 +258,8 @@ const routes = [
         path: '/wallet/select-network',
         component: () => import('./pages/wallet/SelectNetwork.vue'),
         meta: {
-          secondaryHeader: true,
-          headerTitle: i18n.global.t('Common.SelectNetwork'),
+          headerTitle: 'Select Network',
+          headerTitleKey: 'HeaderTitle.SelectNetwork',
           noFooter: true,
         },
       },
@@ -288,29 +267,17 @@ const routes = [
         path: '/wallet/manage-assets',
         component: () => import('./pages/wallet/ManageAssets.vue'),
         meta: {
-          secondaryHeader: true,
           headerTitle: 'Manage Assets',
+          headerTitleKey: 'HeaderTitle.ManageAssets',
           noFooter: true,
         },
       },
-      // {
-      //   path: '/wallet/import',
-      //   component: () => import('./pages/wallet/Import.vue'),
-      //   meta: {
-      //     noFooter: true,
-      //     secondaryHeader: true,
-      //     headerTitle: 'Import',
-      //     noMenu: true,
-      //   },
-      // },
       {
         path: '/wallet/asset/:symbol/:address',
         component: () => import('./pages/wallet/Asset.vue'),
         name: 'asset',
         props: true,
         meta: {
-          secondaryHeader: false,
-          headerTitle: 'Asset',
           noFooter: true,
           backRouter: '/wallet',
         },
@@ -379,14 +346,16 @@ const routes = [
           headerTitle: 'NFT Collection',
         },
       },
-      { path: '/collections/:tabIndex', component: () => import('./pages/nfts/Index.vue'), name: 'collections' },
+      {
+        path: '/collections/:tabIndex',
+        component: () => import('./pages/nfts/Index.vue'),
+        name: 'collections',
+      },
       {
         name: 'brc20Detail',
         path: '/nft/brc20/detail/:address/:inscriptionId',
         component: () => import('./pages/nfts/BRCTokenDetail.vue'),
         meta: {
-          secondaryHeader: true,
-          headerTitle: '',
           noFooter: true,
         },
       },
@@ -395,8 +364,6 @@ const routes = [
         path: '/nft/metaPin/detail/:address/:metaPinId',
         component: () => import('./pages/nfts/MetaPinDetail.vue'),
         meta: {
-          secondaryHeader: true,
-          headerTitle: '',
           noFooter: true,
         },
       },
@@ -449,6 +416,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Setting',
+          headerTitleKey: 'Common.Setting',
           noFooter: true,
         },
       },
@@ -495,6 +463,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Toolkit',
+          headerTitleKey: 'Common.Toolkit',
           noFooter: true,
         },
       },
@@ -504,15 +473,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'BTC Merge',
-          noFooter: true,
-        },
-      },
-      {
-        path: '/settings/toolkit/btc-safe-mark',
-        component: () => import('./pages/settings/components/BTCSafeMark.vue'),
-        meta: {
-          secondaryHeader: true,
-          headerTitle: 'BTC Safe Mark',
+          headerTitleKey: 'HeaderTitle.BTCMerge',
           noFooter: true,
         },
       },
@@ -522,6 +483,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Space Merge',
+          headerTitleKey: 'HeaderTitle.SpaceMerge',
           noFooter: true,
         },
       },
@@ -530,8 +492,8 @@ const routes = [
         name: 'ft-merge',
         component: () => import('./pages/settings/components/FTMerge.vue'),
         meta: {
-          secondaryHeader: true,
           headerTitle: 'Ft Merge',
+          headerTitleKey: 'HeaderTitle.FtMerge',
           noFooter: true,
         },
       },
@@ -539,7 +501,6 @@ const routes = [
         path: '/settings/about',
         component: () => import('./pages/settings/About.vue'),
         meta: {
-          secondaryHeader: true,
           noFooter: true,
         },
       },
@@ -549,6 +510,7 @@ const routes = [
         meta: {
           secondaryHeader: true,
           headerTitle: 'Wallet Security',
+          headerTitleKey: 'HeaderTitle.WalletSecurity',
           noFooter: true,
         },
       },
@@ -556,8 +518,8 @@ const routes = [
         path: '/tools/path-finder',
         component: () => import('./pages/tools/PathFinder.vue'),
         meta: {
-          secondaryHeader: true,
           headerTitle: 'Path Finder',
+          headerTitleKey: 'HeaderTitle.PathFinder',
           noFooter: true,
         },
       },
@@ -566,8 +528,6 @@ const routes = [
         name: 'manage-wallets',
         component: () => import('./pages/manage/Index.vue'),
         meta: {
-          secondaryHeader: false,
-          headerTitle: '',
           noFooter: true,
         },
       },
@@ -576,8 +536,6 @@ const routes = [
         name: 'edit-wallets',
         component: () => import('./pages/manage/Edit.vue'),
         meta: {
-          secondaryHeader: false,
-          headerTitle: '',
           noFooter: true,
         },
       },
@@ -604,32 +562,33 @@ const router = VueRouter.createRouter({
   routes,
 })
 
-const authPages = [
-  '/welcome',
-  '/welcome/import',
-  '/welcome/create',
-  '/lock',
-  '/accounts',
-  '/migrateV2',
-  '/manage/wallets',
-  '/wallet/set-password',
-]
+const welcomePages = ['/welcome', '/welcome/import', '/welcome/create']
+
+const authPages = [...welcomePages, '/lock', '/accounts', '/migrateV2', '/manage/wallets', '/wallet/set-password']
 
 router.beforeEach(async (to, _, next) => {
-  if (to.fullPath !== '/wallet/set-password' && !(await hasPassword())) {
+  const _isLocked = await isLocked()
+  const password = await getPassword()
+  const _hasWallets = await hasWallets()
+  const _hasPassword = await hasPassword()
+  const _needMigrate = await needMigrate()
+
+  if (!welcomePages.includes(to.fullPath) && !_hasWallets) {
+    next()
+    goToTab('/welcome', true)
+  } else if (to.fullPath !== '/lock' && _hasWallets && !_hasPassword && (!password || _isLocked)) {
+    next('/lock')
+  } else if (to.fullPath !== '/wallet/set-password' && _hasWallets && !_hasPassword) {
     next('/wallet/set-password')
-  } else if (to.fullPath !== '/migrateV2' && (await hasPassword()) && (await needMigrate())) {
+  } else if (to.fullPath !== '/lock' && _hasWallets && !_hasPassword && !password) {
+    next('/lock')
+  } else if (to.fullPath !== '/migrateV2' && _hasPassword && password && _needMigrate) {
     next('/migrateV2')
   } else if (!authPages.includes(to.path)) {
-    if (!(await hasWallets())) {
-      goToTab('/welcome', true)
-      next('/welcome')
-    } else if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
+    if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
       next('/manage/wallets')
-    } else if ((await isLocked()) || !(await getPassword())) {
-      next('/lock')
     } else {
-      if (['asset', 'token', 'brc20'].includes(to.name as string)) {
+      if (['token', 'brc20'].includes(to.name as string)) {
         to.meta.headerTitle = to.params.symbol
       } else if (['rune'].includes(to.name as string)) {
         to.meta.headerTitle = to.params.name
