@@ -225,7 +225,7 @@ async function send() {
         step="1"
         type="number"
         v-model="amount"
-        :max="asset.remainingMint"
+        :max="Math.min(Number(asset.remainingMint), 5)"
         class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
       />
     </div>

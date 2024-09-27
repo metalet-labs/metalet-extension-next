@@ -580,7 +580,7 @@ router.beforeEach(async (to, _, next) => {
     next('/lock')
   } else if (to.fullPath !== '/wallet/set-password' && _hasWallets && !_hasPassword) {
     next('/wallet/set-password')
-  } else if (to.fullPath !== '/lock' && _hasWallets && !_hasPassword && !password) {
+  } else if (to.fullPath !== '/lock' && _hasWallets && _hasPassword && !password) {
     next('/lock')
   } else if (to.fullPath !== '/migrateV2' && _hasPassword && password && _needMigrate) {
     next('/migrateV2')

@@ -33,8 +33,6 @@ const props = defineProps({
   },
 })
 
-console.log('mvcTypes', props.mvcTypes, props.mvcTypes.includes(MVC_PATH))
-
 watch(
   props.mvcTypes,
   (mvcTypes) => {

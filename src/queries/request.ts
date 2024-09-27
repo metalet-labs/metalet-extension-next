@@ -271,8 +271,7 @@ export const swapApi = <T>(path: string) => {
 
 export const swapBRC20Api = <T>(path: string) => {
   const swapHost = network.value === 'mainnet' ? API_BRC20_ORDERS_EXCHANGE : API_BRC20_TESTNET_ORDERS_EXCHANGE
-  console.log('swapHost', swapHost);
-  
+
   return {
     get: (params?: OptionParams) =>
       orderSwapRequest<T>(`${swapHost}${path}`, {

@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { hasWallets } from '@/lib/wallet'
+import { hasPassword } from '@/lib/password'
 import Balance from './components/Balance.vue'
 import AccountHeader from './AccountHeader.vue'
 import AssetTabs from './components/AssetTabs.vue'
 import { WalletsStore } from '@/stores/WalletStore'
 import BackupTips from './components/BackupTips.vue'
 import { hasBackupCurrentWallet } from '@/lib/backup'
-import { hasPassword } from '@/lib/password'
 
 const noBackup = ref(true)
 hasBackupCurrentWallet().then((_backup) => {

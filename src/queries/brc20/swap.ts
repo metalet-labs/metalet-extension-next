@@ -67,8 +67,6 @@ type SwapBuildResult = {
 
 const build1xSwap = async (params: SwapBuildParams): Promise<SwapBuildResult> => {
   const res = await swapBRC20Api<Omit<SwapBuildResult, 'feeRate'>>('/build/1x').post(params)
-  console.log('res', res)
-
   return {
     ...res,
     feeRate: params.feeRate,

@@ -598,10 +598,10 @@
     ecpair "^2.1.0"
     undici "^6.19.2"
 
-"@metalet/utxo-wallet-service@0.3.20":
-  version "0.3.20"
-  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.3.20.tgz#440a860b7f3d099ec33836d2fe4fc8410abe1793"
-  integrity sha512-k+ro4wnNgNVCu3u3JeFApCVENfy8mVG4cgSxQPfz1ANolmh/gM1uFnQFjxer9FfrVmy8hVEiuY3dVU2xfDZ0iw==
+"@metalet/utxo-wallet-service@0.3.21":
+  version "0.3.21"
+  resolved "https://registry.yarnpkg.com/@metalet/utxo-wallet-service/-/utxo-wallet-service-0.3.21.tgz#da61ad5a62c4c8135f7a6840d18fa39c619fd8fa"
+  integrity sha512-daTN6fK9SHWSdoohp2HejdFK/iMrxfBET2bHQdbU/PdRwbqQT8RVz8c/P6MSpgN/inqQ/YTobl4QoSaI6QTlJg==
   dependencies:
     "@metalet/utxo-wallet-sdk" "0.5.49"
     crypto-js "^4.2.0"
