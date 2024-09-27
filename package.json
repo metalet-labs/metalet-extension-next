@@ -13,7 +13,7 @@
     "build:bg": "vite build --config ./vite-config/vite.background.config.ts",
     "build:web": "vue-tsc && vite build --config ./vite-config/vite.web.config.ts",
     "build": "set NODE_ENV=production && run-s clear build:content build:inject build:bg build:web",
-    "buildm": "export NODE_ENV=production && export NODE_OPTIONS=--max-old-space-size=6144 && run-s clear build:content build:inject build:bg build:web",
+    "bm": "export NODE_ENV=production && export NODE_OPTIONS=--max-old-space-size=6144 && run-s clear build:content build:inject build:bg build:web",
     "b": "yarn build",
     "bw": "yarn build:web",
     "bwc": "yarn build:content --watch",
