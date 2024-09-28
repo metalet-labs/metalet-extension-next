@@ -1,6 +1,6 @@
 import tokens from '@/data/tokens'
 import { getCurrentWallet } from './wallet'
-import { fetchTokens } from '@/queries/tokens'
+import { fetchMVCTokens } from '@/queries/tokens'
 import { getCurrentAccount, setAccount, getAddress } from './account'
 import { Chain } from '@metalet/utxo-wallet-service'
 
@@ -53,7 +53,7 @@ export async function removeAssetsDisplay(asset: string) {
 export async function getTokenBalance() {
   const wallet = await getCurrentWallet(Chain.MVC)
   const address = wallet.getAddress()
-  return await fetchTokens(address)
+  return await fetchMVCTokens(address)
 }
 
 type AssetsManager = {

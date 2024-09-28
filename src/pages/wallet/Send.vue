@@ -341,31 +341,31 @@ async function send() {
           <Divider class="mt-2" />
           <div class="p-4 space-y-4 text-ss">
             <FlexBox ai="center" jc="between">
-              <div class="text-gray-primary">From</div>
+              <div class="text-gray-primary">{{ $t('Common.From') }}</div>
               <div class="break-all w-[228px]">{{ address }}</div>
             </FlexBox>
             <FlexBox ai="center" jc="between">
-              <div class="text-gray-primary">To</div>
+              <div class="text-gray-primary">{{ $t('Common.To') }}</div>
               <div class="break-all w-[228px]">{{ recipient }}</div>
             </FlexBox>
             <FlexBox ai="center" jc="between">
-              <div class="text-gray-primary">Amount</div>
+              <div class="text-gray-primary">{{ $t('Common.Amount') }}</div>
               <div class="break-all">{{ prettifyBalanceFixed(amount, symbol) }}</div>
             </FlexBox>
             <FlexBox ai="center" jc="between">
-              <div class="text-gray-primary">Fees (Estimated)</div>
+              <div class="text-gray-primary">{{ $t('Common.Fee') }} ({{ $t('Common.Estimated') }})</div>
               <div>{{ prettifyBalanceFixed(totalFee, symbol, asset.decimal) }}</div>
             </FlexBox>
             <Divider />
             <FlexBox ai="center" jc="between">
-              <div class="text-gray-primary">Total</div>
+              <div class="text-gray-primary">{{ $t('Common.Total') }}</div>
               <div>{{ prettifyBalanceFixed(cost || 0, symbol, asset.decimal) }}</div>
             </FlexBox>
           </div>
           <DrawerFooter>
             <FlexBox ai="center" jc="center" :gap="2">
               <DrawerClose>
-                <Button type="light" class="w-[119px] h-12" @click="operationLock = false">Cancel</Button>
+                <Button type="light" class="w-[119px] h-12" @click="operationLock = false">{{ $t('Common.Cancel') }}</Button>
               </DrawerClose>
               <Button
                 @click="send"
@@ -373,7 +373,7 @@ async function send() {
                 :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': btnDisabled }]"
               >
                 <LoadingIcon v-if="operationLock" />
-                <span>Confirm</span>
+                <span>{{ $t('Common.Confirm') }}</span>
               </Button>
             </FlexBox>
           </DrawerFooter>
@@ -390,7 +390,7 @@ async function send() {
         <LoadingIcon />
         <span>Loading...</span>
       </div>
-      <span v-else>Next</span>
+      <span v-else>{{ $t('Common.Next') }}</span>
     </Button>
   </div>
   <LoadingText text="Asset Loading..." v-else />

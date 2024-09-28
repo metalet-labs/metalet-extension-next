@@ -111,7 +111,7 @@ const saveAccount = async (backup: boolean) => {
         Backup Later
       </button>
       <button class="gradient-bg rounded-md py-4 text-base leading-none text-white" @click="saveAccount(true)">
-        Next
+        {{ $t('Common.Next') }}
       </button>
     </div>
   </div>

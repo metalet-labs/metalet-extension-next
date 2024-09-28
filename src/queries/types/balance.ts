@@ -1,4 +1,4 @@
-import Decimal from "decimal.js"
+import Decimal from 'decimal.js'
 
 export interface Balance {
   total: Decimal
@@ -40,4 +40,11 @@ export interface BTCBalance {
   safeBalance: number
   runesBalance: number
   inscriptionsBalance: number
+}
+
+export interface MVCBalance {
+  address: string
+  confirmed: number
+  unconfirmed: number
+  utxoCount: number
 }

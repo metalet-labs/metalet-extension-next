@@ -1,28 +1,21 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import useStorage from './lib/storage'
-import { computed, onMounted } from 'vue'
-import { LANG_KEY } from './lib/storage/key'
 import { useQueryClient } from '@tanstack/vue-query'
 import BgHueImg from './assets/images/bg-hue.png?url'
 import TheFooter from './components/the-footer/Index.vue'
 import TheHeader from './components/headers/TheHeader.vue'
 import SecondaryHeader from './components/headers/SecondaryHeader.vue'
 
+const { t } = useI18n()
 const route = useRoute()
-const storage = useStorage()
 
 const queryClient = useQueryClient()
 queryClient.setDefaultOptions({
   queries: {
     staleTime: 1000 * 30,
   },
-})
-
-const { t, locale } = useI18n()
-onMounted(async () => {
-  locale.value = await storage.get(LANG_KEY, { defaultValue: 'en' })
 })
 
 const noFooter = computed(() => {

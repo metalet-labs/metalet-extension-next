@@ -199,7 +199,7 @@ async function send() {
         <LoadingIcon />
         <span>Loading...</span>
       </FlexBox>
-      <span v-else>Next</span>
+      <span v-else>{{ $t('Common.Next') }}</span>
     </Button>
 
     <Drawer v-model:open="isShowConfirm">
@@ -213,33 +213,33 @@ async function send() {
         <Divider class="mt-2" />
         <div class="p-4 space-y-4 text-ss">
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">From</div>
+            <div class="text-gray-primary">{{ $t('Common.From') }}</div>
             <div class="break-all w-[228px]">{{ address }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">To</div>
+            <div class="text-gray-primary">{{ $t('Common.To') }}</div>
             <div class="break-all w-[228px]">{{ recipient }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Amount</div>
+            <div class="text-gray-primary">{{ $t('Common.Amount') }}</div>
             <div class="break-all">{{ amount }} {{ symbol }}</div>
           </FlexBox>
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Fees (Estimated)</div>
+            <div class="text-gray-primary">{{ $t('Common.Fee') }} ({{ $t('Common.Estimated') }})</div>
             <div>{{ prettifyBalanceFixed(Number(calcFee) || 0, 'BTC', 8) }}</div>
           </FlexBox>
           <Divider />
           <FlexBox ai="center" jc="between">
-            <div class="text-gray-primary">Total</div>
+            <div class="text-gray-primary">{{ $t('Common.Total') }}</div>
             <div>{{ prettifyBalanceFixed(cost || 0, 'BTC', 8) }}</div>
           </FlexBox>
         </div>
         <DrawerFooter>
           <FlexBox ai="center" jc="center" :gap="2">
             <DrawerClose>
-              <Button type="light" class="w-[119px] h-12">Cancel</Button>
+              <Button type="light" class="w-[119px] h-12">{{ $t('Common.Cancel') }}</Button>
             </DrawerClose>
-            <Button type="primary" class="w-[119px] h-12" @click="send">Confirm</Button>
+            <Button type="primary" class="w-[119px] h-12" @click="send">{{ $t('Common.Confirm') }}</Button>
           </FlexBox>
         </DrawerFooter>
       </DrawerContent>

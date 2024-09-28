@@ -234,7 +234,7 @@ const changeTabIdx = (idx: number) => {
           <LoadingIcon />
           <span>Loading...</span>
         </FlexBox>
-        <span v-else>Next</span>
+        <span v-else>{{ $t('Common.Next') }}</span>
       </Button>
     </div>
 
@@ -252,7 +252,7 @@ const changeTabIdx = (idx: number) => {
       <Divider />
       <div class="mt-8 space-y-4 text-ss">
         <FlexBox ai="center" jc="between">
-          <span class="label">Network Fee</span>
+          <span class="label">{{ $t('Common.Fee') }}</span>
           <span>{{ prettifyBalanceFixed(paymentNetworkFee || 0, 'BTC', 8) }}</span>
         </FlexBox>
         <FlexBox ai="center" jc="between">
@@ -261,7 +261,7 @@ const changeTabIdx = (idx: number) => {
         </FlexBox>
         <Divider />
         <FlexBox ai="center" jc="between">
-          <span class="label">Total</span>
+          <span class="label">{{ $t('Common.Total') }}</span>
           <span>{{ prettifyBalanceFixed(total || 0, 'BTC', 8) }}</span>
         </FlexBox>
       </div>
@@ -273,7 +273,7 @@ const changeTabIdx = (idx: number) => {
         class="absolute bottom-4 left-1/2 -translate-x-1/2 w-61.5 h-12"
         :class="!currentRateFee || !inscribeAmount ? 'opacity-50 cursor-not-allowed' : undefined"
       >
-        Next
+        {{ $t('Common.Next') }}
       </Button>
     </div>
 
@@ -329,7 +329,7 @@ const changeTabIdx = (idx: number) => {
             </FlexBox>
           </div>
           <div class="space-y-2 rounded-md">
-            <div class="label">Network Fee</div>
+            <div class="label">{{ $t('Common.Total') }}</div>
             <FlexBox class="w-full px-3 py-3.5 bg-gray-secondary rounded-lg">
               {{ prettifyBalanceFixed(paymentNetworkFee || 0, 'BTC', 8) }}
             </FlexBox>
@@ -350,7 +350,7 @@ const changeTabIdx = (idx: number) => {
       </div>
 
       <FlexBox ai="center" jc="center" :gap="2" :class="[tabIdx === 1 ? 'absolute bottom-4' : 'pb-6', 'w-full']">
-        <Button type="light" @click="cancel" class="w-[119px] h-12">Cancel</Button>
+        <Button type="light" @click="cancel" class="w-[119px] h-12">{{ $t('Common.Cancel') }}</Button>
         <Button type="primary" @click="send" class="w-[119px] h-12" :class="operationLock ? 'opacity-50' : undefined">
           <FlexBox ai="center" :gap="1" v-if="operationLock">
             <LoadingIcon />
@@ -375,7 +375,7 @@ const changeTabIdx = (idx: number) => {
           <AlertDialogFooter>
             <AlertDialogAction>
               <Button type="primary" @click="toOrder" class="absolute bottom-6 left-1/2 -translate-x-1/2 w-61.5 h-12">
-                Confirm
+                {{ $t('Common.Confirm') }}
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -106,7 +106,7 @@ watch(
               <div class="text-xs text-gray-500 break-all">
                 {{ prettifyTxId(output.address, 4) }}
               </div>
-              <div class="mt-2">Amount</div>
+              <div class="mt-2">{{ $t('Common.Amount') }}</div>
               <div class="text-xs text-gray-500 break">
                 {{ prettifyBalance(output.value, 'BTC') }}
               </div>

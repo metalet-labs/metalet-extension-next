@@ -206,11 +206,11 @@ const toReceive = () => {
       <div class="flex items-center justify-center gap-x-2">
         <button @click="toSend" class="btn-blue-light">
           <ArrowUpIcon class="w-3" />
-          <span>Send</span>
+          <span>{{ $t('Common.Send') }}</span>
         </button>
         <button @click="toReceive" class="btn-blue-primary">
           <ArrowDownIcon class="w-3" />
-          <span>Receive</span>
+          <span>{{ $t('Common.Receive') }}</span>
         </button>
       </div>
 
@@ -222,11 +222,7 @@ const toReceive = () => {
         </div>
         <div class="flex items-center justify-between text-gray-primary gap-4">
           <div class="break-all">{{ currentBTCWallet?.getAddress() }}</div>
-          <Copy
-            :text="address"
-            class="w-[22px]"
-            :title="`${currentBTCWallet?.getAddressType() === 'Same as MVC' ? 'Default' : currentBTCWallet?.getAddressType()} Address Copied`"
-          />
+          <Copy :text="address" class="w-[22px]" :title="$t('Copied')" />
         </div>
       </div>
 

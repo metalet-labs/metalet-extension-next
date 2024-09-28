@@ -1,8 +1,9 @@
 import { mvc } from 'meta-contract'
 import { Buffer } from 'buffer'
 
-import { mvcApi } from '../queries/request'
+import { metaletApiV4 } from '../queries/request'
 import { METAFILE_API_HOST } from '../data/hosts'
+import { getNet } from './network'
 
 export function parseMetaFile(metaFileUri: string): string {
   // remove prefix: metafile://, then replace .jpeg with .jpg
@@ -36,7 +37,7 @@ export async function parseCollectionInfo(
 } | null> {
   const nftMetaData = await parseMetaData(txid, outputIndex)
 
-  const genesisTxid = nftMetaData.genesisTxid 
+  const genesisTxid = nftMetaData.genesisTxid
   if (!genesisTxid) return null
 
   const genesisOutputIndex = 0
@@ -88,10 +89,9 @@ export async function parseMetaData(txid: string, outputIndex: number): Promise<
   return metaData
 }
 
-export async function parse(txid: string, outputIndex: number): Promise<string[]> {
-  const { hex: metaTxHex } = (await mvcApi('/tx/' + txid + '/raw').get()) as {
-    hex: string
-  }
+export async function parse(txId: string, outputIndex: number): Promise<string[]> {
+  const net = getNet()
+  const { hex: metaTxHex } = await metaletApiV4<{ hex: string }>('/mvc/tx/raw').get({ net, txId })
   const tx = new mvc.Transaction(metaTxHex)
 
   const outputAsm = tx.outputs[outputIndex].script.toASM()

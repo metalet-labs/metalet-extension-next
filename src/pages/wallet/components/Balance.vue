@@ -42,7 +42,7 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         class="bg-[#CCD0FF] bg-opacity-20 py-2 px-3 rounded-lg text-[#1D28FE] flex items-center gap-1"
       >
         <NetworkIcon class="w-2.5" />
-        <span class="text-xs">{{ network.replace(/(^\w{1})/, (match) => match.toUpperCase()) }}</span>
+        <span class="text-xs">{{ network.replace(/(^\w{1})/, (match: string) => match.toUpperCase()) }}</span>
       </div>
     </div>
 
@@ -70,9 +70,9 @@ async function toSelectAsset(purpose: 'receive' | 'send') {
         <span>{{ $t('Common.Receive') }}</span>
       </div>
       <a
-        v-if="!IS_DEV && false"
-        :href="network === 'testnet' ? 'https://testnet.orders.exchange/swap' : 'https://app.orders.exchange/swap'"
+        v-if="!IS_DEV"
         target="_blank"
+        :href="network === 'testnet' ? 'https://testnet.orders.exchange/swap' : 'https://app.orders.exchange/swap'"
         class="cursor-pointer flex flex-col items-center gap-y-[11px] hover:text-blue-primary"
       >
         <div

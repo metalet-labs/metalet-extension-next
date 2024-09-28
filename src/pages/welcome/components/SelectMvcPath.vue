@@ -196,7 +196,7 @@ const next = () => {
         :disabled="!mvcPath || !!error"
         :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': !mvcPath || !!error }]"
       >
-        Next
+        {{ $t('Common.Next') }}
       </Button>
     </div>
     <div class="flex flex-col gap-4" v-else>
@@ -235,7 +235,7 @@ const next = () => {
         :disabled="mvcPath === undefined || !!error"
         :class="['w-61.5 mt-15 mx-auto', { 'cursor-not-allowed opacity-50': mvcPath === undefined || !!error }]"
       >
-        Confirm
+        {{ $t('Common.Confirm') }}
       </Button>
 
       <!-- error -->

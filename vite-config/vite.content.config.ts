@@ -1,9 +1,8 @@
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import topLevelAwait from 'vite-plugin-top-level-await'
-
 import baseConfig from './vite.base.config'
+import topLevelAwait from 'vite-plugin-top-level-await'
 
 export default defineConfig({
   ...baseConfig,

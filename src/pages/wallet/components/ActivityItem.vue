@@ -12,6 +12,9 @@ import type { Activity } from '@/queries/activities'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   asset: Asset
@@ -46,6 +49,21 @@ const flow = computed(() => {
   }
 })
 
+const flowText = computed(() => {
+  const { outcome, income, actionType } = props.activity
+  if (actionType === 'inscribeTransfer') {
+    return t('Common.InscribeTransfer')
+  } else if (actionType) {
+    return actionType
+  } else if (outcome > income) {
+    return t('Common.Send')
+  } else if (income > outcome) {
+    return t('Common.Receive')
+  } else {
+    return t('Common.Transfer')
+  }
+})
+
 const isConfirmed = computed(() => {
   if (props.asset?.contract === 'BRC-20') {
     return true
@@ -54,8 +72,8 @@ const isConfirmed = computed(() => {
 })
 
 const difference = computed(() => {
+  const { decimal } = props.asset
   const { outcome, income } = props.activity
-  const { symbol, decimal } = props.asset
   let display
   let displayClass
 
@@ -98,7 +116,7 @@ const toActivityTx = async () => {
       />
       <div>
         <div :class="['flex items-center gap-x-2 text-sm', { 'text-orange-primary': !isConfirmed }]">
-          <span>{{ flow }}</span>
+          <span>{{ flowText }}</span>
           <LoadingIcon v-if="!isConfirmed" class="text-orange-primary w-4 h-4" />
         </div>
         <div class="text-gray-primary text-xs">{{ prettifyTimestamp(activity.time) }}</div>

@@ -1,13 +1,13 @@
 import Decimal from 'decimal.js'
+import { PageResult } from './types'
+import { getNet } from '@/lib/network'
 import { ComputedRef, Ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { mvcApi, metaletApiV3 } from './request'
-import { SymbolTicker } from '@/lib/asset-symbol'
-import type { FTAsset, Asset, MRC20Asset } from '@/data/assets'
-import { Activities_QUERY_INTERVAL } from './constants'
-import { getNet } from '@/lib/network'
-import { PageResult } from './types'
 import { CoinCategory } from './exchange-rates'
+import { SymbolTicker } from '@/lib/asset-symbol'
+import { Activities_QUERY_INTERVAL } from './constants'
+import { metaletApiV3, metaletApiV4 } from './request'
+import type { FTAsset, Asset, MRC20Asset } from '@/data/assets'
 
 export type Operation = {
   flag: string
@@ -152,46 +152,27 @@ export const fetchMRC20Activities = async (address: string, tickId: string): Pro
 }
 
 export const fetchSpaceActivities = async (address: string): Promise<Activities> => {
-  const unconfirmed: any = mvcApi(`/address/${address}/tx?confirmed=false`).get()
-  const confirmed: any = mvcApi(`/address/${address}/tx?confirmed=true`).get()
-
-  const [unconfirmedActivities, confirmedActivities] = await Promise.all([unconfirmed, confirmed])
-
-  return [...unconfirmedActivities, ...confirmedActivities]
-}
-
-export const fetchOneActivity = async (txid: string): Promise<Activity> => {
-  const activity: any = await mvcApi(`/tx/${txid}`).get()
-
-  // rename timestamp to time
-  const detail = activity.txDetail
-  detail.time = detail.timestamp * 1000 // convert to ms
-  delete detail.timestamp
-
-  return detail
+  const net = getNet()
+  const { list } = await metaletApiV4<PageResult<Activity>>(`/mvc/address/tx-list`).get({
+    net,
+    address,
+    cursor: '0',
+    size: '100000',
+  })
+  return list
 }
 
 export const fetchTokenActivities = async (address: string, asset: FTAsset): Promise<TokenActivities> => {
-  return await mvcApi<TokenActivities>(`/contract/ft/address/${address}/${asset.codeHash}/${asset.genesis}/tx`).get()
-}
-
-export const useOneActivityQuery = (
-  txid: Ref<string> | ComputedRef<string>,
-  options?: { enabled: ComputedRef<boolean> }
-) => {
-  return useQuery({
-    queryKey: [
-      'activity',
-      {
-        txid: txid.value,
-      },
-    ],
-    queryFn: () => fetchOneActivity(txid.value),
-    select: (activity) => {
-      return activity
-    },
-    ...options,
+  const net = getNet()
+  const { list } = await metaletApiV4<PageResult<TokenActivity>>(`/mvc/address/contract/ft/tx-list`).get({
+    net,
+    address,
+    cursor: '0',
+    size: '100000',
+    genesis: asset.genesis,
+    codeHash: asset.codeHash,
   })
+  return list
 }
 
 export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean> }) => {

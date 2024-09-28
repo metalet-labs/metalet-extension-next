@@ -105,7 +105,7 @@ const selectCustom = () => {
           </FlexBox>
         </div>
         <DrawerFooter>
-          <DrawerClose><Button type="primary" class="mx-auto w-61.5 h-12">Confirm</Button></DrawerClose>
+          <DrawerClose><Button type="primary" class="mx-auto w-61.5 h-12">{{ $t('Common.Confirm') }}</Button></DrawerClose>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

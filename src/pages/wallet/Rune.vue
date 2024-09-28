@@ -76,7 +76,7 @@ const toSend = () => {
 <template>
   <div class="flex flex-col items-center space-y-6 w-full">
     <div class="flex flex-col items-center">
-      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" logoSize="size-6"/>
+      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" logoSize="size-6" />
 
       <div class="mt-3 text-2xl text-balance max-w-full text-center">
         <span v-if="asset?.balance" class="break-all">
@@ -105,11 +105,11 @@ const toSend = () => {
         :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !asset?.mintable || false }]"
       >
         <PencilIcon class="w-3" />
-        <span>Mint</span>
+        <span>{{ $t('Common.Mint') }}</span>
       </button>
       <button @click="toSend" class="btn-blue-light">
         <ArrowUpIcon class="w-3" />
-        <span>Send</span>
+        <span>{{ $t('Common.Send') }}</span>
       </button>
     </div>
 
@@ -117,7 +117,7 @@ const toSend = () => {
       <div class="text-xs text-gray-500">Rune ID</div>
       <div class="flex items-center hover:text-blue-primary gap-x-2">
         <div class="text-base">{{ truncateStr(runeId, 6) }}</div>
-        <CopyIcon :text="runeId" :title="'Rune ID Copied'" />
+        <CopyIcon :text="runeId" :title="$t('Copied')" />
       </div>
     </div>
 
@@ -137,13 +137,7 @@ const toSend = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <Activities
-        v-if="asset"
-        :asset="asset"
-        :exchangeRate="0"
-        :address="address"
-        :coinCategory="CoinCategory.Runes"
-      />
+      <Activities v-if="asset" :asset="asset" :exchangeRate="0" :address="address" :coinCategory="CoinCategory.Runes" />
       <LoadingText text="Activities Loading..." v-else />
     </div>
   </div>

@@ -3,10 +3,8 @@ import { MRC20UTXO } from './mrc20'
 import { getNet } from '@/lib/network'
 import { Ref, ComputedRef } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
-import { UNISAT_ENABLED } from '@/data/config'
 import { fetchBtcTxHex } from '@/queries/transaction'
-import { mvcApi, mempoolApi, metaletApiV3, unisatApi, metaletApiV4 } from './request'
-import { extend } from 'dayjs'
+import { mempoolApi, metaletApiV3, metaletApiV4 } from './request'
 
 export interface UTXO {
   txId: string
@@ -116,18 +114,6 @@ export interface UnisatUTXO {
 // TODO: add mode
 export async function getBtcUtxos(address: string, needRawTx = false, useUnconfirmed = true): Promise<UTXO[]> {
   const net = getNet()
-  if (UNISAT_ENABLED) {
-    const unisatUtxos = await unisatApi<UnisatUTXO[]>(`/address/btc-utxo`).get({ net, address })
-    const utxos = unisatUtxos.map((utxo) => formatUnisatUTXO(utxo))
-    utxos.sort((a, b) => {
-      if (a.confirmed !== b.confirmed) {
-        return b.confirmed ? 1 : -1
-      }
-      return a.satoshis - b.satoshis
-    })
-
-    return utxos.filter((utxo) => utxo.confirmed)
-  }
   let utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
 
   utxos = utxos.filter((utxo) => utxo.satoshis >= 600)

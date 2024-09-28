@@ -85,7 +85,7 @@ const close = () => {
             <div class="flex items-center justify-center gap-2">
               <button class="w-30 h-12 bg-blue-light text-blue-primary rounded-3xl text-ss"
                 @click="$emit('update:show', false)">
-                Cancel
+                {{ $t('Common.Cancel') }}
               </button>
               <button @click="disconnect" :disabled="!checkedAll"
                 class="w-30 h-12 bg-red-600 text-white rounded-3xl text-ss"

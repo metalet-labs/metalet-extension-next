@@ -101,7 +101,7 @@ const deleteWallet = async (walletId: string) => {
       v-model:open="editNameOpen"
     />
     <div class="flex items-center justify-end w-full h-15 shrink-0">
-      <div @click="$router.go(-1)" class="text-sm cursor-pointer text-blue-primary">Done</div>
+      <div @click="$router.go(-1)" class="text-sm cursor-pointer text-blue-primary">{{ $t('Common.Done') }}</div>
     </div>
     <div class="flex flex-col grow pr-2 -mr-2 overflow-hidden overflow-y-auto nicer-scrollbar -mb-3">
       <div class="flex flex-col w-full">

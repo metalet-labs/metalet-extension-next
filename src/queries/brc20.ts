@@ -3,7 +3,6 @@ import Decimal from 'decimal.js'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
 import { useQuery } from '@tanstack/vue-query'
-import { UNISAT_ENABLED } from '@/data/config'
 import { type BRC20Asset } from '@/data/assets'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { metaletApiV3, unisatApi } from './request'
@@ -51,31 +50,6 @@ export const getTickerInfo = async (tick: string): Promise<TickerInfo> => {
 
 export const fetchBRC20List = async (address: string): Promise<BRC20Asset[]> => {
   const net = getNet()
-  if (UNISAT_ENABLED) {
-    return (
-      await unisatApi<PageResult<TokenBalance>>(`/brc20/list`).get({ net, address, cursor: '0', size: '100000' })
-    ).list.map(
-      (brc20) =>
-        ({
-          symbol: brc20.ticker,
-          tokenName: brc20.ticker,
-          isNative: false,
-          chain: 'btc',
-          queryable: true,
-          decimal: 0,
-          contract: 'BRC-20',
-          balance: {
-            total: new Decimal(brc20.overallBalance),
-            confirmed: new Decimal(brc20.transferableBalance).add(brc20.availableBalanceSafe),
-            unconfirmed: new Decimal(brc20.availableBalanceUnSafe),
-            availableBalance: Number(brc20.availableBalance),
-            transferableBalance: Number(brc20.transferableBalance),
-            availableBalanceSafe: Number(brc20.availableBalanceSafe),
-            availableBalanceUnSafe: Number(brc20.availableBalanceUnSafe),
-          },
-        }) as BRC20Asset
-    )
-  }
   return (
     await metaletApiV3<PageResult<TokenBalance>>(`/brc20/tokens`).get({ net, address, cursor: '0', size: '100000' })
   ).list.map(
@@ -103,34 +77,6 @@ export const fetchBRC20List = async (address: string): Promise<BRC20Asset[]> => 
 
 export async function fetchBRC20Detail(address: string, symbol: string): Promise<BRC20Asset> {
   const net = getNet()
-  if (UNISAT_ENABLED) {
-    const brc20Detail = await unisatApi<AddressTokenSummary>('/brc20/token-summary').get({
-      net,
-      address,
-      ticker: encodeURIComponent(symbol),
-    })
-    return {
-      symbol,
-      tokenName: symbol,
-      isNative: false,
-      chain: 'btc',
-      queryable: true,
-      decimal: 0,
-      transferableList: brc20Detail.transferableList,
-      balance: {
-        confirmed: new Decimal(brc20Detail.tokenBalance.availableBalanceSafe).add(
-          brc20Detail.tokenBalance.transferableBalance
-        ),
-        unconfirmed: new Decimal(brc20Detail.tokenBalance.availableBalanceUnSafe),
-        total: new Decimal(brc20Detail.tokenBalance.availableBalance).add(brc20Detail.tokenBalance.transferableBalance),
-        availableBalance: Number(brc20Detail.tokenBalance.availableBalance),
-        availableBalanceSafe: Number(brc20Detail.tokenBalance.availableBalanceSafe),
-        availableBalanceUnSafe: Number(brc20Detail.tokenBalance.availableBalanceUnSafe),
-        transferableBalance: Number(brc20Detail.tokenBalance.transferableBalance),
-      },
-      contract: 'BRC-20',
-    } as BRC20Asset
-  }
   const brc20Detail = await metaletApiV3<AddressTokenSummary>('/brc20/token-summary').get({
     net,
     address,

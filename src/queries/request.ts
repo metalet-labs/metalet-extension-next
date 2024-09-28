@@ -95,14 +95,6 @@ export const createApi = (host: string) => {
   }
 }
 
-export const mvcApi = <T>(path: string) => {
-  const metasvHost = network.value === 'mainnet' ? METASV_HOST : METASV_TESTNET_HOST
-  return {
-    get: (params?: OptionParams) => request<T>(`${metasvHost}${path}`, { method: 'GET', params }),
-    post: (data?: OptionData) => request<T>(`${metasvHost}${path}`, { method: 'POST', data }),
-  }
-}
-
 export const metaletApi = <T>(path: string) => {
   const metaletHost = METALET_HOST + '/wallet-api/v1'
   return {

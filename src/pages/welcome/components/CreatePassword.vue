@@ -59,7 +59,7 @@ const submit = async () => {
         </span>
       </FlexBox>
       <Button type="primary" @click="submit" :disabled="btnDisabled" :class="['w-61.5', btnDisabled && 'opacity-50']">
-        Confirm
+        {{ $t('Common.Confirm') }}
       </Button>
     </FlexBox>
   </FlexBox>

@@ -1,17 +1,20 @@
+import Decimal from 'decimal.js'
+import { PageResult } from './types'
+import { getNet } from '@/lib/network'
 import { ComputedRef, Ref } from 'vue'
 import { Balance } from './types/balance'
 import type { FTAsset } from '@/data/assets'
 import { useQuery } from '@tanstack/vue-query'
-import { mvcApi, metaletApiV3 } from './request'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
-import Decimal from 'decimal.js'
+import { metaletApiV3, metaletApiV4 } from './request'
 
 export type Token = {
   codeHash: string
   genesis: string
   name: string
   symbol: SymbolTicker
+  icon: string
   decimal: number
   sensibleId: string
   utxoCount: number
@@ -22,7 +25,12 @@ export type Token = {
 }
 
 export const fetchMVCTokens = async (address: string): Promise<Token[]> => {
-  return await mvcApi<Token[]>(`/contract/ft/address/${address}/balance`).get()
+  const net = getNet()
+  const { list: tokens } = await metaletApiV4<PageResult<Token>>(`/mvc/address/contract/ft/balance-list`).get({
+    address,
+    net,
+  })
+  return tokens
 }
 
 export const useMVCAssetsQuery = (
@@ -36,15 +44,16 @@ export const useMVCAssetsQuery = (
       tokens.map(
         (token) =>
           ({
-            symbol: token.symbol,
-            tokenName: token.symbol,
-            isNative: false,
             chain: 'mvc',
+            isNative: false,
             queryable: true,
+            icon: 'https://www.metalet.space/wallet-api' + token.icon,
+            symbol: token.symbol,
             decimal: token.decimal,
+            genesis: token.genesis,
+            tokenName: token.symbol,
             contract: 'MetaContract',
             codeHash: token.codeHash,
-            genesis: token.genesis,
             balance: {
               confirmed: new Decimal(token.confirmedString),
               unconfirmed: new Decimal(token.unconfirmedString),
@@ -91,19 +100,8 @@ export const useMVCTokenQuery = (
   })
 }
 
-export const fetchTokens = async (address: string): Promise<Token[]> => {
-  const tokens: any = await mvcApi(`/contract/ft/address/${address}/balance`).get()
-
-  return tokens.map((token: any) => {
-    // 将codeHash改为小写
-    token.codehash = token.codeHash
-    delete token.codeHash
-    return token
-  })
-}
-
 export const fetchTokenBalance = async (address: string, genesis: string): Promise<Balance> => {
-  const tokens = await mvcApi<Token[]>(`/contract/ft/address/${address}/balance`).get()
+  const tokens = await fetchMVCTokens(address)
 
   const token = tokens.find((token) => token.genesis === genesis)
   const confirmed = new Decimal(token?.confirmedString || 0)

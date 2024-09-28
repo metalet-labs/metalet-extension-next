@@ -213,7 +213,7 @@ operationLock.value = false
         :class="!recipient ? 'opacity-50 cursor-not-allowed' : ''"
         class="w-61.5 rounded-3xl py-3 bg-blue-primary text-center text-base text-white disabled:opacity-50 mx-auto"
       >
-        Next
+        {{ $t('Common.Next') }}
       </button>
     </div>
 
@@ -240,14 +240,14 @@ operationLock.value = false
         </div>
         <div class="space-y-5">
           <div class="flex items-center justify-between">
-            <span>From</span>
+            <span>{{ $t('Common.From') }}</span>
             <span class="flex items-center gap-x-2">
               <span :title="address">{{ shortestAddress(address) }}</span>
               <Copy :text="address" />
             </span>
           </div>
           <div class="flex items-center justify-between">
-            <span>To</span>
+            <span>{{ $t('Common.To') }}</span>
             <span class="flex items-center gap-x-2">
               <span :title="recipient">{{ shortestAddress(recipient) }}</span>
               <Copy :text="recipient" />
@@ -260,8 +260,8 @@ operationLock.value = false
         </div>
       </div>
       <div class="flex items-center justify-center gap-x-2">
-        <button @click="cancel" class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary">Cancel</button>
-        <button @click="send" class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white">Confirm</button>
+        <button @click="cancel" class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary">{{ $t('Common.Cancel') }}</button>
+        <button @click="send" class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white">{{ $t('Common.Confirm') }}</button>
       </div>
     </div>
   </div>

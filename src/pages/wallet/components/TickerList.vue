@@ -50,7 +50,7 @@ const tickerList = computed(() => {
           jc="center"
           class="text-xs cursor-pointer text-gray-primary gap-x-0.5"
         >
-          <span>All</span>
+          <span>{{ $t('Common.All') }}</span>
           <ArrowDownIcon />
         </FlexBox>
       </template>

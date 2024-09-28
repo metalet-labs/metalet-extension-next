@@ -30,7 +30,9 @@ import {
   DrawerContent,
   DrawerDescription,
 } from '@/components/ui/drawer'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const network = ref()
 const isOpen = ref(false)
 const router = useRouter()
@@ -88,7 +90,7 @@ const toManageWallets = () => {
 }
 
 const copy = (address: string, addressType: string, type: string) => {
-  toast({ title: `${type} ${addressType} Address Copied`, toastType: 'success', description: address })
+  toast({ title: t('Copied'), toastType: 'success', description: address })
   navigator.clipboard.writeText(address)
   isOpen.value = false
 }

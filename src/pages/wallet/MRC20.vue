@@ -141,7 +141,7 @@ const toSend = () => {
         <div class="text-xs text-gray-500">Token ID</div>
         <div class="flex items-center hover:text-blue-primary gap-x-2">
           <div class="text-base">{{ truncateStr(mrc20Id, 6) }}</div>
-          <CopyIcon :text="mrc20Id" title="Token ID Copied" />
+          <CopyIcon :text="mrc20Id" :title="$t('Copied')" />
         </div>
       </div>
     </div>

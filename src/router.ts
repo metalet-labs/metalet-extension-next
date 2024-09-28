@@ -194,7 +194,7 @@ const routes = [
         name: 'inscribe',
         meta: {
           headerTitle: 'Inscribe Transfer',
-          headerTitleKey: 'HeaderTitle.InscribeTransfer',
+          headerTitleKey: 'Common.InscribeTransfer',
           noFooter: true,
         },
       },
@@ -336,20 +336,6 @@ const routes = [
           noFooter: true,
           noMenu: true,
         },
-      },
-
-      {
-        path: '/collections/:codehash/:genesis',
-        component: () => import('./pages/nfts/Collection.vue'),
-        meta: {
-          secondaryHeader: true,
-          headerTitle: 'NFT Collection',
-        },
-      },
-      {
-        path: '/collections/:tabIndex',
-        component: () => import('./pages/nfts/Index.vue'),
-        name: 'collections',
       },
       {
         name: 'brc20Detail',

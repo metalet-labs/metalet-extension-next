@@ -131,11 +131,11 @@ watch(assetUSD, (_assetUSD) => {
         </RouterLink>
         <RouterLink :to="`/wallet/transfer/${symbol}/${address}`" class="btn-blue-primary">
           <img :src="TransferPNG" alt="Transfer" />
-          <span>Transfer</span>
+          <span>{{ $t('Common.Transfer') }}</span>
         </RouterLink>
         <button @click="toReceive" class="btn-blue-primary">
           <ArrowDownIcon class="w-3" />
-          <span>Receive</span>
+          <span>{{ $t('Common.Receive') }}</span>
         </button>
       </div>
 

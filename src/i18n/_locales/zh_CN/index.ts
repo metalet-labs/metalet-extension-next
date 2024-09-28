@@ -1,7 +1,6 @@
 export default {
   HeaderTitle: {
     SelectAsset: '选择资产',
-    InscribeTransfer: '铭刻转账',
     SelectNetwork: '选择网络',
     ManageAssets: '管理资产',
     PathFinder: '路径查找器',
@@ -12,6 +11,11 @@ export default {
   },
   Common: {
     Password: '密码',
+    From: '来自',
+    To: '到',
+    Total: '总计',
+    Fee: '费用',
+    Estimated: '预计',
     Backup: '备份',
     You: '你',
     Pay: '支付',
@@ -45,6 +49,12 @@ export default {
     Lock: '锁定',
     TermsOfService: '服务条款',
     PrivacyPolicy: '隐私政策',
+    InscribeTransfer: '铭刻转账',
+    SelectAll: '全选',
+    All: '全部',
+    Done: '完成',
+    Copied: '已复制',
+    ViewOnBlockExplorer: '在区块浏览器查看',
   },
   SettingMenu: {
     DappConnection: 'Dapp连接管理',
@@ -144,4 +154,11 @@ export default {
   AssetManagePage: {
     placeholder: '搜索币种名称',
   },
+  InscribeTransferPage: {
+    InscribeTransferTips: '您必须先刻录一个转账铭文。',
+    TransferInscriptions:'可转账铭文',
+  },
+  Transaction: {
+    Completed: '交易完成',
+  }
 }

@@ -1,15 +1,11 @@
-import { UTXO } from '../utxos'
 import Decimal from 'decimal.js'
 import { PageResult } from '../types'
 import { getNet } from '@/lib/network'
 import { type RuneAsset } from '@/data/assets'
-import { UNISAT_ENABLED } from '@/data/config'
-import { CoinCategory } from '../exchange-rates'
 import { Ref, ComputedRef, computed } from 'vue'
+import { metaletApiV3, ordersApi } from '../request'
 import { Balance_QUERY_INTERVAL } from '../constants'
-import { AddressRunesTokenSummary } from '../types/rune'
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
-import { metaletApiV3, unisatApi, ordersApi, swapApi } from '../request'
 
 export interface RuneBalance {
   amount: string
@@ -29,40 +25,6 @@ export async function fetchRunesList(
   size: number
 ): Promise<{ list: RuneAsset[]; nextCursor: number | null }> {
   const net = getNet()
-  if (UNISAT_ENABLED) {
-    const { list, total } = await unisatApi<PageResult<Omit<RuneBalance, 'runeId'> & { runeid: string }>>(
-      '/runes/list'
-    ).get({
-      net,
-      address,
-      cursor: cursor.toString(),
-      size: size.toString(),
-    })
-
-    const runeAssets = list.map((data) => ({
-      symbol: data.symbol,
-      tokenName: data.spacedRune,
-      isNative: false,
-      chain: 'btc',
-      queryable: true,
-      decimal: data.divisibility,
-      balance: {
-        confirmed: new Decimal(data.amount),
-        unconfirmed: new Decimal(0),
-        total: new Decimal(data.amount),
-      },
-      runeId: data.runeid,
-      contract: CoinCategory.Runes,
-    })) as RuneAsset[]
-
-    cursor += size
-
-    return {
-      list: runeAssets,
-      nextCursor: cursor >= total ? null : cursor,
-    }
-  }
-
   const { list, total } = await metaletApiV3<PageResult<RuneBalance>>('/runes/address/balance-list').get({
     net,
     address,
@@ -96,28 +58,6 @@ export async function fetchRunesList(
 
 export async function fetchRuneDetail(address: string, runeId: string) {
   const net = getNet()
-  if (UNISAT_ENABLED) {
-    const runeDetail = await unisatApi<AddressRunesTokenSummary>('/runes/token-summary').get({
-      net,
-      address,
-      runeid: runeId,
-    })
-
-    return {
-      symbol: runeDetail.runeInfo.symbol,
-      tokenName: runeDetail.runeInfo.rune,
-      isNative: false,
-      chain: 'btc',
-      queryable: true,
-      decimal: runeDetail.runeInfo.divisibility,
-      balance: {
-        confirmed: new Decimal(runeDetail.runeBalance.amount),
-        unconfirmed: new Decimal(0),
-        total: new Decimal(runeDetail.runeBalance.amount),
-      },
-      runeId,
-    } as RuneAsset
-  }
   const runeDetail = await metaletApiV3<RuneBalance>('/runes/address/balance-info').get({
     net,
     address,

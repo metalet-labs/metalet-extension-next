@@ -30,7 +30,7 @@ async function onUpdateName() {
 </script>
 
 <template>
-  <Modal :is-open="open" @update:is-open="$emit('update:open', $event)" title="Confirm">
+  <Modal :is-open="open" @update:is-open="$emit('update:open', $event)" :title="$t('Common.Confirm')">
     <template #title>Edit {{ $props.type }} Name</template>
 
     <template #body>
@@ -52,9 +52,11 @@ async function onUpdateName() {
           @click="$emit('update:open', false)"
           class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary"
         >
-          Cancel
+          {{ $t('Common.Cancel') }}
         </button>
-        <button class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white" @click="onUpdateName">Confirm</button>
+        <button class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white" @click="onUpdateName">
+          {{ $t('Common.Confirm') }}
+        </button>
       </div>
     </template>
   </Modal>

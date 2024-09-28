@@ -12,7 +12,7 @@ const walletName = computed(() => props.name)
 </script>
 
 <template>
-  <Modal :is-open="open" @update:is-open="$emit('update:open', $event)" title="Confirm">
+  <Modal :is-open="open" @update:is-open="$emit('update:open', $event)" :title="$t('Common.Confirm')">
     <template #title>
       <div class="flex items-center gap-2 justify-center font-bold">
         <span>Are you sure you want to delete {{ walletName }}?</span>
@@ -32,11 +32,9 @@ const walletName = computed(() => props.name)
           @click="$emit('update:open', false)"
           class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary"
         >
-          Cancel
+          {{ $t('Common.Cancel') }}
         </button>
-        <button class="w-30 rounded-3xl bg-red-500 py-4 text-ss text-white" @click="confirm">
-          Delete
-        </button>
+        <button class="w-30 rounded-3xl bg-red-500 py-4 text-ss text-white" @click="confirm">Delete</button>
       </div>
     </template>
   </Modal>

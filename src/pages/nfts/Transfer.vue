@@ -160,7 +160,7 @@ async function transfer() {
       </button>
     </div>
 
-    <Modal v-model:is-open="isOpenConfirmModal" title="Confirm">
+    <Modal v-model:is-open="isOpenConfirmModal" :title="$t('Common.Confirm')">
       <template #title>Confirm Transaction</template>
 
       <template #body>
@@ -194,9 +194,9 @@ async function transfer() {
             class="bg-blue-light w-30 rounded-3xl py-3 text-ss text-blue-primary"
             @click="isOpenConfirmModal = false"
           >
-            Cancel
+            {{ $t('Common.Cancel') }}
           </button>
-          <button class="bg-blue-primary w-30 rounded-3xl py-3 text-ss text-white" @click="transfer">Confirm</button>
+          <button class="bg-blue-primary w-30 rounded-3xl py-3 text-ss text-white" @click="transfer">{{ $t('Common.Confirm') }}</button>
         </div>
       </template>
     </Modal>

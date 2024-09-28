@@ -1,7 +1,6 @@
 export default {
   HeaderTitle: {
     SelectAsset: 'Select Asset',
-    InscribeTransfer: 'Inscribe Transfer',
     SelectNetwork: 'Select Network',
     ManageAssets: 'Manage Assets',
     PathFinder: 'Path Finder',
@@ -11,6 +10,11 @@ export default {
     FtMerge: 'Ft Merge',
   },
   Common: {
+    From: 'From',
+    To: 'To',
+    Total: 'Total',
+    Fee: 'Fee',
+    Estimated: 'Estimated',
     Password: 'Password',
     Backup: 'Backup',
     You: 'You',
@@ -45,6 +49,12 @@ export default {
     Lock: 'Lock',
     TermsOfService: 'Terms of Service',
     PrivacyPolicy: 'Privacy policy',
+    InscribeTransfer: 'Inscribe Transfer',
+    SelectAll: 'Select All',
+    All: 'All',
+    Done: 'Done',
+    Copied: 'Copied',
+    ViewOnBlockExplorer: 'View on Block Explorer',
   },
   SettingMenu: {
     DappConnection: 'Dapp Connection',
@@ -145,4 +155,15 @@ export default {
   AssetManagePage: {
     placeholder: 'Search crypto',
   },
+  InscribeTransferPage:{
+    InscribeTransferTips:'You have to inscribe a TRANSFER inscription first.',
+    TransferInscriptions:'Transfer Inscriptions',
+  },
+  CopiedText:{
+    MetaPinIDCopiedText:'MetaID PIN copied',
+    RawTxCopiedText:'Raw Tx copied',
+  },
+  Transaction: {
+    Completed: 'Transaction Completed',
+  }
 }

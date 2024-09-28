@@ -76,7 +76,7 @@ const migrate = async () => {
 
           <div class="mt-8 grid grid-cols-2 gap-x-4">
             <button class="reset-button border-gray-700 text-gray-700" @click="$emit('update:show', false)">
-              Cancel
+              {{ $t('Common.Cancel') }}
             </button>
             <button
               @click="migrate"

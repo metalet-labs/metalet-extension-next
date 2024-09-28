@@ -3,14 +3,14 @@ import { getBtcUtxos } from './utxos'
 import { ComputedRef, Ref } from 'vue'
 import { getNet } from '@/lib/network'
 import { useQuery } from '@tanstack/vue-query'
-import { UNISAT_ENABLED } from '@/data/config'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
-import { metaletApiV3, mvcApi, unisatApi } from './request'
-import { Balance, BitcoinBalance, BTCBalance } from './types/balance'
+import { metaletApiV3, metaletApiV4 } from './request'
+import { Balance, BTCBalance, MVCBalance } from './types/balance'
 
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
-  const balance = await mvcApi<Omit<Balance, 'total'>>(`/address/${address}/balance`).get()
+  const net = getNet()
+  const balance = await metaletApiV4<MVCBalance>('/mvc/address/balance-info').get({ net, address })
   return {
     confirmed: new Decimal(balance.confirmed),
     unconfirmed: new Decimal(balance.unconfirmed),
@@ -20,14 +20,6 @@ export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
 
 export const fetchBtcBalance = async (address: string): Promise<Balance> => {
   const net = getNet()
-  if (UNISAT_ENABLED) {
-    const data = await unisatApi<BitcoinBalance>(`/address/balance`).get({ net, address })
-    return {
-      total: new Decimal(data.amount).mul(1e8),
-      confirmed: new Decimal(data.confirm_amount).mul(1e8),
-      unconfirmed: new Decimal(data.pending_amount).mul(1e8),
-    }
-  }
   const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`).get({ net, address })
 
   return {

@@ -52,7 +52,7 @@ function confirm() {
         </FlexBox>
       </FlexBox>
       <Button type="primary" @click="confirm" class="absolute bottom-20 left-1/2 -translate-x-1/2 w-61.5 h-12">
-        Done
+        {{ $t('Common.Done') }}
       </Button>
     </template>
     <div v-else class="text-gray-500 text-center font-bold">No Order Info.</div>

@@ -111,14 +111,14 @@ const toResultTxs = async (txId: string) => {
 
       <div class="mt-[37px] space-y-4" v-if="result && result.status === 'success'">
         <div class="flex justify-between">
-          <div class="label">Amount</div>
+          <div class="label">{{ $t('Common.Amount') }}</div>
           <div class="text-sm">
             {{ `${prettifyTokenBalance(result.amount, result.token.decimal)} ${result.token.symbol}` }}
           </div>
         </div>
 
         <div class="flex justify-between">
-          <div class="label">From</div>
+          <div class="label">{{ $t('Common.From') }}</div>
           <div class="text-xs flex items-center gap-2">
             <div class="hover:underline hover:text-blue-primary cursor-pointer" :title="result.fromAddress">
               {{ prettifyAddress(result.fromAddress) }}
@@ -128,7 +128,7 @@ const toResultTxs = async (txId: string) => {
         </div>
 
         <div class="flex justify-between">
-          <div class="label">To</div>
+          <div class="label">{{ $t('Common.To') }}</div>
           <div class="text-xs flex items-center gap-2">
             <div class="hover:underline hover:text-blue-primary cursor-pointer" :title="result.toAddress">
               {{ prettifyAddress(result.toAddress) }}
@@ -168,7 +168,7 @@ const toResultTxs = async (txId: string) => {
     <template #control>
       <div class="flex items-center justify-center gap-2" v-if="result && result.status === 'failed' && result.router">
         <button @click="closeModal" class="w-30 rounded-3xl py-4 text-ss text-blue-primary bg-blue-light">
-          Cancel
+          {{ $t('Common.Cancel') }}
         </button>
         <button
           class="bg-blue-primary rounded-3xl py-4 text-ss w-30 text-white px-4"

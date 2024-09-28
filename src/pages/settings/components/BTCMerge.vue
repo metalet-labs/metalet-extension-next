@@ -183,7 +183,7 @@ const broadcast = () => {
             <tr>
               <th class="text-xs w-6"></th>
               <th class="text-xs w-28">TxID</th>
-              <th class="text-xs">Fee</th>
+              <th class="text-xs">{{ $t('Common.Total') }}</th>
               <th class="text-xs">Total Input</th>
               <th class="text-xs">Total Output</th>
             </tr>
@@ -194,14 +194,17 @@ const broadcast = () => {
               <td class="border text-xs p-1">
                 <div class="flex items-center justify-center gap-2">
                   {{ prettifyTxId(transaction.txId, 4) }}
-                  <Copy title="RawTx Copied" :text="transaction.rawTx" :show-content="false" class="size-5" />
+                  <Copy
+                    :title="$t('CopiedText.RawTxCopiedText')"
+                    :text="transaction.rawTx"
+                    :show-content="false"
+                    class="size-5"
+                  />
                 </div>
               </td>
               <td class="border text-xs p-1">{{ new Decimal(transaction.fee).div(1e8).toFixed() }} BTC</td>
               <td class="border text-xs p-1">{{ transaction.total.div(1e8).toFixed() }} BTC</td>
-              <td class="border text-xs p-1">
-                {{ transaction.total.minus(transaction.fee).div(1e8).toFixed() }} BTC
-              </td>
+              <td class="border text-xs p-1">{{ transaction.total.minus(transaction.fee).div(1e8).toFixed() }} BTC</td>
             </tr>
           </tbody>
         </table>
@@ -220,17 +223,27 @@ const broadcast = () => {
       Split
     </button> -->
 
-    <button @click="mergeFn" v-if="!transactions.length" :disabled="mergeDisabled" :class="[
-      { 'cursor-not-allowed opacity-50': mergeDisabled },
-      'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
-    ]">
+    <button
+      @click="mergeFn"
+      v-if="!transactions.length"
+      :disabled="mergeDisabled"
+      :class="[
+        { 'cursor-not-allowed opacity-50': mergeDisabled },
+        'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
+      ]"
+    >
       <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
       Merge
     </button>
-    <button v-else @click="broadcast" :disabled="!transactions.length" :class="[
-      { 'cursor-not-allowed opacity-50': mergeDisabled },
-      'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
-    ]">
+    <button
+      v-else
+      @click="broadcast"
+      :disabled="!transactions.length"
+      :class="[
+        { 'cursor-not-allowed opacity-50': mergeDisabled },
+        'bg-blue-primary text-white text-xs w-61.5 rounded-3xl my-12 py-4 mx-auto flex items-center justify-center gap-x-2',
+      ]"
+    >
       <ArrowPathIcon class="animate-spin w-4 h-4" v-if="operationLock" />
       Broadcast
     </button>

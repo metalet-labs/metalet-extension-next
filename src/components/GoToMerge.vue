@@ -23,7 +23,7 @@ const open = defineModel('open', { type: Boolean })
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
+        <AlertDialogCancel>{{ $t('Common.Cancel') }}</AlertDialogCancel>
         <AlertDialogAction>Continue</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

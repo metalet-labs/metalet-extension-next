@@ -16,7 +16,9 @@ import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import { calcBalance, prettifyTokenGenesis } from '@/lib/formatters'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -72,7 +74,7 @@ const toReceive = () => {
 
 const copyGenesis = () => {
   navigator.clipboard.writeText(genesis)
-  toast({ title: `Token Contract ID Copied`, toastType: 'success', description: genesis })
+  toast({ title: t('Copied'), toastType: 'success', description: genesis })
 }
 </script>
 
@@ -104,11 +106,11 @@ const copyGenesis = () => {
     <div class="flex items-center justify-center gap-x-2">
       <button @click="toSend" class="btn-blue-light">
         <ArrowUpIcon class="w-3" />
-        <span>Send</span>
+        <span>{{ $t('Common.Send') }}</span>
       </button>
       <button @click="toReceive" class="btn-blue-primary">
         <ArrowDownIcon class="w-3" />
-        <span>Receive</span>
+        <span>{{ $t('Common.Receive') }}</span>
       </button>
     </div>
 

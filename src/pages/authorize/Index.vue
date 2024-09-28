@@ -205,7 +205,7 @@ const cancelAction = async () => {
       <button class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary" @click="cancelAction">
         Cancel
       </button>
-      <button class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white" @click="runAction">Confirm</button>
+      <button class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white" @click="runAction">{{ $t('Common.Confirm') }}</button>
     </div>
   </div>
 </template>

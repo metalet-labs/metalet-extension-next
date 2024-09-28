@@ -38,12 +38,12 @@ const toInscribe = () => {
         <FlexBox ai="center" jc="between" class="w-full">
           <span class="text-xl">{{ asset.balance.transferableBalance }} {{ symbol }}</span>
           <!-- TODO: select all -->
-          <button class="text-xs text-blue-primary cursor-not-allowed" disabled v-if="false">Select All</button>
+          <button class="text-xs text-blue-primary cursor-not-allowed" disabled v-if="false">{{ $t('Common.SelectAll') }}</button>
         </FlexBox>
         <Divider class="border-gray-soft my-4" />
         <FlexBox d="col" :gap="4">
           <span class="text-sm text-slate-light" v-if="asset">
-            Transfer Inscriptions ({{ asset.transferableList!.length }})
+            {{ $t('InscribeTransferPage.TransferInscriptions') }} ({{ asset.transferableList!.length }})
           </span>
           <!-- TODO: select multiple-->
           <TickerList :loading="isLoading" :list="asset.transferableList" :clickEvent="toSendBRC20" />
@@ -51,13 +51,13 @@ const toInscribe = () => {
       </FlexBox>
     </div>
     <div>
-      <div class="text-sm">Inscribe Transfer</div>
-      <div class="text-gray-primary text-xs">You have to inscribe a TRANSFER inscription first.</div>
+      <div class="text-sm">{{ $t('Common.InscribeTransfer') }}</div>
+      <div class="text-gray-primary text-xs">{{ $t('InscribeTransferPage.InscribeTransferTips') }}</div>
       <div
         @click="toInscribe"
         class="flex items-center justify-center gap-2 bg-gray-secondary text-sm rounded-md h-12 mt-3 cursor-pointer border border-blue-primary bg-[rgba(23, 26, 255, 0.05)]"
       >
-        <span class="text-gray-primary">Available</span>
+        <span class="text-gray-primary">{{ $t('Common.Available') }}</span>
         <span>{{ asset.balance.availableBalance }} {{ symbol }}</span>
       </div>
     </div>

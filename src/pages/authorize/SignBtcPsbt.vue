@@ -179,7 +179,7 @@ onMounted(async () => {
                 </div>
               </template>
               <template v-if="output.value">
-                <div class="mt-2">Amount</div>
+                <div class="mt-2">{{ $t('Common.Amount') }}</div>
                 <div class="text-xs text-gray-500 break-all">
                   {{ prettifyBalance(output.value, 'BTC') }}
                 </div>
