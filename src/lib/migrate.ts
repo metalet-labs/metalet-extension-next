@@ -1,6 +1,6 @@
 import useStorage from './storage'
+import { encrypt } from './crypto'
 import { mvc } from 'meta-contract'
-import { encrypt, decrypt } from './crypto'
 import { toast } from '@/components/ui/toast'
 import { generateRandomString } from './helpers'
 import { V3Wallet, type DerivedAccountDetail } from '@/lib/types'
@@ -14,8 +14,7 @@ import {
   ACCOUNT_Sync_Migrated_KEY,
   ACCOUNT_V1_Migrated_KEY,
   ACCOUNT_V2_Migrated_KEY,
-  ACCOUNT_V3_Encrypted_KEY,
-  V3_ENCRYPTED_WALLETS_STORAGE_KEY,
+  WALLETS_V3_Encrypted_KEY,
   Error_Accounts_Migrate_Log_Key,
 } from '@/lib/storage/key'
 import {
@@ -121,7 +120,7 @@ async function needMigrateV2ToV3(): Promise<boolean> {
 }
 
 async function needEncryptV3(): Promise<boolean> {
-  if (await storage.get(ACCOUNT_V3_Encrypted_KEY)) {
+  if (await storage.get(WALLETS_V3_Encrypted_KEY)) {
     return false
   }
   const v3Wallets = await getV3Wallets()
@@ -131,7 +130,7 @@ async function needEncryptV3(): Promise<boolean> {
   const needed = v3Wallets.some((wallet) => !v3EncryptedMnemonics.includes(encrypt(wallet.mnemonic, password)))
 
   if (!needed) {
-    await storage.set(ACCOUNT_V3_Encrypted_KEY, true)
+    await storage.set(WALLETS_V3_Encrypted_KEY, true)
   }
   return needed
 }

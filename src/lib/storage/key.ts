@@ -2,7 +2,8 @@
 export const ACCOUNT_Sync_Migrated_KEY = 'accounts_sync_migrated'
 export const ACCOUNT_V1_Migrated_KEY = 'accounts_v1_migrated'
 export const ACCOUNT_V2_Migrated_KEY = 'accounts_v2_migrated'
-export const ACCOUNT_V3_Encrypted_KEY = 'accounts_v3_encrypted'
+// export const ACCOUNT_V3_Encrypted_KEY = 'accounts_v3_encrypted'
+export const WALLETS_V3_Encrypted_KEY = 'wallets_v3_encrypted'
 export const Error_Accounts_Migrate_Log_Key = 'error_accounts_migrate_log'
 export type MigrateErrorVersion = 'V0' | 'V1' | 'V2' | 'V3'
 export interface MigrateErrorAccount {

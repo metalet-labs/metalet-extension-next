@@ -78,7 +78,6 @@ const next = async () => {
         toast({ title: 'Set Password failed.', toastType: 'fail', description: e.message })
         return
       }
-
       await setV3EncryptedWalletsStorage(wallets)
       await passwordManager.set(newPassword.value)
       toast({ title: 'Set Password successfully.', toastType: 'success' })

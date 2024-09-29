@@ -78,6 +78,14 @@ const routes = [
         },
       },
       {
+        path: '/wallet/recovery-password',
+        component: () => import('./pages/wallet/RecoveryPassword.vue'),
+        meta: {
+          noFooter: true,
+          noMenu: true,
+        },
+      },
+      {
         path: '/wallet/create-success',
         component: () => import('./pages/wallet/CreateSuccess.vue'),
         meta: {
@@ -395,7 +403,6 @@ const routes = [
       },
 
       { path: '/tokens', component: () => import('./pages/tokens/Index.vue') },
-
       {
         path: '/settings',
         component: () => import('./pages/settings/Index.vue'),
@@ -550,7 +557,15 @@ const router = VueRouter.createRouter({
 
 const welcomePages = ['/welcome', '/welcome/import', '/welcome/create']
 
-const authPages = [...welcomePages, '/lock', '/accounts', '/migrateV2', '/manage/wallets', '/wallet/set-password']
+const authPages = [
+  ...welcomePages,
+  '/lock',
+  '/accounts',
+  '/migrateV2',
+  '/manage/wallets',
+  '/wallet/set-password',
+  '/wallet/recovery-password',
+]
 
 router.beforeEach(async (to, _, next) => {
   const _isLocked = await isLocked()
@@ -559,17 +574,17 @@ router.beforeEach(async (to, _, next) => {
   const _hasPassword = await hasPassword()
   const _needMigrate = await needMigrate()
 
-  if (!welcomePages.includes(to.fullPath) && !_hasWallets) {
-    next()
-    goToTab('/welcome', true)
-  } else if (to.fullPath !== '/wallet/set-password' && _hasWallets && !_hasPassword) {
-    next('/wallet/set-password')
-  } else if (to.fullPath !== '/lock' && _hasWallets && _hasPassword && (!password || _isLocked)) {
+  if (to.fullPath !== '/wallet/recovery-password' && !_hasPassword && (_needMigrate || _hasWallets)) {
+    next('/wallet/recovery-password')
+  } else if (to.fullPath !== '/lock' && _hasPassword && (!password || _isLocked)) {
     next('/lock')
-  } else if (to.fullPath !== '/migrateV2' && _hasPassword && password && _needMigrate) {
+  } else if (to.fullPath !== '/migrateV2' && _hasPassword && !_isLocked && password && _needMigrate) {
     next('/migrateV2')
   } else if (!authPages.includes(to.path)) {
-    if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
+    if (!_hasWallets) {
+      next()
+      goToTab('/welcome', true)
+    } else if (!(await getCurrentAccountId()) || !(await getCurrentWalletId())) {
       next('/manage/wallets')
     } else {
       if (['token', 'brc20'].includes(to.name as string)) {
