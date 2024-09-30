@@ -30,7 +30,7 @@ export const getMetaContractAssets = async (
   genesis?: string
 ): Promise<MetaContractAsset[]> => {
   const net = getNet()
-  return await metaletApiV4<PageResult<TokenInfo>>(`/address/contract/ft/balance`)
+  return await metaletApiV4<PageResult<TokenInfo>>(`/address/contract/ft/balance-list`)
     .get({ net, address, codehash, genesis })
     .then(({ list }) =>
       list.map((item) => ({

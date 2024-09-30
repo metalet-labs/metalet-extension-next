@@ -22,6 +22,8 @@ const noFooter = computed(() => {
   return route.meta.noFooter
 })
 
+const showSecondaryHeader = computed(() => route.meta?.secondaryHeader ?? false)
+
 const secondaryHeaderTitle = computed(() => {
   const headerTitleKey = route.meta?.headerTitleKey as string | undefined
   return headerTitleKey ? t(headerTitleKey) : route.meta.headerTitle
@@ -47,7 +49,7 @@ const backRouter = computed(() => {
       class="ext-app flex h-full w-full flex-col xs:relative xs:aspect-[1/2] xs:h-3/4 xs:w-auto xs:min-w-[25rem] xs:rounded-lg xs:border xs:border-gray-100 xs:bg-white xs:shadow-lg overflow-hidden"
     >
       <!-- Header -->
-      <SecondaryHeader v-if="secondaryHeaderTitle" :backRouter="backRouter">
+      <SecondaryHeader v-if="showSecondaryHeader || secondaryHeaderTitle" :backRouter="backRouter">
         <template #title>
           {{ secondaryHeaderTitle }}
         </template>

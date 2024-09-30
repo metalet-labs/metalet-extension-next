@@ -8,6 +8,7 @@ export interface MetaIDPin {
   id: string
   pop: string
   popLv: number
+  chainName: string
   number: number
   rootTxId: string
   address: string

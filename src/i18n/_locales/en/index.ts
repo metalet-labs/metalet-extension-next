@@ -130,6 +130,7 @@ export default {
     NFTs: 'NFTs',
     MRC20: 'MRC20',
     MetaIDPIN: 'MetaID PIN',
+    MRC721: 'MRC721',
     NEW: 'NEW',
   },
   SettingPage: {

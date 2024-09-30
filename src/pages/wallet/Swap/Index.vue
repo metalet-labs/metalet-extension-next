@@ -1,18 +1,33 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
+import { network } from '@/lib/network'
 import RunesSwap from './Runes/RuneSwap.vue'
 import BRC20Swap from './BRC20/BRC20Swap.vue'
 import { Protocol } from '@/lib/types/protocol'
+import { useRouteParams } from '@vueuse/router'
 import SwapIcon from '@/assets/icons-v3/swap.svg'
-import { Chain } from '@metalet/utxo-wallet-service'
-import { useSwapPool } from '@/hooks/swap/useSwapPool'
+import useRunesPool from '@/hooks/swap/useRunesPool'
+import useBRC20Pool from '@/hooks/swap/useBRC20Pool'
 import { swapTabStore } from '@/stores/SwapTabTypeStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { network } from '@/lib/network'
 
-const { chain, protocol, pairStr } = useSwapPool()
+const chain = useRouteParams<string>('chain')
+const pairStr = useRouteParams<string>('pair')
+const { pairStr: runesPairStr } = useRunesPool()
+const { pairStr: brc20PairStr } = useBRC20Pool()
+const protocol = useRouteParams<string>('protocol')
 
 const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chain.value))
+
+onMounted(() => {
+  if (!chain.value) {
+    chain.value = 'btc'
+  }
+  if (!protocol.value) {
+    protocol.value = swapTabStore.selectedTab.name.toLocaleLowerCase()
+    pairStr.value = swapTabStore.selectedTab.name === Protocol.Runes ? runesPairStr.value : brc20PairStr.value
+  }
+})
 </script>
 
 <template>
@@ -33,7 +48,10 @@ const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chai
       </a>
       <RouterLink to="/" class="underline hidden">Pools</RouterLink>
     </div>
-    <Tabs :modelValue="protocol" class="flex flex-col items-start mt-3 rounded-lg">
+    <Tabs
+      :modelValue="swapTabStore.selectedTab.name.toLocaleLowerCase()"
+      class="flex flex-col items-start mt-3 rounded-lg"
+    >
       <TabsList class="p-1 shrink-0 h-12 w-full bg-[#F5F7F9]" v-if="tabs.length > 1">
         <TabsTrigger
           :key="tab.id"
@@ -41,9 +59,9 @@ const tabs = computed(() => swapTabStore.tabs.filter((tab) => tab.chain === chai
           v-for="tab in tabs"
           @click="
             () => {
-              pairStr = ''
               swapTabStore.selectedTab = tab
               protocol = tab.name.toLocaleLowerCase()
+              pairStr = tab.name === Protocol.Runes ? runesPairStr : brc20PairStr
             }
           "
           :class="[

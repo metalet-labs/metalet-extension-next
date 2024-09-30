@@ -8,6 +8,7 @@ import { getServiceNetwork } from '@/lib/network'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { walletTabStore } from '@/stores/walletTabTypeStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import MRC721List from './MetaID/MRC721List.vue'
 
 const service = ref(Object.values(Chain))
 
@@ -25,11 +26,11 @@ getServiceNetwork().then((_service) => {
       <TabsTrigger
         :key="tab.id"
         :value="tab.name"
-        v-for="tab in walletTabStore.tabs"
+        v-for="tab in walletTabStore.tabs.filter((tab) => !tab.disabled)"
         @click="walletTabStore.selectedTab = tab"
       >
         <template v-if="!tab.chain || service.includes(tab.chain)">
-          <span>{{ tab.name }}</span>
+          <span>{{ tab.nameKey ? $t(tab.nameKey) : tab.name }}</span>
           <span
             v-if="tab.isNew"
             class="bg-[#FFEBE7] text-red-primary px-1 py-0.5 rounded-t rounded-e text-xs font-semibold scale-[0.7] ml-[70px] -mt-5 absolute"
@@ -48,8 +49,8 @@ getServiceNetwork().then((_service) => {
     <TabsContent value="MRC20" key="MRC20" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <MRC20List />
     </TabsContent>
-    <TabsContent value="MetaID PIN" key="MetaID PIN" class="overflow-y-auto w-full nicer-scrollbar px-4">
-      <MetaIDList />
+    <TabsContent value="MRC721" key="MRC721" class="overflow-y-auto w-full nicer-scrollbar px-4">
+      <MRC721List />
     </TabsContent>
     <TabsContent value="Activity" class="overflow-y-auto w-full nicer-scrollbar px-4"></TabsContent>
   </Tabs>

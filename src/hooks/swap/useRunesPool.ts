@@ -1,26 +1,26 @@
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouteParams } from '@vueuse/router'
+import { createGlobalState } from '@vueuse/core'
 import { runeTokens } from '@/data/pinned-tokens'
 
-export default function useRunesPool() {
-  const pairStr = useRouteParams<string>('pair')
+const useRunesPool = createGlobalState(() => {
+  const pairStr = ref(`BTC-${runeTokens[0].runeid}`)
+  const pairStrParam = useRouteParams<string>('pair')
 
-  const token1 = computed(() => {
-    if (!pairStr.value) {
-      pairStr.value = `BTC-${runeTokens[0].runeid}`
-    }
-    return pairStr.value.split('-')[0]
-  })
-  const token2 = computed(() => {
-    if (!pairStr.value) {
-      pairStr.value = `BTC-${runeTokens[0].runeid}`
-    }
-    return pairStr.value.split('-')[1]
-  })
+  const token1 = computed(() => pairStr.value.split('-')[0])
+  const token2 = computed(() => pairStr.value.split('-')[1])
+
+  const setPairStr = (_pairStr: string) => {
+    pairStr.value = _pairStr
+    pairStrParam.value = _pairStr
+  }
 
   return {
-    pairStr,
     token1,
     token2,
+    pairStr,
+    setPairStr,
   }
-}
+})
+
+export default useRunesPool

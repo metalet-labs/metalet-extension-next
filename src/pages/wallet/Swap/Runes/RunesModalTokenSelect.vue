@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { Asset } from '@/data/assets'
 import { refDebounced } from '@vueuse/core'
 import { truncateStr } from '@/lib/formatters'
-import { useRoute, useRouter } from 'vue-router'
 import { runeTokens } from '@/data/pinned-tokens'
 import RunesTokenIcon from './RunesTokenIcon.vue'
 import AssetLogo from '@/components/AssetLogo.vue'
@@ -17,10 +16,8 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { useRuneDetailQuery, getRunesTokensQuery } from '@/queries/runes'
 import { ChevronDownIcon, FrownIcon, Loader as LoaderCircleIcon, SearchIcon, XIcon } from 'lucide-vue-next'
 
-const route = useRoute()
 const isOpen = ref(false)
-const router = useRouter()
-const { pairStr, token2: runeId } = useRunesPool()
+const { pairStr, token2: runeId, setPairStr } = useRunesPool()
 
 const { getAddress } = useChainWalletsStore()
 const address = getAddress(Chain.BTC)
@@ -39,11 +36,7 @@ const emit = defineEmits(['selectToken'])
 
 function selectToken(token: string) {
   isOpen.value = false
-  if (['swap-pools-add', 'swap-pools-remove'].includes(route.name as string)) {
-    router.push(`/runes-pools/btc-${token}`)
-  } else {
-    router.replace(`/wallet/swap/btc/rune/btc-${token}`)
-  }
+  setPairStr(`btc-${token}`)
 }
 
 const keyword = ref('')

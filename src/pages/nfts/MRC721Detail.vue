@@ -11,6 +11,7 @@ import { useMetaPinQuery } from '@/queries/metaPin'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
 import MvcIcon from '@/assets/icons-v3/network_mvc.svg'
 import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
+import { network } from '@/lib/network'
 
 const router = useRouter()
 const { params } = useRoute()
@@ -45,23 +46,18 @@ const getHostAndToTx = async (txId: string) => {
   <LoadingText text="MetaID PIN Detail Loading..." v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
-      <div
-        :class="[
-          {
-            'p-2 bg-blue-primary': !(
-              metaPin.contentType.includes('image') || metaPin.contentTypeDetect.includes('image')
-            ),
-          },
-          'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white',
-        ]"
-      >
+      <div :class="['w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white']">
         <img
           alt=""
-          :src="metaPin.content"
-          v-if="metaPin.contentType.includes('image') || metaPin.contentTypeDetect.includes('image')"
+          :src="
+            JSON.parse(metaPin.contentSummary).attachment[0].content.replace(
+              'metafile://',
+              `https://man${network === 'testnet' ? '-test' : ''}.metaid.io/content/`
+            )
+          "
           class="w-full h-full border-2 border-gray-soft rounded-xl object-contain"
         />
-        <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
+
         <span
           :title="`${metaPin.outputValue} sat`"
           :class="[
@@ -128,8 +124,8 @@ const getHostAndToTx = async (txId: string) => {
       <div class="row">
         <div class="label">Network</div>
         <div class="flex items-center gap-1">
-          <BtcIcon class="w-4.5" v-if="metaPin.chainName==='btc'"/>
-          <MvcIcon class="w-4.5" v-if="metaPin.chainName==='mvc'"/>
+          <BtcIcon class="w-4.5" v-if="metaPin.chainName === 'btc'" />
+          <MvcIcon class="w-4.5" v-if="metaPin.chainName === 'mvc'" />
           <span class="text-sm">{{ metaPin.chainName }}</span>
         </div>
       </div>

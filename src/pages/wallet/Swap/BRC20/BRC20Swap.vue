@@ -1,16 +1,20 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { useI18n } from 'vue-i18n'
 import Building from './Building.vue'
 import { ERRORS } from '@/data/errors'
 import { BTCAsset } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import RunesMainBtn from './RunesMainBtn.vue'
-import { getRuneUtxos, UTXO } from '@/queries/utxos'
+import { getRuneUtxos } from '@/queries/utxos'
+import { swapTokens } from '@/data/pinned-tokens'
+import useBRC20Pool from '@/hooks/swap/useBRC20Pool'
+import { useBRC20AssetQuery } from '@/queries/brc20'
 import EmptyPoolMessage from './EmptyPoolMessage.vue'
-import { useSwapPool } from '@/hooks/swap/useSwapPool'
 import { useBTCBalanceQuery } from '@/queries/balance'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { computed, ref, toRaw, watchEffect } from 'vue'
+import Brc20ModalTokenSelect from './Brc20ModalTokenSelect.vue'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import RunesSwapSideWithInput from './BRC20SwapSideWithInput.vue'
 import RunesSwapFrictionStats from './RunesSwapFrictionStats.vue'
@@ -26,14 +30,10 @@ import {
   SwapType,
   previewSwap,
   signSwapPsbt,
+  RuneUtxoRefined,
   usePostSwapMutation,
   useBuildSwapMutation,
-  RuneUtxoRefined,
 } from '@/queries/brc20/swap'
-import { parsePsbt } from '@/lib/psbt'
-import { swapTokens } from '@/data/pinned-tokens'
-import Brc20ModalTokenSelect from './Brc20ModalTokenSelect.vue'
-import { useBRC20AssetQuery } from '@/queries/brc20'
 
 const hasEnough = ref(true)
 const hasAmount = ref(false)
@@ -59,11 +59,12 @@ const hasImpactWarning = computed(() => {
   return priceImpact.value.gte(15)
 })
 
+const { t } = useI18n()
 const { getAddress, currentBTCWallet } = useChainWalletsStore()
 
 const address = getAddress(Chain.BTC)
 
-const { token1, token2 } = useSwapPool()
+const { token1, token2 } = useBRC20Pool()
 
 const balanceEnabled = computed(() => {
   return !!address.value && !!symbol.value
@@ -105,31 +106,31 @@ const conditions = ref<
 >([
   {
     condition: 'insufficient-liquidity',
-    message: 'Insufficient liquidity',
+    message: t('SwapPage.conditions.InsufficientLiquidity'),
     priority: 0,
     met: false,
   },
   {
     condition: 'enter-amount',
-    message: 'Enter an amount',
+    message: t('SwapPage.conditions.EnterAmount'),
     priority: 1,
     met: false,
   },
   {
     condition: 'insufficient-balance',
-    message: 'Insufficient balance',
+    message: t('SwapPage.conditions.InsufficientBalance'),
     priority: 2,
     met: false,
   },
   {
     condition: 'less-than-threshold',
-    message: 'Amount too small',
+    message: t('SwapPage.conditions.LessThanThreshold'),
     priority: 3,
     met: false,
   },
   {
     condition: 'return-is-positive',
-    message: 'Negative return',
+    message: t('SwapPage.conditions.ReturnIsPositive'),
     priority: 4,
     met: false,
   },

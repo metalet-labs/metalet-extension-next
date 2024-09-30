@@ -19,7 +19,9 @@ const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useM
   enabled: computed(() => !!address.value),
 })
 
-const metaPins = computed(() => (data.value ? data.value.pages.flatMap((page) => page.metaPins) : []))
+const metaPins = computed(() =>
+  data.value ? data.value.pages.flatMap((page) => page.metaPins.filter((pin) => !pin.path.startsWith('/nft/mrc721'))) : []
+)
 
 const toMetaPinDetail = (metaPinId: string) => {
   router.push({

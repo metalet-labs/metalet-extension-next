@@ -4,6 +4,7 @@ import NO_NFT_DATA from './NoNFTData.vue'
 import InscriptionList from './InscriptionList.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
 import MetaContractList from './MetaContractList.vue'
+import MetaIDPinList from '../MetaID/MetaIDPinList.vue'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { Service, getServiceNetwork } from '@/lib/network'
 import { type NFTType, getNftType, setNftType, nfts } from '@/lib/nft'
@@ -51,11 +52,15 @@ const nftTypeOnchange = (_nftType: NFTType) => {
           <DropdownMenuItem @select="nftTypeOnchange('MetaContract')" v-if="service.includes(Chain.MVC)">
             MetaContract
           </DropdownMenuItem>
+          <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')">
+            MetaID PIN
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
     <InscriptionList v-if="nftType === 'Ordinals'" />
     <MetaContractList v-else-if="nftType === 'MetaContract'" />
+    <MetaIDPinList v-else-if="nftType === 'MetaID PIN'" />
     <NO_NFT_DATA v-else />
   </div>
 </template>

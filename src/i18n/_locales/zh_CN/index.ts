@@ -126,9 +126,6 @@ export default {
   },
   HomePage: {
     Crypto: '币种',
-    NFTs: 'NFTs',
-    MRC20: 'MRC20',
-    MetaIDPIN: 'MetaID PIN',
     NEW: '新',
   },
   SettingPage: {

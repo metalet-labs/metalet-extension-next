@@ -358,6 +358,16 @@ const routes = [
         path: '/nft/metaPin/detail/:address/:metaPinId',
         component: () => import('./pages/nfts/MetaPinDetail.vue'),
         meta: {
+          secondaryHeader: true,
+          noFooter: true,
+        },
+      },
+      {
+        name: 'mrc721Detail',
+        path: '/nft/mrc721/detail/:address/:metaPinId',
+        component: () => import('./pages/nfts/MRC721Detail.vue'),
+        meta: {
+          secondaryHeader: true,
           noFooter: true,
         },
       },
@@ -398,7 +408,6 @@ const routes = [
         meta: {
           secondaryHeader: true,
           noFooter: true,
-          headerTitle: 'MetaContract',
         },
       },
 

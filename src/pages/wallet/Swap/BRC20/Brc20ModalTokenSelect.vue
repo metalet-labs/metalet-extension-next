@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import TokenIcon from './TokenIcon.vue'
 import { AssetLogo } from '@/components'
 import { refDebounced } from '@vueuse/core'
+import SwapTokenButton from './SwapTokenButton.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import useBRC20Pool from '@/hooks/swap/useBRC20Pool'
 import { Dialog, DialogPanel } from '@headlessui/vue'
@@ -12,7 +13,7 @@ import { CoinCategory } from '@/queries/exchange-rates'
 import { useBRC20TokensQuery } from '@/queries/brc20/index'
 import { ChevronDownIcon, FrownIcon, Loader as LoaderCircleIcon, SearchIcon, XIcon } from 'lucide-vue-next'
 
-const { pairStr, token1, token2 } = useBRC20Pool()
+const { pairStr, token1, token2, setPairStr } = useBRC20Pool()
 
 const router = useRouter()
 const isOpen = ref(false)
@@ -26,21 +27,22 @@ const emit = defineEmits(['selectToken'])
 
 async function selectToken(token: string) {
   isOpen.value = false
+  setPairStr(`btc-${token}`)
 
-  switch (props.useCase) {
-    case 'swap':
-      router.push(`/swap/brc20/btc-${token}`)
-      break
-    case 'swap-pools':
-      router.push(`/swap-pools/brc20/btc-${token}`)
-      break
-    case 'orderbook':
-      router.push(`/orderbook/brc20/btc-${token}`)
-      break
-    default:
-      router.replace(`/wallet/swap/btc/brc20/btc-${token}`)
-      break
-  }
+  // switch (props.useCase) {
+  //   case 'swap':
+  //     router.push(`/swap/brc20/btc-${token}`)
+  //     break
+  //   case 'swap-pools':
+  //     router.push(`/swap-pools/brc20/btc-${token}`)
+  //     break
+  //   case 'orderbook':
+  //     router.push(`/orderbook/brc20/btc-${token}`)
+  //     break
+  //   default:
+  //     router.replace(`/wallet/swap/btc/brc20/btc-${token}`)
+  //     break
+  // }
 }
 
 const { getIcon } = useIconsStore()

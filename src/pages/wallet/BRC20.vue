@@ -101,7 +101,7 @@ watch(assetUSD, (_assetUSD) => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center gap-y-6 w-full h-full">
+  <div class="flex flex-col items-center gap-y-6 w-full">
     <div class="flex flex-col items-center">
       <AssetLogo :logo="icon" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" />
 
@@ -171,6 +171,7 @@ watch(assetUSD, (_assetUSD) => {
       </div>
 
       <Activities
+      class="max-h-[400px]"
         v-if="asset"
         :asset="asset"
         :address="address"

@@ -1,36 +1,28 @@
+import { computed, ref } from 'vue'
 import { network } from '@/lib/network'
-import { type Ref, computed } from 'vue'
 import { useRouteParams } from '@vueuse/router'
+import { createGlobalState } from '@vueuse/core'
 
-export default function useBRC20Pool() {
-  let pairStr = useRouteParams('pair') as Ref<string>
+const useBRC20Pool = createGlobalState(() => {
+  {
+    const pairStrParam = useRouteParams<string>('pair')
+    const pairStr = ref<string>(network.value === 'testnet' ? 'btc-xedr' : 'btc-orxc')
 
-  const token1 = computed(() => {
-    if (!pairStr.value) {
-      if (network.value === 'testnet') {
-        pairStr.value = 'btc-xedr'
-      } else {
-        // pairStr.value = 'btc-rdex'
-        pairStr.value = 'btc-orxc'
-      }
+    const token1 = computed(() => pairStr.value.split('-')[0])
+    const token2 = computed(() => pairStr.value.split('-')[1])
+
+    const setPairStr = (_pairStr: string) => {
+      pairStr.value = _pairStr
+      pairStrParam.value = _pairStr
     }
-    return pairStr.value.split('-')[0]
-  })
-  const token2 = computed(() => {
-    if (!pairStr.value) {
-      if (network.value === 'testnet') {
-        pairStr.value = 'btc-xedr'
-      } else {
-        // pairStr.value = 'btc-rdex'
-        pairStr.value = 'btc-orxc'
-      }
-    }
-    return pairStr.value.split('-')[1]
-  })
 
-  return {
-    pairStr,
-    token1,
-    token2,
+    return {
+      token1,
+      token2,
+      pairStr,
+      setPairStr,
+    }
   }
-}
+})
+
+export default useBRC20Pool

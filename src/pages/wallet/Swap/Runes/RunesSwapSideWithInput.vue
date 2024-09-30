@@ -197,17 +197,21 @@ const clear = () => {
 
 <template>
   <div class="rounded-2xl border border-gray-secondary px-4 py-5 bg-gray-secondary hover:border-gray-soft">
-    <div class="text-black-primary">{{ $t('Common.You') }} {{ side }}</div>
+    <div class="text-black-primary">{{ side }}</div>
 
     <div class="flex h-16 items-center justify-between space-x-2">
       <input
         min="0"
+        type="number"
+        placeholder="0"
         :id="`${side}Amount`"
+        :value="normalizedAmount"
+        @input="(event: any) => updateAmount(event.target.value)"
         :disabled="disabled || side === 'receive'"
         :class="[
-          'quiet-input w-12 flex-1 bg-transparent p-0 leading-loose outline-none',
+          'quiet-input w-12 flex-1 p-0 leading-loose outline-none bg-transparent',
           amountTextSize,
-          disabled || (side === 'receive' && 'cursor-not-allowed'),
+          disabled || side === 'receive' ? 'cursor-not-allowed' : '',
           hasEnough
             ? calculating
               ? 'text-gray-primary'
@@ -216,10 +220,6 @@ const clear = () => {
               ? 'text-red-900/50 caret-red-900/50'
               : 'text-red-primary caret-red-500',
         ]"
-        placeholder="0"
-        type="number"
-        :value="normalizedAmount"
-        @input="(event: any) => updateAmount(event.target.value)"
       />
 
       <button v-if="side === 'pay' && amount && amount !== '0'" @click="clear">

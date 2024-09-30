@@ -1,24 +1,24 @@
 <script lang="ts" setup>
-import i18n from '@/i18n'
 import Decimal from 'decimal.js'
+import { useI18n } from 'vue-i18n'
 import Building from './Building.vue'
 import { ERRORS } from '@/data/errors'
 import { BTCAsset } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import RunesMainBtn from './RunesMainBtn.vue'
+import { getRuneUtxos } from '@/queries/utxos'
+import useRunesPool from '@/hooks/swap/useRunesPool'
 import { useRuneDetailQuery } from '@/queries/runes'
-import { getRuneUtxos, UTXO } from '@/queries/utxos'
 import EmptyPoolMessage from './EmptyPoolMessage.vue'
-import { useSwapPool } from '@/hooks/swap/useSwapPool'
 import { useBTCBalanceQuery } from '@/queries/balance'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { computed, ref, toRaw, watchEffect } from 'vue'
-import { useOngoingTask } from '@/hooks/swap/use-runes-ongoing-task'
 import RunesModalTokenSelect from './RunesModalTokenSelect.vue'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import RunesSwapSideWithInput from './RunesSwapSideWithInput.vue'
 import RunesSwapFrictionStats from './RunesSwapFrictionStats.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { useOngoingTask } from '@/hooks/swap/use-runes-ongoing-task'
 import RunesSwapPriceDisclosure from './RunesSwapPriceDisclosure.vue'
 import BridgeHistory from '../../Bridge/components/BridgeHistory.vue'
 import { usePoolStatusQuery } from '@/queries/runes/pool-status.query'
@@ -29,11 +29,10 @@ import {
   SwapType,
   previewSwap,
   signSwapPsbt,
+  RuneUtxoRefined,
   usePostSwapMutation,
   useBuildSwapMutation,
-  RuneUtxoRefined,
 } from '@/queries/runes/swap'
-import { parsePsbt } from '@/lib/psbt'
 
 const hasEnough = ref(true)
 const hasAmount = ref(false)
@@ -52,18 +51,15 @@ const ratio = ref<Decimal>(new Decimal(0))
 const poolRatio = ref<Decimal>(new Decimal(0))
 const serviceFee = ref<Decimal>(new Decimal(0))
 const priceImpact = ref<Decimal>(new Decimal(0))
+const hasImpactWarning = computed(() => priceImpact.value.gte(15))
 const flipped = computed(() => ['2x', 'x1'].includes(swapType.value))
 const calculating = computed(() => calculatingPay.value || calculatingReceive.value)
-const hasImpactWarning = computed(() => {
-  // greater than 15%
-  return priceImpact.value.gte(15)
-})
 
+const { t } = useI18n()
+const { token1, token2: runeId } = useRunesPool()
 const { getAddress, currentBTCWallet } = useChainWalletsStore()
 
 const address = getAddress(Chain.BTC)
-
-const { token1, token2: runeId } = useSwapPool()
 
 const balanceEnabled = computed(() => {
   return !!address.value && !!symbol.value
@@ -105,31 +101,31 @@ const conditions = ref<
 >([
   {
     condition: 'insufficient-liquidity',
-    message: i18n.global.t('SwapPage.conditions.InsufficientLiquidity'),
+    message: t('SwapPage.conditions.InsufficientLiquidity'),
     priority: 0,
     met: false,
   },
   {
     condition: 'enter-amount',
-    message: i18n.global.t('SwapPage.conditions.EnterAmount'),
+    message: t('SwapPage.conditions.EnterAmount'),
     priority: 1,
     met: false,
   },
   {
     condition: 'insufficient-balance',
-    message: i18n.global.t('SwapPage.conditions.InsufficientBalance'),
+    message: t('SwapPage.conditions.InsufficientBalance'),
     priority: 2,
     met: false,
   },
   {
     condition: 'less-than-threshold',
-    message: i18n.global.t('SwapPage.conditions.LessThanThreshold'),
+    message: t('SwapPage.conditions.LessThanThreshold'),
     priority: 3,
     met: false,
   },
   {
     condition: 'return-is-positive',
-    message: i18n.global.t('SwapPage.conditions.ReturnIsPositive'),
+    message: t('SwapPage.conditions.ReturnIsPositive'),
     priority: 4,
     met: false,
   },
@@ -303,15 +299,11 @@ async function doSwap() {
     btcWallet: currentBTCWallet.value!,
   })
 
-  console.log('psbtHex', psbtHex)
-
   await mutatePostSwap({
     buildId,
     rawPsbt: psbtHex,
     address: address.value,
   })
-
-  // console.log('buildId', buildId)
 
   closeBuilding()
   pushOngoing(buildId)
