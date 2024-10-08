@@ -20,13 +20,13 @@ watch(
     <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" />
 
     <div class="flex items-center justify-between text-xs lg:text-sm">
-      <span class="font-medium">Minimum Bridging Quantity</span>
+      <span class="font-medium">{{ $t('BridgePage.MinimumBridgingQuantity') }}</span>
       <div class="flex items-center gap-3">
         <div class="text-gray-primary">{{ limitMinimum }}</div>
       </div>
     </div>
     <div class="flex items-center justify-between text-xs lg:text-sm">
-      <span class="font-medium">Maximum Bridging Quantity</span>
+      <span class="font-medium">{{ $t('BridgePage.MaximumBridgingQuantity') }}</span>
       <div class="flex items-center gap-3">
         <div class="text-gray-primary">{{ limitMaximum }}</div>
       </div>

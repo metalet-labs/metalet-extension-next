@@ -7,7 +7,7 @@ import { CoinCategory } from './exchange-rates'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Activities_QUERY_INTERVAL } from './constants'
 import { metaletApiV3, metaletApiV4 } from './request'
-import type { FTAsset, Asset, MRC20Asset } from '@/data/assets'
+import type { MetaContractAsset, Asset, MRC20Asset } from '@/data/assets'
 
 export type Operation = {
   flag: string
@@ -162,7 +162,7 @@ export const fetchSpaceActivities = async (address: string): Promise<Activities>
   return list
 }
 
-export const fetchTokenActivities = async (address: string, asset: FTAsset): Promise<TokenActivities> => {
+export const fetchTokenActivities = async (address: string, asset: MetaContractAsset): Promise<TokenActivities> => {
   const net = getNet()
   const { list } = await metaletApiV4<PageResult<TokenActivity>>(`/mvc/address/contract/ft/tx-list`).get({
     net,
@@ -177,7 +177,7 @@ export const fetchTokenActivities = async (address: string, asset: FTAsset): Pro
 
 export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean> }) => {
   return useQuery({
-    queryKey: ['activities', { address, symbol: asset.symbol, genesis: (asset as FTAsset).genesis }],
+    queryKey: ['activities', { address, symbol: asset.symbol, genesis: (asset as MetaContractAsset).genesis }],
     queryFn: async () => {
       if (asset.symbol === 'BTC') {
         return fetchBtcActivities(address.value)
@@ -186,7 +186,7 @@ export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?:
       } else if (asset.contract === CoinCategory.BRC20) {
         return fetchBRC20Activities(address.value, asset.symbol)
       } else if (asset.contract === CoinCategory.MetaContract) {
-        return fetchTokenActivities(address.value, asset as FTAsset)
+        return fetchTokenActivities(address.value, asset as MetaContractAsset)
       } else if (asset.contract === CoinCategory.MRC20) {
         return fetchMRC20Activities(address.value, (asset as MRC20Asset).mrc20Id)
       } else {

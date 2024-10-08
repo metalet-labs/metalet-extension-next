@@ -36,7 +36,11 @@ export default {
     Receiver: '接收者',
     Amount: '金额',
     Pending: '待处理',
+    Transferable: '可转账',
+    NoTransactionsFound: '暂无交易记录',
     Available: '可用',
+    Confirmed: '已确认',
+    Unconfirmed: '未确认',
     FeeRate: '费率',
     Send: '发送',
     Bridge: '跨链桥',
@@ -124,6 +128,10 @@ export default {
     NoLiquidityTips: '该池尚未添加流动性。',
     AddLiquidityTips: '添加流动性以创建新池。',
   },
+  BridgePage: {
+    MinimumBridgingQuantity: '最小跨链数量',
+    MaximumBridgingQuantity: '最大跨链数量',
+  },
   HomePage: {
     Crypto: '币种',
     NEW: '新',
@@ -153,9 +161,9 @@ export default {
   },
   InscribeTransferPage: {
     InscribeTransferTips: '您必须先刻录一个转账铭文。',
-    TransferInscriptions:'可转账铭文',
+    TransferInscriptions: '可转账铭文',
   },
   Transaction: {
     Completed: '交易完成',
-  }
+  },
 }

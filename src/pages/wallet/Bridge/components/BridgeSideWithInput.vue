@@ -4,7 +4,7 @@ import { calcBalance } from '@/lib/formatters'
 import { computed, ref, watchEffect } from 'vue'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
-import { FTAsset, type Asset } from '@/data/assets'
+import { MetaContractAsset, type Asset } from '@/data/assets'
 import { Loader2Icon, EraserIcon, AlertCircleIcon } from 'lucide-vue-next'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 
@@ -31,7 +31,7 @@ const icon = computed(() => {
       asset.value.icon ||
       getIcon(
         coinCategory.value,
-        coinCategory.value === CoinCategory.MetaContract ? (asset.value as FTAsset).genesis : asset.value.symbol
+        coinCategory.value === CoinCategory.MetaContract ? (asset.value as MetaContractAsset).genesis : asset.value.symbol
       ) ||
       ''
     )
@@ -143,7 +143,7 @@ const amountTextSize = computed(() => {
 
 <template>
   <div class="rounded-2xl border border-gray-secondary px-4 py-5 bg-gray-secondary hover:border-gray-soft">
-    <div class="text-black-primary">You {{ side }}</div>
+    <div class="text-black-primary">{{ side }}</div>
 
     <div class="flex h-16 items-center justify-between space-x-2">
       <input

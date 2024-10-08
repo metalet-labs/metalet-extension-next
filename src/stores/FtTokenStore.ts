@@ -1,6 +1,6 @@
 import { onMounted, ref } from 'vue'
 import { createGlobalState } from '@vueuse/core'
-import { getFtOfficialToken } from '@/queries/tokens'
+import { getMetaContractOfficialToken } from '@/queries/tokens'
 export const useOfficeGenesisStore = createGlobalState(() => {
   const genesisList = ref<string[]>([])
 
@@ -9,7 +9,7 @@ export const useOfficeGenesisStore = createGlobalState(() => {
   }
 
   onMounted(async () => {
-    genesisList.value = await getFtOfficialToken()
+    genesisList.value = await getMetaContractOfficialToken()
   })
 
   return {

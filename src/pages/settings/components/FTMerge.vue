@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { FEEB } from '@/data/config'
 import { getApiHost } from '@/lib/host'
+import { computed, ref, watch } from 'vue'
 import { getNetwork } from '@/lib/network'
-import type { FTAsset } from '@/data/assets'
 import Avatar from '@/components/Avatar.vue'
 import { UseImage } from '@vueuse/components'
+import { useIconsStore } from '@/stores/IconsStore'
 import { Chain } from '@metalet/utxo-wallet-service'
-import { useMVCAssetsQuery } from '@/queries/tokens'
-import { computed, ref, watch } from 'vue'
+import type { MetaContractAsset } from '@/data/assets'
 import LoadingIcon from '@/components/LoadingIcon.vue'
+import { CoinCategory } from '@/queries/exchange-rates'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { API_NET, API_TARGET, FtManager } from 'meta-contract'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
-import { useIconsStore } from '@/stores/IconsStore'
-import { CoinCategory } from '@/queries/exchange-rates'
 
 const operation = ref('')
 const loading = ref(false)
@@ -23,7 +23,7 @@ const currentGenesis = ref('')
 const currentCodehash = ref('')
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult>()
-const ftAsssets = ref<(FTAsset & { utxoCount: number })[]>([])
+const ftAsssets = ref<(MetaContractAsset & { utxoCount: number })[]>([])
 
 const splitCount = 10
 const testSplit = false
@@ -142,9 +142,9 @@ const merge = async (genesis: string, codehash: string) => {
   }
 }
 
-const { isLoading, data: mvcAssets } = useMVCAssetsQuery(address, {
+const { isLoading, data: mvcAssets } = useMetaContractAssetsQuery(address, {
   enabled: computed(() => !!address.value),
-  autoRefresh: true,
+  autoRefresh: computed(() => !!address.value),
 })
 
 // TODO: Change computed
@@ -153,7 +153,7 @@ watch(
   async ([assets, _currentMVCWallet, _isRefresh, _address]) => {
     if (assets && _isRefresh && _address && _currentMVCWallet) {
       assetLoading.value = true
-      const _assets: (FTAsset & { utxoCount: number })[] = []
+      const _assets: (MetaContractAsset & { utxoCount: number })[] = []
       for (let asset of assets || []) {
         const { codeHash, genesis } = asset
         const network: API_NET = (await getNetwork()) as API_NET

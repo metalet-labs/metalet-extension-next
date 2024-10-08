@@ -195,7 +195,7 @@ const clear = () => {
 
 <template>
   <div class="rounded-2xl border border-gray-secondary px-4 py-5 bg-gray-secondary hover:border-gray-soft">
-    <div class="text-black-primary">You {{ side }}</div>
+    <div class="text-black-primary">{{ side }}</div>
     <div class="flex h-16 items-center justify-between space-x-2">
       <input
         min="0"

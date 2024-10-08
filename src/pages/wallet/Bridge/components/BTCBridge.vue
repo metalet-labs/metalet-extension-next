@@ -1,30 +1,29 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { useRouter } from 'vue-router'
+import { BTCAsset } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { calcBalance } from '@/lib/formatters'
-import { Protocol } from '@/lib/types/protocol'
 import BridgeHistory from './BridgeHistory.vue'
 import { SwapType } from '@/queries/runes/swap'
+import GoToMerge from '@/components/GoToMerge.vue'
 import { useBridgeInfoQuery } from '@/queries/bridge'
 import { useBTCBalanceQuery } from '@/queries/balance'
 import { CoinCategory } from '@/queries/exchange-rates'
 import BridgeSelectPairs from './BridgeSelectPairs.vue'
+import { computed, ref, toRaw, watchEffect } from 'vue'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import BridgeFrictionStats from './BridgeFrictionStats.vue'
 import BridgeSideWithInput from './BridgeSideWithInput.vue'
-import { BTCAsset, MetaContractAsset } from '@/data/assets'
-import { computed, ref, toRaw, watch, watchEffect } from 'vue'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { useMetaContractAssetQuery } from '@/queries/metacontract'
+import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
+import { useBTCUtxosQuery, useMVCUtxosQuery } from '@/queries/utxos'
 import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon } from 'lucide-vue-next'
 import { calcMintBtcInfo, calcRedeemBtcInfo, mintBtc, redeemBtc } from '@/lib/bridge-utils'
-import { useBTCUtxosQuery, useMVCUtxosQuery } from '@/queries/utxos'
-import GoToMerge from '@/components/GoToMerge.vue'
-import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 
 const open = ref(false)
 const router = useRouter()
@@ -60,7 +59,7 @@ const { data: btcUtxos } = useBTCUtxosQuery(btcAddress, {
 })
 
 const { data: mvcUtxos } = useMVCUtxosQuery(mvcAddress, {
-  enabled: computed(() => !!btcAddress.value),
+  enabled: computed(() => !!mvcAddress.value),
 })
 
 const { data: bridgePairInfo } = useBridgeInfoQuery()
@@ -79,39 +78,25 @@ const btcAsset = computed(() => {
   return BTCAsset
 })
 
-const { data: _metaContractAsset } = useMetaContractAssetQuery(mvcAddress, codeHash, genesis, {
+const { data: metaContractAssets } = useMetaContractAssetsQuery(mvcAddress, {
+  genesis,
+  codehash: codeHash,
   enabled: computed(() => !!mvcAddress.value && !!codeHash.value && !!genesis.value),
+  autoRefresh: computed(() => !!mvcAddress.value && !!codeHash.value && !!genesis.value),
 })
 
-const metaContractAsset = computed(
-  () =>
-    _metaContractAsset.value ||
-    ({
-      symbol: selectedPair.value?.targetSymbol,
-      tokenName: selectedPair.value?.targetName,
-      isNative: false,
-      chain: 'mvc',
-      queryable: true,
-      decimal: 0,
-      balance: {
-        confirmed: new Decimal(0),
-        unconfirmed: new Decimal(0),
-        total: new Decimal(0),
-      },
-      contract: CoinCategory.MetaContract,
-      protocol: Protocol.MetaContract,
-      codeHash: codeHash.value,
-      genesis: genesis.value,
-      sensibleId: '',
-    } as MetaContractAsset)
-)
+const metaContractAsset = computed(() => {
+  if (metaContractAssets.value?.length) {
+    return metaContractAssets.value[0]
+  }
+})
 
 const sourceAmount = computed(() => {
   return bridgeType.value.includes('1') ? token1Amount.value : token2Amount.value
 })
 
 const sourceSymbol = computed(() => {
-  return bridgeType.value.includes('1') ? btcAsset.value.symbol : metaContractAsset.value.symbol
+  return bridgeType.value.includes('1') ? btcAsset.value.symbol : (metaContractAsset.value?.symbol ?? '')
 })
 
 const bridge = async () => {
@@ -120,9 +105,10 @@ const bridge = async () => {
     if (
       sourceAmount.value &&
       selectedPair.value &&
+      bridgePairInfo.value &&
       currentBTCWallet.value &&
       currentMVCWallet.value &&
-      bridgePairInfo.value
+      metaContractAsset.value
     ) {
       const { txId, recipient } = bridgeType.value.includes('1')
         ? await mintBtc(
@@ -248,7 +234,10 @@ watchEffect(() => {
       serviceFee.value = info.bridgeFee.toString()
       networkFee.value = info.minerFee.toString()
       if (bridgeType.value.includes('1')) {
-        token2Amount.value = new Decimal(10).pow(metaContractAsset.value.decimal).mul(info.receiveAmount).toFixed()
+        token2Amount.value = new Decimal(10)
+          .pow(metaContractAsset.value?.decimal || 0)
+          .mul(info.receiveAmount)
+          .toFixed()
       } else {
         token1Amount.value = new Decimal(10).pow(btcAsset.value.decimal).mul(info.receiveAmount).toFixed()
       }
@@ -294,7 +283,7 @@ watchEffect(() => {
     <div class="w-full">
       <GoToMerge v-model:open="open" />
       <BridgeSideWithInput
-        side="pay"
+        :side="$t('Common.Pay')"
         v-if="!flipped"
         :asset="btcAsset"
         :calculating="calculatingPay"
@@ -309,7 +298,7 @@ watchEffect(() => {
         @more-than-threshold="(_moreThanThreshold: boolean) => (moreThanThreshold = _moreThanThreshold)"
       />
       <BridgeSideWithInput
-        side="pay"
+        :side="$t('Common.Pay')"
         v-else-if="flipped"
         :asset="metaContractAsset"
         :calculating="calculatingPay"
@@ -342,11 +331,10 @@ watchEffect(() => {
         </div>
       </div>
 
-      <!-- FIXME: wbtc logo do not load -->
       <BridgeSideWithInput
-        side="receive"
         v-if="!flipped"
         :asset="metaContractAsset"
+        :side="$t('Common.Receive')"
         v-model:amount="token2Amount"
         :calculating="calculatingReceive"
         @became-source="bridgeType = 'x2'"
@@ -354,9 +342,9 @@ watchEffect(() => {
       />
 
       <BridgeSideWithInput
-        side="receive"
         v-if="flipped"
         :asset="btcAsset"
+        :side="$t('Common.Receive')"
         v-model:amount="token1Amount"
         :calculating="calculatingReceive"
         @became-source="bridgeType = 'x1'"
@@ -371,7 +359,7 @@ watchEffect(() => {
         :decimal="btcAsset.decimal"
         :token1-symbol="btcAsset.symbol"
         :token2-symbol="metaContractAsset.symbol"
-        v-if="!!Number(sourceAmount) && !hasUnmet"
+        v-if="!!Number(sourceAmount) && !hasUnmet && metaContractAsset"
       />
 
       <BridgeFrictionStats

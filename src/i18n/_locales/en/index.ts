@@ -36,7 +36,11 @@ export default {
     Receiver: 'Receiver',
     Amount: 'Amount',
     Pending: 'Pending',
+    Transferable: 'Transferable',
+    NoTransactionsFound: 'No transactions found',
     Available: 'Available',
+    Confirmed: 'Confirmed',
+    Unconfirmed: 'Unconfirmed',
     FeeRate: 'Fee Rate',
     Send: 'Send',
     Bridge: 'Bridge',
@@ -124,6 +128,10 @@ export default {
     SwappingOnMvc: 'Swapping on MVC',
     NoLiquidityTips: 'No liquidity has been added to this pool yet.',
     AddLiquidityTips: 'Add liquidity to create a new pool.',
+  },
+  BridgePage: {
+    MinimumBridgingQuantity: 'Minimum Bridging Quantity',
+    MaximumBridgingQuantity: 'Maximum Bridging Quantity',
   },
   HomePage: {
     Crypto: 'Crypto',

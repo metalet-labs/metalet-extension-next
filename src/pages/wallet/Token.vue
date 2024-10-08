@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { getTags } from '@/data/assets'
 import { LoadingText } from '@/components'
@@ -7,32 +8,37 @@ import { useRoute, useRouter } from 'vue-router'
 import CopyIcon from '@/assets/icons-v3/copy.svg'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
-import { useMVCTokenQuery } from '@/queries/tokens'
 import Activities from './components/Activities.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
 import { toast } from '@/components/ui/toast/use-toast'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { calcBalance, prettifyTokenGenesis } from '@/lib/formatters'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
-import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-const symbol = route.params.symbol as string
-const address = route.params.address as string
-const genesis = route.params.genesis as string
-const enabled = computed(() => !!address && !!symbol && !!genesis)
+const symbol = ref(route.params.symbol as string)
+const address = ref(route.params.address as string)
+const genesis = ref(route.params.genesis as string)
+const enabled = computed(() => !!address.value && !!symbol.value && !!genesis.value)
 
 const { getIcon } = useIconsStore()
-const icon = computed(() => getIcon(CoinCategory.MetaContract, route.params.genesis as string) || '')
+const icon = computed(() => getIcon(CoinCategory.MetaContract, genesis.value) || '')
 
 const tags = getTags(CoinCategory.MetaContract)
 
-const { data: asset } = useMVCTokenQuery(ref(address), ref(genesis), { enabled })
+const { data: assets } = useMetaContractAssetsQuery(address, { enabled })
+
+const asset = computed(() => {
+  if (assets.value?.length) {
+    return assets.value[0]
+  }
+})
 
 const rateEnabled = computed(() => {
   if (asset.value) {
@@ -65,16 +71,16 @@ const assetUSD = computed(() => {
 const toSend = () => {
   router.push({
     name: 'send-token',
-    params: { symbol, genesis, address },
+    params: { symbol: symbol.value, genesis: genesis.value, address: address.value },
   })
 }
 const toReceive = () => {
-  router.push(`/wallet/receive/${CoinCategory.MetaContract}/${symbol}/${address}?chain=mvc&genesis=${genesis}`)
+  router.push(`/wallet/receive/${CoinCategory.MetaContract}/${symbol.value}/${address.value}?chain=mvc&genesis=${genesis.value}`)
 }
 
 const copyGenesis = () => {
-  navigator.clipboard.writeText(genesis)
-  toast({ title: t('Copied'), toastType: 'success', description: genesis })
+  navigator.clipboard.writeText(genesis.value)
+  toast({ title: t('Copied'), toastType: 'success', description: genesis.value })
 }
 </script>
 

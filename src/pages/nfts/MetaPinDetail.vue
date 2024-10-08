@@ -96,23 +96,23 @@ const getHostAndToTx = async (txId: string) => {
     <div class="space-y-4 border-t border-gray-secondary pt-4">
       <div class="row">
         <div class="label">Creator</div>
-        <div class="flex items-center gap-1">
-          <UseImage :src="metaPin.avatar" class="h-10 w-10 rounded-md">
-            <template #loading>
-              <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
-                {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
-              </div>
-            </template>
-            <template #error>
-              <div class="text-center leading-10 rounded-full text-white text-base bg-btn-blue">
-                {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
-              </div>
-            </template>
-          </UseImage>
-          <div class="flex flex-col gap-1">
+        <div class="flex flex-col items-end gap-1">
+          <div class="flex items-center gap-1">
+            <UseImage :src="metaPin.avatar" class="size-5 rounded-md">
+              <template #loading>
+                <div class="size-5 text-center leading-5 rounded-full text-white text-base bg-btn-blue">
+                  {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+                </div>
+              </template>
+              <template #error>
+                <div class="size-5 text-center leading-5 rounded-full text-white text-base bg-btn-blue">
+                  {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+                </div>
+              </template>
+            </UseImage>
             <span class="text-sm">{{ metaPin.creator ? shortestAddress(metaPin.creator, 6) : 'User' }}</span>
-            <span class="text-xs">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
           </div>
+          <span class="text-sm text-gray-primary">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
         </div>
       </div>
       <div class="row">

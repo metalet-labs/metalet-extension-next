@@ -4,14 +4,14 @@ import AssetItem from './AssetItem.vue'
 import { ref, computed, watch } from 'vue'
 import ManageToken from './ ManageToken.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
-import { useMVCAssetsQuery } from '@/queries/tokens'
 import { useBRC20AssetsQuery } from '@/queries/brc20'
 import { useRunesAssetsQuery } from '@/queries/runes'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { getAssetManageList } from '@/lib/asset-manage'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { type Asset, BTCAsset, MVCAsset, type FTAsset, type RuneAsset } from '@/data/assets'
+import { BTCAsset, MVCAsset, type Asset, type MetaContractAsset, type RuneAsset } from '@/data/assets'
 
 const router = useRouter()
 const { getAddress } = useChainWalletsStore()
@@ -58,9 +58,9 @@ const { data: runeAssets } = useRunesAssetsQuery(btcAddress, {
   enabled: computed(() => !!btcAddress.value),
 })
 
-const { data: mvcAssets } = useMVCAssetsQuery(mvcAddress, {
+const { data: mvcAssets } = useMetaContractAssetsQuery(mvcAddress, {
   enabled: computed(() => !!mvcAddress.value),
-  autoRefresh: true,
+  autoRefresh: computed(() => !!mvcAddress.value),
 })
 
 function toNative(asset: Asset, address: string) {
@@ -77,7 +77,7 @@ function toBRC20(asset: Asset, address: string) {
   })
 }
 
-function toToken(token: FTAsset, address: string) {
+function toToken(token: MetaContractAsset, address: string) {
   router.push({
     name: 'token',
     params: { genesis: token.genesis, symbol: token.symbol, address },
@@ -120,7 +120,9 @@ function toRune(asset: RuneAsset, address: string) {
             :address="btcAddress"
             :coinCategory="CoinCategory.Runes"
             @click="toRune(asset, btcAddress)"
-            v-for="asset in runeAssets?.filter((asset) => !selectList.includes(`${CoinCategory.Runes}-${asset.symbol}`))"
+            v-for="asset in runeAssets?.filter(
+              (asset) => !selectList.includes(`${CoinCategory.Runes}-${asset.symbol}`)
+            )"
           />
         </div>
       </template>
@@ -140,7 +142,9 @@ function toRune(asset: RuneAsset, address: string) {
             :address="mvcAddress"
             @click="toToken(asset, mvcAddress)"
             :coinCategory="CoinCategory.MetaContract"
-            v-for="asset in mvcAssets?.filter((asset) => !selectList.includes(`${CoinCategory.MetaContract}-${asset.symbol}`))"
+            v-for="asset in mvcAssets?.filter(
+              (asset) => !selectList.includes(`${CoinCategory.MetaContract}-${asset.symbol}`)
+            )"
           />
         </div>
       </template>

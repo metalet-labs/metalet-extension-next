@@ -1,28 +1,27 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
-import { MetaContractAsset, MRC20Asset } from '@/data/assets'
+import { useRouter } from 'vue-router'
+import { MRC20Asset } from '@/data/assets'
 import RunesMainBtn from './RunesMainBtn.vue'
-import { useMutation } from '@tanstack/vue-query'
-import { computed, ref, watchEffect } from 'vue'
-import { CoinCategory } from '@/queries/exchange-rates'
-import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
-import BridgeSideWithInput from './BridgeSideWithInput.vue'
-import BridgeFrictionStats from './BridgeFrictionStats.vue'
-import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import BridgeSelectPairs from '../components/BridgeSelectPairs.vue'
-import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
-import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon } from 'lucide-vue-next'
-import { useBridgeInfoQuery } from '@/queries/bridge'
-import { useMetaContractAssetQuery } from '@/queries/metacontract'
-import { calcMintMRC20Info, calcPriceRange, calcRedeemMrc20Info, mintMrc20, redeemMrc20 } from '@/lib/bridge-utils'
+import { toast } from '@/components/ui/toast'
 import { calcBalance } from '@/lib/formatters'
-import { useMRC20DetailQuery } from '@/queries/mrc20'
-import { assetReqReturnType } from '@/queries/types/bridge'
 import { Protocol } from '@/lib/types/protocol'
 import { SwapType } from '@/queries/runes/swap'
-import { useRouter } from 'vue-router'
-import { toast } from '@/components/ui/toast'
 import BridgeHistory from './BridgeHistory.vue'
+import { computed, ref, watchEffect } from 'vue'
+import { Chain } from '@metalet/utxo-wallet-service'
+import { useBridgeInfoQuery } from '@/queries/bridge'
+import { useMRC20DetailQuery } from '@/queries/mrc20'
+import { CoinCategory } from '@/queries/exchange-rates'
+import BridgeSideWithInput from './BridgeSideWithInput.vue'
+import BridgeFrictionStats from './BridgeFrictionStats.vue'
+import { assetReqReturnType } from '@/queries/types/bridge'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
+import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import BridgeSelectPairs from '../components/BridgeSelectPairs.vue'
+import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon } from 'lucide-vue-next'
+import { calcMintMRC20Info, calcPriceRange, calcRedeemMrc20Info, mintMrc20, redeemMrc20 } from '@/lib/bridge-utils'
 
 const router = useRouter()
 const loading = ref(false)
@@ -85,8 +84,17 @@ const bridgePairs = computed(() =>
   bridgePairInfo.value?.assetList.filter((item) => item.network === 'MRC20' && item.price && item.decimals <= 8)
 )
 
-const { data: _metaContractAsset } = useMetaContractAssetQuery(mvcAddress, codeHash, genesis, {
+const { data: metaContractAssets } = useMetaContractAssetsQuery(mvcAddress, {
+  genesis,
+  codehash: codeHash,
   enabled: computed(() => !!mvcAddress.value && !!codeHash.value && !!genesis.value),
+  autoRefresh: computed(() => !!mvcAddress.value && !!codeHash.value && !!genesis.value),
+})
+
+const metaContractAsset = computed(() => {
+  if (metaContractAssets.value?.length) {
+    return metaContractAssets.value[0]
+  }
 })
 
 const amountLimitInfo = computed(() => {
@@ -95,35 +103,12 @@ const amountLimitInfo = computed(() => {
   }
 })
 
-const metaContractAsset = computed(
-  () =>
-    _metaContractAsset.value ||
-    ({
-      symbol: selectedPair.value?.targetSymbol,
-      tokenName: selectedPair.value?.targetName,
-      isNative: false,
-      chain: 'mvc',
-      queryable: true,
-      decimal: 0,
-      balance: {
-        confirmed: new Decimal(0),
-        unconfirmed: new Decimal(0),
-        total: new Decimal(0),
-      },
-      contract: CoinCategory.MetaContract,
-      protocol: Protocol.MetaContract,
-      codeHash: codeHash.value,
-      genesis: genesis.value,
-      sensibleId: '',
-    } as MetaContractAsset)
-)
-
 const sourceAmount = computed(() => {
   return bridgeType.value.includes('1') ? token1Amount.value : token2Amount.value
 })
 
 const sourceSymbol = computed(() => {
-  return bridgeType.value.includes('1') ? mrc20Asset.value.symbol : metaContractAsset.value.symbol
+  return bridgeType.value.includes('1') ? mrc20Asset.value.symbol : (metaContractAsset.value?.symbol ?? '')
 })
 
 const bridge = async () => {
@@ -132,9 +117,10 @@ const bridge = async () => {
     if (
       sourceAmount.value &&
       selectedPair.value &&
+      bridgePairInfo.value &&
       currentBTCWallet.value &&
       currentMVCWallet.value &&
-      bridgePairInfo.value
+      metaContractAsset.value
     ) {
       if (bridgeType.value.includes('1')) {
         const { txId, recipient } = bridgeType.value.includes('1')
@@ -305,9 +291,9 @@ watchEffect(() => {
     </div>
     <div class="w-full">
       <BridgeSideWithInput
-        side="pay"
         v-if="!flipped"
         :asset="mrc20Asset"
+        :side="$t('Common.Pay')"
         :calculating="calculatingPay"
         v-model:amount="token1Amount"
         @became-source="bridgeType = '1x'"
@@ -320,8 +306,8 @@ watchEffect(() => {
         @more-than-threshold="(_moreThanThreshold) => (moreThanThreshold = _moreThanThreshold)"
       />
       <BridgeSideWithInput
-        side="pay"
         v-else-if="flipped"
+        :side="$t('Common.Pay')"
         :asset="metaContractAsset"
         :calculating="calculatingPay"
         v-model:amount="token2Amount"
@@ -354,9 +340,9 @@ watchEffect(() => {
       </div>
 
       <BridgeSideWithInput
-        side="receive"
         v-if="!flipped"
         :asset="metaContractAsset"
+        :side="$t('Common.Receive')"
         v-model:amount="token2Amount"
         :calculating="calculatingReceive"
         @became-source="bridgeType = 'x2'"
@@ -364,9 +350,9 @@ watchEffect(() => {
       />
 
       <BridgeSideWithInput
-        side="receive"
         v-if="flipped"
         :asset="mrc20Asset"
+        :side="$t('Common.Receive')"
         v-model:amount="token1Amount"
         :calculating="calculatingReceive"
         @became-source="bridgeType = 'x1'"
@@ -381,7 +367,7 @@ watchEffect(() => {
         :decimal="selectedPair?.decimals"
         :token1-symbol="mrc20Asset!.symbol"
         :token2-symbol="metaContractAsset.symbol"
-        v-if="!!Number(sourceAmount) && !hasUnmet"
+        v-if="!!Number(sourceAmount) && !hasUnmet && metaContractAsset"
       />
 
       <BridgeFrictionStats

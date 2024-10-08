@@ -4,18 +4,17 @@ import { ref, computed } from 'vue'
 import { getTags } from '@/data/assets'
 import { getNetwork } from '@/lib/network'
 import { useRoute, useRouter } from 'vue-router'
+import { prettifyAddress } from '@/lib/formatters'
 import { API_NET, FtManager } from 'meta-contract'
-import { useMVCTokenQuery } from '@/queries/tokens'
-import { useQueryClient } from '@tanstack/vue-query'
+import { useIconsStore } from '@/stores/IconsStore'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import type { TransactionResult } from '@/global-types'
+import { CoinCategory } from '@/queries/exchange-rates'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { AssetLogo, Divider, FlexBox, Button } from '@/components'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
-import { useIconsStore } from '@/stores/IconsStore'
-import { CoinCategory } from '@/queries/exchange-rates'
-import { prettifyAddress } from '@/lib/formatters'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,8 +30,15 @@ const { currentMVCWallet } = useChainWalletsStore()
 const tags = getTags(CoinCategory.MetaContract)
 
 // 用户拥有的代币资产
-const { isLoading, data: asset } = useMVCTokenQuery(address, genesis, {
+const { data: assets } = useMetaContractAssetsQuery(address, {
+  genesis: genesis,
   enabled: computed(() => !!address.value && !!genesis.value),
+})
+
+const asset = computed(() => {
+  if (assets.value?.length) {
+    return assets.value[0]
+  }
 })
 
 const balance = computed(() => {
@@ -51,9 +57,6 @@ const amountInSats = computed(() => {
 const recipient = ref('')
 
 const isOpenConfirmModal = ref(false)
-const popConfirm = () => {
-  isOpenConfirmModal.value = true
-}
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult>()
 

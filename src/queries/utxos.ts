@@ -37,23 +37,29 @@ export type MvcUtxo = {
 const fetchMVCUtxos = async (address: string, useUnconfirmed = true): Promise<MvcUtxo[]> => {
   const net = getNet()
   let allUtxos: MvcUtxo[] = []
-  let flag
+  let flag: string | undefined
   let hasMore = true
 
   while (hasMore) {
-    const { list = [] } = await metaletApiV4<{ list: MvcUtxo[] }>('/mvc/address/utxo-list').get({
-      address,
-      net,
-      flag,
-    })
-    flag = list[list.length - 1]?.flag
-    let filteredList = list.filter((utxo) => utxo.value >= 600)
-    if (!useUnconfirmed) {
-      filteredList = filteredList.filter((utxo) => utxo.height > 0)
-    }
+    try {
+      const { list = [] } = await metaletApiV4<{ list: MvcUtxo[] }>('/mvc/address/utxo-list').get({
+        address,
+        net,
+        flag,
+      })
 
-    allUtxos = [...allUtxos, ...filteredList]
-    hasMore = list.length > 0
+      if (list.length === 0) {
+        hasMore = false
+        break
+      }
+
+      flag = list[list.length - 1]?.flag
+      const filteredList = list.filter((utxo) => utxo.value >= 600 && (useUnconfirmed || utxo.height > 0))
+      allUtxos = [...allUtxos, ...filteredList]
+    } catch (error) {
+      console.error('Error fetching UTXOs:', error)
+      hasMore = false
+    }
   }
 
   return allUtxos
@@ -223,15 +229,6 @@ function formatMempoolUTXO(utxo: MempoolUtxo): UTXO {
     outputIndex: utxo.vout,
     satoshis: utxo.value,
     confirmed: utxo.status.confirmed,
-  }
-}
-
-function formatUnisatUTXO(utxo: UnisatUTXO): UTXO {
-  return {
-    txId: utxo.txid,
-    outputIndex: utxo.vout,
-    satoshis: utxo.satoshis,
-    confirmed: true,
   }
 }
 

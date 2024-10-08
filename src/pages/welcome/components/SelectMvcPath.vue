@@ -8,8 +8,8 @@ import Avatar from '@/components/Avatar.vue'
 import AddIcon from '@/assets/icons-v3/add.svg'
 import Loading from '@/components/LoadingIcon.vue'
 import { useBalanceQuery } from '@/queries/balance'
-import { useMVCAssetsQuery } from '@/queries/tokens'
 import DeleteIcon from '@/assets/icons-v3/delete.svg'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import SuccessIcon from '@/assets/icons-v3/success-checked.svg'
 import { MvcWallet, AddressType, CoinType } from '@metalet/utxo-wallet-service'
@@ -74,7 +74,7 @@ const { isLoading: customBalanceLoading, data: customBalance } = useBalanceQuery
 })
 
 // TODO: balance query optimization
-const { isLoading: customAssetsLoading, data: customAssets } = useMVCAssetsQuery(customAddress, {
+const { isLoading: customAssetsLoading, data: customAssets } = useMetaContractAssetsQuery(customAddress, {
   enabled: computed(() => !!customAddress.value),
 })
 

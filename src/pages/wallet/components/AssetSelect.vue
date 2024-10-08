@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { UseImage } from '@vueuse/components'
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { type Asset, type FTAsset, type MRC20Asset, type Tag, getTagInfo } from '@/data/assets'
+import { type Asset, type MetaContractAsset, type MRC20Asset, type Tag, getTagInfo } from '@/data/assets'
 
 const props = defineProps<{
   asset: Asset
@@ -27,7 +27,7 @@ const icon = computed(
   () =>
     getIcon(
       props.coinCategory,
-      props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
+      props.coinCategory === CoinCategory.MetaContract ? (props.asset as MetaContractAsset).genesis : props.asset.symbol
     ) ||
     (asset.value as MRC20Asset)?.icon ||
     ''

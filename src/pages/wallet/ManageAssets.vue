@@ -2,13 +2,13 @@
 import { computed, ref, watch } from 'vue'
 import { allAssets, Asset } from '@/data/assets'
 import { Chain } from '@metalet/utxo-wallet-service'
-import { useMVCAssetsQuery } from '@/queries/tokens'
 import { useBRC20AssetsQuery } from '@/queries/brc20'
 import { useRunesAssetsQuery } from '@/queries/runes'
 import SearchInput from '@/components/SearchInput.vue'
 import AssetSelect from './components/AssetSelect.vue'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { useMRC20sInfiniteQuery } from '@/queries/mrc20'
+import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { getAssetManageList, setAssetManage } from '@/lib/asset-manage'
 
@@ -29,9 +29,9 @@ const { data: runeAssets } = useRunesAssetsQuery(btcAddress, {
   enabled: computed(() => !!btcAddress.value),
 })
 
-const { data: metaContractAssets } = useMVCAssetsQuery(mvcAddress, {
+const { data: metaContractAssets } = useMetaContractAssetsQuery(mvcAddress, {
   enabled: computed(() => !!mvcAddress.value),
-  autoRefresh: true,
+  autoRefresh: computed(() => !!mvcAddress.value),
 })
 
 const { data: _mrc20Assets } = useMRC20sInfiniteQuery(btcAddress, ref(1000000), {

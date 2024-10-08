@@ -39,6 +39,6 @@ const { isLoading, data: activities } = useActivitiesQuery(address, props.asset,
 
   <div v-else class="flex flex-col items-center justify-center gap-y-2 pb-4 pt-8 text-center">
     <img :src="NoActivitiesPNG" alt="" />
-    <div class="text-gray-primary mt-4 text-ss">No activities</div>
+    <div class="text-gray-primary mt-4 text-ss">{{ $t('Common.NoTransactionsFound') }}</div>
   </div>
 </template>

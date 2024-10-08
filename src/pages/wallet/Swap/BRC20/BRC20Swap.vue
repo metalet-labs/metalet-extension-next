@@ -16,7 +16,7 @@ import { CoinCategory } from '@/queries/exchange-rates'
 import { computed, ref, toRaw, watchEffect } from 'vue'
 import Brc20ModalTokenSelect from './Brc20ModalTokenSelect.vue'
 import { Chain, ScriptType } from '@metalet/utxo-wallet-service'
-import RunesSwapSideWithInput from './BRC20SwapSideWithInput.vue'
+import BRC20SwapSideWithInput from './BRC20SwapSideWithInput.vue'
 import RunesSwapFrictionStats from './RunesSwapFrictionStats.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { useOngoingTask } from '@/hooks/swap/use-runes-ongoing-task'
@@ -325,11 +325,11 @@ async function doSwap() {
       <Brc20ModalTokenSelect :pinned-tokens="swapTokens" :btcAsset="btcAsset" />
     </div>
     <div class="w-full">
-      <RunesSwapSideWithInput
-        side="pay"
+      <BRC20SwapSideWithInput
         v-if="!flipped"
         :asset="btcAsset"
         :disabled="isEmpty"
+        :side="$t('Common.Pay')"
         :calculating="calculatingPay"
         v-model:amount="token1Amount"
         @has-enough="hasEnough = true"
@@ -340,11 +340,11 @@ async function doSwap() {
         :coinCategory="CoinCategory.Native"
         @less-than-threshold="(_lessThanThreshold: boolean) => (lessThanThreshold = _lessThanThreshold)"
       />
-      <RunesSwapSideWithInput
-        side="pay"
+      <BRC20SwapSideWithInput
         :asset="brc20Asset"
         :disabled="isEmpty"
         v-else-if="flipped"
+        :side="$t('Common.Pay')"
         :calculating="calculatingPay"
         v-model:amount="token2Amount"
         @has-enough="hasEnough = true"
@@ -375,22 +375,22 @@ async function doSwap() {
         </div>
       </div>
 
-      <RunesSwapSideWithInput
-        side="receive"
+      <BRC20SwapSideWithInput
         v-if="!flipped"
         :asset="brc20Asset"
         :disabled="isEmpty"
+        :side="$t('Common.Receive')"
         v-model:amount="token2Amount"
         @became-source="swapType = 'x2'"
         :calculating="calculatingReceive"
         :coinCategory="CoinCategory.Runes"
       />
 
-      <RunesSwapSideWithInput
-        side="receive"
+      <BRC20SwapSideWithInput
         v-if="flipped"
         :asset="btcAsset"
         :disabled="isEmpty"
+        :side="$t('Common.Receive')"
         v-model:amount="token1Amount"
         @became-source="swapType = 'x1'"
         :calculating="calculatingReceive"

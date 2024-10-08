@@ -607,11 +607,11 @@ router.beforeEach(async (to, _, next) => {
       } else if (to.name === 'mrc20-detail') {
         to.meta.headerTitle = `${to.params.symbol}`
       } else if (to.name === 'SendMRC20') {
-        to.meta.headerTitle = `${to.params.name}`
+        to.meta.headerTitle = `Send ${to.params.name}`
       } else if (to.name === 'SendRune') {
-        to.meta.headerTitle = `${to.params.name}`
+        to.meta.headerTitle = `Send ${to.params.name}`
       } else if (to.name === 'MintRune') {
-        to.meta.headerTitle = `${to.params.name}`
+        to.meta.headerTitle = `Mint ${to.params.name}`
       }
 
       if (to.path === '/wallet') {

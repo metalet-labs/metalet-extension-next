@@ -22,11 +22,6 @@ export interface BRC20Asset extends Asset {
   transferableList?: TokenTransfer[]
 }
 
-export interface FTAsset extends Asset {
-  genesis: string
-  codeHash: string
-}
-
 export interface RuneAsset extends Asset {
   runeId: string
   mintable: boolean
@@ -44,7 +39,6 @@ export interface MRC20Asset extends Asset {
 export interface MetaContractAsset extends Asset {
   codeHash: string
   genesis: string
-
   sensibleId: string
 }
 

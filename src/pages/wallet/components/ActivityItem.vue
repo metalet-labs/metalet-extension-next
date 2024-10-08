@@ -7,7 +7,7 @@ import { type Chain } from '@/lib/types'
 import { getBrowserHost } from '@/lib/host'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
-import { FTAsset, type Asset } from '@/data/assets'
+import { MetaContractAsset, type Asset } from '@/data/assets'
 import type { Activity } from '@/queries/activities'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { CoinCategory } from '@/queries/exchange-rates'
@@ -29,7 +29,7 @@ const icon = computed(
     props.icon ||
     getIcon(
       props.coinCategory,
-      props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
+      props.coinCategory === CoinCategory.MetaContract ? (props.asset as MetaContractAsset).genesis : props.asset.symbol
     ) ||
     ''
 )

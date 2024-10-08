@@ -3,10 +3,10 @@ import { PageResult } from './types'
 import { getNet } from '@/lib/network'
 import { ComputedRef, Ref } from 'vue'
 import { Balance } from './types/balance'
-import type { FTAsset } from '@/data/assets'
 import { useQuery } from '@tanstack/vue-query'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
+import type { MetaContractAsset } from '@/data/assets'
 import { metaletApiV3, metaletApiV4 } from './request'
 
 export type Token = {
@@ -24,22 +24,29 @@ export type Token = {
   unconfirmedString: string
 }
 
-export const fetchMVCTokens = async (address: string): Promise<Token[]> => {
+export const fetchMVCTokens = async (address: string, codehash?: string, genesis?: string): Promise<Token[]> => {
   const net = getNet()
   const { list: tokens } = await metaletApiV4<PageResult<Token>>(`/mvc/address/contract/ft/balance-list`).get({
-    address,
     net,
+    address,
+    genesis,
+    codehash,
   })
   return tokens
 }
 
-export const useMVCAssetsQuery = (
+export const useMetaContractAssetsQuery = (
   address: Ref<string>,
-  options: { enabled: ComputedRef<boolean>; autoRefresh?: boolean }
+  options: {
+    genesis?: Ref<string>
+    codehash?: Ref<string>
+    enabled: ComputedRef<boolean>
+    autoRefresh?: ComputedRef<boolean>
+  }
 ) => {
   return useQuery({
-    queryKey: ['MVCTokens', { address }],
-    queryFn: () => fetchMVCTokens(address.value),
+    queryKey: ['MetaContractAssets', { address, codehash: options.codehash, genesis: options.genesis }],
+    queryFn: () => fetchMVCTokens(address.value, options?.codehash?.value, options?.genesis?.value),
     select: (tokens: Token[]) =>
       tokens.map(
         (token) =>
@@ -47,62 +54,28 @@ export const useMVCAssetsQuery = (
             chain: 'mvc',
             isNative: false,
             queryable: true,
-            icon: 'https://www.metalet.space/wallet-api' + token.icon,
             symbol: token.symbol,
             decimal: token.decimal,
             genesis: token.genesis,
             tokenName: token.symbol,
             contract: 'MetaContract',
             codeHash: token.codeHash,
+            sensibleId: token.sensibleId,
+            icon: 'https://www.metalet.space/wallet-api' + token.icon,
             balance: {
               confirmed: new Decimal(token.confirmedString),
               unconfirmed: new Decimal(token.unconfirmedString),
               total: new Decimal(token.confirmedString).add(token.unconfirmedString),
             },
-          }) as FTAsset
+          }) as MetaContractAsset
       ),
     refetchInterval: options.autoRefresh ? Balance_QUERY_INTERVAL : undefined,
     ...options,
   })
 }
 
-export const useMVCTokenQuery = (
-  address: Ref<string>,
-  genesis: Ref<string>,
-  options: { enabled: ComputedRef<boolean> }
-) => {
-  return useQuery({
-    queryKey: ['MVCTokens', { address }],
-    queryFn: () => fetchMVCTokens(address.value),
-    select: (tokens: Token[]) => {
-      const token = tokens.find((token) => token.genesis === genesis.value)
-      if (token) {
-        return {
-          symbol: token.symbol,
-          tokenName: token.name,
-          isNative: false,
-          chain: 'mvc',
-          queryable: true,
-          decimal: token.decimal,
-          contract: 'MetaContract',
-          codeHash: token.codeHash,
-          genesis: token.genesis,
-          balance: {
-            confirmed: new Decimal(token.confirmedString),
-            unconfirmed: new Decimal(token.unconfirmedString),
-            total: new Decimal(token.confirmedString).add(token.unconfirmedString),
-          },
-        } as FTAsset
-      }
-    },
-    refetchInterval: Balance_QUERY_INTERVAL,
-    ...options,
-  })
-}
-
 export const fetchTokenBalance = async (address: string, genesis: string): Promise<Balance> => {
   const tokens = await fetchMVCTokens(address)
-
   const token = tokens.find((token) => token.genesis === genesis)
   const confirmed = new Decimal(token?.confirmedString || 0)
   const unconfirmed = new Decimal(token?.unconfirmedString || 0)
@@ -113,7 +86,7 @@ export const fetchTokenBalance = async (address: string, genesis: string): Promi
   }
 }
 
-export async function getFtOfficialToken(): Promise<string[]> {
+export async function getMetaContractOfficialToken(): Promise<string[]> {
   return (
     (await metaletApiV3<{ ftContractOfficialList: string[] }>('/coin/official').get())?.ftContractOfficialList || []
   )

@@ -1,31 +1,29 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
+import { useI18n } from 'vue-i18n'
 import { ref, computed, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
+import { truncateStr } from '@/lib/formatters'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import { useOfficeGenesisStore } from '@/stores/FtTokenStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
-import { type Asset, getTagInfo, type Tag, BRC20Asset, FTAsset, MRC20Asset } from '@/data/assets'
-import { truncateStr } from '@/lib/formatters'
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
+import { type Asset, getTagInfo, type Tag, BRC20Asset, MetaContractAsset, MRC20Asset } from '@/data/assets'
 
 const props = defineProps<{
   address: string
   coinCategory: CoinCategory
-  asset: Asset | BRC20Asset | FTAsset | MRC20Asset
+  asset: Asset | BRC20Asset | MetaContractAsset | MRC20Asset
 }>()
 
+const tag = ref<Tag>()
 const asset = computed(() => props.asset)
 const address = computed(() => props.address)
 const coinCategory = computed(() => props.coinCategory)
 
-const tag = ref<Tag>()
-
+const { t } = useI18n()
 const { getIcon } = useIconsStore()
 const { isOfficeGenesis } = useOfficeGenesisStore()
 
@@ -34,7 +32,7 @@ const icon = computed(
     (asset.value as MRC20Asset)?.icon ||
     getIcon(
       props.coinCategory,
-      props.coinCategory === CoinCategory.MetaContract ? (props.asset as FTAsset).genesis : props.asset.symbol
+      props.coinCategory === CoinCategory.MetaContract ? (props.asset as MetaContractAsset).genesis : props.asset.symbol
     ) ||
     ''
 )
@@ -121,7 +119,7 @@ watch(
             </span>
             <CheckBadgeIcon
               class="h-4 w-4 shrink-0 text-blue-500"
-              v-if="(asset as FTAsset)?.genesis && isOfficeGenesis((asset as FTAsset).genesis)"
+              v-if="(asset as MetaContractAsset)?.genesis && isOfficeGenesis((asset as MetaContractAsset).genesis)"
             />
           </div>
 
@@ -154,18 +152,18 @@ watch(
     >
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.transferableBalance }}</span>
-        <span class="text-[#909399]">Transferable</span>
+        <span class="text-[#909399]">{{ $t('Common.Transferable') }}</span>
       </div>
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.availableBalanceSafe }}</span>
-        <span class="text-[#909399]">Available</span>
+        <span class="text-[#909399]">{{ $t('Common.Available') }}</span>
       </div>
       <div
         v-if="(asset as BRC20Asset).balance?.availableBalanceUnSafe"
         class="text-xs flex flex-col gap-1 items-center justify-between w-full"
       >
         <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.availableBalanceUnSafe }}</span>
-        <span class="text-[#909399]">Available(pending)</span>
+        <span class="text-[#909399]">{{ $t('Common.Pending') }}</span>
       </div>
     </div>
     <div
@@ -176,13 +174,13 @@ watch(
         <span class="text-black-primary truncate">
           {{ asset.balance?.confirmed.dividedBy(10 ** asset.decimal).toNumber() }}
         </span>
-        <span class="text-[#909399]">Confirmed</span>
+        <span class="text-[#909399]">{{ $t('Common.Confirmed') }}</span>
       </div>
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">
           {{ asset.balance?.unconfirmed.dividedBy(10 ** asset.decimal).toNumber() }}
         </span>
-        <span class="text-[#909399]">Unconfirmed</span>
+        <span class="text-[#909399]">{{ $t('Common.Unconfirmed') }}</span>
       </div>
     </div>
   </div>

@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { PopCard } from '@/components'
+import { network } from '@/lib/network'
 import Copy from '@/components/Copy.vue'
 import { LoadingText } from '@/components'
 import { getBrowserHost } from '@/lib/host'
@@ -11,7 +12,6 @@ import { useMetaPinQuery } from '@/queries/metaPin'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
 import MvcIcon from '@/assets/icons-v3/network_mvc.svg'
 import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
-import { network } from '@/lib/network'
 
 const router = useRouter()
 const { params } = useRoute()
@@ -40,23 +40,38 @@ const getHostAndToTx = async (txId: string) => {
   const host = await getBrowserHost('btc')
   toTx(txId, host as string)
 }
+
+const imageSrc = computed(() => {
+  if (!metaPin.value) return ''
+  try {
+    const contentSummary = JSON.parse(metaPin.value?.contentSummary)
+    return contentSummary.attachment[0].content.replace(
+      'metafile://',
+      `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
+    )
+  } catch (error) {
+    return ''
+  }
+})
 </script>
 
 <template>
   <LoadingText text="MetaID PIN Detail Loading..." v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
-      <div :class="['w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white']">
+      <div
+        :class="[
+          { 'p-2 bg-blue-primary': !imageSrc },
+          'size-[220px] flex items-center justify-center rounded-xl relative text-white',
+        ]"
+      >
         <img
           alt=""
-          :src="
-            JSON.parse(metaPin.contentSummary).attachment[0].content.replace(
-              'metafile://',
-              `https://man${network === 'testnet' ? '-test' : ''}.metaid.io/content/`
-            )
-          "
+          :src="imageSrc"
+          v-if="imageSrc"
           class="w-full h-full border-2 border-gray-soft rounded-xl object-contain"
         />
+        <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
 
         <span
           :title="`${metaPin.outputValue} sat`"
@@ -92,23 +107,23 @@ const getHostAndToTx = async (txId: string) => {
     <div class="space-y-4 border-t border-gray-secondary pt-4">
       <div class="row">
         <div class="label">Creator</div>
-        <div class="flex items-center gap-1">
-          <UseImage :src="metaPin.avatar" class="h-10 w-10 rounded-md">
-            <template #loading>
-              <div class="h-10 w-10 text-center leading-10 rounded-full text-white text-base bg-btn-blue">
-                {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
-              </div>
-            </template>
-            <template #error>
-              <div class="text-center leading-10 rounded-full text-white text-base bg-btn-blue">
-                {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
-              </div>
-            </template>
-          </UseImage>
-          <div class="flex flex-col gap-1">
+        <div class="flex flex-col items-end gap-1">
+          <div class="flex items-center gap-1">
+            <UseImage :src="metaPin.avatar" class="size-5 rounded-md">
+              <template #loading>
+                <div class="size-5 text-center leading-5 rounded-full text-white text-base bg-btn-blue">
+                  {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+                </div>
+              </template>
+              <template #error>
+                <div class="size-5 text-center leading-5 rounded-full text-white text-base bg-btn-blue">
+                  {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+                </div>
+              </template>
+            </UseImage>
             <span class="text-sm">{{ metaPin.creator ? shortestAddress(metaPin.creator, 6) : 'User' }}</span>
-            <span class="text-xs">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
           </div>
+          <span class="text-sm text-gray-primary">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
         </div>
       </div>
       <div class="row">
