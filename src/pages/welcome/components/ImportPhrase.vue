@@ -1,12 +1,12 @@
 <script lang="ts" setup>
+import { useI18n } from 'vue-i18n'
 import { ref, computed, watch } from 'vue'
-import { getV3EncryptedWallets } from '@/lib/wallet'
 import BrushIcon from '@/assets/icons-v3/brush.svg'
+import { getV3EncryptedWallets } from '@/lib/wallet'
 import { FlexBox, Button, SeedPhrase } from '@/components'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   words: {
@@ -16,7 +16,6 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
-
 const wordsLen = ref('12')
 const error = ref<string>()
 const wordsLengths = [12, 15, 18, 21, 24]

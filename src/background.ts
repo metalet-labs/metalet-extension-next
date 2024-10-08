@@ -10,6 +10,7 @@ import { Chain } from '@metalet/utxo-wallet-service'
 import usePasswordStore from '@/stores/PasswordStore'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
 import { getCurrentWalletId, hasWallets, getCurrentWallet } from './lib/wallet'
+import { getTempPassword } from './lib/password'
 
 // const browser = window.browser as typeof chromex
 browser.runtime.onMessage.addListener(async (msg, sender) => {
@@ -19,7 +20,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       if (msg.eventName === 'networkChanged') {
         network.value = msg.args[0]
       } else if (msg.eventName === 'getPassword') {
-        return password.value
+        let _password = password.value
+        if (_password) {
+          _password = (await getTempPassword()) ?? ''
+        }
+        return _password
       } else if (msg.eventName === 'setPassword') {
         if (!msg.args[0]) {
           return { code: 0 }

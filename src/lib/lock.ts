@@ -3,7 +3,7 @@ import useStorage from './storage'
 import { IS_DEV } from '@/data/config'
 import { notifyBg } from './notify-bg'
 import { LAST_LOCK_TIME_KEY, LOCK_KEY } from './storage/key'
-import { checkPassword, hasPassword, getEncryptedPassword } from './password'
+import { checkPassword, hasPassword, getEncryptedPassword, setTempPassword } from './password'
 
 const storage = useStorage()
 
@@ -27,6 +27,7 @@ export async function unlock(password: string) {
   if (!IS_DEV) {
     await notifyBg('setPassword')(password)
   }
+  await setTempPassword(password)
   await storage.set(LOCK_KEY, false)
   await notifyBg('unlock')()
 }

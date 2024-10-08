@@ -48,7 +48,7 @@ const toMetaPinDetail = (metaPinId: string) => {
     <LoadingText v-if="isLoading" text="MetaID Pins loading..." />
     <div v-else-if="Object.keys(groupedMetaPins).length">
       <div v-for="(group, path) in groupedMetaPins" :key="path">
-        <h3>{{ path.toString().replace('/nft/mrc721/', '') }}</h3>
+        <h3>{{ path.toString().replace('/nft/mrc721/', '') }} ({{ group.length }})</h3>
         <div class="px-3 py-4 grid grid-cols-3 gap-x-3 gap-y-7 items-start">
           <div
             v-for="metaPin in group"
@@ -68,7 +68,6 @@ const toMetaPinDetail = (metaPinId: string) => {
             <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number" v-else>
               # {{ metaPin.number }}
             </span>
-            <span class="text-xs text-center mt-1 truncate w-16" :title="metaPin.path">{{ metaPin.path }}</span>
             <span class="text-xs text-center mt-1 break-all">{{ metaPin.pop }}</span>
           </div>
         </div>

@@ -1,10 +1,10 @@
+import dayjs from 'dayjs'
 import router from '@/router'
+import Decimal from 'decimal.js'
 import { IS_DEV } from '@/data/config'
 import { twMerge } from 'tailwind-merge'
 import { type ClassValue, clsx } from 'clsx'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from '@/data/config'
-import dayjs from 'dayjs'
-import Decimal from 'decimal.js'
 
 export const goToPage = (path: string, created = false) => {
   if (IS_DEV || !created) {

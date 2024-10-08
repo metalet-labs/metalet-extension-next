@@ -96,7 +96,12 @@ const selectChain = (chain: Chain) => {
 }
 
 const onSubmit = handleSubmit(async ({ chains }) => {
-  await addWallet()
+  const password = await getPassword()
+  if (!password) {
+    router.replace('/lock')
+    return
+  }
+  await addWallet(password)
   await updateServiceNetwork(chains as Chain[])
 })
 
@@ -106,9 +111,8 @@ watch(mnemonic, (mnemonic) => {
   }
 })
 
-const addWallet = async () => {
+const addWallet = async (password: string) => {
   try {
-    const password = await getPassword()
     const wallets = await getV3EncryptedWallets()
     const hasWallet = wallets.find((wallet) => wallet.mnemonic === encrypt(mnemonic.value, password))
     if (hasWallet) {

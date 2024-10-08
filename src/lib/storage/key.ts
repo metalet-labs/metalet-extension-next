@@ -32,6 +32,7 @@ export const SERVICE_NETWORK_KEY = 'service_network'
 
 // password
 export const PASSWORD_KEY = 'password'
+export const PASSWORD_TEMP_KEY = 'password_temp'
 
 // lock
 export const LOCK_KEY = 'locked'

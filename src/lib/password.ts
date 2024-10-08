@@ -3,12 +3,20 @@ import CryptoJS from 'crypto-js'
 import useStorage from './storage'
 import { IS_DEV } from '@/data/config'
 import { notifyBg } from './notify-bg'
-import { PASSWORD_KEY } from './storage/key'
+import { PASSWORD_KEY, PASSWORD_TEMP_KEY } from './storage/key'
 
 const storage = useStorage()
 
 export async function getEncryptedPassword() {
   return await storage.get(PASSWORD_KEY)
+}
+
+export async function getTempPassword() {
+  return await storage.get(PASSWORD_TEMP_KEY)
+}
+
+export async function setTempPassword(password: string) {
+  return await storage.set(PASSWORD_TEMP_KEY, password)
 }
 
 export async function hasPassword() {
