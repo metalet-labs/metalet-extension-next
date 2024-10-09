@@ -16,7 +16,7 @@ const showResetModal = ref(false)
       <img :src="ArrowRightIcon" alt="" />
     </router-link>
     <div class="h-15 flex items-center cursor-pointer rounded-lg px-4">
-      <span class="text-red-500 hover:underline" @click="showResetModal = true">{{ $t('SetPasswordPage.ResetPassword') }}</span>
+      <span class="text-red-500 hover:underline" @click="showResetModal = true">{{ $t('SetPasswordPage.ResetWallet') }}</span>
     </div>
   </div>
   <ResetModal v-model:show="showResetModal" />

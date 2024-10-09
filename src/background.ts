@@ -15,16 +15,13 @@ import { getTempPassword } from './lib/password'
 // const browser = window.browser as typeof chromex
 browser.runtime.onMessage.addListener(async (msg, sender) => {
   const { password, setPassword } = usePasswordStore()
+  const tempPassword = await getTempPassword()
   try {
     if (msg.channel === 'to-bg') {
       if (msg.eventName === 'networkChanged') {
         network.value = msg.args[0]
       } else if (msg.eventName === 'getPassword') {
-        let _password = password.value
-        if (_password) {
-          _password = (await getTempPassword()) ?? ''
-        }
-        return _password
+        return password.value || tempPassword
       } else if (msg.eventName === 'setPassword') {
         if (!msg.args[0]) {
           return { code: 0 }
@@ -66,8 +63,23 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
     // 如果连接状态为未连接，且请求的 action 不是connect或者IsConnected，则返回错误
     let failedStatus: string = ''
-    if ((await isLocked()) || !password.value) {
+    if ((await isLocked()) || (!password.value && !tempPassword)) {
       failedStatus = 'locked'
+      const rawUrl = 'popup.html#/lock'
+      let popupUrl = browser.runtime.getURL(rawUrl)
+      let top = 0
+      let left = 0
+      const lastFocused = await browser.windows.getLastFocused()
+      top = lastFocused.top!
+      left = lastFocused.left! + lastFocused.width! - NOTIFICATION_WIDTH
+      await browser.windows.create({
+        url: popupUrl,
+        type: 'popup',
+        width: NOTIFICATION_WIDTH,
+        height: NOTIFICATION_HEIGHT,
+        top,
+        left,
+      })
     } else if (!(await hasWallets())) {
       failedStatus = 'no-wallets'
     } else if (!currentWalletId || !currentAccountId) {

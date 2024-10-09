@@ -82,7 +82,7 @@ export default {
       "Set a password to manage your wallet. Note that we don't store your password and can't restore it for you. If you forget your password, you can set a new one by resetting your wallet and re-importing it.",
     SetPassword: 'Set Password',
     ChangePassword: 'Change Password',
-    ResetPassword: 'Reset Password',
+    ResetWallet: 'Reset Wallet',
     OldPassword: 'Old Password',
     NewPassword: 'New Password',
   },

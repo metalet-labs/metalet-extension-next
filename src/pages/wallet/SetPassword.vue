@@ -3,7 +3,7 @@ import hash from 'object-hash'
 import { computed, ref } from 'vue'
 import { IS_DEV } from '@/data/config'
 import { useRouter } from 'vue-router'
-import passwordManager from '@/lib/password'
+import passwordManager, { setTempPassword } from '@/lib/password'
 import { PasswordInput } from '@/components'
 import { toast } from '@/components/ui/toast'
 import { ChevronLeftIcon } from '@heroicons/vue/24/outline'
@@ -79,6 +79,7 @@ const next = async () => {
         return
       }
       await setV3EncryptedWalletsStorage(wallets)
+      await setTempPassword(newPassword.value)
       await passwordManager.set(newPassword.value)
       toast({ title: 'Set Password successfully.', toastType: 'success' })
       router.push('/wallet')

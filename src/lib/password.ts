@@ -12,7 +12,8 @@ export async function getEncryptedPassword() {
 }
 
 export async function getTempPassword() {
-  return await storage.get(PASSWORD_TEMP_KEY)
+  const tempPassword = await storage.get(PASSWORD_TEMP_KEY)
+  return tempPassword ? tempPassword.toString() : ''
 }
 
 export async function setTempPassword(password: string) {

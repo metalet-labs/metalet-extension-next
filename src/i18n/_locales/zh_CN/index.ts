@@ -81,7 +81,7 @@ export default {
       '设置一个密码来管理您的钱包。请注意，我们不存储您的密码，也无法为您恢复它。如果您忘记了密码，可以通过重置您的钱包并重新导入它来设置新密码。',
     SetPassword: '设置密码',
     ChangePassword: '更改密码',
-    ResetPassword: '重置密码',
+    ResetWallet: '重置钱包',
     OldPassword: '旧密码',
     NewPassword: '新密码',
   },
