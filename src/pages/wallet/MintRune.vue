@@ -52,6 +52,13 @@ const popConfirm = async () => {
     }
     isOpenResultModal.value = true
     return
+  } else if (amount.value > 5) {
+    transactionResult.value = {
+      status: 'warning',
+      message: 'The maximum amount is 5.',
+    }
+    isOpenResultModal.value = true
+    return
   }
   if (!new Decimal(amount.value).modulo(1).isZero() || new Decimal(amount.value).lessThan(0)) {
     transactionResult.value = {
@@ -273,7 +280,9 @@ async function send() {
         <DrawerFooter>
           <FlexBox ai="center" jc="center" :gap="2">
             <DrawerClose>
-              <Button type="light" class="w-[119px] h-12" @click="operationLock = false">{{ $t('Common.Cancel') }}</Button>
+              <Button type="light" class="w-[119px] h-12" @click="operationLock = false">
+                {{ $t('Common.Cancel') }}
+              </Button>
             </DrawerClose>
             <Button
               @click="send"
