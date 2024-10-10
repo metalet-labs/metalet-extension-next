@@ -10,7 +10,10 @@ import { Balance, BTCBalance, MVCBalance } from './types/balance'
 
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
   const net = getNet()
-  const balance = await metaletApiV4<MVCBalance>('/mvc/address/balance-info').get({ net, address })
+  const balance = await metaletApiV4<MVCBalance>('/mvc/address/balance-info', { withCredential: false }).get({
+    net,
+    address,
+  })
   return {
     confirmed: new Decimal(balance.confirmed),
     unconfirmed: new Decimal(balance.unconfirmed),
@@ -20,7 +23,7 @@ export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
 
 export const fetchBtcBalance = async (address: string): Promise<Balance> => {
   const net = getNet()
-  const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`).get({ net, address })
+  const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`, { withCredential: false }).get({ net, address })
 
   return {
     total: new Decimal(data.balance || 0).mul(1e8),

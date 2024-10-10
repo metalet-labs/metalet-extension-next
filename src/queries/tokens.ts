@@ -26,7 +26,9 @@ export type Token = {
 
 export const fetchMVCTokens = async (address: string, codehash?: string, genesis?: string): Promise<Token[]> => {
   const net = getNet()
-  const { list: tokens } = await metaletApiV4<PageResult<Token>>(`/mvc/address/contract/ft/balance-list`).get({
+  const { list: tokens } = await metaletApiV4<PageResult<Token>>(`/mvc/address/contract/ft/balance-list`, {
+    withCredential: false,
+  }).get({
     net,
     address,
     genesis,

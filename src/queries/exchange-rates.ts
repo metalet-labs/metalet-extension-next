@@ -8,27 +8,27 @@ type RawRates = Record<string, number | undefined>
 
 export const fetchExchangeRates = async (): Promise<RawRates> => {
   const net = getNet()
-  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/price`)
+  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/price`, { withCredential: false })
     .get({ net })
     .then((res) => res.priceInfo)
 }
 
 export const fetchMRC20ExchangeRates = async (): Promise<RawRates> => {
   const net = getNet()
-  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/mrc20/price`)
+  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/mrc20/price`, { withCredential: false })
     .get({ net })
     .then((res) => res.priceInfo)
 }
 
 export const fetchBRC20ExchangeRates = async (): Promise<RawRates> => {
   const net = getNet()
-  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/brc20/price`)
+  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/brc20/price`, { withCredential: false })
     .get({ net })
     .then((res) => res.priceInfo)
 }
 
 export const fetchFTExchangeRates = async (): Promise<RawRates> => {
-  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/contract/ft/price`)
+  return await metaletApiV3<{ priceInfo: RawRates }>(`/coin/contract/ft/price`, { withCredential: false })
     .get()
     .then((res) => res.priceInfo)
 }

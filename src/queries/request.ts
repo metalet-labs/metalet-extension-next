@@ -1,8 +1,6 @@
 import { network } from '@/lib/network'
 import { getCredential } from '@/lib/account'
 import {
-  METASV_TESTNET_HOST,
-  METASV_HOST,
   METALET_HOST,
   API2_ORDERS_EXCHANGE,
   API2_ORDERS_EXCHANGE_TESTNET,
@@ -142,23 +140,23 @@ const metaletV3Request = <T>(url: string, options: RequestOption): Promise<T> =>
     return result.data
   })
 
-export const metaletApiV3 = <T>(path: string) => {
+export const metaletApiV3 = <T>(path: string, options?: Partial<RequestOption>) => {
   const metaletHost = METALET_HOST + '/wallet-api/v3'
   return {
     get: (params?: OptionParams) =>
-      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'GET', params, withCredential: true }),
+      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'GET', params, withCredential: true, ...options }),
     post: (data?: OptionData) =>
-      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'POST', data, withCredential: true }),
+      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'POST', data, withCredential: true, ...options }),
   }
 }
 
-export const metaletApiV4 = <T>(path: string) => {
+export const metaletApiV4 = <T>(path: string, options?: Partial<RequestOption>) => {
   const metaletHost = METALET_HOST + '/wallet-api/v4'
   return {
     get: (params?: OptionParams) =>
-      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'GET', params, withCredential: true }),
+      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'GET', params, withCredential: true, ...options }),
     post: (data?: OptionData) =>
-      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'POST', data, withCredential: true }),
+      metaletV3Request<T>(`${metaletHost}${path}`, { method: 'POST', data, withCredential: true, ...options }),
   }
 }
 
