@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { useRouter } from 'vue-router'
-import { MRC20Asset } from '@/data/assets'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { toast } from '@/components/ui/toast'
 import { calcBalance } from '@/lib/formatters'
@@ -17,6 +16,7 @@ import BridgeSideWithInput from './BridgeSideWithInput.vue'
 import BridgeFrictionStats from './BridgeFrictionStats.vue'
 import { assetReqReturnType } from '@/queries/types/bridge'
 import { useMetaContractAssetsQuery } from '@/queries/tokens'
+import { MetaContractAsset, MRC20Asset } from '@/data/assets'
 import BridgePriceDisclosure from './BridgePriceDisclosure.vue'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import BridgeSelectPairs from '../components/BridgeSelectPairs.vue'
@@ -94,6 +94,25 @@ const { data: metaContractAssets } = useMetaContractAssetsQuery(mvcAddress, {
 const metaContractAsset = computed(() => {
   if (metaContractAssets.value?.length) {
     return metaContractAssets.value[0]
+  } else {
+    return {
+      symbol: selectedPair.value?.targetSymbol,
+      tokenName: selectedPair.value?.targetName,
+      isNative: false,
+      chain: 'mvc',
+      queryable: true,
+      decimal: 0,
+      balance: {
+        confirmed: new Decimal(0),
+        unconfirmed: new Decimal(0),
+        total: new Decimal(0),
+      },
+      contract: CoinCategory.MetaContract,
+      protocol: Protocol.MetaContract,
+      codeHash: codeHash.value,
+      genesis: genesis.value,
+      sensibleId: '',
+    } as MetaContractAsset
   }
 })
 

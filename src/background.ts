@@ -5,12 +5,12 @@ import { network } from '@/lib/network'
 import actions from './data/query-actions'
 import browser from 'webextension-polyfill'
 import exActions from './data/extension-actions'
+import { getTempPassword } from './lib/password'
 import { getCurrentAccountId } from './lib/account'
 import { Chain } from '@metalet/utxo-wallet-service'
 import usePasswordStore from '@/stores/PasswordStore'
 import { NOTIFICATION_HEIGHT, NOTIFICATION_WIDTH } from './data/config'
 import { getCurrentWalletId, hasWallets, getCurrentWallet } from './lib/wallet'
-import { getTempPassword } from './lib/password'
 
 // const browser = window.browser as typeof chromex
 browser.runtime.onMessage.addListener(async (msg, sender) => {

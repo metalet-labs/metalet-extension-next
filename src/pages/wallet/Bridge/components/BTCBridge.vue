@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import Decimal from 'decimal.js'
 import { useRouter } from 'vue-router'
-import { BTCAsset } from '@/data/assets'
+import { BTCAsset, MetaContractAsset } from '@/data/assets'
 import { toast } from '@/components/ui/toast'
 import RunesMainBtn from './RunesMainBtn.vue'
 import { calcBalance } from '@/lib/formatters'
@@ -24,6 +24,7 @@ import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import { useBTCUtxosQuery, useMVCUtxosQuery } from '@/queries/utxos'
 import { ArrowDownIcon, ArrowUpDownIcon, Loader2Icon } from 'lucide-vue-next'
 import { calcMintBtcInfo, calcRedeemBtcInfo, mintBtc, redeemBtc } from '@/lib/bridge-utils'
+import { Protocol } from '@/lib/types/protocol'
 
 const open = ref(false)
 const router = useRouter()
@@ -88,6 +89,25 @@ const { data: metaContractAssets } = useMetaContractAssetsQuery(mvcAddress, {
 const metaContractAsset = computed(() => {
   if (metaContractAssets.value?.length) {
     return metaContractAssets.value[0]
+  } else {
+    return {
+      symbol: selectedPair.value?.targetSymbol,
+      tokenName: selectedPair.value?.targetName,
+      isNative: false,
+      chain: 'mvc',
+      queryable: true,
+      decimal: 0,
+      balance: {
+        confirmed: new Decimal(0),
+        unconfirmed: new Decimal(0),
+        total: new Decimal(0),
+      },
+      contract: CoinCategory.MetaContract,
+      protocol: Protocol.MetaContract,
+      codeHash: codeHash.value,
+      genesis: genesis.value,
+      sensibleId: '',
+    } as MetaContractAsset
   }
 })
 
