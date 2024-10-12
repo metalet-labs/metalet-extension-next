@@ -29,6 +29,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           setPassword(msg.args[0])
           return { code: 1 }
         }
+      } else if (msg.eventName === 'ping') {
+        return 'pong'
       }
       return
     }

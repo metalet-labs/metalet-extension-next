@@ -43,7 +43,7 @@ const levelColors = computed(() => {
 </script>
 
 <template>
-  <form @submit.prevent>
+  <div>
     <h4 class="mb-2 text-sm">{{ title || $t('Common.Password') }}</h4>
     <div class="relative h-15">
       <input
@@ -72,5 +72,5 @@ const levelColors = computed(() => {
       </div>
       <p v-if="error" class="absolute py-1 left-0 text-sm text-red-500">{{ error }}</p>
     </div>
-  </form>
+  </div>
 </template>

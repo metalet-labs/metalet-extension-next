@@ -2,7 +2,6 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useQueryClient } from '@tanstack/vue-query'
 import BgHueImg from './assets/images/bg-hue.png?url'
 import TheFooter from './components/the-footer/Index.vue'
 import TheHeader from './components/headers/TheHeader.vue'
@@ -10,13 +9,6 @@ import SecondaryHeader from './components/headers/SecondaryHeader.vue'
 
 const { t } = useI18n()
 const route = useRoute()
-
-const queryClient = useQueryClient()
-queryClient.setDefaultOptions({
-  queries: {
-    staleTime: 1000 * 30,
-  },
-})
 
 const noFooter = computed(() => {
   return route.meta.noFooter
