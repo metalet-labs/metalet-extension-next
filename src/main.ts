@@ -12,16 +12,13 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 import Notification from './components/Notification.vue'
 
 const maxRetries = 3
-const retryDelay = 100
 
 const fetchWithRetry = async (retries = maxRetries) => {
-  if(IS_DEV) return
+  if (IS_DEV) return
   try {
     return await notifyBg('ping')()
   } catch (error) {
     if (retries > 0) {
-      console.warn(`Request failed, retrying in ${retryDelay / 1000} seconds... Remaining retries: ${retries}`)
-      await new Promise((resolve) => setTimeout(resolve, retryDelay))
       return fetchWithRetry(retries - 1)
     } else {
       console.error('Request failed, maximum retry attempts reached')

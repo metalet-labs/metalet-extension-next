@@ -50,8 +50,8 @@ export async function removeAssetsDisplay(asset: string) {
   await setAccount(account)
 }
 
-export async function getTokenBalance() {
-  const wallet = await getCurrentWallet(Chain.MVC)
+export async function getTokenBalance(password?: string) {
+  const wallet = await getCurrentWallet(Chain.MVC, { password })
   const address = wallet.getAddress()
   return await fetchMVCTokens(address)
 }
