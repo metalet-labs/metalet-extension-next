@@ -25,6 +25,7 @@ const router = useRouter()
 const symbol = ref(route.params.symbol as string)
 const address = ref(route.params.address as string)
 const genesis = ref(route.params.genesis as string)
+const codehash = ref(route.params.codeHash as string)
 const enabled = computed(() => !!address.value && !!symbol.value && !!genesis.value)
 
 const { getIcon } = useIconsStore()
@@ -32,7 +33,7 @@ const icon = computed(() => getIcon(CoinCategory.MetaContract, genesis.value) ||
 
 const tags = getTags(CoinCategory.MetaContract)
 
-const { data: assets } = useMetaContractAssetsQuery(address, { enabled })
+const { data: assets } = useMetaContractAssetsQuery(address, { enabled,genesis,codehash })
 
 const asset = computed(() => {
   if (assets.value?.length) {

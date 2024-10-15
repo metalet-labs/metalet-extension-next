@@ -80,7 +80,7 @@ function toBRC20(asset: Asset, address: string) {
 function toToken(token: MetaContractAsset, address: string) {
   router.push({
     name: 'token',
-    params: { genesis: token.genesis, symbol: token.symbol, address },
+    params: { genesis: token.genesis, symbol: token.symbol, address,codeHash: token.codeHash },
   })
 }
 
