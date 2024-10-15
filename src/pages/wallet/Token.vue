@@ -26,14 +26,14 @@ const symbol = ref(route.params.symbol as string)
 const address = ref(route.params.address as string)
 const genesis = ref(route.params.genesis as string)
 const codehash = ref(route.params.codeHash as string)
-const enabled = computed(() => !!address.value && !!symbol.value && !!genesis.value)
+const enabled = computed(() => !!address.value && !!symbol.value && !!genesis.value && !!codehash.value)
 
 const { getIcon } = useIconsStore()
 const icon = computed(() => getIcon(CoinCategory.MetaContract, genesis.value) || '')
 
 const tags = getTags(CoinCategory.MetaContract)
 
-const { data: assets } = useMetaContractAssetsQuery(address, { enabled,genesis,codehash })
+const { data: assets } = useMetaContractAssetsQuery(address, { enabled, genesis, codehash })
 
 const asset = computed(() => {
   if (assets.value?.length) {
@@ -72,11 +72,13 @@ const assetUSD = computed(() => {
 const toSend = () => {
   router.push({
     name: 'send-token',
-    params: { symbol: symbol.value, genesis: genesis.value, address: address.value },
+    params: { symbol: symbol.value, genesis: genesis.value, address: address.value, codeHash: codehash.value },
   })
 }
 const toReceive = () => {
-  router.push(`/wallet/receive/${CoinCategory.MetaContract}/${symbol.value}/${address.value}?chain=mvc&genesis=${genesis.value}`)
+  router.push(
+    `/wallet/receive/${CoinCategory.MetaContract}/${symbol.value}/${address.value}?chain=mvc&genesis=${genesis.value}`
+  )
 }
 
 const copyGenesis = () => {

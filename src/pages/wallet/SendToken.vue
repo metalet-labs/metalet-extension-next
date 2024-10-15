@@ -21,6 +21,8 @@ const router = useRouter()
 const symbol = ref(route.params.symbol as string)
 const genesis = ref(route.params.genesis as string)
 const address = ref(route.params.address as string)
+const codehash = ref(route.params.codeHash as string)
+const enabled = computed(() => !!address.value && !!symbol.value && !!genesis.value && !!codehash.value)
 
 const { getIcon } = useIconsStore()
 const logo = computed(() => getIcon(CoinCategory.MetaContract, route.params.genesis as string) || '')
@@ -31,8 +33,9 @@ const tags = getTags(CoinCategory.MetaContract)
 
 // 用户拥有的代币资产
 const { data: assets } = useMetaContractAssetsQuery(address, {
-  genesis: genesis,
-  enabled: computed(() => !!address.value && !!genesis.value),
+  genesis,
+  enabled,
+  codehash,
 })
 
 const asset = computed(() => {
