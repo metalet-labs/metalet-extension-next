@@ -350,6 +350,7 @@ const routes = [
         path: '/nft/brc20/detail/:address/:inscriptionId',
         component: () => import('./pages/nfts/BRCTokenDetail.vue'),
         meta: {
+          secondaryHeader: true,
           noFooter: true,
         },
       },

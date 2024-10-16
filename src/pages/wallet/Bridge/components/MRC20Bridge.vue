@@ -349,7 +349,7 @@ watchEffect(() => {
           <button
             @click="flipAsset"
             :class="[
-              'box-content hidden rounded-lg bg-gray-secondary p-2 shadow-sm shadow-runes/80 transition-all duration-500 group-hover:inline lg:duration-200',
+              'box-content hidden rounded-lg bg-gray-secondary p-2 shadow-sm shadow-bridge/80 transition-all duration-500 group-hover:inline lg:duration-200',
               { 'rotate-180': flippedControl },
             ]"
           >

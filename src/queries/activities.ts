@@ -159,7 +159,7 @@ export const fetchSpaceActivities = async (address: string): Promise<Activities>
     cursor: '0',
     size: '100000',
   })
-  return list
+  return list.map((item) => ({ ...item, time: item.time * 1000 }))
 }
 
 export const fetchTokenActivities = async (address: string, asset: MetaContractAsset): Promise<TokenActivities> => {
@@ -172,7 +172,7 @@ export const fetchTokenActivities = async (address: string, asset: MetaContractA
     genesis: asset.genesis,
     codeHash: asset.codeHash,
   })
-  return list
+  return list.map((item) => ({ ...item, time: item.time * 1000 }))
 }
 
 export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean> }) => {
