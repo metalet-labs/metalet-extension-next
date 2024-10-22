@@ -106,6 +106,22 @@ export async function getV3CurrentWallet() {
   return wallet
 }
 
+export async function getActiveWallet() {
+  const currentWalletId = await getCurrentWalletId()
+  if (!currentWalletId) {
+    throw new Error('currentWalletId id not found')
+  }
+  const wallets = await getV3EncryptedWallets()
+  if (!wallets.length) {
+    throw new Error('wallets not found')
+  }
+  let wallet = wallets.find((wallet) => wallet.id === currentWalletId)
+  if (!wallet) {
+    throw new Error('wallets not found')
+  }
+  return wallet
+}
+
 export async function getWalletOnlyAccount(walletId: string, accountId: string) {
   if (!walletId) {
     throw new Error('wallet id not found')
