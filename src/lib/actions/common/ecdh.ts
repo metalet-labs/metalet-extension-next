@@ -24,7 +24,7 @@ export async function process(
 
   const _externalPubKey = Buffer.from(externalPubKey, 'hex')
 
-  const ecdhKey = ecdh.createECDH('secp256k1')
+  const ecdhKey = ecdh.createECDH('prime256v1')
   // @ts-ignore
   ecdhKey.setPrivateKey(privateKey)
 
