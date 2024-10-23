@@ -159,6 +159,10 @@ export async function merge(params: any) {
   return await createAction('Merge', 'authorize', params)
 }
 
+export async function ecdh(params: { path?: string; externalPubKey: string }) {
+  return await createAction('ECDH', 'query', params)
+}
+
 // export async function transferAll(params: {
 //   receivers: {
 //     address: string

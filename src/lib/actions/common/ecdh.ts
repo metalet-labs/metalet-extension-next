@@ -1,22 +1,24 @@
-import * as ecdh from 'crypto'
+import * as crypto from 'crypto'
 import { getNet } from '@/lib/network'
+import { decrypt } from '@/lib/crypto'
 import { getActiveWallet } from '@/lib/wallet'
 import { AddressType, BaseWallet, ScriptType } from '@metalet/utxo-wallet-service'
 
 export async function process(
-  _: unknown,
-  { path = "m/100'/0'/0'/0/0", externalPubKey }: { path?: string; externalPubKey: string }
+  { path = "m/100'/0'/0'/0/0", externalPubKey }: { path?: string; externalPubKey: string },
+  { password }: { password: string }
 ) {
   const network = getNet()
   const activeWallet = await getActiveWallet()
+  const mnemonic = decrypt(activeWallet.mnemonic, password)
 
   const wallet = new BaseWallet({
     // @ts-ignore
     path,
     network,
+    mnemonic,
     addressIndex: 0,
     scriptType: ScriptType.P2PKH,
-    mnemonic: activeWallet.mnemonic,
     addressType: AddressType.Legacy,
   })
 
@@ -24,12 +26,10 @@ export async function process(
 
   const _externalPubKey = Buffer.from(externalPubKey, 'hex')
 
-  const ecdhKey = ecdh.createECDH('prime256v1')
-  // @ts-ignore
-  ecdhKey.setPrivateKey(privateKey)
+  const ecdh = crypto.createECDH('prime256v1')
+  ecdh.setPrivateKey(privateKey!)
 
-  // 返回协商密钥
-  const sharedSecret = ecdhKey.computeSecret(_externalPubKey)
+  const sharedSecret = ecdh.computeSecret(_externalPubKey)
 
-  return sharedSecret.toString('hex')
+  return { sharedSecret: sharedSecret.toString('hex'), privateKey: privateKey?.toString('hex') || '', externalPubKey }
 }

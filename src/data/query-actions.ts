@@ -20,6 +20,8 @@ import * as PushPsbt from '../lib/actions/btc/push-psbt'
 import * as BTCVerifyMessage from '../lib/actions/btc/verify-message'
 import * as AddSafeUtxo from '../lib/actions/btc/add-safe-utxo'
 
+import * as ECDH from '../lib/actions/common/ecdh'
+
 type QueryAction = {
   process: Function
 }
@@ -46,4 +48,7 @@ export default {
   PushPsbt,
   BTCVerifyMessage,
   AddSafeUtxo,
+
+  // Common
+  ECDH,
 } as { [key: string]: QueryAction }

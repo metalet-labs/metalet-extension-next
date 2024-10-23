@@ -21,6 +21,7 @@ import {
   signTransaction,
   signTransactions,
   pay,
+  ecdh,
 } from './actions'
 
 import { btcKeys, createAction, ActionType, on, removeListener } from './actions'
@@ -107,6 +108,9 @@ const metalet: any = {
   // transferAll,
   token: {
     getBalance: getTokenBalance,
+  },
+  commons: {
+    ecdh: ecdh,
   },
   nft: {},
 
