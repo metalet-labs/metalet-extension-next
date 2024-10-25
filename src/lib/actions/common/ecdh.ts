@@ -33,5 +33,5 @@ export async function process(
 
   const sharedSecret = crypto.createHash('sha256').update(_sharedSecret).digest()
 
-  return { sharedSecret: sharedSecret.toString('hex'), privateKey: privateKey?.toString('hex') || '', externalPubKey }
+  return { sharedSecret: sharedSecret.toString('hex'), externalPubKey }
 }
