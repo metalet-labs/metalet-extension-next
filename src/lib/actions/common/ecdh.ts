@@ -29,7 +29,9 @@ export async function process(
   const ecdh = crypto.createECDH('prime256v1')
   ecdh.setPrivateKey(privateKey!)
 
-  const sharedSecret = ecdh.computeSecret(_externalPubKey)
+  const _sharedSecret = ecdh.computeSecret(_externalPubKey)
+
+  const sharedSecret = crypto.createHash('sha256').update(_sharedSecret).digest()
 
   return { sharedSecret: sharedSecret.toString('hex'), privateKey: privateKey?.toString('hex') || '', externalPubKey }
 }
