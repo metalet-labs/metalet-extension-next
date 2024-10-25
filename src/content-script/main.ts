@@ -109,8 +109,8 @@ const metalet: any = {
   token: {
     getBalance: getTokenBalance,
   },
-  commons: {
-    ecdh: ecdh,
+  common: {
+    ecdh,
   },
   nft: {},
 
