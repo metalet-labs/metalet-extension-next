@@ -30,7 +30,7 @@ const { isLoading, data: metaContracts } = useMetacontractsQuery(
 
 const infoDetail = computed(() => {
   if (metaContracts.value?.length) {
-    return metaContracts.value[0]
+    return metaContracts.value.find((metaContract) => metaContract.tokenIndex === tokenIndex.value)
   }
 })
 
