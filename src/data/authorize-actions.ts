@@ -21,6 +21,7 @@ import * as MRC20Deploy from '../lib/actions/btc/mrc20-deploy'
 import * as MRC20Mint from '../lib/actions/btc/mrc20-mint'
 import * as MRC20Transfer from '../lib/actions/btc/mrc20-transfer'
 import * as TransferUtxo from '../lib/actions/btc/transfer-utxo'
+import * as TransferNFT from '../lib/actions/transfer-nft'
 
 function doNothing() {}
 
@@ -207,6 +208,14 @@ export default {
     title: 'Transfer Utxo',
     description: '',
     process: TransferUtxo.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  TransferNFT: {
+    name: 'TransferNFT',
+    title: 'Transfer NFT',
+    description: '',
+    process: TransferNFT.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

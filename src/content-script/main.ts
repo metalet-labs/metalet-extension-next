@@ -22,6 +22,7 @@ import {
   signTransactions,
   pay,
   ecdh,
+  transferNFT,
 } from './actions'
 
 import { btcKeys, createAction, ActionType, on, removeListener } from './actions'
@@ -126,6 +127,7 @@ const metalet: any = {
   exitAccount: disconnect,
   getMvcBalance: getBalance,
   getSensibleFtBalance: getTokenBalance,
+  transferNFT,
 }
 
 Object.keys(btcKeys).forEach((type) => {

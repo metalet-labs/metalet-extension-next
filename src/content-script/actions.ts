@@ -163,6 +163,16 @@ export async function ecdh(params: { path?: string; externalPubKey: string }) {
   return await createAction('ECDH', 'query', params)
 }
 
+export async function transferNFT(params: {
+  codehash: string
+  genesis: string
+  tokenIndex: string
+  recipient: string
+  options?: { noBroadcast?: boolean; feeRate?: string | number; useUnconfirmed?: boolean }
+}) {
+  return await createAction('TransferNFT', 'authorize', params)
+}
+
 // export async function transferAll(params: {
 //   receivers: {
 //     address: string

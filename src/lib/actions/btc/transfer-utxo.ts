@@ -17,7 +17,6 @@ export async function process({
   changeAddress,
 }: TransferParameters): Promise<{ txId: string } | { txHex: string }> {
   const wallet = await getCurrentWallet(Chain.BTC)
-  const address = wallet.getAddress()
 
   let feeRate = options?.feeRate
 
