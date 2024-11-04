@@ -231,6 +231,7 @@ export const btcKeys: Omit<Keys, 'event'> = {
     { name: 'deployMRC20', action: 'MRC20Deploy' },
     { name: 'mintMRC20', action: 'MRC20Mint' },
     { name: 'transferMRC20', action: 'MRC20Transfer' },
+    { name: 'transferUtxo', action: 'TransferUtxo' },
   ],
   inscribe: [{ name: 'inscribeTransfer', action: 'InscribeTransfer' }],
 }

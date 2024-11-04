@@ -20,6 +20,7 @@ import * as BTCTransfer from '../lib/actions/btc/transfer'
 import * as MRC20Deploy from '../lib/actions/btc/mrc20-deploy'
 import * as MRC20Mint from '../lib/actions/btc/mrc20-mint'
 import * as MRC20Transfer from '../lib/actions/btc/mrc20-transfer'
+import * as TransferUtxo from '../lib/actions/btc/transfer-utxo'
 
 function doNothing() {}
 
@@ -198,6 +199,14 @@ export default {
     title: 'MRC20 Mint',
     description: '',
     process: MRC20Mint.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  TransferUtxo: {
+    name: 'TransferUtxo',
+    title: 'Transfer Utxo',
+    description: '',
+    process: TransferUtxo.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },
