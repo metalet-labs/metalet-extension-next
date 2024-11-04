@@ -26,7 +26,7 @@ const codehash = computed(() => props.codehash)
 const genesis = computed(() => props.genesis)
 const tokenIndex = computed(() => props.tokenIndex)
 
-const { isLoading, data: metaContracts } = useMetacontractsQuery(
+const { data: metaContracts } = useMetacontractsQuery(
   { address, codehash, genesis },
   { enabled: computed(() => !!address.value) }
 )
@@ -196,7 +196,9 @@ async function transfer() {
           >
             {{ $t('Common.Cancel') }}
           </button>
-          <button class="bg-blue-primary w-30 rounded-3xl py-3 text-ss text-white" @click="transfer">{{ $t('Common.Confirm') }}</button>
+          <button class="bg-blue-primary w-30 rounded-3xl py-3 text-ss text-white" @click="transfer">
+            {{ $t('Common.Confirm') }}
+          </button>
         </div>
       </template>
     </Modal>
