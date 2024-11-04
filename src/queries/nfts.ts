@@ -108,6 +108,7 @@ interface MetaContract {
   name: string
   icon: string
   seriesName: string
+  imgUrl: string
 }
 
 type ListResult<T> = {
@@ -180,9 +181,11 @@ export const useMetacontractsQuery = (
         tokenIndex: metaContract.tokenIndex,
         metaTxId: metaContract.metaTxId,
         metaOutputIndex: metaContract.metaOutputIndex,
-        imgUrl: metaContract.icon
-          ? `https://metalet.space/metafile/compress/${metaContract.icon.match(/metafile:\/\/(.*?)(?:\..*)?$/)?.[1] || ''}`
-          : '',
+        imgUrl: metaContract.imgUrl
+          ? metaContract.imgUrl
+          : metaContract.icon
+            ? `https://metalet.space/metafile/compress/${metaContract.icon.match(/metafile:\/\/(.*?)(?:\..*)?$/)?.[1] || ''}`
+            : '',
       }))
     },
     ...options,
