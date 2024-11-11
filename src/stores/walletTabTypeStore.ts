@@ -18,11 +18,11 @@ const tabs: TabType[] = [
     disabled: false,
     isNew: false,
   },
-  { id: 2, name: 'NFTs', disabled: false, isNew: false },
+  { id: 2, name: 'NFTS', disabled: false, isNew: false },
   { id: 3, name: 'Runes', disabled: true, isNew: false, chain: Chain.BTC },
   { id: 4, name: 'MRC20', disabled: false, isNew: false, chain: Chain.BTC },
-  { id: 5, name: 'MetaID PIN', disabled: true, isNew: false, chain: Chain.BTC },
-  { id: 6, name: 'MRC721', disabled: false, isNew: true },
+  { id: 5, name: 'PIN', disabled: false, isNew: false, chain: Chain.BTC },
+  { id: 6, name: 'MRC721', disabled: true, isNew: false },
 ]
 
 interface WalletStore {

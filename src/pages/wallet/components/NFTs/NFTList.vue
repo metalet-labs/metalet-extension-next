@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import NO_NFT_DATA from './NoNFTData.vue'
+import MRC721List from '../MetaID/MRC721List.vue'
 import InscriptionList from './InscriptionList.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
 import MetaContractList from './MetaContractList.vue'
@@ -52,15 +53,17 @@ const nftTypeOnchange = (_nftType: NFTType) => {
           <DropdownMenuItem @select="nftTypeOnchange('MetaContract')" v-if="service.includes(Chain.MVC)">
             MetaContract
           </DropdownMenuItem>
-          <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')">
+          <!-- <DropdownMenuItem @select="nftTypeOnchange('MetaID PIN')">
             MetaID PIN
-          </DropdownMenuItem>
+          </DropdownMenuItem> -->
+          <DropdownMenuItem @select="nftTypeOnchange('MRC721')">MRC721</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
     <InscriptionList v-if="nftType === 'Ordinals'" />
     <MetaContractList v-else-if="nftType === 'MetaContract'" />
     <MetaIDPinList v-else-if="nftType === 'MetaID PIN'" />
+    <MRC721List v-else-if="nftType === 'MRC721'" />
     <NO_NFT_DATA v-else />
   </div>
 </template>

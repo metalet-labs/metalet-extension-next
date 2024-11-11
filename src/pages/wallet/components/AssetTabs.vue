@@ -9,6 +9,7 @@ import { Chain } from '@metalet/utxo-wallet-service'
 import { walletTabStore } from '@/stores/walletTabTypeStore'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import MRC721List from './MetaID/MRC721List.vue'
+import MetaIDPinList from './MetaID/MetaIDPinList.vue'
 
 const service = ref(Object.values(Chain))
 
@@ -43,11 +44,14 @@ getServiceNetwork().then((_service) => {
     <TabsContent value="Crypto" key="Crypto" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <AssetList />
     </TabsContent>
-    <TabsContent value="NFTs" key="NFTs" class="overflow-y-auto w-full nicer-scrollbar px-4">
+    <TabsContent value="NFTS" key="NFTS" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <NFTList />
     </TabsContent>
     <TabsContent value="MRC20" key="MRC20" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <MRC20List />
+    </TabsContent>
+    <TabsContent value="PIN" key="MetaID PIN" class="overflow-y-auto w-full nicer-scrollbar px-4">
+      <MetaIDPinList />
     </TabsContent>
     <TabsContent value="MRC721" key="MRC721" class="overflow-y-auto w-full nicer-scrollbar px-4">
       <MRC721List />

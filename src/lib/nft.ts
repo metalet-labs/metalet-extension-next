@@ -2,7 +2,7 @@ import { Chain } from '@metalet/utxo-wallet-service'
 import nftGenesiss from '../data/nfts'
 import useStorage from './storage'
 
-export type NFTType = 'Ordinals' | 'MetaContract' | 'MetaID PIN'
+export type NFTType = 'Ordinals' | 'MetaContract' | 'MetaID PIN' | 'MRC721'
 
 const NFTType_Key = 'NFTTabType'
 
@@ -13,6 +13,7 @@ export const nfts = [
   // { id: 2, name: 'Atomicals', disabled: true },
   { id: 3, name: 'MetaContract', disabled: false, chain: Chain.MVC },
   { id: 4, name: 'MetaID PIN', disabled: false, chain: Chain.BTC },
+  { id: 5, name: 'MRC721', disabled: false, chain: Chain.BTC },
 ]
 
 export function isOfficialNft(genesis: string) {
