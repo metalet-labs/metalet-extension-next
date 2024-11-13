@@ -183,8 +183,7 @@ operationLock.value = false
               </div>
               <span
                 :class="[
-                  'absolute rounded right-0 bottom-1 py-3px px-1.5 text-xs scale-75',
-                  imgUrl ? 'bg-[#EBECFF] text-[#787FFF]' : 'bg-[rgb(235,236,255,0.2) text-[#EBECFF]',
+                  'absolute rounded right-0 bottom-1 py-3px px-1.5 text-xs scale-75 bg-[#E2F4FF]/80 text-[#1472FF]',
                 ]"
               >
                 {{ satoshis }} sat
@@ -260,8 +259,12 @@ operationLock.value = false
         </div>
       </div>
       <div class="flex items-center justify-center gap-x-2">
-        <button @click="cancel" class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary">{{ $t('Common.Cancel') }}</button>
-        <button @click="send" class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white">{{ $t('Common.Confirm') }}</button>
+        <button @click="cancel" class="w-30 rounded-3xl bg-blue-light py-4 text-ss text-blue-primary">
+          {{ $t('Common.Cancel') }}
+        </button>
+        <button @click="send" class="w-30 rounded-3xl bg-blue-primary py-4 text-ss text-white">
+          {{ $t('Common.Confirm') }}
+        </button>
       </div>
     </div>
   </div>

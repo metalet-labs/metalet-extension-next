@@ -21,21 +21,6 @@ const metaPinId = ref(params.metaPinId as string)
 
 const { data: metaPin, isLoading } = useMetaPinQuery(metaPinId, { enabled: computed(() => !!address) })
 
-const toSendNFT = (id: string) => {
-  router.push({
-    name: 'sendNFT',
-    params: { id, nftType: 'metaPin' },
-    query: {
-      satoshis: metaPin.value?.outputValue,
-      content: metaPin.value?.contentSummary,
-      imgUrl:
-        metaPin.value?.contentType.includes('image') || metaPin.value?.contentTypeDetect.includes('image')
-          ? metaPin.value?.content
-          : undefined,
-    },
-  })
-}
-
 const getHostAndToTx = async (txId: string) => {
   const host = await getBrowserHost('btc')
   toTx(txId, host as string)
@@ -65,6 +50,18 @@ const imageSrc = computed(() => {
   }
   return ''
 })
+
+const toSendNFT = (id: string) => {
+  router.push({
+    name: 'sendNFT',
+    params: { id, nftType: 'metaPin' },
+    query: {
+      imgUrl: imageSrc.value,
+      satoshis: metaPin.value?.outputValue,
+      content: metaPin.value?.contentSummary,
+    },
+  })
+}
 </script>
 
 <template>
