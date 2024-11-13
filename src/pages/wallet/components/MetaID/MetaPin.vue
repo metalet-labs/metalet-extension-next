@@ -1,36 +1,51 @@
 <script setup lang="ts">
 import { PopCard } from '@/components'
+import { network } from '@/lib/network'
+import { computed } from 'vue'
 
 const props = defineProps<{
   pop: string
+  path?: string
   value: number
   popLv: number
-  content: string
+  content?: string
   contentSummary: string
   contentTypeDetect: string
   contentType: 'utf-8' | 'image/jpeg' | string
 }>()
+
+const imageSrc = computed(() => {
+  if (props.path?.startsWith('/nft/mrc721')) {
+    try {
+      const contentSummary = JSON.parse(props.contentSummary)
+      return contentSummary.attachment[0].content.replace(
+        'metafile://',
+        `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
+      )
+    } catch (error) {
+      return ''
+    }
+  } else if (props?.contentTypeDetect.includes('image')) {
+    return props?.content
+  }
+  return ''
+})
 </script>
 
 <template>
   <div
     :class="[
+      path?.startsWith('/nft/mrc721') ? 'border border-blue-primary' : '',
+      !imageSrc ? 'bg-[#F5F7F9] xs:p-2' : 'border border-[#f5f5f5]',
       'flex items-center justify-center rounded-md relative aspect-square w-full overflow-hidden',
-      { 'bg-blue-primary xs:p-2': !(contentType.includes('image') || contentTypeDetect.includes('image')) },
-      { 'border border-[#f5f5f5]': contentType.includes('image') || contentTypeDetect.includes('image') },
     ]"
   >
     <PopCard :level="popLv" class="absolute left-0 top-0 z-10" />
-    <img
-      :src="content"
-      :alt="contentSummary"
-      v-if="contentTypeDetect.includes('image')"
-      class="w-full h-full object-contain"
-    />
+    <img :alt="contentSummary" class="w-full h-full object-contain" v-if="imageSrc" :src="imageSrc" />
     <div
       v-else
       :title="contentSummary"
-      class="text-xs overflow-hidden line-clamp-4 scale-75 xs:scale-100 sm:line-clamp-5 md:line-clamp-6 break-all text-white"
+      class="text-xs overflow-hidden line-clamp-4 scale-75 xs:scale-100 sm:line-clamp-5 md:line-clamp-6 break-all text-black-primary"
     >
       {{ contentSummary }}
     </div>

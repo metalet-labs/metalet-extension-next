@@ -20,7 +20,7 @@ const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useM
 })
 
 const metaPins = computed(() =>
-  data.value ? data.value.pages.flatMap((page) => page.metaPins.filter((pin) => !pin.path.startsWith('/nft/mrc721'))) : []
+  data.value ? data.value.pages.flatMap((page) => page.metaPins.filter((pin) => true)) : []
 )
 
 const toMetaPinDetail = (metaPinId: string) => {
@@ -43,6 +43,7 @@ const toMetaPinDetail = (metaPinId: string) => {
         >
           <MetaPin
             :pop="metaPin.pop"
+            :path="metaPin.path"
             :popLv="metaPin.popLv"
             :content="metaPin.content"
             :value="metaPin.outputValue"
