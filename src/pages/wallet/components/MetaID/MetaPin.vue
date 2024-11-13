@@ -51,7 +51,7 @@ const imageSrc = computed(() => {
     </div>
     <span
       :title="`${value} sat`"
-      class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#EBECFF] text-[#787FFF] text-xs scale-75"
+      class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#E2F4FF]/80 text-[#1472FF] text-xs scale-75"
     >
       {{ value }} sat
     </span>

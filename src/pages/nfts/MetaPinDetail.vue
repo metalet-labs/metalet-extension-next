@@ -9,6 +9,7 @@ import { UseImage } from '@vueuse/components'
 import { useRoute, useRouter } from 'vue-router'
 import { useMetaPinQuery } from '@/queries/metaPin'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
+import { network } from '@/lib/network'
 import MvcIcon from '@/assets/icons-v3/network_mvc.svg'
 import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
 
@@ -39,6 +40,31 @@ const getHostAndToTx = async (txId: string) => {
   const host = await getBrowserHost('btc')
   toTx(txId, host as string)
 }
+
+const imageSrc = computed(() => {
+  if (metaPin.value?.path?.startsWith('/nft/mrc721')) {
+    try {
+      const contentSummary = JSON.parse(metaPin.value?.contentSummary)
+
+      console.log(
+        contentSummary.attachment[0].content.replace(
+          'metafile://',
+          `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
+        )
+      )
+
+      return contentSummary.attachment[0].content.replace(
+        'metafile://',
+        `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
+      )
+    } catch (error) {
+      return ''
+    }
+  } else if (metaPin.value?.contentTypeDetect.includes('image')) {
+    return metaPin.value?.content
+  }
+  return ''
+})
 </script>
 
 <template>
@@ -48,28 +74,21 @@ const getHostAndToTx = async (txId: string) => {
       <div
         :class="[
           {
-            'p-2 bg-blue-primary': !(
-              metaPin.contentType.includes('image') || metaPin.contentTypeDetect.includes('image')
-            ),
+            'p-2 bg-blue-primary': !imageSrc,
           },
           'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white',
         ]"
       >
         <img
           alt=""
-          :src="metaPin.content"
-          v-if="metaPin.contentType.includes('image') || metaPin.contentTypeDetect.includes('image')"
+          v-if="imageSrc"
+          :src="imageSrc"
           class="w-full h-full border-2 border-gray-soft rounded-xl object-contain"
         />
         <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
         <span
           :title="`${metaPin.outputValue} sat`"
-          :class="[
-            'absolute rounded right-3 bottom-3 py-3px px-1.5 text-xs',
-            metaPin.contentTypeDetect.includes('image')
-              ? 'bg-[#EBECFF] text-[#787FFF]'
-              : 'bg-[rgb(235,236,255,0.2) text-[#EBECFF]',
-          ]"
+          :class="['absolute rounded right-3 bottom-3 py-3px px-1.5 text-xs bg-[#E2F4FF]/80 text-[#1472FF]']"
         >
           {{ metaPin.outputValue }} sat
         </span>
@@ -128,8 +147,8 @@ const getHostAndToTx = async (txId: string) => {
       <div class="row">
         <div class="label">Network</div>
         <div class="flex items-center gap-1">
-          <BtcIcon class="w-4.5" v-if="metaPin.chainName==='btc'"/>
-          <MvcIcon class="w-4.5" v-if="metaPin.chainName==='mvc'"/>
+          <BtcIcon class="w-4.5" v-if="metaPin.chainName === 'btc'" />
+          <MvcIcon class="w-4.5" v-if="metaPin.chainName === 'mvc'" />
           <span class="text-sm">{{ metaPin.chainName }}</span>
         </div>
       </div>
