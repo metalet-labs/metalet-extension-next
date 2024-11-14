@@ -45,7 +45,7 @@ const imageSrc = computed(() => {
     <div
       v-else
       :title="contentSummary"
-      class="text-xs overflow-hidden line-clamp-4 scale-75 xs:scale-100 sm:line-clamp-5 md:line-clamp-6 break-all text-black-primary"
+      class="text-xs overflow-hidden line-clamp-4 scale-75 xs:scale-100 break-all text-black-primary"
     >
       {{ contentSummary }}
     </div>

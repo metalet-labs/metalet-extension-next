@@ -21,7 +21,9 @@ const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useM
 
 const metaPins = computed(() =>
   data.value
-    ? data.value.pages.flatMap((page) => page.metaPins.filter((pin) => pin.path.startsWith('/nft/mrc721')))
+    ? data.value.pages.flatMap((page) =>
+        page.metaPins.filter((pin) => pin.path.startsWith('/nft/mrc721') && !pin.path.includes('/collection_desc'))
+      )
     : []
 )
 
