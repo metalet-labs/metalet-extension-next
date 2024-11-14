@@ -65,7 +65,7 @@ const toSendNFT = (id: string) => {
 </script>
 
 <template>
-  <LoadingText text="MetaID PIN Detail Loading..." v-if="isLoading" />
+  <LoadingText text="Detail Loading..." v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
       <div
