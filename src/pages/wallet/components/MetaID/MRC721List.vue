@@ -81,7 +81,7 @@ const toMetaPinDetail = (metaPinId: string) => {
           !isFetchingNextPage ? 'cursor-pointer hover:text-blue-500 hover:underline' : 'cursor-not-allowed',
         ]"
       >
-        <span class="text-sm">Load more MetaPins</span>
+        <span class="text-sm">Load more NFTs</span>
         <LoadingIcon v-if="isFetchingNextPage" class="!text-gray-primary" />
       </div>
     </div>
