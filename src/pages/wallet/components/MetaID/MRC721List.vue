@@ -61,6 +61,7 @@ const toMetaPinDetail = (metaPinId: string) => {
               :pop="metaPin.pop"
               :popLv="metaPin.popLv"
               :value="metaPin.outputValue"
+              :content="metaPin.content"
               :contentSummary="metaPin.contentSummary"
             />
 
