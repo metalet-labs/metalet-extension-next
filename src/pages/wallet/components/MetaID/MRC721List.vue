@@ -45,7 +45,7 @@ const toMetaPinDetail = (metaPinId: string) => {
 
 <template>
   <div class="space-y-4">
-    <LoadingText v-if="isLoading" text="MetaID Pins loading..." />
+    <LoadingText v-if="isLoading" text="NFTs loading..." />
     <div v-else-if="Object.keys(groupedMetaPins).length">
       <div v-for="(group, path) in groupedMetaPins" :key="path">
         <h3>{{ path.toString().replace('/nft/mrc721/', '') }} ({{ group.length }})</h3>
