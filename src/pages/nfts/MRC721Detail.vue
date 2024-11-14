@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { PopCard } from '@/components'
 import { network } from '@/lib/network'
 import Copy from '@/components/Copy.vue'
 import { LoadingText } from '@/components'
+import { computed, ref, watch } from 'vue'
 import { getBrowserHost } from '@/lib/host'
 import { UseImage } from '@vueuse/components'
 import { useRoute, useRouter } from 'vue-router'
@@ -38,22 +38,39 @@ const getHostAndToTx = async (txId: string) => {
   toTx(txId, host as string)
 }
 
-const imageSrc = computed(() => {
-  if (!metaPin.value) return ''
+const imageSrc = ref('')
+
+const fetchContentSummary = async (url: string) => {
   try {
-    const contentSummary = JSON.parse(metaPin.value?.contentSummary)
-    return contentSummary.attachment[0].content.replace(
-      'metafile://',
-      `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
-    )
+    const response = await fetch(url)
+    if (response.ok) {
+      const data = await response.json()
+      const contentUrl = data.attachment[0].content.replace(
+        'metafile://',
+        `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
+      )
+      imageSrc.value = contentUrl
+    } else {
+      console.error('Failed to fetch content summary:', response.statusText)
+    }
   } catch (error) {
-    return ''
+    console.error('Error fetching content summary:', error)
   }
-})
+}
+
+watch(
+  () => metaPin.value?.content,
+  (newContent) => {
+    if (newContent) {
+      fetchContentSummary(newContent)
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
-  <LoadingText text="MetaID PIN Detail Loading..." v-if="isLoading" />
+  <LoadingText text="Data Loading..." v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
       <div

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { PopCard } from '@/components'
 import Copy from '@/components/Copy.vue'
@@ -26,30 +26,35 @@ const getHostAndToTx = async (txId: string) => {
   toTx(txId, host as string)
 }
 
-const imageSrc = computed(() => {
-  if (metaPin.value?.path?.startsWith('/nft/mrc721')) {
-    try {
-      const contentSummary = JSON.parse(metaPin.value?.contentSummary)
+const imageSrc = ref('')
 
-      console.log(
-        contentSummary.attachment[0].content.replace(
-          'metafile://',
-          `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
-        )
-      )
-
-      return contentSummary.attachment[0].content.replace(
+const fetchContentSummary = async (url: string) => {
+  try {
+    const response = await fetch(url)
+    if (response.ok) {
+      const data = await response.json()
+      const contentUrl = data.attachment[0].content.replace(
         'metafile://',
         `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
       )
-    } catch (error) {
-      return ''
+      imageSrc.value = contentUrl
+    } else {
+      console.error('Failed to fetch content summary:', response.statusText)
     }
-  } else if (metaPin.value?.contentTypeDetect.includes('image')) {
-    return metaPin.value?.content
+  } catch (error) {
+    console.error('Error fetching content summary:', error)
   }
-  return ''
-})
+}
+
+watch(
+  () => metaPin.value?.content,
+  (newContent) => {
+    if (newContent) {
+      fetchContentSummary(newContent)
+    }
+  },
+  { immediate: true }
+)
 
 const toSendNFT = (id: string) => {
   router.push({

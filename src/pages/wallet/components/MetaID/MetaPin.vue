@@ -1,34 +1,41 @@
 <script setup lang="ts">
 import { PopCard } from '@/components'
 import { network } from '@/lib/network'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps<{
   pop: string
   path?: string
   value: number
   popLv: number
-  content?: string
+  content: string
   contentSummary: string
   contentTypeDetect: string
   contentType: 'utf-8' | 'image/jpeg' | string
 }>()
 
-const imageSrc = computed(() => {
-  if (props.path?.startsWith('/nft/mrc721')) {
-    try {
-      const contentSummary = JSON.parse(props.contentSummary)
-      return contentSummary.attachment[0].content.replace(
+const imageSrc = ref('')
+
+const fetchContentSummary = async (url: string) => {
+  try {
+    const response = await fetch(url)
+    if (response.ok) {
+      const data = await response.json()
+      const contentUrl = data.attachment[0].content.replace(
         'metafile://',
         `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
       )
-    } catch (error) {
-      return ''
+      imageSrc.value = contentUrl
+    } else {
+      console.error('Failed to fetch content summary:', response.statusText)
     }
-  } else if (props?.contentTypeDetect.includes('image')) {
-    return props?.content
+  } catch (error) {
+    console.error('Error fetching content summary:', error)
   }
-  return ''
+}
+
+onMounted(() => {
+  fetchContentSummary(props.content)
 })
 </script>
 
