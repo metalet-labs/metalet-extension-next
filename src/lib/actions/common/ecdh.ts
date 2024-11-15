@@ -36,6 +36,7 @@ export async function process(
   return {
     externalPubKey,
     sharedSecret: sharedSecret.toString('hex'),
+    ecdhPubKey: ecdh.getPublicKey().toString('hex'),
     creatorPubkey: wallet.getPublicKey().toString('hex'),
   }
 }
