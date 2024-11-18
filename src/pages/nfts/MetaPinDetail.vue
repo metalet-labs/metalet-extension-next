@@ -76,9 +76,9 @@ const toSendNFT = (id: string) => {
       <div
         :class="[
           {
-            'p-2 bg-blue-primary': !imageSrc,
+            'p-2 bg-[#F5F7F9]': !imageSrc,
           },
-          'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative text-white',
+          'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative',
         ]"
       >
         <img
