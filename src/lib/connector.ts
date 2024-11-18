@@ -31,6 +31,8 @@ async function getConnections() {
   return await storage.get<Connections>(CONNECTIONS_KEY, { defaultValue: {} })
 }
 
+
+// FIXME：Restrict for chain or full connection
 connector.connect = async function (accountId, host, logo?: string) {
   const connections = await getConnections()
   const accountConnections = connections[accountId] || {}

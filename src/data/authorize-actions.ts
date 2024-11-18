@@ -23,6 +23,9 @@ import * as MRC20Transfer from '../lib/actions/btc/mrc20-transfer'
 import * as TransferUtxo from '../lib/actions/btc/transfer-utxo'
 import * as TransferNFT from '../lib/actions/transfer-nft'
 
+// Common
+import * as OmniConnect from '../lib/actions/common/omniConnect'
+
 function doNothing() {}
 
 type AuthorizeAction = {
@@ -216,6 +219,16 @@ export default {
     title: 'Transfer NFT',
     description: '',
     process: TransferNFT.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+
+  // Common
+  OmniConnect: {
+    name: 'OmniConnect',
+    title: 'Omni Connect',
+    description: '',
+    process: OmniConnect.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

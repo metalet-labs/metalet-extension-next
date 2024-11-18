@@ -163,6 +163,10 @@ export async function ecdh(params: { path?: string; externalPubKey: string }) {
   return await createAction('ECDH', 'query', params)
 }
 
+export async function omniConnect() {
+  return await createAction('OmniConnect')
+}
+
 export async function transferNFT(params: {
   codehash: string
   genesis: string

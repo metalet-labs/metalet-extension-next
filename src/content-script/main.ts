@@ -23,6 +23,7 @@ import {
   pay,
   ecdh,
   transferNFT,
+  omniConnect,
 } from './actions'
 
 import { btcKeys, createAction, ActionType, on, removeListener } from './actions'
@@ -112,6 +113,7 @@ const metalet: any = {
   },
   common: {
     ecdh,
+    omniConnect,
   },
   nft: {},
 
