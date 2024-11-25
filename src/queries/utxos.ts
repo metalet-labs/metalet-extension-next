@@ -120,7 +120,12 @@ export interface UnisatUTXO {
 // TODO: add mode
 export async function getBtcUtxos(address: string, needRawTx = false, useUnconfirmed = true): Promise<UTXO[]> {
   const net = getNet()
-  let utxos = (await metaletApiV3<UTXO[]>('/address/btc-utxo').get({ net, address, unconfirmed: '1' })) || []
+  let utxos =
+    (await metaletApiV3<UTXO[]>('/address/btc-utxo', { withCredential: false }).get({
+      net,
+      address,
+      unconfirmed: '1',
+    })) || []
 
   utxos = utxos.filter((utxo) => utxo.satoshis >= 600)
 
@@ -131,7 +136,7 @@ export async function getBtcUtxos(address: string, needRawTx = false, useUnconfi
   }
   if (needRawTx) {
     for (let utxo of utxos) {
-      utxo.rawTx = await fetchBtcTxHex(utxo.txId)
+      utxo.rawTx = await fetchBtcTxHex(utxo.txId, { withCredential: false })
     }
   }
   return utxos.sort((a, b) => {

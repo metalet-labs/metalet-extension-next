@@ -5,9 +5,14 @@ import { metaletApiV3 } from './request'
 import { useQuery } from '@tanstack/vue-query'
 import { Chain } from '@metalet/utxo-wallet-service'
 
-export const fetchBtcTxHex = async (txId: string): Promise<string> => {
+export const fetchBtcTxHex = async (
+  txId: string,
+  option?: {
+    withCredential: boolean
+  }
+): Promise<string> => {
   const net = getNet()
-  return metaletApiV3<{ rawTx: string }>(`/tx/raw`)
+  return metaletApiV3<{ rawTx: string }>(`/tx/raw`, option)
     .get({ net, txId, chain: 'btc' })
     .then((res) => res.rawTx)
 }
