@@ -112,6 +112,7 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
+  isOpenConfirmModal.value = true
   if (symbol.value === 'BTC') {
     operationLock.value = true
     if (address.value !== currentBTCWallet.value!.getAddress()) {
@@ -164,7 +165,6 @@ const popConfirm = async () => {
       cost.value = amountInSats.value.add(fee).toNumber()
       txHex.value = sentRes.txHex
     }
-    isOpenConfirmModal.value = true
   }
 }
 
@@ -304,7 +304,7 @@ async function send() {
         </div> -->
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary flex items-end gap-1">
-            <span>{{$t('Common.Pending')}}</span>
+            <span>{{ $t('Common.Pending') }}</span>
             <span
               v-tooltip="
                 'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'
@@ -318,7 +318,7 @@ async function send() {
           </span>
         </div>
         <div class="flex items-center justify-between w-full">
-          <span class="text-xs text-gray-primary">{{$t('Common.Available')}}</span>
+          <span class="text-xs text-gray-primary">{{ $t('Common.Available') }}</span>
           <span class="text-xs text-gray-primary">
             {{ prettifyBalanceFixed(balanceData?.confirmed.toNumber() || 0, symbol, asset.decimal) }}
           </span>
@@ -365,7 +365,9 @@ async function send() {
           <DrawerFooter>
             <FlexBox ai="center" jc="center" :gap="2">
               <DrawerClose>
-                <Button type="light" class="w-[119px] h-12" @click="operationLock = false">{{ $t('Common.Cancel') }}</Button>
+                <Button type="light" class="w-[119px] h-12" @click="operationLock = false">
+                  {{ $t('Common.Cancel') }}
+                </Button>
               </DrawerClose>
               <Button
                 @click="send"

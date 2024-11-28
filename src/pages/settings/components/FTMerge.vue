@@ -51,7 +51,7 @@ const split = async (genesis: string, codehash: string, symbol: string, decimal:
     const apiHost = await getApiHost()
     const ftManager = new FtManager({
       network,
-      apiTarget: API_TARGET.MVC,
+      apiTarget: API_TARGET.CYBER3,
       purse,
       feeb: FEEB,
       apiHost,
@@ -105,7 +105,7 @@ const merge = async (genesis: string, codehash: string) => {
     const apiHost = await getApiHost()
     const ftManager = new FtManager({
       network,
-      apiTarget: API_TARGET.MVC,
+      apiTarget: API_TARGET.CYBER3,
       purse,
       feeb: FEEB,
       apiHost,
@@ -161,7 +161,7 @@ watch(
         const apiHost = await getApiHost()
         const manager = new FtManager({
           network,
-          apiTarget: API_TARGET.MVC,
+          apiTarget: API_TARGET.CYBER3,
           purse,
           feeb: FEEB,
           apiHost,

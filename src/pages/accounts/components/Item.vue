@@ -57,7 +57,7 @@ const connect = async () => {
   // update injected wallet
   const network = await getNetwork()
   const wif = await getPrivateKey()
-  wallet.value = new Wallet(wif, network as API_NET, FEEB, API_TARGET.MVC)
+  wallet.value = new Wallet(wif, network as API_NET, FEEB, API_TARGET.CYBER3)
 
   assetList.value = []
 
