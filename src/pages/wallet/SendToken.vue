@@ -5,7 +5,7 @@ import { getTags } from '@/data/assets'
 import { getNetwork } from '@/lib/network'
 import { useRoute, useRouter } from 'vue-router'
 import { prettifyAddress } from '@/lib/formatters'
-import { API_NET, FtManager } from 'meta-contract'
+import { API_NET, API_TARGET, FtManager } from 'meta-contract'
 import { useIconsStore } from '@/stores/IconsStore'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import type { TransactionResult } from '@/global-types'
@@ -76,6 +76,7 @@ async function send() {
   const ftManager = new FtManager({
     network: network as API_NET,
     purse: privateKey,
+    apiTarget: API_TARGET.CYBER3,
   })
 
   // Pick the largest utxo from wallet to pay the transaction
