@@ -281,7 +281,7 @@ async function send() {
           <span class="text-gray-primary text-xs">
             <span>Max:</span>
             <span v-if="balance !== undefined">
-              {{ prettifyBalanceFixed(balanceData?.confirmed.toNumber() || 0, symbol, asset.decimal) }}
+              {{ prettifyBalanceFixed(balanceData?.total.toNumber() || 0, symbol, asset.decimal) }}
             </span>
             <span v-else>--</span>
           </span>
