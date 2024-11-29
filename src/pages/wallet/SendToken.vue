@@ -84,7 +84,7 @@ async function send() {
     .getUnspents(address.value)
     .then((utxos) => {
       return utxos.reduce((prev, curr) => {
-        if (curr.satoshis > prev.satoshis) return curr
+        if (new Decimal(curr.satoshis).gt(prev.satoshis)) return curr
         return prev
       })
     })
