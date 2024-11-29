@@ -1,5 +1,4 @@
 import { FEEB } from '@/data/config'
-import { getApiHost } from '../host'
 import { getNetwork } from '../network'
 import { getCurrentWallet } from '../wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -20,15 +19,13 @@ export async function process({ tasks, broadcast = true }: { tasks: TransferTask
   const chianWallet = await getCurrentWallet(Chain.MVC)
   const purse = chianWallet.getPrivateKey()
   const address = chianWallet.getAddress()
-  const apiHost = await getApiHost()
 
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3, apiHost)
+  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3)
   const ftManager = new FtManager({
     network,
     apiTarget: API_TARGET.CYBER3,
     purse,
     feeb: FEEB,
-    apiHost,
   })
 
   // 串行执行

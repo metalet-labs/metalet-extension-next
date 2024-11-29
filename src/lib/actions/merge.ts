@@ -1,5 +1,4 @@
 import { FEEB } from '@/data/config'
-import { getApiHost } from '../host'
 import { getNetwork } from '../network'
 import { getCurrentWallet } from '../wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -9,9 +8,8 @@ export async function process() {
   const network: API_NET = (await getNetwork()) as API_NET
   const chainWallet = await getCurrentWallet(Chain.MVC)
   const purse = chainWallet.getPrivateKey()
-  const apiHost = await getApiHost()
 
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3, apiHost)
+  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3)
 
   type TransferResult = {
     id: number

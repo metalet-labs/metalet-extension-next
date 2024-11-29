@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { FEEB } from '@/data/config'
-import { getApiHost } from '@/lib/host'
 import { computed, ref, watch } from 'vue'
 import { getNetwork } from '@/lib/network'
 import Avatar from '@/components/Avatar.vue'
@@ -48,13 +47,11 @@ const split = async (genesis: string, codehash: string, symbol: string, decimal:
     currentCodehash.value = codehash
     const network: API_NET = (await getNetwork()) as API_NET
     const purse = currentMVCWallet.value!.getPrivateKey()
-    const apiHost = await getApiHost()
     const ftManager = new FtManager({
       network,
       apiTarget: API_TARGET.CYBER3,
       purse,
       feeb: FEEB,
-      apiHost,
     })
     let receivers: Receiver[] = []
     for (let i = 0; i < splitCount; i++) {
@@ -102,13 +99,11 @@ const merge = async (genesis: string, codehash: string) => {
     operation.value = 'merge'
     const network: API_NET = (await getNetwork()) as API_NET
     const purse = currentMVCWallet.value!.getPrivateKey()
-    const apiHost = await getApiHost()
     const ftManager = new FtManager({
       network,
       apiTarget: API_TARGET.CYBER3,
       purse,
       feeb: FEEB,
-      apiHost,
     })
     loading.value = true
     const { txids } = await ftManager
@@ -158,13 +153,11 @@ watch(
         const { codeHash, genesis } = asset
         const network: API_NET = (await getNetwork()) as API_NET
         const purse = _currentMVCWallet.getPrivateKey()
-        const apiHost = await getApiHost()
         const manager = new FtManager({
           network,
           apiTarget: API_TARGET.CYBER3,
           purse,
           feeb: FEEB,
-          apiHost,
         })
         await manager.api.getFungibleTokenUnspents(codeHash, genesis, _address).then((data: any) => {
           _assets.push({

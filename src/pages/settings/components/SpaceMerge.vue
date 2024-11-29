@@ -2,7 +2,6 @@
 import { computed, ref } from 'vue'
 import { FEEB } from '@/data/config'
 import { Avatar } from '@/components'
-import { getApiHost } from '@/lib/host'
 import { getNetwork } from '@/lib/network'
 import { useMVCUtxosQuery } from '@/queries/utxos'
 import { prettifyAddress } from '@/lib/formatters'
@@ -22,8 +21,7 @@ const address = getAddress(Chain.MVC)
 const merge = async () => {
   const network: API_NET = (await getNetwork()) as API_NET
   const purse = currentMVCWallet.value!.getPrivateKey()
-  const apiHost = await getApiHost()
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3, apiHost)
+  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3)
   let { txId } = await wallet.merge().catch((err) => {
     isOpenResultModal.value = true
     transactionResult.value = {
