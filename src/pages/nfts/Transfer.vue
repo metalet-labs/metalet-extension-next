@@ -11,6 +11,7 @@ import { API_NET, API_TARGET, NftManager } from 'meta-contract'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
 import { Divider } from '@/components'
+import Decimal from 'decimal.js'
 
 const queryClient = useQueryClient()
 
@@ -62,7 +63,7 @@ async function transfer() {
     .getUnspents(address.value)
     .then((utxos) => {
       return utxos.reduce((prev, curr) => {
-        if (curr.satoshis > prev.satoshis) return curr
+        if (new Decimal(curr.satoshis).gt(prev.satoshis)) return curr
         return prev
       })
     })
