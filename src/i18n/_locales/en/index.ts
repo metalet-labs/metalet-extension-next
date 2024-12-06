@@ -22,7 +22,7 @@ export default {
     Receive: 'Receive',
     Balance: 'Balance',
     Swap: 'Swap',
-    BitcoinSideChain: 'Bitcoin SideChain',
+    BitcoinSideChain: 'Bitcoin sidechain',
     Continue: 'Continue',
     Confirm: 'Confirm',
     Show: 'Show',
