@@ -14,7 +14,17 @@ const env = loadEnv('', process.cwd())
 // https://vitejs.dev/config/
 export default defineConfig({
   ...baseConfig,
-  plugins: [alias(), vue(), VueDevTools(), nodePolyfills(), wasm(), topLevelAwait(), svgLoader()],
+  plugins: [
+    alias(),
+    vue(),
+    VueDevTools({
+      ...(env.VITE_LAUNCH_EDITOR && { launchEditor: env.VITE_LAUNCH_EDITOR }),
+    }),
+    nodePolyfills(),
+    wasm(),
+    topLevelAwait(),
+    svgLoader(),
+  ],
 
   server: {
     port: 3000,

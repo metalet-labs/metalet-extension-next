@@ -26,3 +26,11 @@ public/content.js
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Keep example file
+!.env.example
