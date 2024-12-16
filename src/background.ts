@@ -213,6 +213,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       // call corresponding process function
       const action = actions[actionName]
       if (action) {
+        console.log('bg', hash(password.value || tempPassword))
         const processed = await action.process(msg.params, {
           host: msg.host,
           password: hash(password.value || tempPassword),
