@@ -88,10 +88,11 @@ type ToSignTransaction = {
 }
 export const signTransaction = async (
   { txHex, scriptHex, inputIndex, satoshis, sigtype, path }: ToSignTransaction,
-  returnsTransaction: boolean = false
+  returnsTransaction: boolean = false,
+  options?: { password: string }
 ) => {
   const network = await getNetwork()
-  const password = await getPassword()
+  const password = options?.password || (await getPassword())
   const activeWallet = await getActiveWalletOnlyAccount()
   const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
   const mvcWallet = await getCurrentWallet(Chain.MVC)
