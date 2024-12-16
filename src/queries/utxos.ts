@@ -42,7 +42,9 @@ const fetchMVCUtxos = async (address: string, useUnconfirmed = true): Promise<Mv
 
   while (hasMore) {
     try {
-      const { list = [] } = await metaletApiV4<{ list: MvcUtxo[] }>('/mvc/address/utxo-list').get({
+      const { list = [] } = await metaletApiV4<{ list: MvcUtxo[] }>('/mvc/address/utxo-list', {
+        withCredential: false,
+      }).get({
         address,
         net,
         flag,
