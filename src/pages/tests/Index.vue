@@ -1,29 +1,30 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { getPassword } from '@/lib/lock'
-import { process } from '@/lib/actions/common/ecdh'
+import { process } from '@/lib/actions/preview-transaction'
 
 const result = ref()
-const inputValue = ref(
-  '040227de44169fc5faed3e03a300c9cf800e9a88e716c3284be484d720ffcc21e60283728dbf422b3865a8ee3779db46a4a3685aa87ed53512cf7c77e288267235'
-)
+const inputValue = ref('')
 
 const handleClick = async () => {
-  const password = await getPassword()
-  const data = await process(
-    {
-      externalPubKey: inputValue.value,
-    },
-    { password }
-  )
-  result.value = data
-  console.log('data', data)
+  try {
+    const data = await process(inputValue.value)
+    console.log('data', data)
+  } catch (error) {
+    console.error('Error:', error)
+  }
 }
 </script>
 
 <template>
   <div class="w-full py-2 flex flex-col items-center justify-center">
-    <textarea v-model="inputValue" type="text" class="my-16 p-2 border border-gray-300 rounded w-[600px]" rows="4" placeholder="输入内容" />
+    <textarea
+      v-model="inputValue"
+      type="text"
+      class="my-16 p-2 border border-gray-300 rounded w-[600px]"
+      rows="4"
+      placeholder="输入内容"
+    />
     <button class="text-lg mb-4 p-2 bg-blue-500 text-white rounded" @click="handleClick">Get Data</button>
     <div v-if="result" class="p-4 border border-gray-300 rounded w-[600px]">
       <p>
@@ -42,5 +43,4 @@ const handleClick = async () => {
   </div>
 </template>
 
-<style scoped lang="css">
-</style>
+<style scoped lang="css"></style>
