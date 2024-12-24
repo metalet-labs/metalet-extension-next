@@ -8,6 +8,7 @@ import * as EciesDecrypt from '../lib/actions/ecies-decrypt'
 import * as SignTransaction from '../lib/actions/sign-transaction'
 import * as SignTransactions from '../lib/actions/sign-transactions'
 import * as Pay from '../lib/actions/pay'
+import * as SignPartialTx from '../lib/actions/signPartialTx'
 import * as SignMessage from '../lib/actions/sign-message'
 import * as Merge from '../lib/actions/merge'
 
@@ -111,6 +112,14 @@ export default {
     title: 'Pay for transactions',
     description: ['Third party apps create functional transaction(s), and ask Metalet to pay for them.'],
     process: Pay.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  SignPartialTx: {
+    name: 'SignPartialTx',
+    title: 'Partial Transaction Signing',
+    description: ['Sign transactions with specified UTXOs'],
+    process: SignPartialTx.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

@@ -27,7 +27,7 @@ export default defineConfig({
   ],
 
   server: {
-    port: 3000,
+    ...(env.VITE_DEV_PORT && { port: Number(env.VITE_DEV_PORT) }),
     open: true,
   },
 })

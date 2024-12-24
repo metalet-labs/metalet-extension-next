@@ -143,6 +143,21 @@ export async function pay(params: { transactions: SigningTransaction[] }) {
   return await createAction('Pay', 'authorize', params)
 }
 
+export async function signPartialTx(params: {
+  transactions: SigningTransaction[]
+  utxos: {
+    txId: string
+    outputIndex: number
+    satoshis: number
+    address: string
+    height: number
+  }[]
+  signType?: number
+  hasMetaid?: boolean
+}) {
+  return await createAction('SignPartialTx', 'authorize', params)
+}
+
 type TransferTask = {
   genesis?: string
   codehash?: string

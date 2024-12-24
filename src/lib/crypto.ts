@@ -460,6 +460,165 @@ export const payTransactions = async (
   return payedTransactions
 }
 
+export const payTransactionsWithUtxos = async (
+  toPayTransactions: {
+    txComposer: string
+    message?: string
+  }[],
+  utxos: {
+    txId: string
+    outputIndex: number
+    satoshis: number
+    address: string
+    height: number
+  }[],
+  signType: number = mvc.crypto.Signature.SIGHASH_ALL,
+  hasMetaid: boolean = false
+) => {
+  if (toPayTransactions.length !== utxos.length) {
+    throw new Error('The number of transactions must match the number of UTXOs')
+  }
+
+  const network = await getNetwork()
+  const wallet = await getCurrentWallet(Chain.MVC)
+  const activeWallet = await getActiveWalletOnlyAccount()
+  const password = await getPassword()
+  const address = wallet.getAddress()
+
+  const txids = new Map<string, string>()
+  toPayTransactions.forEach(({ txComposer: txComposerSerialized }) => {
+    const txid = TxComposer.deserialize(txComposerSerialized).getTxId()
+    txids.set(txid, txid)
+  })
+
+  const payedTransactions = []
+  for (let i = 0; i < toPayTransactions.length; i++) {
+    const toPayTransaction = toPayTransactions[i]
+    const currentUtxo = utxos[i]
+    const currentTxid = TxComposer.deserialize(toPayTransaction.txComposer).getTxId()
+
+    const txComposer = TxComposer.deserialize(toPayTransaction.txComposer)
+    const tx = txComposer.tx
+
+    const inputs = tx.inputs
+    const existingInputsLength = tx.inputs.length
+    for (let i = 0; i < inputs.length; i++) {
+      if (!inputs[i].output) {
+        throw new Error('The output of every input of the transaction must be provided')
+      }
+    }
+
+    if (hasMetaid) {
+      const { messages: metaIdMessages, outputIndex } = await parseLocalTransaction(tx)
+
+      if (outputIndex !== null) {
+        let replaceFound = false
+        const prevTxids = Array.from(txids.keys())
+
+        for (let i = 0; i < metaIdMessages.length; i++) {
+          for (let j = 0; j < prevTxids.length; j++) {
+            if (typeof metaIdMessages[i] !== 'string') continue
+
+            if (metaIdMessages[i].includes(prevTxids[j])) {
+              replaceFound = true
+              metaIdMessages[i] = (metaIdMessages[i] as string).replace(prevTxids[j], txids.get(prevTxids[j])!)
+            }
+          }
+        }
+
+        if (replaceFound) {
+          const opReturnOutput = new mvc.Transaction.Output({
+            script: mvc.Script.buildSafeDataOut(metaIdMessages),
+            satoshis: 0,
+          })
+          tx.outputs[outputIndex] = opReturnOutput
+        }
+      }
+    }
+
+    const addressObj = new mvc.Address(address, network)
+    const totalOutput = tx.outputs.reduce((acc, output) => acc + output.satoshis, 0)
+    const currentSize = tx.toBuffer().length + P2PKH_UNLOCK_SIZE
+    const currentFee = FEEB * currentSize
+    const totalRequired = totalOutput + currentFee
+
+    if (currentUtxo.satoshis < totalRequired) {
+      throw new Error(
+        `UTXO at index ${i} doesn't have enough balance. Required: ${totalRequired}, Available: ${currentUtxo.satoshis}`
+      )
+    }
+
+    txComposer.appendP2PKHInput({
+      address: addressObj,
+      txId: currentUtxo.txId,
+      outputIndex: currentUtxo.outputIndex,
+      satoshis: currentUtxo.satoshis,
+    })
+
+    const changeAmount = currentUtxo.satoshis - totalRequired
+    if (changeAmount > 0) {
+      txComposer.appendChangeOutput(addressObj, FEEB)
+    } else if (changeAmount < 0) {
+      throw new Error(
+        `UTXO at index ${i} is insufficient. Required: ${totalRequired}, Available: ${currentUtxo.satoshis}`
+      )
+    }
+
+    const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
+    const hdpk = mneObj.toHDPrivateKey('', network)
+
+    const rootPath = await getMvcRootPath()
+    const basePrivateKey = hdpk.deriveChild(rootPath)
+    const rootPrivateKey = mvc.PrivateKey.fromWIF(wallet.getPrivateKey())
+
+    const toUsePrivateKeys = new Map<number, mvc.PrivateKey>()
+    for (let i = 0; i < existingInputsLength; i++) {
+      const input = txComposer.getInput(i)
+      const prevTxId = input.prevTxId.toString('hex')
+      if (txids.has(prevTxId)) {
+        input.prevTxId = Buffer.from(txids.get(prevTxId)!, 'hex')
+      }
+
+      const inputAddress = mvc.Address.fromString(
+        input.output!.script.toAddress().toString(),
+        network === 'regtest' ? 'testnet' : network
+      ).toString()
+      let deriver = 0
+      let toUsePrivateKey: mvc.PrivateKey | undefined = undefined
+      while (deriver < DERIVE_MAX_DEPTH) {
+        const childPk = basePrivateKey.deriveChild(0).deriveChild(deriver)
+        const childAddress = childPk.publicKey.toAddress(network === 'regtest' ? 'testnet' : network).toString()
+
+        if (childAddress === inputAddress.toString()) {
+          toUsePrivateKey = childPk.privateKey
+          break
+        }
+
+        deriver++
+      }
+
+      if (!toUsePrivateKey) {
+        throw new Error(`Cannot find the private key of index #${i} input`)
+      }
+
+      toUsePrivateKeys.set(i, toUsePrivateKey)
+    }
+
+    toUsePrivateKeys.forEach((privateKey, index) => {
+      txComposer.unlockP2PKHInput(privateKey, index, signType)
+    })
+
+    txComposer.unlockP2PKHInput(rootPrivateKey, existingInputsLength, signType)
+
+    const txid = txComposer.getTxId()
+    txids.set(currentTxid, txid)
+
+    payedTransactions.push(txComposer.serialize())
+  }
+
+  return payedTransactions
+}
+
 type SA_utxo = {
   txId: string
   outputIndex: number

@@ -21,6 +21,7 @@ import {
   signTransaction,
   signTransactions,
   pay,
+  signPartialTx,
   ecdh,
   transferNFT,
   omniConnect,
@@ -51,6 +52,7 @@ type Metalet = {
   transfer: any
   // transferAll: any
   //   merge: any
+  //   getActivities: any
 
   eciesEncrypt: any
   eciesDecrypt: any
@@ -101,6 +103,7 @@ const metalet: any = {
   signTransaction,
   signTransactions,
   pay,
+  signPartialTx,
   signMessage,
   verifySignature,
 
