@@ -537,16 +537,6 @@ export const payTransactionsWithUtxos = async (
     }
 
     const addressObj = new mvc.Address(address, network)
-    const totalOutput = tx.outputs.reduce((acc, output) => acc + output.satoshis, 0)
-    const currentSize = tx.toBuffer().length + P2PKH_UNLOCK_SIZE
-    const currentFee = FEEB * currentSize
-    const totalRequired = totalOutput + currentFee
-
-    if (currentUtxo.satoshis < totalRequired) {
-      throw new Error(
-        `UTXO at index ${i} doesn't have enough balance. Required: ${totalRequired}, Available: ${currentUtxo.satoshis}`
-      )
-    }
 
     txComposer.appendP2PKHInput({
       address: addressObj,
@@ -554,15 +544,6 @@ export const payTransactionsWithUtxos = async (
       outputIndex: currentUtxo.outputIndex,
       satoshis: currentUtxo.satoshis,
     })
-
-    const changeAmount = currentUtxo.satoshis - totalRequired
-    if (changeAmount > 0) {
-      txComposer.appendChangeOutput(addressObj, FEEB)
-    } else if (changeAmount < 0) {
-      throw new Error(
-        `UTXO at index ${i} is insufficient. Required: ${totalRequired}, Available: ${currentUtxo.satoshis}`
-      )
-    }
 
     const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
     const hdpk = mneObj.toHDPrivateKey('', network)
