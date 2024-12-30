@@ -42,9 +42,7 @@ const coverUrl = computed(() => getMetaFileUrl(props.collection.cover))
       class="flex items-center justify-between cursor-pointer"
     >
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
-          <img :src="coverUrl" class="w-full h-full object-cover" />
-        </div>
+        <img :src="coverUrl" class="object-contain size-10 rounded-md" />
         <div>
           <h3 class="text-base font-medium">{{ collection.collectionName }}</h3>
           <div class="text-sm text-gray-500">{{ collection.totalNum }}</div>
@@ -70,7 +68,7 @@ const coverUrl = computed(() => getMetaFileUrl(props.collection.cover))
           />
 
           <div class="mt-2 text-center">
-            <div class="text-base font-medium">{{ item.name || 'Smiling Tiger' }}</div>
+            <div class="text-base font-medium">{{ item?.name ?? '--' }}</div>
             <div class="text-sm text-gray-500">
               <span v-if="item.itemPinNumber !== -1"># {{ item.itemPinNumber }}</span>
               <span v-else>{{ $t('Common.Unconfirmed') }}</span>

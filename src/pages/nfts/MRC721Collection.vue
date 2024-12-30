@@ -36,7 +36,7 @@ const {
 
 const items = computed(() => (itemsData.value ? itemsData.value.pages.flatMap((page) => page.list) : []))
 
-const coverUrl = computed(() => collection.value ? getMetaFileUrl(collection.value.cover) : '')
+const coverUrl = computed(() => (collection.value ? getMetaFileUrl(collection.value.cover) : ''))
 
 const handleSelectItem = (itemPinId: string) => {
   if (!address.value) return
@@ -52,9 +52,7 @@ const handleSelectItem = (itemPinId: string) => {
     <LoadingText v-if="isLoadingCollection" :text="$t('Common.DataLoading')" />
     <template v-else-if="collection">
       <div class="flex items-center gap-3">
-        <div class="w-20 h-20 rounded-full overflow-hidden bg-gray-100">
-          <img :src="coverUrl" class="w-full h-full object-cover" />
-        </div>
+        <img :src="coverUrl" class="object-contain size-20 rounded-lg" />
         <div class="space-y-1">
           <h1 class="text-xl font-medium">{{ collection.name }}</h1>
           <div class="text-sm text-gray-500">{{ collection.desc }}</div>
@@ -114,4 +112,4 @@ const handleSelectItem = (itemPinId: string) => {
       </div>
     </template>
   </div>
-</template> 
+</template>

@@ -43,6 +43,9 @@ export interface MRC721Item {
 }
 
 export function getMetaFileUrl(metafile: string) {
+  if (metafile.startsWith('/content')) {
+    return `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io${metafile}`
+  }
   if (!metafile?.startsWith('metafile://')) return metafile
   const fileId = metafile.replace('metafile://', '')
   return `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/${fileId}`
