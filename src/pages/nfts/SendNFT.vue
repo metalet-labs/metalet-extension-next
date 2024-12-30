@@ -177,7 +177,7 @@ operationLock.value = false
                 { 'bg-blue-primary p-2': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
               ]"
             >
-              <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
+              <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full object-contain" />
               <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>
                 {{ content }}
               </div>
@@ -226,7 +226,7 @@ operationLock.value = false
               { 'bg-blue-primary p-2': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
             ]"
           >
-            <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full" />
+            <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full object-contain" />
             <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>
               {{ content }}
             </div>

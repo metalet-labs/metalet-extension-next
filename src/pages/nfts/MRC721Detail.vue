@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { toTx } from '@/lib/helpers'
 import { PopCard } from '@/components'
-import { network } from '@/lib/network'
 import Copy from '@/components/Copy.vue'
 import { LoadingText } from '@/components'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { getBrowserHost } from '@/lib/host'
 import { UseImage } from '@vueuse/components'
 import { useRoute, useRouter } from 'vue-router'
-import { useMetaPinQuery } from '@/queries/metaPin'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
 import MvcIcon from '@/assets/icons-v3/network_mvc.svg'
 import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
+import { getMetaFileUrl } from '@/lib/mrc721'
+import { useMRC721ItemQuery } from '@/queries/mrc721'
 
 const router = useRouter()
 const { params } = useRoute()
@@ -19,15 +19,25 @@ const { params } = useRoute()
 const address = params.address as string
 const metaPinId = ref(params.metaPinId as string)
 
-const { data: metaPin, isLoading } = useMetaPinQuery(metaPinId, { enabled: computed(() => !!address) })
+const { data: metaPin, isLoading } = useMRC721ItemQuery(metaPinId.value)
+
+const imageSrc = computed(() => {
+  try {
+    if (!metaPin.value?.contentString) return ''
+    return getMetaFileUrl(metaPin.value.contentString)
+  } catch (error) {
+    console.error('Error getting image URL:', error)
+    return ''
+  }
+})
 
 const toSendNFT = (id: string) => {
   router.push({
     name: 'sendNFT',
     params: { id, nftType: 'metaPin' },
     query: {
-      satoshis: metaPin.value?.outputValue,
-      content: metaPin.value?.contentSummary,
+      satoshis: metaPin.value?.outValue,
+      content: metaPin.value?.desc,
       imgUrl: imageSrc.value,
     },
   })
@@ -37,40 +47,10 @@ const getHostAndToTx = async (txId: string) => {
   const host = await getBrowserHost('btc')
   toTx(txId, host as string)
 }
-
-const imageSrc = ref('')
-
-const fetchContentSummary = async (url: string) => {
-  try {
-    const response = await fetch(url)
-    if (response.ok) {
-      const data = await response.json()
-      const contentUrl = data.attachment[0].content.replace(
-        'metafile://',
-        `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
-      )
-      imageSrc.value = contentUrl
-    } else {
-      console.error('Failed to fetch content summary:', response.statusText)
-    }
-  } catch (error) {
-    console.error('Error fetching content summary:', error)
-  }
-}
-
-watch(
-  () => metaPin.value?.content,
-  (newContent) => {
-    if (newContent) {
-      fetchContentSummary(newContent)
-    }
-  },
-  { immediate: true }
-)
 </script>
 
 <template>
-  <LoadingText text="Data Loading..." v-if="isLoading" />
+  <LoadingText :text="$t('Common.DetailLoading')" v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
       <div
@@ -85,84 +65,77 @@ watch(
           v-if="imageSrc"
           class="w-full h-full border-2 border-gray-soft rounded-xl object-contain"
         />
-        <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
+        <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.desc }}</div>
 
         <span
-          :title="`${metaPin.outputValue} sat`"
-          :class="[
-            'absolute rounded right-3 bottom-3 py-3px px-1.5 text-xs',
-            metaPin.contentTypeDetect.includes('image')
-              ? 'bg-[#EBECFF] text-[#787FFF]'
-              : 'bg-[rgb(235,236,255,0.2) text-[#EBECFF]',
-          ]"
+          :title="`${metaPin.outValue} sat`"
+          class="absolute rounded right-3 bottom-3 py-3px px-1.5 bg-[#E2F4FF]/80 text-[#1472FF] text-xs scale-75"
         >
-          {{ metaPin.outputValue }} sat
+          {{ metaPin.outValue }} sat
         </span>
       </div>
     </div>
     <div class="flex items-center justify-center text-lg">
-      <span v-if="metaPin.number !== -1"># {{ metaPin.number }}</span>
-      <span v-else>Unconfirmed</span>
+      <span v-if="metaPin.itemPinNumber !== -1"># {{ metaPin.itemPinNumber }}</span>
+      <span v-else>{{ $t('Common.Unconfirmed') }}</span>
     </div>
 
     <div class="flex justify-center">
       <button
-        @click="toSendNFT(metaPin!.id)"
-        :disabled="metaPin.status === -9"
-        :class="[
-          'w-30 rounded-3xl py-4 text-center text-ss text-blue-primary bg-blue-light mx-auto ',
-          { 'cursor-pointer': metaPin.status === 0 },
-          { 'opacity-50 cursor-not-allowed': metaPin.status === -9 },
-        ]"
+        @click="toSendNFT(metaPin!.itemPinId)"
+        class="w-30 rounded-3xl py-4 text-center text-ss text-blue-primary bg-blue-light mx-auto cursor-pointer"
       >
-        Transfer
+        {{ $t('Common.Transfer') }}
       </button>
     </div>
     <div class="space-y-4 border-t border-gray-secondary pt-4">
       <div class="row">
-        <div class="label">Creator</div>
+        <div class="label">{{ $t('Common.Creator') }}</div>
         <div class="flex flex-col items-end gap-1">
           <div class="flex items-center gap-1">
-            <UseImage :src="metaPin.avatar" class="size-5 rounded-md">
+            <UseImage :src="metaPin.cover" class="size-5 rounded-md">
               <template #loading>
                 <div class="size-5 text-center leading-5 rounded-full text-white text-base bg-btn-blue">
-                  {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+                  {{ (metaPin.metaId?.[0] || 'U').toLocaleUpperCase() }}
                 </div>
               </template>
               <template #error>
                 <div class="size-5 text-center leading-5 rounded-full text-white text-base bg-btn-blue">
-                  {{ (metaPin.creator?.[0] || metaPin.metaid?.[0]).toLocaleUpperCase() }}
+                  {{ (metaPin.metaId?.[0] || 'U').toLocaleUpperCase() }}
                 </div>
               </template>
             </UseImage>
-            <span class="text-sm">{{ metaPin.creator ? shortestAddress(metaPin.creator, 6) : 'User' }}</span>
+            <span class="text-sm">{{ shortestAddress(metaPin.address, 6) }}</span>
           </div>
-          <span class="text-sm text-gray-primary">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
+          <span class="text-sm text-gray-primary">{{ prettifyTxId(metaPin.metaId, 3) }}</span>
         </div>
       </div>
       <div class="row">
-        <div class="label">Level</div>
-        <PopCard :level="metaPin.popLv" />
+        <div class="label">{{ $t('Common.Level') }}</div>
+        <PopCard :level="1" />
       </div>
       <div class="row">
-        <div class="label">Pop</div>
-        <div :title="metaPin.id">
-          {{ prettifyTxId(metaPin.pop) }}
+        <div class="label">{{ $t('Common.Pop') }}</div>
+        <div :title="metaPin.outpoint">
+          {{ prettifyTxId(metaPin.outpoint.split(':')[0]) }}
         </div>
       </div>
       <div class="row">
-        <div class="label">Network</div>
+        <div class="label">{{ $t('Common.Network') }}</div>
         <div class="flex items-center gap-1">
-          <BtcIcon class="w-4.5" v-if="metaPin.chainName === 'btc'" />
-          <MvcIcon class="w-4.5" v-if="metaPin.chainName === 'mvc'" />
-          <span class="text-sm">{{ metaPin.chainName }}</span>
+          <BtcIcon class="w-4.5" />
+          <span class="text-sm">btc</span>
         </div>
       </div>
       <div class="row">
-        <span class="label">ID</span>
-        <div :title="metaPin.id" class="flex items-center gap-x-1">
-          {{ prettifyTxId(metaPin.id) }}
-          <Copy :text="metaPin.id!" :title="$t('CopiedText.MetaPinIDCopiedText')" :show-content="true" />
+        <div class="label">{{ $t('Common.Collection') }}</div>
+        <div class="text-sm">{{ metaPin.collectionName }}</div>
+      </div>
+      <div class="row">
+        <div class="label">{{ $t('Common.ID') }}</div>
+        <div :title="metaPin.itemPinId" class="flex items-center gap-x-1">
+          {{ prettifyTxId(metaPin.itemPinId) }}
+          <Copy :text="metaPin.itemPinId" :title="$t('CopiedText.MetaPinIDCopiedText')" :show-content="true" />
         </div>
       </div>
       <div class="row">
@@ -172,71 +145,73 @@ watch(
         </div>
       </div>
       <div class="row">
-        <span class="label">Output value:</span>
+        <span class="label">{{ $t('Common.OutputValue') }}</span>
         <div>
-          {{ metaPin.outputValue }}
+          {{ metaPin.outValue }}
         </div>
       </div>
       <div class="row">
-        <span class="label">Preview</span>
+        <span class="label">{{ $t('Common.Preview') }}</span>
         <a
           target="_blank"
-          :href="metaPin.preview"
-          :title="metaPin.preview"
+          :href="imageSrc"
+          :title="imageSrc"
           class="w-52 truncate text-[#5173B9] underline"
         >
-          {{ metaPin.preview }}
+          {{ imageSrc }}
         </a>
       </div>
       <div class="row">
-        <span class="label">Content</span>
+        <span class="label">{{ $t('Common.Content') }}</span>
         <a
           target="_blank"
-          :href="metaPin.content"
-          :title="metaPin.content"
+          :href="metaPin.contentString"
+          :title="metaPin.contentString"
           class="w-52 truncate text-[#5173B9] underline"
         >
-          {{ metaPin.content }}
+          {{ metaPin.contentString }}
         </a>
       </div>
       <div class="row">
-        <span class="label">Content Length</span>
-        <span>{{ metaPin.contentLength }}</span>
+        <span class="label">{{ $t('Common.ContentLength') }}</span>
+        <span>{{ metaPin.content?.length || 0 }}</span>
       </div>
       <div class="row">
-        <span class="label">Content Type</span>
+        <span class="label">{{ $t('Common.ContentType') }}</span>
         <span>{{ metaPin.contentType }}</span>
       </div>
       <div class="row">
-        <span class="label">Path</span>
-        <div class="w-52 truncate text-right" :title="metaPin.path">{{ metaPin.path }}</div>
+        <span class="label">{{ $t('Common.ContentTypeDetect') }}</span>
+        <span>{{ metaPin.contentTypeDetect }}</span>
       </div>
       <div class="row">
-        <span class="label">Timestamp</span>
-        <div>{{ formatTimestamp(metaPin.timestamp) }}</div>
+        <span class="label">{{ $t('Common.Path') }}</span>
+        <div class="w-52 truncate text-right">/nft/mrc721/{{ metaPin.collectionName }}</div>
       </div>
       <div class="row">
-        <span class="label">Genesis Transaction</span>
+        <span class="label">{{ $t('Common.Timestamp') }}</span>
+        <div>{{ formatTimestamp(metaPin.createTime) }}</div>
+      </div>
+      <div class="row">
+        <span class="label">{{ $t('Common.GenesisTransaction') }}</span>
         <div
-          @click="getHostAndToTx(metaPin!.genesisTransaction)"
+          @click="getHostAndToTx(metaPin.outpoint.split(':')[0])"
           class="text-right w-52 truncate text-[#5173B9] underline cursor-pointer"
-          :title="metaPin.genesisTransaction"
+          :title="metaPin.outpoint"
         >
-          {{ prettifyTokenGenesis(metaPin.genesisTransaction) }}
+          {{ prettifyTokenGenesis(metaPin.outpoint.split(':')[0]) }}
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="css" scoped>
+<style scoped>
 .row {
   @apply flex items-center justify-between;
 }
 
-.title {
-  font-size: 14px;
-  color: #909399;
-  font-weight: bold;
+.label {
+  @apply text-sm text-gray-primary;
 }
 </style>

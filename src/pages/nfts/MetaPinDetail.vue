@@ -70,7 +70,7 @@ const toSendNFT = (id: string) => {
 </script>
 
 <template>
-  <LoadingText text="Detail Loading..." v-if="isLoading" />
+  <LoadingText :text="$t('Common.DetailLoading')" v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
       <div
@@ -98,7 +98,7 @@ const toSendNFT = (id: string) => {
     </div>
     <div class="flex items-center justify-center text-lg">
       <span v-if="metaPin.number !== -1"># {{ metaPin.number }}</span>
-      <span v-else>Unconfirmed</span>
+      <span v-else>{{ $t('Common.Unconfirmed') }}</span>
     </div>
 
     <div class="flex justify-center">
@@ -111,12 +111,12 @@ const toSendNFT = (id: string) => {
           { 'opacity-50 cursor-not-allowed': metaPin.status === -9 },
         ]"
       >
-        Transfer
+        {{ $t('Common.Transfer') }}
       </button>
     </div>
     <div class="space-y-4 border-t border-gray-secondary pt-4">
       <div class="row">
-        <div class="label">Creator</div>
+        <div class="label">{{ $t('Common.Creator') }}</div>
         <div class="flex flex-col items-end gap-1">
           <div class="flex items-center gap-1">
             <UseImage :src="metaPin.avatar" class="size-5 rounded-md">
@@ -131,23 +131,23 @@ const toSendNFT = (id: string) => {
                 </div>
               </template>
             </UseImage>
-            <span class="text-sm">{{ metaPin.creator ? shortestAddress(metaPin.creator, 6) : 'User' }}</span>
+            <span class="text-sm">{{ metaPin.creator ? shortestAddress(metaPin.creator, 6) : $t('Common.User') }}</span>
           </div>
           <span class="text-sm text-gray-primary">{{ prettifyTxId(metaPin.metaid, 3) }}</span>
         </div>
       </div>
       <div class="row">
-        <div class="label">Level</div>
+        <div class="label">{{ $t('Common.Level') }}</div>
         <PopCard :level="metaPin.popLv" />
       </div>
       <div class="row">
-        <div class="label">Pop</div>
+        <div class="label">{{ $t('Common.Pop') }}</div>
         <div :title="metaPin.id">
           {{ prettifyTxId(metaPin.pop) }}
         </div>
       </div>
       <div class="row">
-        <div class="label">Network</div>
+        <div class="label">{{ $t('Common.Network') }}</div>
         <div class="flex items-center gap-1">
           <BtcIcon class="w-4.5" v-if="metaPin.chainName === 'btc'" />
           <MvcIcon class="w-4.5" v-if="metaPin.chainName === 'mvc'" />
@@ -155,7 +155,7 @@ const toSendNFT = (id: string) => {
         </div>
       </div>
       <div class="row">
-        <span class="label">ID</span>
+        <span class="label">{{ $t('Common.ID') }}</span>
         <div :title="metaPin.id" class="flex items-center gap-x-1">
           {{ prettifyTxId(metaPin.id) }}
           <Copy :text="metaPin.id!" :title="$t('CopiedText.MetaPinIDCopiedText')" :show-content="true" />
@@ -168,13 +168,13 @@ const toSendNFT = (id: string) => {
         </div>
       </div>
       <div class="row">
-        <span class="label">Output value:</span>
+        <span class="label">{{ $t('Common.OutputValue') }}</span>
         <div>
           {{ metaPin.outputValue }}
         </div>
       </div>
       <div class="row">
-        <span class="label">Preview</span>
+        <span class="label">{{ $t('Common.Preview') }}</span>
         <a
           target="_blank"
           :href="metaPin.preview"
@@ -185,7 +185,7 @@ const toSendNFT = (id: string) => {
         </a>
       </div>
       <div class="row">
-        <span class="label">Content</span>
+        <span class="label">{{ $t('Common.Content') }}</span>
         <a
           target="_blank"
           :href="metaPin.content"
@@ -196,23 +196,23 @@ const toSendNFT = (id: string) => {
         </a>
       </div>
       <div class="row">
-        <span class="label">Content Length</span>
+        <span class="label">{{ $t('Common.ContentLength') }}</span>
         <span>{{ metaPin.contentLength }}</span>
       </div>
       <div class="row">
-        <span class="label">Content Type</span>
+        <span class="label">{{ $t('Common.ContentType') }}</span>
         <span>{{ metaPin.contentType }}</span>
       </div>
       <div class="row">
-        <span class="label">Path</span>
+        <span class="label">{{ $t('Common.Path') }}</span>
         <div class="w-52 truncate text-right" :title="metaPin.path">{{ metaPin.path }}</div>
       </div>
       <div class="row">
-        <span class="label">Timestamp</span>
+        <span class="label">{{ $t('Common.Timestamp') }}</span>
         <div>{{ formatTimestamp(metaPin.timestamp) }}</div>
       </div>
       <div class="row">
-        <span class="label">Genesis Transaction</span>
+        <span class="label">{{ $t('Common.GenesisTransaction') }}</span>
         <div
           @click="getHostAndToTx(metaPin!.genesisTransaction)"
           class="text-right w-52 truncate text-[#5173B9] underline cursor-pointer"
@@ -230,9 +230,7 @@ const toSendNFT = (id: string) => {
   @apply flex items-center justify-between;
 }
 
-.title {
-  font-size: 14px;
-  color: #909399;
-  font-weight: bold;
+.label {
+  @apply text-sm text-gray-primary;
 }
 </style>

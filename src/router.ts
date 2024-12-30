@@ -373,6 +373,17 @@ const routes = [
         },
       },
       {
+        name: 'mrc721Collection',
+        path: '/nft/mrc721/collection/:pinId',
+        component: () => import('./pages/nfts/MRC721Collection.vue'),
+        meta: {
+          secondaryHeader: true,
+          headerTitle: 'Collection',
+          headerTitleKey: 'Common.Collection',
+          noFooter: true,
+        },
+      },
+      {
         name: 'sendNFT',
         path: '/nft/sendNFT/:nftType/:address/:id',
         component: () => import('./pages/nfts/SendNFT.vue'),
