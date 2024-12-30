@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import MRC721 from './MRC721.vue'
 import { LoadingText } from '@/components'
 import LoadingIcon from '@/components/LoadingIcon.vue'
@@ -18,19 +18,22 @@ const emit = defineEmits<{
   (e: 'select-item', itemPinId: string): void
 }>()
 
+const size = ref(3)
+
 const { getAddress } = useChainWalletsStore()
 const address = getAddress(Chain.BTC)
 
 const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useMRC721CollectionItemsInfiniteQuery(
   address,
   computed(() => props.collection.pinId),
-  computed(() => 3),
+  size,
   {
     enabled: computed(() => !!address.value && !!props.collection.pinId),
   }
 )
 
 const items = computed(() => (data.value ? data.value.pages.flatMap((page) => page.list) : []))
+const total = computed(() => data.value?.pages[0]?.total ?? 0)
 
 const coverUrl = computed(() => getMetaFileUrl(props.collection.cover))
 </script>
@@ -45,7 +48,7 @@ const coverUrl = computed(() => getMetaFileUrl(props.collection.cover))
         <img :src="coverUrl" class="object-contain size-10 rounded-md" />
         <div>
           <h3 class="text-base font-medium">{{ collection.collectionName }}</h3>
-          <div class="text-sm text-gray-500">{{ collection.totalNum }}</div>
+          <div class="text-sm text-gray-500">{{ total }}</div>
         </div>
       </div>
       <ChevronRight class="w-5 h-5" />

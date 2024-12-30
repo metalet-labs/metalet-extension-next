@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import NO_NFT_DATA from './NoNFTData.vue'
 import { LoadingText } from '@/components'
@@ -10,6 +10,7 @@ import CollectionItems from './CollectionItems.vue'
 import { useMRC721CollectionsInfiniteQuery } from '@/queries/mrc721'
 
 const router = useRouter()
+const size = ref(9)
 
 const { getAddress } = useChainWalletsStore()
 const address = getAddress(Chain.BTC)
@@ -20,10 +21,7 @@ const {
   hasNextPage: hasNextCollections,
   fetchNextPage: fetchNextCollections,
   isFetchingNextPage: isFetchingNextCollections,
-} = useMRC721CollectionsInfiniteQuery(
-  address,
-  computed(() => 9)
-)
+} = useMRC721CollectionsInfiniteQuery(address, size)
 
 const collections = computed(() =>
   collectionsData.value ? collectionsData.value.pages.flatMap((page) => page.list) : []

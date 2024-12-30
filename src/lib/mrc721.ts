@@ -95,4 +95,4 @@ export async function fetchMRC721CollectionItems(
     cursor,
     size,
   })
-} 
+}

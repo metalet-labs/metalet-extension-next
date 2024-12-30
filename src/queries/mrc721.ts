@@ -1,12 +1,6 @@
 import { useQuery, useInfiniteQuery } from '@tanstack/vue-query'
 import { Ref, ComputedRef, computed } from 'vue'
-import { 
-  getMRC721ItemInfo, 
-  fetchMRC721Collections, 
-  fetchMRC721CollectionItems,
-  type MRC721Collection, 
-  type MRC721Item 
-} from '@/lib/mrc721'
+import { getMRC721ItemInfo, fetchMRC721Collections, fetchMRC721CollectionItems } from '@/lib/mrc721'
 
 export function useMRC721CollectionsInfiniteQuery(
   address: Ref<string> | ComputedRef<string>,
