@@ -20,8 +20,9 @@ const fetchContentSummary = async (url: string) => {
   try {
     const response = await fetch(url)
     if (response.ok) {
-      const data = await response.json()
-      const contentUrl = data.attachment[0].content.replace(
+      const data = await response.text()
+      const metafile = data.startsWith('metafile://') ? data : JSON.parse(data).attachment[0].content
+      const contentUrl = metafile.replace(
         'metafile://',
         `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
       )
