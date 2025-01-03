@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import { PopCard } from '@/components'
 import { network } from '@/lib/network'
-import { computed, onMounted, ref } from 'vue'
+import { getMetaFileUrl } from '@/lib/mrc721'
 
 const props = defineProps<{
   pop: string
@@ -22,11 +23,7 @@ const fetchContentSummary = async (url: string) => {
     if (response.ok) {
       const data = await response.text()
       const metafile = data.startsWith('metafile://') ? data : JSON.parse(data).attachment[0].content
-      const contentUrl = metafile.replace(
-        'metafile://',
-        `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
-      )
-      imageSrc.value = contentUrl
+      imageSrc.value = getMetaFileUrl(metafile)
     } else {
       console.error('Failed to fetch content summary:', response.statusText)
     }
