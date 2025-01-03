@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { toTx } from '@/lib/helpers'
 import { PopCard } from '@/components'
 import Copy from '@/components/Copy.vue'
@@ -9,9 +9,9 @@ import { UseImage } from '@vueuse/components'
 import { useRoute, useRouter } from 'vue-router'
 import { useMetaPinQuery } from '@/queries/metaPin'
 import BtcIcon from '@/assets/icons-v3/network_btc.svg'
-import { network } from '@/lib/network'
 import MvcIcon from '@/assets/icons-v3/network_mvc.svg'
 import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
+import MetaPin from '@/pages/wallet/components/MetaID/MetaPin.vue'
 
 const router = useRouter()
 const { params } = useRoute()
@@ -26,42 +26,12 @@ const getHostAndToTx = async (txId: string) => {
   toTx(txId, host as string)
 }
 
-const imageSrc = ref('')
-
-const fetchContentSummary = async (url: string) => {
-  try {
-    const response = await fetch(url)
-    if (response.ok) {
-      const data = await response.json()
-      const contentUrl = data.attachment[0].content.replace(
-        'metafile://',
-        `https://man${network.value === 'testnet' ? '-test' : ''}.metaid.io/content/`
-      )
-      imageSrc.value = contentUrl
-    } else {
-      console.error('Failed to fetch content summary:', response.statusText)
-    }
-  } catch (error) {
-    console.error('Error fetching content summary:', error)
-  }
-}
-
-watch(
-  () => metaPin.value?.content,
-  (newContent) => {
-    if (newContent) {
-      fetchContentSummary(newContent)
-    }
-  },
-  { immediate: true }
-)
-
 const toSendNFT = (id: string) => {
   router.push({
     name: 'sendNFT',
     params: { id, nftType: 'metaPin' },
     query: {
-      imgUrl: imageSrc.value,
+      imgUrl: metaPin.value?.content,
       satoshis: metaPin.value?.outputValue,
       content: metaPin.value?.contentSummary,
     },
@@ -73,27 +43,17 @@ const toSendNFT = (id: string) => {
   <LoadingText :text="$t('Common.DetailLoading')" v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
-      <div
-        :class="[
-          {
-            'p-2 bg-[#F5F7F9]': !imageSrc,
-          },
-          'w-[220px] h-[220px]  flex items-center justify-center rounded-xl relative',
-        ]"
-      >
-        <img
-          alt=""
-          v-if="imageSrc"
-          :src="imageSrc"
-          class="w-full h-full border-2 border-gray-soft rounded-xl object-contain"
+      <div class="w-[220px] h-[220px]">
+        <MetaPin
+          :pop="metaPin.pop"
+          :path="metaPin.path"
+          :value="metaPin.outputValue"
+          :pop-lv="metaPin.popLv"
+          :content="metaPin.content"
+          :content-summary="metaPin.contentSummary"
+          :content-type-detect="metaPin.contentTypeDetect"
+          :content-type="metaPin.contentType"
         />
-        <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.contentSummary }}</div>
-        <span
-          :title="`${metaPin.outputValue} sat`"
-          :class="['absolute rounded right-3 bottom-3 py-3px px-1.5 text-xs bg-[#E2F4FF]/80 text-[#1472FF]']"
-        >
-          {{ metaPin.outputValue }} sat
-        </span>
       </div>
     </div>
     <div class="flex items-center justify-center text-lg">
@@ -114,6 +74,7 @@ const toSendNFT = (id: string) => {
         {{ $t('Common.Transfer') }}
       </button>
     </div>
+    
     <div class="space-y-4 border-t border-gray-secondary pt-4">
       <div class="row">
         <div class="label">{{ $t('Common.Creator') }}</div>
