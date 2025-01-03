@@ -13,6 +13,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
 import TransactionResultModal, { type TransactionResult } from '../wallet/components/TransactionResultModal.vue'
 import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
+import MetaPin from '@/pages/wallet/components/MetaID/MetaPin.vue'
 
 const route = useRoute()
 const queryClient = useQueryClient()
@@ -27,6 +28,16 @@ const address = ref<string>(route.params.address as string)
 
 const symbol = 'BTC'
 const amount = ref(0)
+const popLv = ref(0)
+const pop = ref('')
+
+// 如果是 metaPin 类型，获取 popLv 和 pop 信息
+if (nftType === 'metaPin') {
+  getMetaPin(id.value).then((metaPin) => {
+    popLv.value = metaPin.popLv
+    pop.value = metaPin.pop
+  })
+}
 
 const recipient = ref('')
 
@@ -171,24 +182,15 @@ operationLock.value = false
       <div class="grow space-y-4">
         <div class="flex items-center gap-3 rounded-md">
           <div class="grid grid-cols-3 gap-3 w-full">
-            <div
-              :class="[
-                'flex items-center justify-center rounded-md relative aspect-square w-full overflow-hidden',
-                { 'bg-blue-primary p-2': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
-              ]"
-            >
-              <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full object-contain" />
-              <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>
-                {{ content }}
-              </div>
-              <span
-                :class="[
-                  'absolute rounded right-0 bottom-1 py-3px px-1.5 text-xs scale-75 bg-[#E2F4FF]/80 text-[#1472FF]',
-                ]"
-              >
-                {{ satoshis }} sat
-              </span>
-            </div>
+            <MetaPin
+              :value="Number(satoshis)"
+              :content="imgUrl"
+              :content-summary="content"
+              :content-type-detect="imgUrl ? 'image' : ''"
+              :content-type="imgUrl ? 'image/jpeg' : 'utf-8'"
+              :pop="pop"
+              :pop-lv="popLv"
+            />
           </div>
         </div>
         <Divider />
@@ -220,22 +222,15 @@ operationLock.value = false
     <div v-show="isShowConfirm" class="min-h-full flex flex-col">
       <div class="grow space-y-[30px]">
         <div class="grid grid-cols-3 gap-3">
-          <div
-            :class="[
-              'flex items-center justify-center rounded-md relative aspect-square w-full overflow-hidden',
-              { 'bg-blue-primary p-2': !imgUrl, 'border border-gray-soft rounded-xl': imgUrl },
-            ]"
-          >
-            <img alt="" :src="imgUrl" v-if="imgUrl" class="w-full h-full object-contain" />
-            <div class="text-xs overflow-hidden line-clamp-6 break-all text-white" :title="content" v-else>
-              {{ content }}
-            </div>
-            <span
-              class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[rgb(235,236,255,0.2)] text-[#EBECFF] text-xs scale-75"
-            >
-              {{ satoshis }} sat
-            </span>
-          </div>
+          <MetaPin
+            :value="Number(satoshis)"
+            :content="imgUrl"
+            :content-summary="content"
+            :content-type-detect="imgUrl ? 'image' : ''"
+            :content-type="imgUrl ? 'image/jpeg' : 'utf-8'"
+            :pop="pop"
+            :pop-lv="popLv"
+          />
         </div>
         <div class="space-y-5">
           <div class="flex items-center justify-between">

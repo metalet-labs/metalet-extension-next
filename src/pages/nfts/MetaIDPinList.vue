@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import MetaPin from './MetaPin.vue'
 import { useRouter } from 'vue-router'
 import { formatTimestamp } from '@/lib/formatters'
 import { Chain } from '@metalet/utxo-wallet-service'
 import LoadingIcon from '@/components/LoadingIcon.vue'
 import { useMetaPinsInfiniteQuery } from '@/queries/metaPin'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import MetaPin from '@/pages/wallet/components/MetaID/MetaPin.vue'
 
 const size = ref(9)
 const router = useRouter()
@@ -43,14 +43,16 @@ const toMetaPinDetail = (metaPinId: string) => {
           class="flex flex-col items-center justify-center rounded-md cursor-pointer text-[#999999]"
         >
           <div>{{ metaPin.path }}</div>
-          <!-- <MetaPin
+          <MetaPin
             :path="metaPin.path"
             :content="metaPin.content"
             :value="metaPin.outputValue"
-            :contentType="metaPin.contentType"
-            :contentSummary="metaPin.contentSummary"
-            :contentTypeDetect="metaPin.contentTypeDetect"
-          /> -->
+            :content-type="metaPin.contentType"
+            :content-summary="metaPin.contentSummary"
+            :content-type-detect="metaPin.contentTypeDetect"
+            :pop="metaPin.pop"
+            :pop-lv="metaPin.popLv"
+          />
           <span class="text-sm text-center mt-3 truncate" :title="'# ' + metaPin.number"># {{ metaPin.number }}</span>
           <span class="text-xs text-center mt-1 h-[30px]">{{ formatTimestamp(metaPin.timestamp) }}</span>
         </div>
