@@ -38,7 +38,7 @@ const toSendNFT = (id: string) => {
     query: {
       satoshis: metaPin.value?.outValue,
       content: metaPin.value?.desc,
-      imgUrl: metaPin.value?.contentString,
+      imgUrl: imageSrc.value,
     },
   })
 }

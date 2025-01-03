@@ -176,7 +176,7 @@ operationLock.value = false
             <MetaPin
               :pop="pop"
               :pop-lv="popLv"
-              :content="imgUrl"
+              :imgUrl="imgUrl"
               :value="Number(satoshis)"
               :content-summary="content"
               :content-type-detect="imgUrl ? 'image' : ''"
