@@ -78,6 +78,7 @@ export default {
     Path: '路径',
     Timestamp: '时间戳',
     GenesisTransaction: '创世交易',
+    ShowMore: '显示更多',
   },
   SettingMenu: {
     DappConnection: 'Dapp连接管理',

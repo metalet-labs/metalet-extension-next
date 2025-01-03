@@ -24,4 +24,5 @@ type WarningResult = {
   message: string
   confirmText?: string
 }
+
 export type TransactionResult = SuccessResult | FailedResult | WarningResult

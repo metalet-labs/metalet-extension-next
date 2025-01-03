@@ -45,18 +45,37 @@ const handleSelectItem = (itemPinId: string) => {
     params: { metaPinId: itemPinId, address: address.value },
   })
 }
+
+const isDescExpanded = ref(false)
 </script>
 
 <template>
   <div class="space-y-4">
     <LoadingText v-if="isLoadingCollection" :text="$t('Common.DataLoading')" />
     <template v-else-if="collection">
-      <div class="flex items-center gap-3">
-        <img :src="coverUrl" class="object-contain size-20 rounded-lg" />
-        <div class="space-y-1">
-          <h1 class="text-xl font-medium">{{ collection.name }}</h1>
-          <div class="text-sm text-gray-500">{{ collection.desc }}</div>
-          <div class="text-sm text-gray-500">Amount: {{ collection.totalNum }}</div>
+      <div class="flex flex-col gap-3">
+        <div class="flex items-start gap-3">
+          <img :src="coverUrl" class="object-contain size-20 rounded-lg" alt="avatar" />
+          <div>
+            <h1 class="text-xl font-medium">{{ collection.name }}</h1>
+            <div class="text-sm text-gray-500">Amount: {{ collection.totalNum }}</div>
+          </div>
+        </div>
+        
+        <div class="relative">
+          <div class="flex flex-col">
+            <div 
+              class="text-sm text-gray-500"
+              :class="{ 'line-clamp-3': !isDescExpanded }"
+            >{{ collection.desc }}</div>
+            <div 
+              v-if="collection.desc && collection.desc.length > 100 && !isDescExpanded"
+              @click="isDescExpanded = true"
+              class="text-sm text-blue-500 cursor-pointer hover:underline"
+            >
+              {{ $t('Common.ShowMore') }}
+            </div>
+          </div>
         </div>
       </div>
 
