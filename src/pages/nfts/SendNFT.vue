@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Copy from '@/components/Copy.vue'
-import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
 import { getMetaPin } from '@/queries/metaPin'
 import { FeeRateSelector } from '@/components'
@@ -12,7 +11,7 @@ import { UTXO, getInscriptionUtxo } from '@/queries/utxos'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { prettifyBalanceFixed, shortestAddress } from '@/lib/formatters'
 import TransactionResultModal, { type TransactionResult } from '../wallet/components/TransactionResultModal.vue'
-import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
+import { ScriptType, SignType } from '@metalet/utxo-wallet-service'
 import MetaPin from '@/pages/wallet/components/MetaID/MetaPin.vue'
 
 const route = useRoute()
@@ -141,14 +140,6 @@ async function send() {
     return
   }
 
-  const tx = Transaction.fromHex(rawTx.value)
-  if (
-    tx.outs.length > 1 &&
-    getAddressFromScript(tx.outs[tx.outs.length - 1].script, currentBTCWallet.value!.getNetwork()) === address.value
-  ) {
-    await addSafeUtxo(address.value, `${txId}:${tx.outs.length - 1}`)
-  }
-
   transactionResult.value = {
     chain: 'btc',
     status: 'success',
@@ -183,13 +174,13 @@ operationLock.value = false
         <div class="flex items-center gap-3 rounded-md">
           <div class="grid grid-cols-3 gap-3 w-full">
             <MetaPin
-              :value="Number(satoshis)"
+              :pop="pop"
+              :pop-lv="popLv"
               :content="imgUrl"
+              :value="Number(satoshis)"
               :content-summary="content"
               :content-type-detect="imgUrl ? 'image' : ''"
               :content-type="imgUrl ? 'image/jpeg' : 'utf-8'"
-              :pop="pop"
-              :pop-lv="popLv"
             />
           </div>
         </div>
@@ -224,7 +215,7 @@ operationLock.value = false
         <div class="grid grid-cols-3 gap-3">
           <MetaPin
             :value="Number(satoshis)"
-            :content="imgUrl"
+            :imgUrl="imgUrl"
             :content-summary="content"
             :content-type-detect="imgUrl ? 'image' : ''"
             :content-type="imgUrl ? 'image/jpeg' : 'utf-8'"

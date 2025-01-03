@@ -38,7 +38,7 @@ const toSendNFT = (id: string) => {
     query: {
       satoshis: metaPin.value?.outValue,
       content: metaPin.value?.desc,
-      imgUrl: imageSrc.value,
+      imgUrl: metaPin.value?.contentString,
     },
   })
 }
@@ -107,7 +107,7 @@ const getHostAndToTx = async (txId: string) => {
             </UseImage>
             <span class="text-sm">{{ shortestAddress(metaPin.address, 6) }}</span>
           </div>
-          <span class="text-sm text-gray-primary">{{ prettifyTxId(metaPin.metaId, 3) }}</span>
+          <span class="text-sm text-gray-primary">{{ prettifyTxId(metaPin.metaId, 6) }}</span>
         </div>
       </div>
       <div class="row">
@@ -123,8 +123,9 @@ const getHostAndToTx = async (txId: string) => {
       <div class="row">
         <div class="label">{{ $t('Common.Network') }}</div>
         <div class="flex items-center gap-1">
-          <BtcIcon class="w-4.5" />
-          <span class="text-sm">btc</span>
+          <BtcIcon class="w-5" v-if="metaPin.chain.toLowerCase() === 'btc'" />
+          <MvcIcon class="w-5" v-if="metaPin.chain.toLowerCase() === 'mvc'" />
+          <span class="text-sm">{{ metaPin.chain }}</span>
         </div>
       </div>
       <div class="row">

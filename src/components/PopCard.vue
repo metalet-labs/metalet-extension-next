@@ -1,15 +1,18 @@
 <script setup lang="ts">
-const { level } = defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   level: number
 }>()
 
 const getPopComp = (level: number) => {
   let textColorClass
   let bgColorClass
+
   switch (level) {
     case 1:
       textColorClass = 'text-[B6B6B6]'
-      bgColorClass = 'bg-gray-light'
+      bgColorClass = 'bg-gradient-to-br from-[#F5F5F5] to-[#E5E5E5]'
       break
     case 2:
       textColorClass = 'text-[#838C9B]'
@@ -70,11 +73,17 @@ const getPopComp = (level: number) => {
   return { textColorClass, bgColorClass }
 }
 
-const { textColorClass, bgColorClass } = getPopComp(level)
+const popStyle = computed(() => getPopComp(props.level))
 </script>
 
 <template>
-  <div :class="['text-center w-10 py-0.5 text-xs rounded-tl-md rounded-br-md font-medium', textColorClass, bgColorClass]">
+  <div
+    :class="[
+      'text-center w-10 py-0.5 text-xs rounded-tl-md rounded-br-md font-medium',
+      popStyle.textColorClass,
+      popStyle.bgColorClass,
+    ]"
+  >
     <span>Lv</span>
     <span>{{ level }}</span>
   </div>

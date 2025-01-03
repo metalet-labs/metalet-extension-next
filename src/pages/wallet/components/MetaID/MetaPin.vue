@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { PopCard } from '@/components'
-import { network } from '@/lib/network'
 import { getMetaFileUrl } from '@/lib/mrc721'
 
 const props = defineProps<{
@@ -9,10 +8,11 @@ const props = defineProps<{
   path?: string
   value: number
   popLv: number
-  content: string
+  content?: string
   contentSummary: string
   contentTypeDetect: string
   contentType: 'utf-8' | 'image/jpeg' | string
+  imgUrl?: string
 }>()
 
 const imageSrc = ref('')
@@ -33,7 +33,11 @@ const fetchContentSummary = async (url: string) => {
 }
 
 onMounted(() => {
-  fetchContentSummary(props.content)
+  if (props?.imgUrl) {
+    imageSrc.value = props.imgUrl
+  } else if (props?.content) {
+    fetchContentSummary(props.content)
+  }
 })
 </script>
 
