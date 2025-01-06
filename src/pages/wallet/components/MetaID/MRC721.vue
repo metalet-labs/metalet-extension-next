@@ -7,14 +7,22 @@ const props = defineProps<{
   pop: string
   value: number
   popLv: number
-  content: string
+  cover?: string
+  content?: string
   contentSummary: string
 }>()
 
 const imageSrc = computed(() => {
   try {
-    if (!props.content) return ''
-    return getMetaFileUrl(props.content)
+    if (props.cover) {
+      return getMetaFileUrl(props.cover)
+    }
+    if (props.content) {
+      const metafile = props.content.startsWith('metafile://')
+        ? props.content
+        : JSON.parse(props.content).attachment[0].content
+      return getMetaFileUrl(metafile)
+    }
   } catch (error) {
     console.error('Error getting image URL:', error)
     return ''
@@ -30,7 +38,7 @@ const imageSrc = computed(() => {
     <PopCard :level="popLv" class="absolute left-0 top-0 z-10" />
     <div class="w-full h-full flex items-center justify-center">
       <img :src="imageSrc" :alt="contentSummary" class="max-w-full max-h-full object-contain" v-if="imageSrc" />
-      <div class="overflow-hidden line-clamp-6 text-xs break-all p-1.5" v-else>{{ contentSummary }}</div>
+      <div class="line-clamp-6 text-xs break-all px-1.5" v-else>{{ contentSummary }}</div>
     </div>
     <span
       :title="`${value} sat`"

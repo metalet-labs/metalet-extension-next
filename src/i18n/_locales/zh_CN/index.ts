@@ -79,6 +79,7 @@ export default {
     Timestamp: '时间戳',
     GenesisTransaction: '创世交易',
     ShowMore: '显示更多',
+    ShowLess: '收起',
   },
   SettingMenu: {
     DappConnection: 'Dapp连接管理',

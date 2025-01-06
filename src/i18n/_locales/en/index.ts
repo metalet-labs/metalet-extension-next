@@ -79,6 +79,7 @@ export default {
     Timestamp: 'Timestamp',
     GenesisTransaction: 'Genesis Transaction',
     ShowMore: 'Show more',
+    ShowLess: 'Show less',
   },
   SettingMenu: {
     DappConnection: 'Dapp Connection',

@@ -63,15 +63,16 @@ const coverUrl = computed(() => getMetaFileUrl(props.collection.cover))
           class="flex flex-col items-center justify-center cursor-pointer"
         >
           <MRC721
-            :pop="item.outpoint"
             :popLv="0"
+            :cover="item.cover"
+            :pop="item.outpoint"
             :value="item.outValue"
             :content="item.contentString"
             :contentSummary="item.desc || item.name"
           />
 
-          <div class="mt-2 text-center">
-            <div class="text-base font-medium">{{ item?.name ?? '--' }}</div>
+          <div class="mt-2 text-center w-full">
+            <div class="text-base font-medium truncate" :title="item?.name || '--'">{{ item?.name || '--' }}</div>
             <div class="text-sm text-gray-500">
               <span v-if="item.itemPinNumber !== -1"># {{ item.itemPinNumber }}</span>
               <span v-else>{{ $t('Common.Unconfirmed') }}</span>

@@ -12,6 +12,7 @@ import MvcIcon from '@/assets/icons-v3/network_mvc.svg'
 import { formatTimestamp, shortestAddress, prettifyTxId, prettifyTokenGenesis } from '@/lib/formatters'
 import { getMetaFileUrl } from '@/lib/mrc721'
 import { useMRC721ItemQuery } from '@/queries/mrc721'
+import MRC721 from '@/pages/wallet/components/MetaID/MRC721.vue'
 
 const router = useRouter()
 const { params } = useRoute()
@@ -23,8 +24,15 @@ const { data: metaPin, isLoading } = useMRC721ItemQuery(metaPinId.value)
 
 const imageSrc = computed(() => {
   try {
-    if (!metaPin.value?.contentString) return ''
-    return getMetaFileUrl(metaPin.value.contentString)
+    if (metaPin.value?.cover) {
+      return getMetaFileUrl(metaPin.value.cover)
+    }
+    if (metaPin.value?.contentString) {
+      const metafile = metaPin.value.contentString.startsWith('metafile://')
+        ? metaPin.value.contentString
+        : JSON.parse(metaPin.value.contentString).attachment[0].content
+      return getMetaFileUrl(metafile)
+    }
   } catch (error) {
     console.error('Error getting image URL:', error)
     return ''
@@ -53,31 +61,23 @@ const getHostAndToTx = async (txId: string) => {
   <LoadingText :text="$t('Common.DetailLoading')" v-if="isLoading" />
   <div class="w-full space-y-4" v-else-if="metaPin">
     <div class="w-full flex items-center justify-center">
-      <div
-        :class="[
-          { 'p-2 bg-blue-primary': !imageSrc },
-          'size-[220px] flex items-center justify-center rounded-xl relative text-white',
-        ]"
-      >
-        <img
-          alt=""
-          :src="imageSrc"
-          v-if="imageSrc"
-          class="w-full h-full border-2 border-gray-soft rounded-xl object-contain"
+      <div class="size-[220px]">
+        <MRC721
+          :cover="metaPin.cover"
+          :pop="metaPin.name"
+          :value="metaPin.outValue"
+          :pop-lv="1"
+          :content="metaPin.contentString"
+          :content-summary="metaPin.desc"
         />
-        <div class="overflow-hidden line-clamp-6 break-all" v-else>{{ metaPin.desc }}</div>
-
-        <span
-          :title="`${metaPin.outValue} sat`"
-          class="absolute rounded right-3 bottom-3 py-3px px-1.5 bg-[#E2F4FF]/80 text-[#1472FF] text-xs scale-75"
-        >
-          {{ metaPin.outValue }} sat
-        </span>
       </div>
     </div>
-    <div class="flex items-center justify-center text-lg">
-      <span v-if="metaPin.itemPinNumber !== -1"># {{ metaPin.itemPinNumber }}</span>
-      <span v-else>{{ $t('Common.Unconfirmed') }}</span>
+    <div class="flex flex-col items-center justify-center gap-1">
+      <div class="text-lg font-medium">{{ metaPin.name || '--' }}</div>
+      <div class="text-lg">
+        <span v-if="metaPin.itemPinNumber !== -1"># {{ metaPin.itemPinNumber }}</span>
+        <span v-else>{{ $t('Common.Unconfirmed') }}</span>
+      </div>
     </div>
 
     <div class="flex justify-center">
@@ -153,12 +153,7 @@ const getHostAndToTx = async (txId: string) => {
       </div>
       <div class="row">
         <span class="label">{{ $t('Common.Preview') }}</span>
-        <a
-          target="_blank"
-          :href="imageSrc"
-          :title="imageSrc"
-          class="w-52 truncate text-[#5173B9] underline"
-        >
+        <a target="_blank" :href="imageSrc" :title="imageSrc" class="w-52 truncate text-[#5173B9] underline">
           {{ imageSrc }}
         </a>
       </div>

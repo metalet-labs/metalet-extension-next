@@ -8,6 +8,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { useMRC721CollectionItemsInfiniteQuery } from '@/queries/mrc721'
 import { getMRC721CollectionInfo, getMetaFileUrl } from '@/lib/mrc721'
 import { useQuery } from '@tanstack/vue-query'
+import MRC721 from '@/pages/wallet/components/MetaID/MRC721.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -69,11 +70,11 @@ const isDescExpanded = ref(false)
               :class="{ 'line-clamp-3': !isDescExpanded }"
             >{{ collection.desc }}</div>
             <div 
-              v-if="collection.desc && collection.desc.length > 100 && !isDescExpanded"
-              @click="isDescExpanded = true"
+              v-if="collection.desc && collection.desc.length > 100"
+              @click="isDescExpanded = !isDescExpanded"
               class="text-sm text-blue-500 cursor-pointer hover:underline"
             >
-              {{ $t('Common.ShowMore') }}
+              {{ isDescExpanded ? $t('Common.ShowLess') : $t('Common.ShowMore') }}
             </div>
           </div>
         </div>
@@ -90,24 +91,17 @@ const isDescExpanded = ref(false)
               @click="handleSelectItem(item.itemPinId)"
               class="flex flex-col items-center justify-center cursor-pointer"
             >
-              <div class="relative w-full aspect-square bg-white rounded-lg overflow-hidden border border-gray-100">
-                <img
-                  :src="getMetaFileUrl(item.contentString)"
-                  :alt="item.name"
-                  class="w-full h-full object-contain"
-                  v-if="item.contentString"
-                />
-                <div class="overflow-hidden line-clamp-6 text-xs break-all p-1.5" v-else>{{ item.desc }}</div>
-                <span
-                  :title="`${item.outValue} sat`"
-                  class="absolute rounded right-0 bottom-1 py-3px px-1.5 bg-[#E2F4FF]/80 text-[#1472FF] text-xs scale-75"
-                >
-                  {{ item.outValue }} sat
-                </span>
-              </div>
+              <MRC721
+                :cover="item.cover"
+                :pop="item.name"
+                :value="item.outValue"
+                :pop-lv="0"
+                :content="item.contentString"
+                :content-summary="item.desc"
+              />
 
               <div class="mt-2 text-center">
-                <div class="text-base font-medium">{{ item.name }}</div>
+                <div class="text-base font-medium">{{ item?.name || '--' }}</div>
                 <div class="text-sm text-gray-500">
                   <span v-if="item.itemPinNumber !== -1"># {{ item.itemPinNumber }}</span>
                   <span v-else>{{ $t('Common.Unconfirmed') }}</span>
