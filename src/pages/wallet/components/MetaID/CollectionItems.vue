@@ -63,11 +63,11 @@ const coverUrl = computed(() => getMetaFileUrl(props.collection.cover))
           class="flex flex-col items-center justify-center cursor-pointer"
         >
           <MRC721
-            :popLv="0"
+            :popLv="item.popLv"
             :cover="item.cover"
             :pop="item.outpoint"
             :value="item.outValue"
-            :content="item.contentString"
+            :content="item.content"
             :contentSummary="item.desc || item.name"
           />
 

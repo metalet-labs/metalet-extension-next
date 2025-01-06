@@ -63,11 +63,11 @@ const getHostAndToTx = async (txId: string) => {
     <div class="w-full flex items-center justify-center">
       <div class="size-[220px]">
         <MRC721
-          :cover="metaPin.cover"
           :pop="metaPin.name"
+          :cover="metaPin.cover"
+          :pop-lv="metaPin.popLv"
           :value="metaPin.outValue"
-          :pop-lv="1"
-          :content="metaPin.contentString"
+          :content="metaPin.content"
           :content-summary="metaPin.desc"
         />
       </div>

@@ -94,9 +94,9 @@ const isDescExpanded = ref(false)
               <MRC721
                 :cover="item.cover"
                 :pop="item.name"
+                :pop-lv="item.popLv"
                 :value="item.outValue"
-                :pop-lv="0"
-                :content="item.contentString"
+                :content="item.content"
                 :content-summary="item.desc"
               />
 

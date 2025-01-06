@@ -18,10 +18,7 @@ const imageSrc = computed(() => {
       return getMetaFileUrl(props.cover)
     }
     if (props.content) {
-      const metafile = props.content.startsWith('metafile://')
-        ? props.content
-        : JSON.parse(props.content).attachment[0].content
-      return getMetaFileUrl(metafile)
+      return props.content
     }
   } catch (error) {
     console.error('Error getting image URL:', error)
@@ -35,7 +32,7 @@ const imageSrc = computed(() => {
     class="relative w-full aspect-square bg-white rounded-lg overflow-hidden"
     :class="{ 'border border-[#f5f5f5]': imageSrc }"
   >
-    <PopCard :level="popLv" class="absolute left-0 top-0 z-10" />
+    <PopCard :level="popLv" class="absolute left-0 top-0 z-10" v-show="!!popLv" />
     <div class="w-full h-full flex items-center justify-center">
       <img :src="imageSrc" :alt="contentSummary" class="max-w-full max-h-full object-contain" v-if="imageSrc" />
       <div class="line-clamp-6 text-xs break-all px-1.5" v-else>{{ contentSummary }}</div>

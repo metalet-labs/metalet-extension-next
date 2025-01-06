@@ -40,6 +40,7 @@ export interface MRC721Item {
   outpoint: string
   outValue: number
   chain: Chain
+  popLv: number
 }
 
 export function getMetaFileUrl(metafile: string) {
