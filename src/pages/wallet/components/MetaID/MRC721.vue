@@ -18,7 +18,11 @@ const imageSrc = computed(() => {
       return getMetaFileUrl(props.cover)
     }
     if (props.content) {
-      return props.content
+      try {
+        return getMetaFileUrl(atob(props.content))
+      } catch {
+        return props.content
+      }
     }
   } catch (error) {
     console.error('Error getting image URL:', error)
