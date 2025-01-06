@@ -80,6 +80,9 @@ export default {
     GenesisTransaction: 'Genesis Transaction',
     ShowMore: 'Show more',
     ShowLess: 'Show less',
+    MyNFTs: 'My NFTs',
+    OtherNFTs: 'Other NFTs',
+    Mine: 'Mine',
   },
   SettingMenu: {
     DappConnection: 'Dapp Connection',

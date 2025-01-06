@@ -22,6 +22,19 @@ const metaPinId = ref(params.metaPinId as string)
 
 const { data: metaPin, isLoading } = useMRC721ItemQuery(metaPinId.value)
 
+const showTransferButton = computed(() => {
+  if (!metaPin.value) return false
+  
+  const chain = metaPin.value.chain.toLowerCase()
+  const nftAddress = metaPin.value.address
+
+  if (chain === 'btc' || chain === 'mvc') {
+    return address === nftAddress
+  }
+  
+  return false
+})
+
 const imageSrc = computed(() => {
   try {
     if (metaPin.value?.cover) {
@@ -80,7 +93,7 @@ const getHostAndToTx = async (txId: string) => {
       </div>
     </div>
 
-    <div class="flex justify-center">
+    <div class="flex justify-center" v-if="showTransferButton">
       <button
         @click="toSendNFT(metaPin!.itemPinId)"
         class="w-30 rounded-3xl py-4 text-center text-ss text-blue-primary bg-blue-light mx-auto cursor-pointer"

@@ -80,6 +80,9 @@ export default {
     GenesisTransaction: '创世交易',
     ShowMore: '显示更多',
     ShowLess: '收起',
+    MyNFTs: '我的 NFTs',
+    OtherNFTs: '其他 NFTs',
+    Mine: '我的',
   },
   SettingMenu: {
     DappConnection: 'Dapp连接管理',
