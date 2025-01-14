@@ -69,7 +69,7 @@ interface InscribeTxIdResult {
 }
 
 export async function process({
-  data: { metaidDataList, service, feeRate },
+  data: { metaidDataList, service, feeRate, outputs },
   options = initOptions(),
 }: {
   data: Omit<InscriptionRequest, 'commitTxPrevOutputList'>
@@ -83,6 +83,7 @@ export async function process({
     feeRate,
     metaidDataList,
     service,
+    outputs,
   })
   const commitCost = Number(commitTx.fee)
   const revealCost = revealTxs.reduce((total, revealTx) => total + Number(revealTx.fee), 0)
