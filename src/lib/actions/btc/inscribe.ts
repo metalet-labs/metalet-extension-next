@@ -37,10 +37,15 @@ export type InscriptionRequest = {
   chainCode?: string
   commitTx?: string
   signatureList?: string[]
+  /* deprecated */
   service?: {
     address: string
     satoshis: string
   }
+  outputs?: {
+    address: string
+    satoshis: string
+  }[]
 }
 
 function initOptions() {
