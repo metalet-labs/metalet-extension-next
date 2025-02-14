@@ -145,6 +145,7 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
   const hdpk = mneObj.toHDPrivateKey('', network)
   const rootPath = await getMvcRootPath()
   const wallet = await getCurrentWallet(Chain.MVC)
+  const myAddress = wallet.getAddress()
 
   // find out if transactions other than the first one are dependent on previous ones
   // if so, we need to sign them in order, and sequentially update the prevTxId of the later ones
@@ -232,22 +233,32 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
       }
     }
 
-    // find out priv / pub according to path
-    const path = toSign.path ? `${rootPath}/${toSign.path}` : wallet.getPath()
-    const privateKey = hdpk.deriveChild(path).privateKey
-    const publicKey = privateKey.toPublicKey()
+    // Check if the input belongs to our address before signing
+    const input = tx.inputs[inputIndex]
+    if (!input.output) {
+      throw new Error('The output of the input must be provided')
+    }
+    const inputAddress = input.output.script.toAddress(network).toString()
+    
+    // Only sign if the input address matches our address
+    if (inputAddress === myAddress) {
+      // find out priv / pub according to path
+      const path = toSign.path ? `${rootPath}/${toSign.path}` : wallet.getPath()
+      const privateKey = hdpk.deriveChild(path).privateKey
+      const publicKey = privateKey.toPublicKey()
 
-    // Build signature of this input
-    const signature = mvc.Transaction.Sighash.sign(
-      tx,
-      privateKey,
-      sigtype,
-      inputIndex,
-      new mvc.Script(scriptHex),
-      new BN(satoshis)
-    )
-    const signatureScript = mvc.Script.buildPublicKeyHashIn(publicKey, signature, sigtype)
-    tx.inputs[inputIndex].setScript(signatureScript)
+      // Build signature of this input
+      const signature = mvc.Transaction.Sighash.sign(
+        tx,
+        privateKey,
+        sigtype,
+        inputIndex,
+        new mvc.Script(scriptHex),
+        new BN(satoshis)
+      )
+      const signatureScript = mvc.Script.buildPublicKeyHashIn(publicKey, signature, sigtype)
+      tx.inputs[inputIndex].setScript(signatureScript)
+    }
 
     signedTransactions.push({
       txHex: tx.toString(),
@@ -600,7 +611,7 @@ export const payTransactionsWithUtxos = async (
   return payedTransactions
 }
 
-type SA_utxo = {
+export type SA_utxo = {
   txId: string
   outputIndex: number
   satoshis: number
