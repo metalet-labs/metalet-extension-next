@@ -1,6 +1,6 @@
 import { addSafeUtxo } from '@/lib/utxo'
 import { getCurrentWallet } from '../../wallet'
-import { getBtcUtxos, getMRC20Utxos } from '@/queries/utxos'
+import { getBtcUtxos, getMRC20Utxos, UTXO } from '@/queries/utxos'
 import { Chain, ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
 
 export interface MRC20TransferParams {
@@ -17,12 +17,13 @@ export interface MRC20TransferParams {
     address: string
     satoshis: string
   }
+  utxos?: UTXO[]
 }
 
 export async function process(params: MRC20TransferParams) {
   const wallet = await getCurrentWallet(Chain.BTC)
   const address = wallet.getAddress()
-  const utxos = await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH, true)
+  const utxos = params.utxos || (await getBtcUtxos(wallet.getAddress(), wallet.getScriptType() === ScriptType.P2PKH, true))
 
   const mrc20Utxos = await getMRC20Utxos(
     wallet.getAddress(),
