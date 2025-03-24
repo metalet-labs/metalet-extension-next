@@ -72,6 +72,7 @@ const btnDisabled = computed(() => {
 })
 
 const popConfirm = async () => {
+  operationLock.value = true
   if (!recipient.value) {
     transactionResult.value = {
       status: 'warning',
@@ -112,9 +113,7 @@ const popConfirm = async () => {
     isOpenResultModal.value = true
     return
   }
-  isOpenConfirmModal.value = true
   if (symbol.value === 'BTC') {
-    operationLock.value = true
     if (address.value !== currentBTCWallet.value!.getAddress()) {
       transactionResult.value = {
         status: 'warning',
@@ -152,6 +151,7 @@ const popConfirm = async () => {
     const sentRes = await walletInstance
       .send(recipient.value, amountInSats.value.toNumber(), { noBroadcast: true })
       .catch((err) => {
+        operationLock.value = false
         isOpenConfirmModal.value = false
         transactionResult.value = {
           status: 'failed',
@@ -164,6 +164,8 @@ const popConfirm = async () => {
       totalFee.value = fee
       cost.value = amountInSats.value.add(fee).toNumber()
       txHex.value = sentRes.txHex
+      isOpenConfirmModal.value = true
+      operationLock.value = false
     }
   }
 }
@@ -181,7 +183,6 @@ const isOpenResultModal = ref(false)
 const operationLock = ref(false)
 
 async function sendBTC(chain: Chain) {
-  operationLock.value = true
   if (txHex.value) {
     const address = currentBTCWallet.value!.getAddress()
     const txId = await broadcastTx(txHex.value, chain).catch((err: Error) => {
