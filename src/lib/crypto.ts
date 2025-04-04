@@ -9,6 +9,7 @@ import { getActiveWalletOnlyAccount, getCurrentWallet } from './wallet'
 import { DERIVE_MAX_DEPTH, FEEB, P2PKH_UNLOCK_SIZE } from '@/data/config'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { getPassword } from '@/lib/lock'
+import { UnlockP2PKHInputParams } from './actions/unlockP2PKHInput'
 
 export function eciesEncrypt(message: string, privateKey: mvc.PrivateKey): string {
   const publicKey = privateKey.toPublicKey()
@@ -239,7 +240,7 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
       throw new Error('The output of the input must be provided')
     }
     const inputAddress = input.output.script.toAddress(network).toString()
-    
+
     // Only sign if the input address matches our address
     if (inputAddress === myAddress) {
       // find out priv / pub according to path
@@ -608,6 +609,26 @@ export const payTransactionsWithUtxos = async (
     payedTransactions.push(txComposer.serialize())
   }
 
+  return payedTransactions
+}
+
+export const unlockP2PKHInput = async (params: UnlockP2PKHInputParams) => {
+  const network = await getNetwork()
+  const wallet = await getCurrentWallet(Chain.MVC)
+  const rootPrivateKey = mvc.PrivateKey.fromWIF(wallet.getPrivateKey())
+  const payedTransactions: string[] = []
+  params.transaction.forEach((tx) => {
+    const { txComposer: txComposerSerialized, toSignInputs } = tx;
+    const txComposer = TxComposer.deserialize(txComposerSerialized)
+    console.log('txComposer', txComposer)
+    toSignInputs.forEach((inputIndex) => {
+      txComposer.unlockP2PKHInput(
+        new mvc.PrivateKey(rootPrivateKey, network === 'mainnet' ? 'mainnet' : 'testnet'),
+        inputIndex
+      )
+    })
+    payedTransactions.push(txComposer.serialize())
+  })
   return payedTransactions
 }
 

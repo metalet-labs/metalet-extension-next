@@ -7,6 +7,7 @@ import * as EciesEncrypt from '../lib/actions/ecies-encrypt'
 import * as EciesDecrypt from '../lib/actions/ecies-decrypt'
 import * as SignTransaction from '../lib/actions/sign-transaction'
 import * as SignTransactions from '../lib/actions/sign-transactions'
+import * as UnlockP2PKHInput from '../lib/actions/unlockP2PKHInput'
 import * as Pay from '../lib/actions/pay'
 import * as SignPartialTx from '../lib/actions/signPartialTx'
 import * as SignMessage from '../lib/actions/sign-message'
@@ -104,6 +105,14 @@ export default {
     title: 'Sign Multiple Transactions',
     description: ['Sign multiple transactions with my wallet as once'],
     process: SignTransactions.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  UnlockP2PKHInput: {
+    name: 'Sign a Transaction',
+    title: 'Sign a Transactiont',
+    description: ['Sign a transaction with my wallet'],
+    process: UnlockP2PKHInput.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

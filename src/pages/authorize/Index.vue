@@ -25,6 +25,7 @@ import { LinkIcon } from '@heroicons/vue/20/solid'
 import SignTransaction from './SignTransaction.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
 import SignTransactions from './SignTransactions.vue'
+import UnlockP2PKHInput from './UnlockP2PKHInput.vue'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
 import { getBrowserHost } from '@/lib/host'
 
@@ -189,6 +190,7 @@ const cancelAction = async () => {
       <EciesDecrypt v-if="actionName === 'EciesDecrypt'" :params="params" />
       <SignTransaction v-if="actionName === 'SignTransaction'" :params="params" />
       <SignTransactions v-if="actionName === 'SignTransactions'" :params="params" />
+      <UnlockP2PKHInput v-if="actionName === 'UnlockP2PKHInput'" :params="params" />
       <Pay v-if="actionName === 'Pay'" :params="params" />
       <SignBTCPsbt v-if="actionName === 'SignBTCPsbt'" :params="params" />
       <SignMessage v-if="actionName === 'SignMessage'" :params="params" />

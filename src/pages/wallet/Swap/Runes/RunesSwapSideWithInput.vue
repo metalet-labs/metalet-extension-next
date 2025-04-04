@@ -229,7 +229,7 @@ const clear = () => {
       <Loader2Icon class="animate-spin text-zinc-400" v-if="calculating" />
 
       <div :class="['flex items-center gap-1 rounded-full bg-white p-1 px-2 text-xl shadow-sm']" v-else>
-        <RunesTokenIcon :symbol="asset?.symbol" class="size-6 text-xs" v-if="coinCategory === CoinCategory.Runes" />
+        <RunesTokenIcon :symbol="asset?.symbol || 'R'" class="size-6 text-xs" v-if="coinCategory === CoinCategory.Runes" />
         <AssetLogo :logo="icon" :chain="asset?.chain" :symbol="asset?.symbol" class="size-6 text-xs" v-else />
         <div class="mr-1" :class="['text-sm font-medium']">
           {{ symbol }}

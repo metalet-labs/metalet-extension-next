@@ -20,6 +20,7 @@ import {
   previewTransaction,
   signTransaction,
   signTransactions,
+  unlockP2PKHInput,
   pay,
   signPartialTx,
   ecdh,
@@ -44,6 +45,7 @@ type Metalet = {
   previewTransaction: any
   signTransaction: any
   signTransactions: any
+  unlockP2PKHInput: any
   pay: any
   signMessage: any
   verifySignature: any
@@ -102,6 +104,7 @@ const metalet: any = {
   previewTransaction,
   signTransaction,
   signTransactions,
+  unlockP2PKHInput,
   pay,
   signPartialTx,
   signMessage,

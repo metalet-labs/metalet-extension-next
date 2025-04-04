@@ -1,3 +1,4 @@
+import { UnlockP2PKHInputParams } from '@/lib/actions/unlockP2PKHInput'
 import { generateRandomString } from '../lib/helpers'
 
 type Echo = {
@@ -141,6 +142,10 @@ export async function signTransactions(params: { transactions: SigningTransactio
 }
 export async function pay(params: { transactions: SigningTransaction[] }) {
   return await createAction('Pay', 'authorize', params)
+}
+
+export async function unlockP2PKHInput(params: UnlockP2PKHInputParams) {
+  return await createAction('UnlockP2PKHInput', 'authorize', params)
 }
 
 export async function signPartialTx(params: {
