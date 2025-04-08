@@ -39,17 +39,12 @@ const tickerList = computed(() => {
           @click="props.clickEvent ? props.clickEvent(ticker.inscriptionId, ticker.amount) : undefined"
         />
       </div>
-      <template v-if="!showAll">
+      <template v-if="!showAll && props.list && props.list.length > 3">
         <Divider :w="2" class="mt-4 mb-3 border-gray-soft" />
 
         <!-- TODO: Add show all -->
         <!-- @click="showAll = true" -->
-        <FlexBox
-          :w="2"
-          ai="center"
-          jc="center"
-          class="text-xs cursor-pointer text-gray-primary gap-x-0.5"
-        >
+        <FlexBox :w="2" ai="center" jc="center" class="text-xs cursor-pointer text-gray-primary gap-x-0.5">
           <span>{{ $t('Common.All') }}</span>
           <ArrowDownIcon />
         </FlexBox>
