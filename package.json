@@ -3,6 +3,9 @@
   "private": true,
   "version": "3.4.6",
   "type": "module",
+  "resolutions": {
+    "elliptic": "^6.6.1"
+  },
   "scripts": {
     "dev": "vite --config ./vite-config/vite.dev.config.ts",
     "type-check": "vue-tsc --noEmit",
