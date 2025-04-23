@@ -76,7 +76,7 @@ async function send() {
   const ftManager = new FtManager({
     network: network as API_NET,
     purse: privateKey,
-    apiTarget: API_TARGET.CYBER3,
+    apiTarget: API_TARGET.METALET,
   })
 
   // Pick the largest utxo from wallet to pay the transaction

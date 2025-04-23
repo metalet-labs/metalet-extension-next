@@ -49,7 +49,7 @@ const split = async (genesis: string, codehash: string, symbol: string, decimal:
     const purse = currentMVCWallet.value!.getPrivateKey()
     const ftManager = new FtManager({
       network,
-      apiTarget: API_TARGET.CYBER3,
+      apiTarget: API_TARGET.METALET,
       purse,
       feeb: FEEB,
     })
@@ -101,7 +101,7 @@ const merge = async (genesis: string, codehash: string) => {
     const purse = currentMVCWallet.value!.getPrivateKey()
     const ftManager = new FtManager({
       network,
-      apiTarget: API_TARGET.CYBER3,
+      apiTarget: API_TARGET.METALET,
       purse,
       feeb: FEEB,
     })
@@ -155,7 +155,7 @@ watch(
         const purse = _currentMVCWallet.getPrivateKey()
         const manager = new FtManager({
           network,
-          apiTarget: API_TARGET.CYBER3,
+          apiTarget: API_TARGET.METALET,
           purse,
           feeb: FEEB,
         })

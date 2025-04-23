@@ -9,7 +9,7 @@ export async function process() {
   const chainWallet = await getCurrentWallet(Chain.MVC)
   const purse = chainWallet.getPrivateKey()
 
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3)
+  const wallet = new Wallet(purse, network, FEEB, API_TARGET.METALET)
 
   type TransferResult = {
     id: number

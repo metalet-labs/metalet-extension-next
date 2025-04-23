@@ -54,7 +54,7 @@ async function transfer() {
 
   const nftManager = new NftManager({
     network: network.value as API_NET,
-    apiTarget: API_TARGET.CYBER3,
+    apiTarget: API_TARGET.METALET,
     purse: privateKey,
   })
 

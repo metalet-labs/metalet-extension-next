@@ -4596,10 +4596,10 @@ merge2@^1.3.0:
   resolved "https://registry.yarnpkg.com/merge2/-/merge2-1.4.1.tgz#4368892f885e907455a6fd7dc55c0c9d404990ae"
   integrity sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==
 
-meta-contract@^0.4.10:
-  version "0.4.10"
-  resolved "https://registry.yarnpkg.com/meta-contract/-/meta-contract-0.4.10.tgz#317939c8539f866ade8b672d0d66164394c0991b"
-  integrity sha512-f/B9l/lrS83Il5GDj5gysJMfGA/6Elt4nN0IGhbz1uDot2ziUgeUmCwL7rVQkVutAtb2BGndIbkSI1mv53D7+Q==
+meta-contract@^0.4.11:
+  version "0.4.11"
+  resolved "https://registry.yarnpkg.com/meta-contract/-/meta-contract-0.4.11.tgz#c62031b4667156c0c3487c0cb82bce0ecb95f552"
+  integrity sha512-UfnIALusPRImwmBW5HNoPG5lnrsqxCUKWhMMCHESgfiZRP9IEgw/kXwS6H2s+EKukxtbxPemgh7dG9vDSCKugw==
   dependencies:
     mvc-scrypt "0.1.2"
     node-fetch "2"

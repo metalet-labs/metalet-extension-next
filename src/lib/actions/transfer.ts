@@ -20,10 +20,10 @@ export async function process({ tasks, broadcast = true }: { tasks: TransferTask
   const purse = chianWallet.getPrivateKey()
   const address = chianWallet.getAddress()
 
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3)
+  const wallet = new Wallet(purse, network, FEEB, API_TARGET.METALET)
   const ftManager = new FtManager({
     network,
-    apiTarget: API_TARGET.CYBER3,
+    apiTarget: API_TARGET.METALET,
     purse,
     feeb: FEEB,
   })
@@ -148,7 +148,7 @@ export async function process({ tasks, broadcast = true }: { tasks: TransferTask
 
 //   const ftManager = new FtManager({
 //     network,
-//     apiTarget: API_TARGET.CYBER3,
+//     apiTarget: API_TARGET.METALET,
 //     purse,
 //     feeb: FEEB,
 //     apiHost,

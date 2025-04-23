@@ -21,7 +21,7 @@ const address = getAddress(Chain.MVC)
 const merge = async () => {
   const network: API_NET = (await getNetwork()) as API_NET
   const purse = currentMVCWallet.value!.getPrivateKey()
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.CYBER3)
+  const wallet = new Wallet(purse, network, FEEB, API_TARGET.METALET)
   let { txId } = await wallet.merge().catch((err) => {
     isOpenResultModal.value = true
     transactionResult.value = {
