@@ -62,7 +62,7 @@
     "gsap": "^3.12.5",
     "lucide-vue-next": "^0.341.0",
     "memfs": "^4.5.0",
-    "meta-contract": "^0.4.11",
+    "meta-contract": "0.4.14",
     "mvc-std-lib": "^1.1.4",
     "object-hash": "^3.0.0",
     "qrcode": "^1.5.3",
