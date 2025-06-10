@@ -10,6 +10,7 @@ import { DERIVE_MAX_DEPTH, FEEB, P2PKH_UNLOCK_SIZE } from '@/data/config'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { getPassword } from '@/lib/lock'
 import { UnlockP2PKHInputParams } from './actions/unlockP2PKHInput'
+import { getDefaultMVCTRate } from '@/queries/transaction'
 
 export function eciesEncrypt(message: string, privateKey: mvc.PrivateKey): string {
   const publicKey = privateKey.toPublicKey()
@@ -282,13 +283,17 @@ export const payTransactions = async (
     txComposer: string
     message?: string
   }[],
-  hasMetaid: boolean = false
+  hasMetaid: boolean = false,
+  feeb?: number
 ) => {
   const network = await getNetwork()
   const wallet = await getCurrentWallet(Chain.MVC)
   const activeWallet = await getActiveWalletOnlyAccount()
   const password = await getPassword()
   const address = wallet.getAddress()
+  if (!feeb) {
+    feeb = await getDefaultMVCTRate()
+  }
   let usableUtxos = ((await fetchUtxos('mvc', address)) as MvcUtxo[]).map((u) => {
     return {
       txId: u.txid,
@@ -370,10 +375,10 @@ export const payTransactions = async (
     const totalOutput = tx.outputs.reduce((acc, output) => acc + output.satoshis, 0)
     const totalInput = tx.inputs.reduce((acc, input) => acc + input.output!.satoshis, 0)
     const currentSize = tx.toBuffer().length
-    const currentFee = FEEB * currentSize
+    const currentFee = feeb * currentSize
     const difference = totalOutput - totalInput + currentFee
 
-    const pickedUtxos = pickUtxo(usableUtxos, difference)
+    const pickedUtxos = pickUtxo(usableUtxos, difference, feeb)
 
     // append inputs
     for (let i = 0; i < pickedUtxos.length; i++) {
@@ -391,7 +396,7 @@ export const payTransactions = async (
       })
     }
 
-    const changeIndex = txComposer.appendChangeOutput(addressObj, FEEB)
+    const changeIndex = txComposer.appendChangeOutput(addressObj, feeb)
     const changeOutput = txComposer.getOutput(changeIndex)
 
     // sign
@@ -618,7 +623,7 @@ export const unlockP2PKHInput = async (params: UnlockP2PKHInputParams) => {
   const rootPrivateKey = mvc.PrivateKey.fromWIF(wallet.getPrivateKey())
   const payedTransactions: string[] = []
   params.transaction.forEach((tx) => {
-    const { txComposer: txComposerSerialized, toSignInputs } = tx;
+    const { txComposer: txComposerSerialized, toSignInputs } = tx
     const txComposer = TxComposer.deserialize(txComposerSerialized)
     console.log('txComposer', txComposer)
     toSignInputs.forEach((inputIndex) => {
@@ -639,9 +644,9 @@ export type SA_utxo = {
   address: string
   height: number
 }
-function pickUtxo(utxos: SA_utxo[], amount: number) {
+function pickUtxo(utxos: SA_utxo[], amount: number, feeb: number) {
   // amount + 2 outputs + buffer
-  let requiredAmount = amount + 34 * 2 * FEEB + 100
+  let requiredAmount = amount + 34 * 2 * feeb + 100
 
   if (requiredAmount <= 0) {
     return []
@@ -671,7 +676,7 @@ function pickUtxo(utxos: SA_utxo[], amount: number) {
   for (let utxo of confirmedUtxos) {
     current += utxo.satoshis
     // add input fee
-    requiredAmount += FEEB * P2PKH_UNLOCK_SIZE
+    requiredAmount += feeb * P2PKH_UNLOCK_SIZE
     candidateUtxos.push(utxo)
     if (current > requiredAmount) {
       return candidateUtxos
@@ -680,7 +685,7 @@ function pickUtxo(utxos: SA_utxo[], amount: number) {
   for (let utxo of unconfirmedUtxos) {
     current += utxo.satoshis
     // add input fee
-    requiredAmount += FEEB * P2PKH_UNLOCK_SIZE
+    requiredAmount += feeb * P2PKH_UNLOCK_SIZE
     candidateUtxos.push(utxo)
     if (current > requiredAmount) {
       return candidateUtxos

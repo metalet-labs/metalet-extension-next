@@ -13,6 +13,7 @@ import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { API_NET, API_TARGET, FtManager } from 'meta-contract'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
+import { FeeRate, useMVCRateQuery } from '@/queries/transaction'
 
 const operation = ref('')
 const loading = ref(false)
@@ -23,6 +24,7 @@ const currentCodehash = ref('')
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult>()
 const ftAsssets = ref<(MetaContractAsset & { utxoCount: number })[]>([])
+const currentMVCRateFeeb = ref(FEEB)
 
 const splitCount = 10
 const testSplit = false
@@ -39,6 +41,21 @@ const { getAddress, currentMVCWallet } = useChainWalletsStore()
 
 const address = getAddress(Chain.MVC)
 
+const { isLoading: _isLoading, data: rateList } = useMVCRateQuery();
+
+watch(
+  rateList,
+  (newRateList: FeeRate[] | undefined) => {
+    if (newRateList) {
+      const _selectedIndex = newRateList.findIndex((item) => item.title === 'Avg')
+      if (_selectedIndex !== -1) {
+        currentMVCRateFeeb.value = newRateList[_selectedIndex].feeRate
+      }
+    }
+  },
+  { immediate: true }
+)
+
 const split = async (genesis: string, codehash: string, symbol: string, decimal: number) => {
   try {
     loading.value = true
@@ -51,7 +68,7 @@ const split = async (genesis: string, codehash: string, symbol: string, decimal:
       network,
       apiTarget: API_TARGET.METALET,
       purse,
-      feeb: FEEB,
+      feeb: currentMVCRateFeeb.value,
     })
     let receivers: Receiver[] = []
     for (let i = 0; i < splitCount; i++) {
@@ -103,7 +120,7 @@ const merge = async (genesis: string, codehash: string) => {
       network,
       apiTarget: API_TARGET.METALET,
       purse,
-      feeb: FEEB,
+      feeb: currentMVCRateFeeb.value,
     })
     loading.value = true
     const { txids } = await ftManager
@@ -149,7 +166,7 @@ watch(
     if (assets && _isRefresh && _address && _currentMVCWallet) {
       assetLoading.value = true
       const _assets: (MetaContractAsset & { utxoCount: number })[] = []
-      for (let asset of assets || []) {
+      for (let asset of assets.slice(0, 3) || []) {
         const { codeHash, genesis } = asset
         const network: API_NET = (await getNetwork()) as API_NET
         const purse = _currentMVCWallet.getPrivateKey()
@@ -217,46 +234,32 @@ const hasMergeToken = computed(() => {
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <button
-            v-if="testSplit"
-            :disabled="loading"
-            @click="split(asset.genesis!, asset.codeHash!, asset.symbol, asset.decimal)"
-            :class="[
+          <button v-if="testSplit" :disabled="loading"
+            @click="split(asset.genesis!, asset.codeHash!, asset.symbol, asset.decimal)" :class="[
               { 'cursor-not-allowed': loading },
               'text-primary-blue py-2 px-4 rounded-3xl bg-blue-light text-xs',
-            ]"
-          >
+            ]">
             <div class="flex items-center gap-1 w-12 justify-center">
-              <LoadingIcon
-                class="w-4 text-primary-blue"
-                v-if="
-                  loading &&
-                  currentGenesis === asset.genesis &&
-                  currentCodehash === asset.codeHash &&
-                  operation === 'split'
-                "
-              />
+              <LoadingIcon class="w-4 text-primary-blue" v-if="
+                loading &&
+                currentGenesis === asset.genesis &&
+                currentCodehash === asset.codeHash &&
+                operation === 'split'
+              " />
               <span>Split</span>
             </div>
           </button>
-          <button
-            :disabled="loading"
-            @click="merge(asset.genesis!, asset.codeHash!)"
-            :class="[
-              { 'cursor-not-allowed': loading },
-              'text-primary-blue py-2 px-4 rounded-3xl bg-blue-light text-xs',
-            ]"
-          >
+          <button :disabled="loading" @click="merge(asset.genesis!, asset.codeHash!)" :class="[
+            { 'cursor-not-allowed': loading },
+            'text-primary-blue py-2 px-4 rounded-3xl bg-blue-light text-xs',
+          ]">
             <div class="flex items-center gap-1 w-14 justify-center">
-              <LoadingIcon
-                class="w-4 text-primary-blue"
-                v-if="
-                  loading &&
-                  currentGenesis === asset.genesis &&
-                  currentCodehash === asset.codeHash &&
-                  operation === 'merge'
-                "
-              />
+              <LoadingIcon class="w-4 text-primary-blue" v-if="
+                loading &&
+                currentGenesis === asset.genesis &&
+                currentCodehash === asset.codeHash &&
+                operation === 'merge'
+              " />
               <span>Merge</span>
             </div>
           </button>
@@ -271,7 +274,7 @@ const hasMergeToken = computed(() => {
 
 <style lang="css" scoped>
 .label {
-  @apply text-sm  text-gray-500;
+  @apply text-sm text-gray-500;
 }
 
 .value {

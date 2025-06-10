@@ -11,6 +11,7 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { API_NET, API_TARGET, Wallet } from 'meta-contract'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from '@/pages/wallet/components/TransactionResultModal.vue'
+import { getDefaultMVCTRate } from '@/queries/transaction'
 
 const isOpenResultModal = ref(false)
 const transactionResult = ref<TransactionResult | undefined>()
@@ -21,7 +22,8 @@ const address = getAddress(Chain.MVC)
 const merge = async () => {
   const network: API_NET = (await getNetwork()) as API_NET
   const purse = currentMVCWallet.value!.getPrivateKey()
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.METALET)
+  const feeb = await getDefaultMVCTRate()
+  const wallet = new Wallet(purse, network, feeb, API_TARGET.METALET)
   let { txId } = await wallet.merge().catch((err) => {
     isOpenResultModal.value = true
     transactionResult.value = {

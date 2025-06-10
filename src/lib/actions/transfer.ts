@@ -3,6 +3,7 @@ import { getNetwork } from '../network'
 import { getCurrentWallet } from '../wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { API_NET, API_TARGET, FtManager, Wallet, mvc } from 'meta-contract'
+import { getDefaultMVCTRate } from '@/queries/transaction'
 
 export type Receiver = {
   address: string
@@ -14,18 +15,29 @@ export type TransferTask = {
   codehash?: string
   receivers: Receiver[]
 }
-export async function process({ tasks, broadcast = true }: { tasks: TransferTask[]; broadcast?: boolean }) {
+export async function process({
+  tasks,
+  broadcast = true,
+  feeb,
+}: {
+  tasks: TransferTask[]
+  broadcast?: boolean
+  feeb?: number
+}) {
   const network: API_NET = (await getNetwork()) as API_NET
   const chianWallet = await getCurrentWallet(Chain.MVC)
   const purse = chianWallet.getPrivateKey()
   const address = chianWallet.getAddress()
+  if (!feeb) {
+    feeb = await getDefaultMVCTRate()
+  }
 
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.METALET)
+  const wallet = new Wallet(purse, network, feeb, API_TARGET.METALET)
   const ftManager = new FtManager({
     network,
     apiTarget: API_TARGET.METALET,
     purse,
-    feeb: FEEB,
+    feeb,
   })
 
   // 串行执行

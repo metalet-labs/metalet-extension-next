@@ -44,9 +44,9 @@ export const useChainWalletsStore = createGlobalState(() => {
     }
   }
 
-  const initMvcWallet = () => {
+  const initMvcWallet = (feeb=FEEB) => {
     const wif = toRaw(currentMVCWallet.value!).getPrivateKey()
-    return new Wallet(wif, network.value as API_NET, FEEB, API_TARGET.METALET)
+    return new Wallet(wif, network.value as API_NET, feeb, API_TARGET.METALET)
   }
 
   onMounted(async () => {

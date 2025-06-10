@@ -12,6 +12,7 @@ import LoadingText from './LoadingText.vue'
 import DeleteWallet from './DeleteWallet.vue'
 import PasswordInput from './PasswordInput.vue'
 import FeeRateSelector from './FeeRateSelector.vue'
+import MVCFeeRateSelector from './MVCFeeRateSelector.vue'
 import VerifySeedPhrase from './VerifySeedPhrase.vue'
 import AddressTypeSelector from './AddressTypeSelector.vue'
 
@@ -22,6 +23,7 @@ export {
   LoadingText,
   Button,
   FeeRateSelector,
+  MVCFeeRateSelector,
   AssetLogo,
   AddressTypeSelector,
   Copy,

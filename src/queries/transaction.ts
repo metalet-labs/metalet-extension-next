@@ -1,9 +1,10 @@
 import { ComputedRef } from 'vue'
 import { PageResult } from './types'
 import { getNet } from '@/lib/network'
-import { metaletApiV3 } from './request'
+import { metaletApiV3, metaletApiV4 } from './request'
 import { useQuery } from '@tanstack/vue-query'
 import { Chain } from '@metalet/utxo-wallet-service'
+import { FEEB } from '@/data/config'
 
 export const fetchBtcTxHex = async (
   txId: string,
@@ -41,6 +42,38 @@ export const useBTCRateQuery = (options?: { enabled: ComputedRef<boolean> }) => 
   return useQuery({
     queryKey: ['BTCTRate'],
     queryFn: () => getBTCTRate(),
+    select: (result) => {
+      if (result.list.length && result.list[0].title === 'Fast') {
+        return result.list.reverse()
+      }
+      return result.list
+    },
+    ...options,
+  })
+}
+
+export const getMVCTRate = async (): Promise<PageResult<FeeRate>> => {
+  const net = getNet()
+  return metaletApiV4<PageResult<FeeRate>>(`/mvc/fee/summary`).get({ net })
+}
+
+export const getDefaultMVCTRate = async (): Promise<number> => {
+  try {
+    const feeRes = await getMVCTRate()
+    if (feeRes.list.length) {
+      const fastRate = feeRes.list.find((rate) => rate.title === 'Fast')
+      return fastRate ? fastRate.feeRate : FEEB // Return fast rate or default fee
+    }
+  } catch (error) {
+    console.error('Error fetching MVC fee rate:', error)
+  }
+  return FEEB // Default fee rate in case of error
+}
+
+export const useMVCRateQuery = (options?: { enabled: ComputedRef<boolean> }) => {
+  return useQuery({
+    queryKey: ['MVCTRate'],
+    queryFn: () => getMVCTRate(),
     select: (result) => {
       if (result.list.length && result.list[0].title === 'Fast') {
         return result.list.reverse()

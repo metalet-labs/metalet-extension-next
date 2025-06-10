@@ -19,7 +19,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Chain, ScriptType, SignType, getAddressFromScript } from '@metalet/utxo-wallet-service'
-import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
+import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText, MVCFeeRateSelector } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
 const route = useRoute()
@@ -31,6 +31,7 @@ const txHex = ref<string>()
 const totalFee = ref<number>()
 const queryClient = useQueryClient()
 const currentRateFee = ref<number>()
+const currentMVCRateFee = ref<number>()
 const isOpenConfirmModal = ref(false)
 const transactionResult = ref<TransactionResult>()
 const address = ref(route.params.address as string)
@@ -147,7 +148,7 @@ const popConfirm = async () => {
       operationLock.value = false
     }
   } else {
-    const walletInstance = initMvcWallet()
+    const walletInstance = initMvcWallet(currentMVCRateFee.value!)
     const sentRes = await walletInstance
       .send(recipient.value, amountInSats.value.toNumber(), { noBroadcast: true })
       .catch((err) => {
@@ -161,7 +162,7 @@ const popConfirm = async () => {
       })
     if (sentRes) {
       const fee = Transaction.fromHex(sentRes.txHex).virtualSize()
-      totalFee.value = fee
+      totalFee.value = fee * currentMVCRateFee.value!
       cost.value = amountInSats.value.add(fee).toNumber()
       txHex.value = sentRes.txHex
       isOpenConfirmModal.value = true
@@ -255,13 +256,8 @@ async function send() {
     <div class="grow w-full space-y-3">
       <div class="space-y-3 w-full">
         <FlexBox d="col" ai="center" :gap="3">
-          <AssetLogo
-            :logo="logo"
-            :symbol="symbol"
-            :chain="asset.chain"
-            class="w-15"
-            :type="asset.isNative ? undefined : 'network'"
-          />
+          <AssetLogo :logo="logo" :symbol="symbol" :chain="asset.chain" class="w-15"
+            :type="asset.isNative ? undefined : 'network'" />
           <div class="text-base">{{ symbol }}</div>
         </FlexBox>
 
@@ -270,10 +266,8 @@ async function send() {
 
       <div class="space-y-2 w-full">
         <div>{{ $t('Common.Receiver') }}</div>
-        <textarea
-          v-model="recipient"
-          class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
-        />
+        <textarea v-model="recipient"
+          class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all" />
       </div>
 
       <div class="space-y-2 w-full">
@@ -287,14 +281,8 @@ async function send() {
             <span v-else>--</span>
           </span>
         </div>
-        <input
-          min="0"
-          type="number"
-          step="0.00001"
-          v-model="amount"
-          :max="Number(balanceData?.confirmed || 0)"
-          class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
-        />
+        <input min="0" type="number" step="0.00001" v-model="amount" :max="Number(balanceData?.confirmed || 0)"
+          class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none" />
       </div>
       <div class="flex flex-col w-full gap-2" v-if="asset.chain === 'btc'">
         <!-- <div class="flex items-center justify-between w-full">
@@ -306,11 +294,8 @@ async function send() {
         <div class="flex items-center justify-between w-full">
           <span class="text-xs text-gray-primary flex items-end gap-1">
             <span>{{ $t('Common.Pending') }}</span>
-            <span
-              v-tooltip="
-                'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'
-              "
-            >
+            <span v-tooltip="'Unconfirmed utxo may include inscription, brc20, rune, and future versions will support the use of these assets.'
+              ">
               <QuestionMarkCircleIcon class="w-3.5" />
             </span>
           </span>
@@ -327,10 +312,12 @@ async function send() {
       </div>
 
       <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
-      <div class="flex items-center justify-between w-full" v-else-if="asset.chain === 'mvc'">
+      <MVCFeeRateSelector class="w-full" v-model:currentMVCRateFee="currentMVCRateFee"
+        v-else-if="asset.chain === 'mvc'" />
+      <!-- <div class="flex items-center justify-between w-full" v-else-if="asset.chain === 'mvc'">
         <span class="text-sm">{{ $t('Common.FeeRate') }}</span>
         <span class="text-xs text-gray-primary">1 sat/vB</span>
-      </div>
+      </div> -->
       <Drawer v-model:open="isOpenConfirmModal">
         <DrawerContent class="bg-white">
           <DrawerHeader>
@@ -370,11 +357,8 @@ async function send() {
                   {{ $t('Common.Cancel') }}
                 </Button>
               </DrawerClose>
-              <Button
-                @click="send"
-                type="primary"
-                :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': btnDisabled }]"
-              >
+              <Button @click="send" type="primary"
+                :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': btnDisabled }]">
                 <LoadingIcon v-if="operationLock" />
                 <span>{{ $t('Common.Confirm') }}</span>
               </Button>
@@ -383,12 +367,8 @@ async function send() {
         </DrawerContent>
       </Drawer>
     </div>
-    <Button
-      type="primary"
-      @click="popConfirm"
-      :disabled="btnDisabled"
-      :class="[{ 'opacity-50 cursor-not-allowed': btnDisabled }, 'my-6 w-61.5 h-12']"
-    >
+    <Button type="primary" @click="popConfirm" :disabled="btnDisabled"
+      :class="[{ 'opacity-50 cursor-not-allowed': btnDisabled }, 'my-6 w-61.5 h-12']">
       <div class="flex items-center gap-2" v-if="operationLock">
         <LoadingIcon />
         <span>Loading...</span>

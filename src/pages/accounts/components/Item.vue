@@ -13,6 +13,7 @@ import { FEEB } from '@/data/config'
 import EditName from './EditName.vue'
 import { assetList } from '@/lib/balance'
 import Avatar from '@/components/Avatar.vue'
+import { getDefaultMVCTRate } from '@/queries/transaction'
 
 const router = useRouter()
 
@@ -56,8 +57,9 @@ const connect = async () => {
 
   // update injected wallet
   const network = await getNetwork()
-  const wif = await getPrivateKey()
-  wallet.value = new Wallet(wif, network as API_NET, FEEB, API_TARGET.METALET)
+  const wif = await getPrivateKey();
+  const feeb = await getDefaultMVCTRate()
+  wallet.value = new Wallet(wif, network as API_NET, feeb, API_TARGET.METALET)
 
   assetList.value = []
 

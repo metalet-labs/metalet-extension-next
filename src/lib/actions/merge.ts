@@ -3,13 +3,15 @@ import { getNetwork } from '../network'
 import { getCurrentWallet } from '../wallet'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { API_NET, API_TARGET, Wallet } from 'meta-contract'
+import { getDefaultMVCTRate } from '@/queries/transaction'
 
 export async function process() {
   const network: API_NET = (await getNetwork()) as API_NET
   const chainWallet = await getCurrentWallet(Chain.MVC)
   const purse = chainWallet.getPrivateKey()
+  const feeb = await getDefaultMVCTRate()
 
-  const wallet = new Wallet(purse, network, FEEB, API_TARGET.METALET)
+  const wallet = new Wallet(purse, network, feeb, API_TARGET.METALET)
 
   type TransferResult = {
     id: number
