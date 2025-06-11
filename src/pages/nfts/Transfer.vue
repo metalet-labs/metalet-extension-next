@@ -12,6 +12,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import TransactionResultModal, { type TransactionResult } from './components/TransactionResultModal.vue'
 import { Divider } from '@/components'
 import Decimal from 'decimal.js'
+import MVCFeeRateSelector from '@/components/MVCFeeRateSelector.vue'
 
 const queryClient = useQueryClient()
 
@@ -26,6 +27,7 @@ const address = getAddress(Chain.MVC)
 const codehash = computed(() => props.codehash)
 const genesis = computed(() => props.genesis)
 const tokenIndex = computed(() => props.tokenIndex)
+const currentMVCRateFee = ref<number>()
 
 const { data: metaContracts } = useMetacontractsQuery(
   { address, codehash, genesis },
@@ -56,6 +58,7 @@ async function transfer() {
     network: network.value as API_NET,
     apiTarget: API_TARGET.METALET,
     purse: privateKey,
+    feeb: currentMVCRateFee.value,
   })
 
   // Pick the largest utxo from wallet to pay the transaction
@@ -149,6 +152,8 @@ async function transfer() {
           class="border border-blue-primary w-full rounded-lg p-2 text-sm h-16 focus:outline-none focus:ring-0"
         />
       </div>
+
+      <MVCFeeRateSelector class="w-full" v-model:currentMVCRateFee="currentMVCRateFee" />
     </div>
 
     <div class="pt-6 pb-2 flex justify-center">
