@@ -73,7 +73,7 @@ const btnDisabled = computed(() => {
   )
 })
 
-const popConfirm = async (retry = false) => {
+const popConfirm = async (retryTimes = 0) => {
   operationLock.value = true
   if (!recipient.value) {
     transactionResult.value = {
@@ -152,17 +152,17 @@ const popConfirm = async (retry = false) => {
     const walletInstance = initMvcWallet(currentMVCRateFee.value!)
     const sentRes = await walletInstance
       .send(recipient.value, amountInSats.value.toNumber(), { noBroadcast: true })
-      .catch(async (err:any) => {
-        if (err.message.indexOf(`null (reading 'list')`) > -1 && !retry) {
+      .catch(async (err: any) => {
+        if (err.message.indexOf(`null (reading 'list')`) > -1 && retryTimes < 3) {
           console.warn('Retrying MVC transaction with default fee rate...')
           await sleep(5000)
-          return popConfirm(true)
+          return popConfirm(++retryTimes)
         }
         operationLock.value = false
         isOpenConfirmModal.value = false
         transactionResult.value = {
           status: 'failed',
-          message: err.message,
+          message: err.message.indexOf(`null (reading 'list')`) > -1 ? 'The service is currently busy. Please try again later.' : err.message,
         }
         isOpenResultModal.value = true
       })
@@ -373,7 +373,7 @@ async function send() {
         </DrawerContent>
       </Drawer>
     </div>
-    <Button type="primary" @click="popConfirm(false)" :disabled="btnDisabled"
+    <Button type="primary" @click="popConfirm(0)" :disabled="btnDisabled"
       :class="[{ 'opacity-50 cursor-not-allowed': btnDisabled }, 'my-6 w-61.5 h-12']">
       <div class="flex items-center gap-2" v-if="operationLock">
         <LoadingIcon />
