@@ -15,6 +15,7 @@ import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { AssetLogo, Divider, FlexBox, Button } from '@/components'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import MVCFeeRateSelector from '@/components/MVCFeeRateSelector.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -28,6 +29,7 @@ const { getIcon } = useIconsStore()
 const logo = computed(() => getIcon(CoinCategory.MetaContract, route.params.genesis as string) || '')
 
 const { currentMVCWallet } = useChainWalletsStore()
+const currentMVCRateFee = ref<number>()
 
 const tags = getTags(CoinCategory.MetaContract)
 
@@ -71,12 +73,14 @@ async function send() {
 
   const privateKey = currentMVCWallet.value!.getPrivateKey()
 
-  const network = await getNetwork()
+  const network = await getNetwork();
+
 
   const ftManager = new FtManager({
     network: network as API_NET,
     purse: privateKey,
     apiTarget: API_TARGET.METALET,
+    feeb: currentMVCRateFee.value,
   })
 
   // Pick the largest utxo from wallet to pay the transaction
@@ -168,12 +172,8 @@ async function send() {
 
         <div class="mt-3 text-base">{{ symbol }}</div>
 
-        <div
-          :key="tag.name"
-          v-for="tag in tags"
-          :style="`background-color:${tag.bg};color:${tag.color};`"
-          :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
-        >
+        <div :key="tag.name" v-for="tag in tags" :style="`background-color:${tag.bg};color:${tag.color};`"
+          :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']">
           {{ tag.name }}
         </div>
       </FlexBox>
@@ -183,10 +183,8 @@ async function send() {
 
     <div class="space-y-2">
       <div>{{ $t('Common.Receiver') }}</div>
-      <textarea
-        v-model="recipient"
-        class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all"
-      />
+      <textarea v-model="recipient"
+        class="w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none break-all" />
     </div>
     <div class="space-y-2">
       <FlexBox ai="center" jc="between">
@@ -197,23 +195,14 @@ async function send() {
           <span v-else>--</span>
         </span>
       </FlexBox>
-      <input
-        min="0"
-        type="number"
-        step="0.00001"
-        v-model="amount"
-        :max="asset.balance!.total.toNumber()"
-        class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none"
-      />
+      <input min="0" type="number" step="0.00001" v-model="amount" :max="asset.balance!.total.toNumber()"
+        class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none" />
+      <MVCFeeRateSelector class="w-full" v-model:currentMVCRateFee="currentMVCRateFee" />
     </div>
 
-    <Button
-      type="primary"
-      @click="isOpenConfirmModal = true"
-      :disabled="!recipient"
+    <Button type="primary" @click="isOpenConfirmModal = true" :disabled="!recipient"
       class="absolute bottom-4 left-1/2 -translate-x-1/2 w-61.5 h-12"
-      :class="!recipient || operationLock ? 'opacity-50 cursor-not-allowed' : undefined"
-    >
+      :class="!recipient || operationLock ? 'opacity-50 cursor-not-allowed' : undefined">
       <FlexBox ai="center" :gap="1" v-if="operationLock">
         <LoadingIcon />
         <span>Loading...</span>
@@ -249,11 +238,8 @@ async function send() {
             <DrawerClose>
               <Button type="light" class="w-[119px] h-12">{{ $t('Common.Cancel') }}</Button>
             </DrawerClose>
-            <Button
-              @click="send"
-              type="primary"
-              :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': operationLock }]"
-            >
+            <Button @click="send" type="primary"
+              :class="['w-[119px] h-12', { 'opacity-50 cursor-not-allowed space-x-1': operationLock }]">
               <LoadingIcon v-if="operationLock" />
               <span>{{ $t('Common.Confirm') }}</span>
             </Button>

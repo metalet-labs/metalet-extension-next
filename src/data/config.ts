@@ -1,6 +1,6 @@
-export const VERSION = '3.4.8'
+export const VERSION = '3.4.9'
 
-export const FEEB = 6
+export const FEEB = 5
 export const P2PKH_UNLOCK_SIZE = 1 + 1 + 72 + 1 + 33
 export const DERIVE_MAX_DEPTH = 1000
 

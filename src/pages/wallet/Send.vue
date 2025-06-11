@@ -21,6 +21,7 @@ import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Chain, ScriptType, SignType, getAddressFromScript } from '@metalet/utxo-wallet-service'
 import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText, MVCFeeRateSelector } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
+import { sleep } from '@/lib/helpers'
 
 const route = useRoute()
 const recipient = ref('')
@@ -72,7 +73,7 @@ const btnDisabled = computed(() => {
   )
 })
 
-const popConfirm = async () => {
+const popConfirm = async (retry = false) => {
   operationLock.value = true
   if (!recipient.value) {
     transactionResult.value = {
@@ -151,7 +152,12 @@ const popConfirm = async () => {
     const walletInstance = initMvcWallet(currentMVCRateFee.value!)
     const sentRes = await walletInstance
       .send(recipient.value, amountInSats.value.toNumber(), { noBroadcast: true })
-      .catch((err) => {
+      .catch(async (err:any) => {
+        if (err.message.indexOf(`null (reading 'list')`) > -1 && !retry) {
+          console.warn('Retrying MVC transaction with default fee rate...')
+          await sleep(5000)
+          return popConfirm(true)
+        }
         operationLock.value = false
         isOpenConfirmModal.value = false
         transactionResult.value = {
@@ -367,7 +373,7 @@ async function send() {
         </DrawerContent>
       </Drawer>
     </div>
-    <Button type="primary" @click="popConfirm" :disabled="btnDisabled"
+    <Button type="primary" @click="popConfirm(false)" :disabled="btnDisabled"
       :class="[{ 'opacity-50 cursor-not-allowed': btnDisabled }, 'my-6 w-61.5 h-12']">
       <div class="flex items-center gap-2" v-if="operationLock">
         <LoadingIcon />
