@@ -79,7 +79,7 @@ export const verifySignature = (
 
 type ToSignTransaction = {
   txHex: string
-  unSignTx?:mvc.Transaction
+  
   scriptHex: string
   inputIndex: number
   inputIndexes?: number[]
@@ -176,7 +176,7 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
     txid: string
   }[] = []
   for (let i = 0; i < toSignTransactionsWithDependsOn.length; i++) {
-    let { txHex, scriptHex, inputIndex, satoshis, sigtype, hasMetaId,unSignTx } = toSignTransactionsWithDependsOn[i]
+    let { txHex, scriptHex, inputIndex, satoshis, sigtype, hasMetaId } = toSignTransactionsWithDependsOn[i]
     const toSign = toSignTransactionsWithDependsOn[i]
 
     if (!sigtype) {
@@ -237,11 +237,17 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
     }
 
     // Check if the input belongs to our address before signing
-    const input =unSignTx ? unSignTx.inputs[inputIndex] : tx.inputs[inputIndex]
+    const input = tx.inputs[inputIndex]
+
+    const unSignTx=new TxComposer(tx).toObject()
+
+    const txObject= TxComposer.fromObject(unSignTx)
+
     if (!input.output) {
-      throw new Error('The output of the input must be provided')
+      input.output=txObject.tx.inputs[inputIndex].output
+      //throw new Error('The output of the input must be provided')
     }
-    const inputAddress = input.output.script.toAddress(network).toString()
+    const inputAddress = input.output!.script.toAddress(network).toString()
 
     // Only sign if the input address matches our address
     if (inputAddress === myAddress) {
