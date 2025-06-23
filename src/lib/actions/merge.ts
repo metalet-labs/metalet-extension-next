@@ -11,7 +11,7 @@ export async function process() {
   const purse = chainWallet.getPrivateKey()
   const feeb = await getDefaultMVCTRate()
 
-  const wallet = new Wallet(purse, network, feeb, API_TARGET.METALET)
+  const wallet = new Wallet(purse, network, feeb, API_TARGET.APIMVC)
 
   type TransferResult = {
     id: number

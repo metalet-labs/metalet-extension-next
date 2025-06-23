@@ -79,7 +79,7 @@ async function send() {
   const ftManager = new FtManager({
     network: network as API_NET,
     purse: privateKey,
-    apiTarget: API_TARGET.METALET,
+    apiTarget: API_TARGET.APIMVC,
     feeb: currentMVCRateFee.value,
   })
 

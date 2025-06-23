@@ -32,10 +32,10 @@ export async function process({
     feeb = await getDefaultMVCTRate()
   }
 
-  const wallet = new Wallet(purse, network, feeb, API_TARGET.METALET)
+  const wallet = new Wallet(purse, network, feeb, API_TARGET.APIMVC)
   const ftManager = new FtManager({
     network,
-    apiTarget: API_TARGET.METALET,
+    apiTarget: API_TARGET.APIMVC,
     purse,
     feeb,
   })

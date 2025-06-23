@@ -30,10 +30,10 @@ export async function process({
 
   const ftManager = new FtManager({
     network,
-    apiTarget: API_TARGET.METALET,
+    apiTarget: API_TARGET.APIMVC,
     purse,
     feeb,
-    apiHost,
+    // apiHost,
   })
   // Pick the largest utxo from wallet to pay the transaction
   const selfAddress = wallet.getAddress()
@@ -88,10 +88,10 @@ export async function estimate({
 
   const ftManager = new FtManager({
     network,
-    apiTarget: API_TARGET.METALET,
+    apiTarget: API_TARGET.APIMVC,
     purse,
     feeb,
-    apiHost,
+    // apiHost,
   })
 
   return ftManager.getTransferEstimateFee({

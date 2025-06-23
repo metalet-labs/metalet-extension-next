@@ -59,7 +59,7 @@ const connect = async () => {
   const network = await getNetwork()
   const wif = await getPrivateKey();
   const feeb = await getDefaultMVCTRate()
-  wallet.value = new Wallet(wif, network as API_NET, feeb, API_TARGET.METALET)
+  wallet.value = new Wallet(wif, network as API_NET, feeb, API_TARGET.APIMVC)
 
   assetList.value = []
 
