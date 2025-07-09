@@ -19,6 +19,7 @@ import EciesDecrypt from './EciesDecrypt.vue'
 import actions from '@/data/authorize-actions'
 import SwitchNetwork from './SwitchNetwork.vue'
 import MRC20Transfer from './MRC20Transfer.vue'
+import MRC20TransferWithInscribe from './MRC20TransferWithInscribe.vue'
 import TransferToken from './TransferToken.vue'
 import SignBTCMessage from './SignBTCMessage.vue'
 import { LinkIcon } from '@heroicons/vue/20/solid'
@@ -200,6 +201,7 @@ const cancelAction = async () => {
       <MRC20Deploy v-if="actionName === 'MRC20Deploy'" :params="params" />
       <MRC20Mint v-if="actionName === 'MRC20Mint'" :params="params" />
       <MRC20Transfer v-if="actionName === 'MRC20Transfer'" :params="params" />
+      <MRC20TransferWithInscribe v-if="actionName === 'MRC20TransferWithInscribe'" :params="params" />
     </div>
 
     <!-- buttons -->

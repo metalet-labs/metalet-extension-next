@@ -22,6 +22,7 @@ import * as BTCTransfer from '../lib/actions/btc/transfer'
 import * as MRC20Deploy from '../lib/actions/btc/mrc20-deploy'
 import * as MRC20Mint from '../lib/actions/btc/mrc20-mint'
 import * as MRC20Transfer from '../lib/actions/btc/mrc20-transfer'
+import * as MRC20TransferWithInscribe from '../lib/actions/btc/mrc20-transfer-with-inscribe'
 import * as TransferUtxo from '../lib/actions/btc/transfer-utxo'
 import * as TransferNFT from '../lib/actions/transfer-nft'
 
@@ -213,6 +214,14 @@ export default {
     title: 'MRC20 Transfer',
     description: '',
     process: MRC20Transfer.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  MRC20TransferWithInscribe: {
+    name: 'MRC20TransferWithInscribe',
+    title: 'MRC20 Transfer',
+    description: '',
+    process: MRC20TransferWithInscribe.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },
