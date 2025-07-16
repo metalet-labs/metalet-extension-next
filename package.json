@@ -1,7 +1,7 @@
 {
   "name": "metalet",
   "private": true,
-  "version": "3.4.11",
+  "version": "3.4.12",
   "type": "module",
   "resolutions": {
     "elliptic": "^6.6.1"
@@ -33,7 +33,7 @@
     "@headlessui/tailwindcss": "^0.1.3",
     "@headlessui/vue": "^1.7.12",
     "@heroicons/vue": "^2.0.16",
-    "@metalet/utxo-wallet-service": "0.3.26",
+    "@metalet/utxo-wallet-service": "0.3.27",
     "@okxweb3/crypto-lib": "^1.0.1",
     "@rollup/plugin-alias": "^4.0.3",
     "@scure/bip39": "^1.2.2",
@@ -117,5 +117,6 @@
     "vue-tsc": "^2.1.2",
     "webextension-polyfill": "^0.10.0",
     "yarn": "^1.22.21"
-  }
+  },
+  "packageManager": "pnpm@10.12.2+sha512.a32540185b964ee30bb4e979e405adc6af59226b438ee4cc19f9e8773667a66d302f5bfee60a39d3cac69e35e4b96e708a71dd002b7e9359c4112a1722ac323f"
 }
