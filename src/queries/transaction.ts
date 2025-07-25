@@ -18,6 +18,19 @@ export const fetchBtcTxHex = async (
     .then((res) => res.rawTx)
 }
 
+
+export const fetchMvcTxHex = async (
+  txId: string,
+  option?: {
+    withCredential: boolean
+  }
+): Promise<string> => {
+  const net = getNet()
+  return metaletApiV4<{ hex: string }>(`/mvc/tx/raw`, option)
+    .get({ net, txId })
+    .then((res) => res.hex)
+}
+
 export const broadcastBTCTx = async (rawTx: string) => {
   return await broadcastTx(rawTx, Chain.BTC)
 }
