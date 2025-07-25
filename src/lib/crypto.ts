@@ -10,7 +10,7 @@ import { DERIVE_MAX_DEPTH, FEEB, P2PKH_UNLOCK_SIZE } from '@/data/config'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { getPassword } from '@/lib/lock'
 import { UnlockP2PKHInputParams } from './actions/unlockP2PKHInput'
-import { getDefaultMVCTRate } from '@/queries/transaction'
+import { getDefaultMVCTRate,fetchMvcTxHex } from '@/queries/transaction'
 
 export function eciesEncrypt(message: string, privateKey: mvc.PrivateKey): string {
   const publicKey = privateKey.toPublicKey()
@@ -239,12 +239,16 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
     // Check if the input belongs to our address before signing
     const input = tx.inputs[inputIndex]
 
-    const unSignTx=new TxComposer(tx).toObject()
+    // const unSignTx=new TxComposer(tx).toObject()
 
-    const txObject= TxComposer.fromObject(unSignTx)
+    // const txObject= TxComposer.fromObject(unSignTx)
 
     if (!input.output) {
-      input.output=txObject.tx.inputs[inputIndex].output
+      const prevTxId = input.prevTxId.toString('hex')
+       const outputIndex=input.outputIndex
+        const preTxHex=await fetchMvcTxHex(prevTxId)
+        const preTx=new mvc.Transaction(preTxHex)
+        input.output=preTx.outputs[outputIndex]
       //throw new Error('The output of the input must be provided')
     }
     const inputAddress = input.output!.script.toAddress(network).toString()
