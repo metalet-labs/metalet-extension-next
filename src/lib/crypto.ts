@@ -246,7 +246,7 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
     if (!input.output) {
       const prevTxId = input.prevTxId.toString('hex')
        const outputIndex=input.outputIndex
-        const preTxHex=await fetchMvcTxHex(prevTxId)
+        const preTxHex=await fetchMvcTxHex(prevTxId).catch((e)=>{console.log(e)})        
         if(preTxHex){
         const preTx=new mvc.Transaction(preTxHex)
         input.output=preTx.outputs[outputIndex]
