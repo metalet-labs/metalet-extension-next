@@ -247,11 +247,13 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
       const prevTxId = input.prevTxId.toString('hex')
        const outputIndex=input.outputIndex
         const preTxHex=await fetchMvcTxHex(prevTxId)
+        if(preTxHex){
         const preTx=new mvc.Transaction(preTxHex)
         input.output=preTx.outputs[outputIndex]
-      //throw new Error('The output of the input must be provided')
+        }
+        
     }
-    const inputAddress = input.output!.script.toAddress(network).toString()
+    const inputAddress =input.output ? input.output!.script.toAddress(network).toString() : myAddress
 
     // Only sign if the input address matches our address
     if (inputAddress === myAddress) {
