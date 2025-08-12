@@ -1,4 +1,5 @@
 import * as IsConnected from '../lib/actions/is-connected'
+import * as autoPaymentStatus from '../lib/actions/auto-payment-status'
 import * as Listen from '../lib/actions/listen'
 import * as GetAddress from '../lib/actions/get-address'
 import * as GetUtxos from '../lib/actions/get-utxos'
@@ -21,6 +22,7 @@ import * as BTCVerifyMessage from '../lib/actions/btc/verify-message'
 import * as AddSafeUtxo from '../lib/actions/btc/add-safe-utxo'
 
 import * as ECDH from '../lib/actions/common/ecdh'
+import * as SmallPay from '../lib/actions/small-pay'
 
 type QueryAction = {
   process: Function
@@ -28,6 +30,7 @@ type QueryAction = {
 
 export default {
   IsConnected,
+  AutoPaymentStatus: autoPaymentStatus,
   Listen,
   GetNetwork,
   GetAddress,
@@ -51,4 +54,5 @@ export default {
 
   // Common
   ECDH,
+  SmallPay: SmallPay,
 } as { [key: string]: QueryAction }

@@ -10,7 +10,7 @@ import { DERIVE_MAX_DEPTH, FEEB, P2PKH_UNLOCK_SIZE } from '@/data/config'
 import { Chain } from '@metalet/utxo-wallet-service'
 import { getPassword } from '@/lib/lock'
 import { UnlockP2PKHInputParams } from './actions/unlockP2PKHInput'
-import { getDefaultMVCTRate,fetchMvcTxHex } from '@/queries/transaction'
+import { getDefaultMVCTRate, fetchMvcTxHex } from '@/queries/transaction'
 
 export function eciesEncrypt(message: string, privateKey: mvc.PrivateKey): string {
   const publicKey = privateKey.toPublicKey()
@@ -79,7 +79,7 @@ export const verifySignature = (
 
 type ToSignTransaction = {
   txHex: string
-  
+
   scriptHex: string
   inputIndex: number
   inputIndexes?: number[]
@@ -245,15 +245,16 @@ export const signTransactions = async (toSignTransactions: ToSignTransaction[]) 
 
     if (!input.output) {
       const prevTxId = input.prevTxId.toString('hex')
-       const outputIndex=input.outputIndex
-        const preTxHex=await fetchMvcTxHex(prevTxId).catch((e)=>{console.log(e)})        
-        if(preTxHex){
-        const preTx=new mvc.Transaction(preTxHex)
-        input.output=preTx.outputs[outputIndex]
-        }
-        
+      const outputIndex = input.outputIndex
+      const preTxHex = await fetchMvcTxHex(prevTxId).catch((e) => {
+        console.log(e)
+      })
+      if (preTxHex) {
+        const preTx = new mvc.Transaction(preTxHex)
+        input.output = preTx.outputs[outputIndex]
+      }
     }
-    const inputAddress =input.output ? input.output!.script.toAddress(network).toString() : myAddress
+    const inputAddress = input.output ? input.output!.script.toAddress(network).toString() : myAddress
 
     // Only sign if the input address matches our address
     if (inputAddress === myAddress) {
@@ -297,7 +298,8 @@ export const payTransactions = async (
     message?: string
   }[],
   hasMetaid: boolean = false,
-  feeb?: number
+  feeb?: number,
+  autoPaymentAmount: number = 0
 ) => {
   const network = await getNetwork()
   const wallet = await getCurrentWallet(Chain.MVC)
@@ -390,6 +392,10 @@ export const payTransactions = async (
     const currentSize = tx.toBuffer().length
     const currentFee = feeb * currentSize
     const difference = totalOutput - totalInput + currentFee
+
+    if (autoPaymentAmount !== 0 && difference > autoPaymentAmount) {
+      throw new Error(`The fee is too high: ${difference}, it should be less than ${autoPaymentAmount}`)
+    }
 
     const pickedUtxos = pickUtxo(usableUtxos, difference, feeb)
 

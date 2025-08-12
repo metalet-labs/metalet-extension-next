@@ -148,6 +148,18 @@ export async function unlockP2PKHInput(params: UnlockP2PKHInputParams) {
   return await createAction('UnlockP2PKHInput', 'authorize', params)
 }
 
+export async function autoPaymentStatus() {
+  return await createAction('AutoPaymentStatus', 'query')
+}
+
+export async function autoPayment() {
+  return await createAction('AutoPayment', 'authorize')
+}
+
+export async function smallPay(params: { transactions: SigningTransaction[] }) {
+  return await createAction('SmallPay', 'query', params)
+}
+
 export async function signPartialTx(params: {
   transactions: SigningTransaction[]
   utxos: {

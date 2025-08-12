@@ -29,6 +29,7 @@ import SignTransactions from './SignTransactions.vue'
 import UnlockP2PKHInput from './UnlockP2PKHInput.vue'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/outline'
 import { getBrowserHost } from '@/lib/host'
+import AutoPayment from './AutoPayment.vue'
 
 // 从query中获取数据
 const route = useRoute()
@@ -184,6 +185,7 @@ const cancelAction = async () => {
       <TransferToken v-if="actionName === 'TokenTransfer'" :params="params" />
       <Transfer v-if="actionName === 'Transfer'" :params="params" />
       <Connect v-if="actionName === 'Connect' || actionName === 'ConnectBTC'" />
+      <AutoPayment v-if="actionName === 'AutoPayment'" />
       <Disconnect v-if="actionName === 'Disconnect'" />
       <Merge v-if="actionName === 'Merge'" />
       <SwitchNetwork v-if="actionName === 'SwitchNetwork'" />

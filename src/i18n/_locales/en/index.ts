@@ -109,6 +109,13 @@ export default {
     ResetWallet: 'Reset Wallet',
     OldPassword: 'Old Password',
     NewPassword: 'New Password',
+    SmallPaymentAutoApprove: 'Small Payment Auto-Approve',
+    SmallPaymentAutoApproveTips:'When enabled, authorized Web3 applications can automatically submit transactions with gas fees below a specified amount (defaulting to 10,000 sats) without your confirmation. This feature enhances your experience with trusted Web3 applications.',
+    Enabled: 'Enabled',
+    AllowApprovedApps: 'Allow approved apps',
+    AllowMaximumAutoApproveAmount: 'Allow maximum auto-approve amount',
+    ApprovedApps: 'Approved Apps',
+
   },
   ToolKitPage: {
     BTCMerge: 'BTC Merge',

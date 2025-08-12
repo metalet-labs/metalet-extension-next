@@ -15,6 +15,13 @@ const showResetModal = ref(false)
       <span>{{ $t('SetPasswordPage.ChangePassword') }}</span>
       <img :src="ArrowRightIcon" alt="" />
     </router-link>
+    <router-link
+      to="/wallet/small-payment-auto-approve"
+      class="h-15 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-secondary rounded-lg px-4"
+    >
+      <span>{{ $t('SetPasswordPage.SmallPaymentAutoApprove') }}</span>
+      <img :src="ArrowRightIcon" alt="" />
+    </router-link>
     <div class="h-15 flex items-center cursor-pointer rounded-lg px-4">
       <span class="text-red-500 hover:underline" @click="showResetModal = true">{{ $t('SetPasswordPage.ResetWallet') }}</span>
     </div>

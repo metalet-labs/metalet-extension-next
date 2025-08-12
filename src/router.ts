@@ -78,6 +78,14 @@ const routes = [
         },
       },
       {
+        path: '/wallet/small-payment-auto-approve',
+        component: () => import('./pages/wallet/SmallPaymentAutoApprove.vue'),
+        meta: {
+          noFooter: true,
+          noMenu: true,
+        },
+      },
+      {
         path: '/wallet/recovery-password',
         component: () => import('./pages/wallet/RecoveryPassword.vue'),
         meta: {

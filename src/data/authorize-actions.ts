@@ -1,6 +1,7 @@
 import * as TransferToken from '../lib/actions/transfer-token'
 import * as Transfer from '../lib/actions/transfer'
 import * as Connect from '../lib/actions/connect'
+import * as AutoPayment from '../lib/actions/auto-payment'
 import * as Disconnect from '../lib/actions/disconnect'
 import * as SwitchNetwork from '../lib/actions/switch-network'
 import * as EciesEncrypt from '../lib/actions/ecies-encrypt'
@@ -46,6 +47,15 @@ export default {
     title: 'Connect',
     description: 'Connect',
     process: Connect.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+
+  AutoPayment: {
+    name: 'AutoPayment',
+    title: 'Requesting Approval for Auto-Payment',
+    description: 'AutoPayment',
+    process: AutoPayment.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },
