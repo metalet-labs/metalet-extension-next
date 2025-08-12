@@ -2,9 +2,9 @@
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 
 import actions from '@/data/authorize-actions'
-const action = actions.Connect
+const action = actions.AutoPayment
 
-const accesses = ['Transactions for on-chain data withgas fees below 10,000 sats;', 'Only for MicrovisionChain']
+const accesses = ['Transactions for on-chain data with gas fees below 10,000 sats;', 'Only for MicrovisionChain']
 </script>
 
 <template>
