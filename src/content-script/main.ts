@@ -26,6 +26,9 @@ import {
   ecdh,
   transferNFT,
   omniConnect,
+  autoPayment,
+  autoPaymentStatus,
+  smallPay,
 } from './actions'
 
 import { btcKeys, createAction, ActionType, on, removeListener } from './actions'
@@ -109,6 +112,10 @@ const metalet: any = {
   signPartialTx,
   signMessage,
   verifySignature,
+  // auto payment
+  autoPayment,
+  autoPaymentStatus,
+  smallPay,
 
   eciesEncrypt,
   eciesDecrypt,
