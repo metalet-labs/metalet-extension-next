@@ -37,15 +37,5 @@ export async function process(params: any, { host, password }: { host: string; p
       status: 'error',
       message: error instanceof Error ? error.message : 'Unknown error occurred during small payment',
     }
-      autoPaymentAmount,
-      { password }
-    )
-
-    return { payedTransactions }
-  } catch (error) {
-    return {
-      status: 'error',
-      message: error instanceof Error ? error.message : 'Unknown error occurred during small payment',
-    }
   }
 }
