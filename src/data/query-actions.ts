@@ -54,5 +54,5 @@ export default {
 
   // Common
   ECDH,
-  SmallPay: SmallPay,
+  SmallPay,
 } as { [key: string]: QueryAction }
