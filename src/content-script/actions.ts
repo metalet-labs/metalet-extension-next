@@ -1,5 +1,6 @@
 import { UnlockP2PKHInputParams } from '@/lib/actions/unlockP2PKHInput'
 import { generateRandomString } from '../lib/helpers'
+import { StorageChunkParams } from '@/lib/actions/storage-chunk'
 
 type Echo = {
   nonce: string
@@ -120,6 +121,10 @@ export async function signMessage(params: { message: string }) {
 
 export async function verifySignature(params: { message: string; signature: string }) {
   return await createAction('VerifySignature', 'query', params)
+}
+
+export async function storageChunk(params: StorageChunkParams) {
+  return await createAction('StorageChunk', 'query', params)
 }
 
 type SigningTransaction = {

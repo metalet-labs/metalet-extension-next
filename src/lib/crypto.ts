@@ -298,8 +298,7 @@ export const payTransactions = async (
     message?: string
   }[],
   hasMetaid: boolean = false,
-  feeb?: number,
-  autoPaymentAmount: number = 0
+  feeb?: number
 ) => {
   const network = await getNetwork()
   const wallet = await getCurrentWallet(Chain.MVC)
@@ -392,10 +391,6 @@ export const payTransactions = async (
     const currentSize = tx.toBuffer().length
     const currentFee = feeb * currentSize
     const difference = totalOutput - totalInput + currentFee
-
-    if (autoPaymentAmount !== 0 && difference > autoPaymentAmount) {
-      throw new Error(`The fee is too high: ${difference}, it should be less than ${autoPaymentAmount}`)
-    }
 
     const pickedUtxos = pickUtxo(usableUtxos, difference, feeb)
 
@@ -537,6 +532,7 @@ export const smallPayTransactions = async (
 
   // we finish the transaction by finding the appropriate utxo and calculating the change
   const payedTransactions = []
+  let cost = 0
   for (let i = 0; i < toPayTransactions.length; i++) {
     const toPayTransaction = toPayTransactions[i]
     // record current txid
@@ -597,9 +593,10 @@ export const smallPayTransactions = async (
     const currentSize = tx.toBuffer().length
     const currentFee = feeb * currentSize
     const difference = totalOutput - totalInput + currentFee
+    cost += difference
 
-    if (autoPaymentAmount !== 0 && difference > autoPaymentAmount) {
-      throw new Error(`The fee is too high: ${difference}, it should be less than ${autoPaymentAmount}`)
+    if (autoPaymentAmount !== 0 && cost > autoPaymentAmount) {
+      throw new Error(`The fee is too high: ${cost}, it should be less than ${autoPaymentAmount}`)
     }
 
     const pickedUtxos = pickUtxo(usableUtxos, difference, feeb)
@@ -698,7 +695,7 @@ export const smallPayTransactions = async (
     }
   }
 
-  return payedTransactions
+  return { payedTransactions, cost }
 }
 
 export const payTransactionsWithUtxos = async (

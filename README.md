@@ -400,6 +400,27 @@ const signTxRes =
 
 ## pay
 
+## autoPayment
+### Example
+
+```tsx
+// check status 
+const res = await window.metaidwallet.autoPaymentStatus()
+// {
+//     "isEnabled": true,
+//     "isApproved": false,
+//     "autoPaymentAmount": 10000
+// }
+// only isEnabled === true && isApproved === false
+ await window.metaidwallet.autoPayment()
+//  {message: 'Auto payment approved'}
+
+await window.metaidwallet.smallPay(params:any)
+
+
+```
+
+
 ## signMessage
 
 ## signMsg

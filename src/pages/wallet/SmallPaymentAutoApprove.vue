@@ -105,8 +105,11 @@ const next = async () => {
               {{ $t('Common.BitcoinSideChain') }}
             </div>
           </div>
-          <input min="0" type="number" v-model="amount" step="1000"
-            class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none" />
+          <div class="relative mt-2 w-full">
+            <input min="0" type="number" v-model="amount" step="1000"
+              class="w-full rounded-lg p-3 pr-12 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none" />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-primary">sats</span>
+          </div>
 
         </div>
       </div>

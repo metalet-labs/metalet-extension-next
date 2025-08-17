@@ -29,6 +29,7 @@ import {
   autoPayment,
   autoPaymentStatus,
   smallPay,
+  storageChunk
 } from './actions'
 
 import { btcKeys, createAction, ActionType, on, removeListener } from './actions'
@@ -116,6 +117,7 @@ const metalet: any = {
   autoPayment,
   autoPaymentStatus,
   smallPay,
+  storageChunk,
 
   eciesEncrypt,
   eciesDecrypt,

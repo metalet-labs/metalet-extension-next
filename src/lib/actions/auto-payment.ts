@@ -2,6 +2,8 @@ import useStorage from '../storage'
 export const EnabledAutoPaymentKey = 'enabledAutoPayment'
 export const AutoPaymentListKey = 'autoPaymentList'
 export const AutoPaymentAmountKey = 'autoPaymentAmount'
+export const AutoPaymentHistoryKey = 'autoPaymentHistory'
+export const AutoPayment24HLimit = 1000000
 export async function process({ logo }: { logo?: string }, host: string) {
   const storage = useStorage()
   const isEnabled = await storage.get(EnabledAutoPaymentKey, {
