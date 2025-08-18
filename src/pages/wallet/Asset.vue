@@ -37,6 +37,7 @@ import {
 } from '@/components/ui/drawer'
 import Divider from '@/components/Divider.vue'
 import BTCBalance from '@/components/BTCBalance.vue'
+import { BTCBalanceV2 } from '@/queries/types/balance'
 
 const isOpen = ref(false)
 const route = useRoute()
@@ -158,10 +159,8 @@ const toReceive = () => {
             <DrawerDescription></DrawerDescription>
           </DrawerHeader>
           <div class="flex flex-col items-center">
-            <div
-              v-for="wallet in chainWallets"
-              class="h-15 w-full px-4 py-3 flex items-center justify-between cursor-pointer"
-            >
+            <div v-for="wallet in chainWallets"
+              class="h-15 w-full px-4 py-3 flex items-center justify-between cursor-pointer">
               <div class="flex items-center gap-3 w-full" @click="setAddressType(wallet.addressType, wallet.address)">
                 <img :src="icon" alt="" class="w-9" />
                 <div class="space-y-1">
@@ -185,14 +184,8 @@ const toReceive = () => {
 
     <div class="grow w-full flex flex-col gap-y-6 overflow-y-hidden">
       <div class="flex flex-col items-center">
-        <AssetLogo
-          :logo="icon"
-          :chain="asset.chain"
-          :symbol="asset.symbol"
-          :type="asset.isNative ? undefined : 'network'"
-          class="w-15"
-          logo-size="size-6"
-        />
+        <AssetLogo :logo="icon" :chain="asset.chain" :symbol="asset.symbol"
+          :type="asset.isNative ? undefined : 'network'" class="w-15" logo-size="size-6" />
 
         <div class="mt-3 text-2xl text-balance max-w-full text-center">
           <span v-if="balance" class="break-all">
@@ -204,11 +197,8 @@ const toReceive = () => {
           </span>
         </div>
       </div>
-      <div v-if="asset.isNative&& asset.symbol==='BTC' ">
-        <BTCBalance
-          :balance="balance?.total"
-          :safeBalance="balance?.safeBalance"
-        />
+      <div v-if="asset.isNative && asset.symbol === 'BTC'">
+        <BTCBalance :balance="balance?.total" :safeBalance="(balance as BTCBalanceV2)?.safeBalance" />
       </div>
       <div class="flex items-center justify-center gap-x-2">
         <button @click="toSend" class="btn-blue-light">
@@ -243,12 +233,8 @@ const toReceive = () => {
 
       <Divider class="w-full" />
 
-      <Activities
-        :asset="asset"
-        :address="address"
-        :coinCategory="CoinCategory.Native"
-        :exchangeRate="Number(exchangeRate)"
-      />
+      <Activities :asset="asset" :address="address" :coinCategory="CoinCategory.Native"
+        :exchangeRate="Number(exchangeRate)" />
     </div>
 
     <div class="-mx-4 h-11 bg-gray-light px-4 py-[13px] text-ss" v-if="false">

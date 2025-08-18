@@ -12,6 +12,7 @@ import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
 import { useOfficeGenesisStore } from '@/stores/FtTokenStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { type Asset, getTagInfo, type Tag, BRC20Asset, MetaContractAsset, MRC20Asset } from '@/data/assets'
+import { BTCBalanceV2 } from '@/queries/types/balance'
 
 const props = defineProps<{
   address: string
@@ -135,7 +136,7 @@ watch(
       </div>
     </div>
     <div v-if="coinCategory === CoinCategory.Native && asset?.symbol === 'BTC'">
-      <BTCBalance :balance="balance?.total" :safe-balance="balance?.safeBalance" />
+      <BTCBalance :balance="balance?.total" :safe-balance="(balance as BTCBalanceV2)?.safeBalance" />
     </div>
     <div v-if="asset?.contract === CoinCategory.BRC20"
       class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg">
