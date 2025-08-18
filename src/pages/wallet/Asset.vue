@@ -36,6 +36,7 @@ import {
   DrawerDescription,
 } from '@/components/ui/drawer'
 import Divider from '@/components/Divider.vue'
+import BTCBalance from '@/components/BTCBalance.vue'
 
 const isOpen = ref(false)
 const route = useRoute()
@@ -202,6 +203,12 @@ const toReceive = () => {
             ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
           </span>
         </div>
+      </div>
+      <div v-if="asset.isNative&& asset.symbol==='BTC' ">
+        <BTCBalance
+          :balance="balance?.total"
+          :safeBalance="balance?.safeBalance"
+        />
       </div>
       <div class="flex items-center justify-center gap-x-2">
         <button @click="toSend" class="btn-blue-light">

@@ -83,6 +83,8 @@ export default {
     MyNFTs: '我的 NFTs',
     OtherNFTs: '其他 NFTs',
     Mine: '我的',
+    Avail: '可用',
+    BTCBalanceTooltip:'每一个PIN、MRC20 和 BRC20 在 BTC 上都需占用 546 聪。为了这些资产的安全和不被花掉，Metalet 钱包会将这些聪标记为不可用，在 Metalet 钱包里暂时不能正常使用这些被占用的聪。'
   },
   SettingMenu: {
     DappConnection: 'Dapp连接管理',

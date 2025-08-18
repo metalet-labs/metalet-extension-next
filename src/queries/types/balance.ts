@@ -6,6 +6,10 @@ export interface Balance {
   unconfirmed: Decimal
 }
 
+export interface BTCBalanceV2 extends Balance {
+  safeBalance: Decimal
+}
+
 export interface BRC20Balance extends Balance {
   availableBalance: number
   transferableBalance: number

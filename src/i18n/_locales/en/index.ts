@@ -83,6 +83,8 @@ export default {
     MyNFTs: 'My NFTs',
     OtherNFTs: 'Other NFTs',
     Mine: 'Mine',
+    Avail: 'Avail',
+    BTCBalanceTooltip:'Each PIN, MRC20, and BRC20 on BTC requires 546 satoshis. To ensure the security of these assets and prevent them from being spent, the Metalet wallet will mark these satoshis as unavailable, meaning that the occupied satoshis cannot be used normally within the Metalet wallet.'
   },
   SettingMenu: {
     DappConnection: 'Dapp Connection',
@@ -115,6 +117,7 @@ export default {
     AllowApprovedApps: 'Allow approved apps',
     AllowMaximumAutoApproveAmount: 'Allow maximum auto-approve amount',
     ApprovedApps: 'Approved Apps',
+    
 
   },
   ToolKitPage: {

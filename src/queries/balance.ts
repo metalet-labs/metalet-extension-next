@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
 import { metaletApiV3, metaletApiV4 } from './request'
-import { Balance, BTCBalance, MVCBalance } from './types/balance'
+import { Balance, BTCBalance, BTCBalanceV2, MVCBalance } from './types/balance'
 
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
   const net = getNet()
@@ -21,7 +21,7 @@ export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
   }
 }
 
-export const fetchBtcBalance = async (address: string): Promise<Balance> => {
+export const fetchBtcBalance = async (address: string): Promise<BTCBalanceV2> => {
   const net = getNet()
   const data = await metaletApiV3<BTCBalance>(`/address/btc-balance`, { withCredential: false }).get({ net, address })
 
@@ -29,6 +29,7 @@ export const fetchBtcBalance = async (address: string): Promise<Balance> => {
     total: new Decimal(data.balance || 0).mul(1e8),
     confirmed: new Decimal(data.safeBalance || 0).mul(1e8),
     unconfirmed: new Decimal(data.pendingBalance || 0).mul(1e8),
+    safeBalance: new Decimal(data.safeBalance || 0).mul(1e8),
   }
 }
 

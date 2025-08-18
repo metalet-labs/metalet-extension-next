@@ -5,6 +5,7 @@ import { ref, computed, watch } from 'vue'
 import { updateAsset } from '@/lib/balance'
 import { truncateStr } from '@/lib/formatters'
 import AssetLogo from '@/components/AssetLogo.vue'
+import BTCBalance from '@/components/BTCBalance.vue'
 import { useIconsStore } from '@/stores/IconsStore'
 import { useBalanceQuery } from '@/queries/balance'
 import { CheckBadgeIcon } from '@heroicons/vue/24/solid'
@@ -101,33 +102,20 @@ watch(
   <div class="group relative transition hover:z-10">
     <div class="flex gap-2 cursor-pointer items-center justify-between rounded-full py-3">
       <div class="flex flex-shrink-0 items-center gap-x-3">
-        <AssetLogo
-          :chain="asset.chain"
-          logo-size="size-4"
-          class="size-10"
-          :symbol="asset.symbol"
-          :logo="icon"
-          :type="asset.isNative ? undefined : 'network'"
-        />
+        <AssetLogo :chain="asset.chain" logo-size="size-4" class="size-10" :symbol="asset.symbol" :logo="icon"
+          :type="asset.isNative ? undefined : 'network'" />
         <div class="flex flex-col gap-y-1 items-start">
           <div :title="asset.tokenName" class="flex items-center gap-x-0.5 text-base">
-            <span
-              :title="asset.tokenName"
-              :class="['truncate max-w-40', { 'max-w-24 truncate overflow-hidden': coinCategory === 'BRC-20' }]"
-            >
+            <span :title="asset.tokenName"
+              :class="['truncate max-w-40', { 'max-w-24 truncate overflow-hidden': coinCategory === 'BRC-20' }]">
               {{ truncateStr(asset.tokenName, 5) }}
             </span>
-            <CheckBadgeIcon
-              class="h-4 w-4 shrink-0 text-blue-500"
-              v-if="(asset as MetaContractAsset)?.genesis && isOfficeGenesis((asset as MetaContractAsset).genesis)"
-            />
+            <CheckBadgeIcon class="h-4 w-4 shrink-0 text-blue-500"
+              v-if="(asset as MetaContractAsset)?.genesis && isOfficeGenesis((asset as MetaContractAsset).genesis)" />
           </div>
 
-          <div
-            v-if="tag"
-            :style="[`background-color:${tag.bg};color:${tag.color};`]"
-            :class="['px-1.5', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'scale-75', 'origin-left']"
-          >
+          <div v-if="tag" :style="[`background-color:${tag.bg};color:${tag.color};`]"
+            :class="['px-1.5', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'scale-75', 'origin-left']">
             {{ tag.name }}
           </div>
         </div>
@@ -146,10 +134,11 @@ watch(
         </div>
       </div>
     </div>
-    <div
-      v-if="asset?.contract === CoinCategory.BRC20"
-      class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
-    >
+    <div v-if="coinCategory === CoinCategory.Native && asset?.symbol === 'BTC'">
+      <BTCBalance :balance="balance?.total" :safe-balance="balance?.safeBalance" />
+    </div>
+    <div v-if="asset?.contract === CoinCategory.BRC20"
+      class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg">
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.transferableBalance }}</span>
         <span class="text-[#909399]">{{ $t('Common.Transferable') }}</span>
@@ -158,18 +147,14 @@ watch(
         <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.availableBalanceSafe }}</span>
         <span class="text-[#909399]">{{ $t('Common.Available') }}</span>
       </div>
-      <div
-        v-if="(asset as BRC20Asset).balance?.availableBalanceUnSafe"
-        class="text-xs flex flex-col gap-1 items-center justify-between w-full"
-      >
+      <div v-if="(asset as BRC20Asset).balance?.availableBalanceUnSafe"
+        class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">{{ (asset as BRC20Asset).balance?.availableBalanceUnSafe }}</span>
         <span class="text-[#909399]">{{ $t('Common.Pending') }}</span>
       </div>
     </div>
-    <div
-      v-else-if="asset?.contract === CoinCategory.MRC20 && asset.balance?.unconfirmed.toNumber()"
-      class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg"
-    >
+    <div v-else-if="asset?.contract === CoinCategory.MRC20 && asset.balance?.unconfirmed.toNumber()"
+      class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg">
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">
           {{ asset.balance?.confirmed.dividedBy(10 ** asset.decimal).toNumber() }}
