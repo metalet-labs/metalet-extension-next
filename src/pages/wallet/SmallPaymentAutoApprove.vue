@@ -61,7 +61,7 @@ const next = async () => {
       <ChevronLeftIcon class="w-6 h-6 cursor-pointer" @click="$router.back()" />
     </div>
     <div class="space-y-2 pt-4">
-      <h3 class="text-2xl font-medium">
+      <h3 class="text-xl font-medium">
         {{ $t('SetPasswordPage.SmallPaymentAutoApprove') }}
       </h3>
       <p class="mt-2 text-sm text-gray-primary">
@@ -69,7 +69,7 @@ const next = async () => {
       </p>
     </div>
     <div class="grow ">
-      <div class="flex  items-center justify-between mt-8">
+      <div class="flex  items-center justify-between mt-6">
         <div>
           <h5 class="text-sm font-medium">
             {{ $t('SetPasswordPage.Enabled') }}
@@ -85,13 +85,13 @@ const next = async () => {
             class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out" />
         </Switch>
       </div>
-      <div class="mt-8">
+      <div class="mt-4">
         <h5 class="text-sm font-medium">
           {{ $t('SetPasswordPage.AllowMaximumAutoApproveAmount') }}
         </h5>
         <div class="flex  items-center justify-between  gap-6">
           <div class="flex flex-col items-start gap-x-2 mt-2">
-            <span class="text-sm text-gray-primary"> MicrovisionChain:</span>
+            <span class="text-xs text-gray-primary"> MicrovisionChain:</span>
             <div :class="[
               'px-1.5',
               'py-0.5',
@@ -101,6 +101,7 @@ const next = async () => {
               'scale-75',
               'origin-left',
               'bg-[rgba(247,147,26,0.2)] text-[#F7931A]',
+              'text-nowrap'
             ]">
               {{ $t('Common.BitcoinSideChain') }}
             </div>
@@ -113,11 +114,11 @@ const next = async () => {
 
         </div>
       </div>
-      <div class="mt-6">
+      <div class="mt-4">
         <h5 class="text-sm font-medium">
           {{ $t('SetPasswordPage.ApprovedApps') }}
         </h5>
-        <div class="mt-2 border-blue-primary rounded-lg p-3 border  min-h-[120px] max-h-[250px] overflow-y-auto">
+        <div class="mt-2 border-blue-primary rounded-lg p-3 border  min-h-[100px] max-h-[250px] overflow-y-auto">
 
           <div v-for="connection in list" class="flex items-center justify-between py-2" :key="connection.host">
             <div class="flex items-center gap-3">
@@ -140,8 +141,7 @@ const next = async () => {
 
 
     </div>
-    <div class="flex items-center justify-center gap-2 my-6">
-
+    <div class="flex items-center justify-center gap-2 my-4">
       <button class="mx-auto w-61.5 h-12 bg-blue-primary rounded-3xl text-white" @click="next">
         {{ $t('Common.Confirm') }}
       </button>

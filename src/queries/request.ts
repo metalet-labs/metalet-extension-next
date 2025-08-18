@@ -19,7 +19,7 @@ import {
   API_BOOK_ORDERS_EXCHANGE,
 } from '@/data/hosts'
 
-type OptionParams = Record<string, string | number | undefined>
+type OptionParams = Record<string, string | number | undefined | boolean>
 
 interface OptionData {
   [key: string]: unknown

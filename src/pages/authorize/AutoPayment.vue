@@ -11,8 +11,8 @@ const accesses = ['Transactions for on-chain data with gas fees below 10,000 sat
   <h3 class="text-base">{{ action.title }}</h3>
 
   <ul class="mt-6 space-y-4">
-    <li v-for="access in accesses" class="flex items-start gap-x-2">
-      <CheckBadgeIcon class="h-6 w-6 text-blue-primary" />
+    <li v-for="(access, index) in accesses" :key="index" class="flex items-start gap-x-2">
+      <CheckBadgeIcon class="h-6 w-6 max-w-6 max-h-6 min-w-6 min-h-6 text-blue-primary" />
       <div class="text-sm text-gray-700">{{ access }}</div>
     </li>
   </ul>

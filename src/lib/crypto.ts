@@ -595,8 +595,52 @@ export const smallPayTransactions = async (
     const difference = totalOutput - totalInput + currentFee
     cost += difference
 
-    if (autoPaymentAmount !== 0 && cost > autoPaymentAmount) {
-      throw new Error(`The fee is too high: ${cost}, it should be less than ${autoPaymentAmount}`)
+    if (autoPaymentAmount !== 0 && difference > autoPaymentAmount) {
+      throw new Error(`The fee is too high: ${difference}, it should be less than ${autoPaymentAmount}`)
+    }
+    // Validate transaction outputs
+    if (!tx || !Array.isArray(tx.outputs)) {
+      throw new Error('Invalid transaction: missing or invalid outputs')
+    }
+
+    for (let i = 0; i < tx.outputs.length; i++) {
+      const output = tx.outputs[i]
+      
+      // Skip outputs without script
+      if (!output?.script) continue
+      
+      try {
+        // Skip OP_RETURN outputs
+        if (output.script.toASM().includes('OP_RETURN')) {
+          continue
+        }
+
+        // Get and normalize output address
+        const outputAddress = output.script.toAddress().toString().toLowerCase()
+        
+        // Get and normalize wallet address
+        const walletAddress = wallet.getAddress().toLowerCase()
+        
+        // Compare normalized addresses
+        if (outputAddress !== walletAddress) {
+          throw new Error(
+            `Security violation: Output ${i} address ${outputAddress} ` +
+            `does not match wallet address ${walletAddress}`
+          )
+        }
+      } catch (err: unknown) {
+        // Handle potential toAddress() errors
+        const errorMessage = err instanceof Error ? 
+          (output.script.isDataOut() ? 'Cannot convert data output to address' : 
+           output.script.isSafeDataOut() ? 'Cannot convert safe data output to address' :
+           err.message) : 
+          'Unknown script conversion error'
+          
+        throw new Error(
+          `Failed to validate output ${i}: ${errorMessage}. ` +
+          `Script type: ${output.script.classifyOutput() || 'unknown'}`
+        )
+      }
     }
 
     const pickedUtxos = pickUtxo(usableUtxos, difference, feeb)

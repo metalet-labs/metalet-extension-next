@@ -18,7 +18,6 @@ export const fetchBtcTxHex = async (
     .then((res) => res.rawTx)
 }
 
-
 export const fetchMvcTxHex = async (
   txId: string,
   option?: {
@@ -67,7 +66,9 @@ export const useBTCRateQuery = (options?: { enabled: ComputedRef<boolean> }) => 
 
 export const getMVCTRate = async (): Promise<PageResult<FeeRate>> => {
   const net = getNet()
-  return metaletApiV4<PageResult<FeeRate>>(`/mvc/fee/summary`).get({ net })
+  return metaletApiV4<PageResult<FeeRate>>(`/mvc/fee/summary`, {
+    withCredential: false,
+  }).get({ net })
 }
 
 export const getDefaultMVCTRate = async (): Promise<number> => {
