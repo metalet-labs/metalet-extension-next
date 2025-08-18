@@ -65,7 +65,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
     // 如果连接状态为未连接，且请求的 action 不是connect或者IsConnected，则返回错误
     let failedStatus: string = ''
-    if ((await isLocked()) || (!password.value && !tempPassword)) {
+    const _isLocked = await isLocked();
+    // console.log('browser.runtime.onMessage', _isLocked, (!password.value && !tempPassword))
+    if (_isLocked ) {
       failedStatus = 'locked'
       const rawUrl = 'popup.html#/lock'
       let popupUrl = browser.runtime.getURL(rawUrl)

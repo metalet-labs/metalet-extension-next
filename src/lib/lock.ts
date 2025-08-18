@@ -16,7 +16,7 @@ export async function isLocked() {
   if (!(await hasPassword())) {
     return false
   }
-  return await storage.get(LOCK_KEY, { defaultValue: true })
+  return await storage.get(LOCK_KEY, { defaultValue: false })
 }
 
 export async function unlock(password: string) {
