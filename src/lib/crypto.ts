@@ -593,10 +593,10 @@ export const smallPayTransactions = async (
     const currentSize = tx.toBuffer().length
     const currentFee = feeb * currentSize
     const difference = totalOutput - totalInput + currentFee
-    cost += difference
+    cost += currentFee
 
-    if (autoPaymentAmount !== 0 && difference > autoPaymentAmount) {
-      throw new Error(`The fee is too high: ${difference}, it should be less than ${autoPaymentAmount}`)
+    if (autoPaymentAmount !== 0 && currentFee > autoPaymentAmount) {
+      throw new Error(`The fee is too high: ${currentFee}, it should be less than ${autoPaymentAmount}`)
     }
     // Validate transaction outputs
     if (!tx || !Array.isArray(tx.outputs)) {
