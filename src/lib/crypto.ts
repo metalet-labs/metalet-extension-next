@@ -678,7 +678,7 @@ export const smallPayTransactions = async (
     const mneObj = mvc.Mnemonic.fromString(decrypt(activeWallet.mnemonic, password))
     const hdpk = mneObj.toHDPrivateKey('', network)
 
-    const rootPath = await getMvcRootPath()
+    const rootPath = await getMvcRootPath(options)
     const basePrivateKey = hdpk.deriveChild(rootPath)
     // const rootPrivateKey = hdpk.deriveChild(`${rootPath}/0/0`).privateKey
     const rootPrivateKey = mvc.PrivateKey.fromWIF(wallet.getPrivateKey())

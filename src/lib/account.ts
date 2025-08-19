@@ -239,8 +239,12 @@ export async function getAddressType(chain: Chain = 'mvc'): Promise<string> {
   return getAccountProperty(chain, 'addressType')
 }
 
-export async function getMvcRootPath(): Promise<string> {
-  const mvcWallet = await getCurrentWallet(UtxoChain.MVC)
+export async function getMvcRootPath(options?: {
+    mnemonic?: string
+    password?: string
+    addressIndex?: number
+  }): Promise<string> {
+  const mvcWallet = await getCurrentWallet(UtxoChain.MVC, options)
   const mvcFullPath = mvcWallet.getPath()
 
   return mvcFullPath.slice(0, mvcFullPath.length - 4)
