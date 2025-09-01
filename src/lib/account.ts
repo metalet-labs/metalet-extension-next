@@ -247,7 +247,7 @@ export async function getMvcRootPath(options?: {
   const mvcWallet = await getCurrentWallet(UtxoChain.MVC, options)
   const mvcFullPath = mvcWallet.getPath()
 
-  return mvcFullPath.slice(0, mvcFullPath.length - 4)
+  return mvcFullPath.split("/").slice(0, -2).join("/")//.slice(0, mvcFullPath.length - 4)
 }
 
 export async function getPrivateKey(chain: Chain = 'mvc') {

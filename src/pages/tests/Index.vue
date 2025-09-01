@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { getPassword } from '@/lib/lock'
-import { process } from '@/lib/actions/small-pay'
+import { process } from '@/lib/actions/common/ecdh'
 
 const result = ref()
 const inputValue = ref('')
 
 const handleClick = async () => {
-  
+  const { sharedSecret, privateKey, externalPubKey,ecdhPubKey } = await process({
+    externalPubKey: "048add0a6298f10a97785f7dd069eedb83d279a6f03e73deec0549e7d6fcaac4eef2c279cf7608be907a73c89eb44c28db084c27b588f1bd869321a6f104ec642d",
+  }, {
+    password: await getPassword()
+  })
+  result.value = { sharedSecret, privateKey, externalPubKey,ecdhPubKey }
 }
 </script>
 
@@ -21,13 +26,18 @@ const handleClick = async () => {
         <strong>sharedSecret:</strong>
         {{ result.sharedSecret }}
       </p>
+      
+      <p class="break-all">
+        <strong>externalPubKey:</strong>
+        {{ result.externalPubKey }}
+      </p>
       <p>
         <strong>privateKey:</strong>
         {{ result.privateKey }}
       </p>
       <p class="break-all">
-        <strong>externalPubKey:</strong>
-        {{ result.externalPubKey }}
+        <strong>ecdhPubKey:</strong>
+        {{ result.ecdhPubKey }}
       </p>
     </div>
   </div>
