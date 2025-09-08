@@ -1,7 +1,7 @@
 {
   "name": "metalet",
   "private": true,
-  "version": "3.4.13",
+  "version": "3.4.14",
   "type": "module",
   "resolutions": {
     "elliptic": "^6.6.1"

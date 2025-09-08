@@ -24,8 +24,8 @@ importers:
         specifier: ^2.0.16
         version: 2.2.0(vue@3.5.13(typescript@5.7.3))
       '@metalet/utxo-wallet-service':
-        specifier: 0.3.27
-        version: 0.3.27
+        specifier: 0.3.29
+        version: 0.3.29
       '@okxweb3/crypto-lib':
         specifier: ^1.0.1
         version: 1.0.10
@@ -662,12 +662,12 @@ packages:
   '@magiceden-oss/runestone-lib@1.0.2':
     resolution: {integrity: sha512-C4XoE7tHxxaWQNzovBIEndXGrTesotshnKQA8DXlnoVDvriD6G26ezUoj9AlEb2UAPbEijSga4Dtwd86Z0a1jg==}
 
-  '@metalet/utxo-wallet-sdk@0.5.55':
-    resolution: {integrity: sha512-c2Kh7Fwj7gtartKHdIXevYm1Q48Lq2WQh31fLuoMeqBHYUYo/4/OpwSUHUzwTEAHqFBDnyN3KY5qabCMf3JzEw==}
+  '@metalet/utxo-wallet-sdk@0.5.56':
+    resolution: {integrity: sha512-kZkRu7DpoBu2x5d7m9eLeXuFvuTgpVWXqE6SviP4Gq5/n/hkoYpDSOznVfvNbvy7SyIFBeWoyUJjHq4pZijA6w==}
     engines: {node: '>=18'}
 
-  '@metalet/utxo-wallet-service@0.3.27':
-    resolution: {integrity: sha512-0hOiB9W0sK2jCdOo7WwCfo/kgv54nHzA+iNZpt8M93IEO3SgcgrS960lIAuAlLXeW2Cnty0kc7lMtOK21ilenw==}
+  '@metalet/utxo-wallet-service@0.3.29':
+    resolution: {integrity: sha512-aKVKx3pF+Agy8UQkcdyz6gNhLPPoqvONogdM3dYfHvApOx00DHUWfeWtGLSFmWWSrXSEJgaG7Yu2ozxPHVHw1w==}
 
   '@noble/curves@1.8.1':
     resolution: {integrity: sha512-warwspo+UYUPep0Q+vtdVB4Ugn8GGQj8iyB3gnRWsztmUHTI3S1nhdiWNsPUGL0vud7JlRRk1XEu7Lq1KGTnMQ==}
@@ -5114,7 +5114,7 @@ snapshots:
 
   '@magiceden-oss/runestone-lib@1.0.2': {}
 
-  '@metalet/utxo-wallet-sdk@0.5.55':
+  '@metalet/utxo-wallet-sdk@0.5.56':
     dependencies:
       '@bitcoinerlab/secp256k1': 1.2.0
       '@magiceden-oss/runestone-lib': 1.0.2
@@ -5128,9 +5128,9 @@ snapshots:
       ecpair: 2.1.0
       undici: 6.21.1
 
-  '@metalet/utxo-wallet-service@0.3.27':
+  '@metalet/utxo-wallet-service@0.3.29':
     dependencies:
-      '@metalet/utxo-wallet-sdk': 0.5.55
+      '@metalet/utxo-wallet-sdk': 0.5.56
       crypto-js: 4.2.0
       decimal.js: 10.5.0
 
