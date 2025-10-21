@@ -34,6 +34,9 @@ import {
 
 import { btcKeys, createAction, ActionType, on, removeListener } from './actions'
 
+// Import package.json to get version
+import packageInfo from '../../package.json'
+
 type Metalet = {
   ping: any
   connect: any
@@ -92,6 +95,7 @@ type Metalet = {
 }
 
 const metalet: any = {
+  version: packageInfo.version,
   ping,
   connect,
   isConnected,
