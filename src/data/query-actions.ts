@@ -24,6 +24,7 @@ import * as AddSafeUtxo from '../lib/actions/btc/add-safe-utxo'
 import * as ECDH from '../lib/actions/common/ecdh'
 import * as SmallPay from '../lib/actions/small-pay'
 import * as StorageChunk from '../lib/actions/storage-chunk'
+import * as GetPKHByPath from '../lib/actions/get-pkh-by-path'
 
 type QueryAction = {
   process: Function
@@ -56,5 +57,6 @@ export default {
   // Common
   ECDH,
   SmallPay,
-  StorageChunk
+  StorageChunk,
+  GetPKHByPath,
 } as { [key: string]: QueryAction }

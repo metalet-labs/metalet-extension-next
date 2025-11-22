@@ -95,6 +95,23 @@ export async function getPublicKey(params?: { path: string }) {
   return await createAction('GetPublicKey', 'query', params)
 }
 
+/**
+ * 根据自定义派生路径获取 PKH（地址）
+ * 用于私密群聊场景：群主使用特定路径（如 100/0, 100/1）生成唯一的加密密钥
+ * @param params.path - 相对路径，如 "100/0" 或 "100/1"
+ * @param params.chain - 链类型，可选，默认 'mvc'
+ * @returns PKH（地址字符串）
+ * @example
+ * // 群主创建第一个私密群聊
+ * const pkh1 = await getPKHByPath({ path: '100/0' })
+ * 
+ * // 创建第二个私密群聊
+ * const pkh2 = await getPKHByPath({ path: '100/1' })
+ */
+export async function getPKHByPath(params: { path: string; chain?: string }) {
+  return await createAction('GetPKHByPath', 'query', params)
+}
+
 export async function getXPublicKey() {
   return await createAction('GetXPublicKey', 'query')
 }
