@@ -6,7 +6,7 @@ import { notifyContent } from '@/lib/notify-content'
 import { generateRandomString } from '@/lib/helpers'
 import { getBtcNetwork, getNetwork } from '@/lib/network'
 import { getActiveWalletOnlyAccount, getCurrentWallet, getV3EncryptedWallets } from './wallet'
-import type { V1Account, V2Account, Chain, ChainDetail } from './types'
+import type { V1Account, V2Account, Chain, ChainDetail, CoreChain } from './types'
 import { ScriptType, Chain as UtxoChain } from '@metalet/utxo-wallet-service'
 import { fetchSpaceBalance, fetchBtcBalance, doNothing } from '@/queries/balance'
 import { deriveSigner, deriveAddress, derivePublicKey, inferAddressType, derivePrivateKey } from '@/lib/bip32-deriver'
@@ -219,7 +219,7 @@ export async function addAccount(newAccount: Omit<V2Account, 'id' | 'name'>) {
   await connectAccount(id)
 }
 
-async function getAccountProperty(chain: Chain, key: keyof ChainDetail[Chain]): Promise<string> {
+async function getAccountProperty(chain: CoreChain, key: keyof ChainDetail[CoreChain]): Promise<string> {
   const account = await getCurrentAccount()
 
   if (!account) {
@@ -235,7 +235,7 @@ export async function getAddress(chain: Chain = 'mvc', path?: string, password?:
   return wallet.getAddress()
 }
 
-export async function getAddressType(chain: Chain = 'mvc'): Promise<string> {
+export async function getAddressType(chain: CoreChain = 'mvc'): Promise<string> {
   return getAccountProperty(chain, 'addressType')
 }
 
@@ -250,7 +250,7 @@ export async function getMvcRootPath(options?: {
   return mvcFullPath.split("/").slice(0, -2).join("/")//.slice(0, mvcFullPath.length - 4)
 }
 
-export async function getPrivateKey(chain: Chain = 'mvc') {
+export async function getPrivateKey(chain: CoreChain = 'mvc') {
   const network = await getNetwork()
   const path = await getAccountProperty(chain, 'path')
   const mnemonic = await getCurrentAccount().then((account) => account!.mnemonic)
@@ -295,7 +295,7 @@ export async function getCredential({
   }
 }
 
-export async function getPublicKey(chain: Chain = 'mvc', path?: string): Promise<string> {
+export async function getPublicKey(chain: CoreChain = 'mvc', path?: string): Promise<string> {
   const network = await getNetwork()
   const mnemonic = await getCurrentAccount().then((account) => account!.mnemonic)
 

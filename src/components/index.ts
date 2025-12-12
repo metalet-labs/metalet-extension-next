@@ -13,6 +13,7 @@ import DeleteWallet from './DeleteWallet.vue'
 import PasswordInput from './PasswordInput.vue'
 import FeeRateSelector from './FeeRateSelector.vue'
 import MVCFeeRateSelector from './MVCFeeRateSelector.vue'
+import DOGEFeeRateSelector from './DOGEFeeRateSelector.vue'
 import VerifySeedPhrase from './VerifySeedPhrase.vue'
 import AddressTypeSelector from './AddressTypeSelector.vue'
 
@@ -24,6 +25,7 @@ export {
   Button,
   FeeRateSelector,
   MVCFeeRateSelector,
+  DOGEFeeRateSelector,
   AssetLogo,
   AddressTypeSelector,
   Copy,

@@ -21,6 +21,12 @@ import * as PushPsbt from '../lib/actions/btc/push-psbt'
 import * as BTCVerifyMessage from '../lib/actions/btc/verify-message'
 import * as AddSafeUtxo from '../lib/actions/btc/add-safe-utxo'
 
+// DOGE
+import * as GetDOGEBalance from '../lib/actions/doge/get-balance'
+import * as GetDOGEAddress from '../lib/actions/doge/get-address'
+import * as GetDOGEPublicKey from '../lib/actions/doge/get-public-key'
+import * as GetDOGEUtxos from '../lib/actions/doge/get-utxos'
+
 import * as ECDH from '../lib/actions/common/ecdh'
 import * as SmallPay from '../lib/actions/small-pay'
 import * as StorageChunk from '../lib/actions/storage-chunk'
@@ -53,6 +59,12 @@ export default {
   PushPsbt,
   BTCVerifyMessage,
   AddSafeUtxo,
+
+  // DOGE
+  GetDOGEBalance,
+  GetDOGEAddress,
+  GetDOGEPublicKey,
+  GetDOGEUtxos,
 
   // Common
   ECDH,

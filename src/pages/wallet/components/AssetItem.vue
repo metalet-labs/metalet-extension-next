@@ -13,6 +13,7 @@ import { useOfficeGenesisStore } from '@/stores/FtTokenStore'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { type Asset, getTagInfo, type Tag, BRC20Asset, MetaContractAsset, MRC20Asset } from '@/data/assets'
 import { BTCBalanceV2 } from '@/queries/types/balance'
+import DogeLogo from '@/assets/icons-v3/doge.svg?url'
 
 const props = defineProps<{
   address: string
@@ -29,20 +30,27 @@ const { t } = useI18n()
 const { getIcon } = useIconsStore()
 const { isOfficeGenesis } = useOfficeGenesisStore()
 
-const icon = computed(
-  () =>
+const icon = computed(() => {
+  // Use local DOGE logo if symbol is DOGE
+  if (props.asset.symbol === 'DOGE') {
+    return DogeLogo
+  }
+  return (
     (asset.value as MRC20Asset)?.icon ||
     getIcon(
       props.coinCategory,
       props.coinCategory === CoinCategory.MetaContract ? (props.asset as MetaContractAsset).genesis : props.asset.symbol
     ) ||
     ''
-)
+  )
+})
 
 if (props.asset?.contract) {
   tag.value = getTagInfo(props.asset.contract)
 } else if (props.asset.symbol === 'SPACE') {
   tag.value = { bg: 'rgba(247,147,26,0.2)', color: '#F7931A', name: t('Common.BitcoinSideChain') }
+} else if (props.asset.symbol === 'DOGE') {
+  tag.value = { bg: 'rgba(194,166,51,0.2)', color: '#C2A633', name: t('Common.BitcoinSideChain') }
 }
 
 const balanceEnabled = computed(() => !!address.value && !!asset.value.symbol && !asset.value.balance)

@@ -16,12 +16,15 @@ import { prettifyBalanceFixed } from '@/lib/formatters'
 import { CoinCategory } from '@/queries/exchange-rates'
 import type { TransactionResult } from '@/global-types'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { useDogeWalletStore } from '@/stores/DogeWalletStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Chain, ScriptType, SignType, getAddressFromScript } from '@metalet/utxo-wallet-service'
-import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText, MVCFeeRateSelector } from '@/components'
+import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText, MVCFeeRateSelector, DOGEFeeRateSelector } from '@/components'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 import { sleep } from '@/lib/helpers'
+import { fetchDogeUtxos, broadcastDogeTx } from '@/queries/doge'
+import DogeLogo from '@/assets/icons-v3/doge.svg?url'
 
 const route = useRoute()
 const recipient = ref('')
@@ -40,9 +43,20 @@ const symbol = ref(route.params.symbol as SymbolTicker)
 const asset = computed(() => allAssets.find((asset) => asset.symbol === symbol.value)!)
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || '')
+const logo = computed(() => {
+  if (route.params.symbol === 'DOGE') {
+    return DogeLogo
+  }
+  return getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || ''
+})
 
 const { currentBTCWallet, initMvcWallet } = useChainWalletsStore()
+const { currentDogeWallet, dogeAddress, updateWallet: updateDogeWallet } = useDogeWalletStore()
+
+// Initialize DOGE wallet if needed
+if (symbol.value === 'DOGE') {
+  updateDogeWallet()
+}
 
 // amount
 const amount = ref<number>()
@@ -69,7 +83,7 @@ const balance = computed(() => {
 // btn disabled
 const btnDisabled = computed(() => {
   return (
-    !recipient.value || !amount.value || operationLock.value || (asset.value.chain === 'btc' && !currentRateFee.value)
+    !recipient.value || !amount.value || operationLock.value || ((asset.value.chain === 'btc' || asset.value.chain === 'doge') && !currentRateFee.value)
   )
 })
 
@@ -91,7 +105,7 @@ const popConfirm = async (retryTimes = 0) => {
     isOpenResultModal.value = true
     return
   }
-  if (asset.value.chain === 'btc' && !currentRateFee.value) {
+  if ((asset.value.chain === 'btc' || asset.value.chain === 'doge') && !currentRateFee.value) {
     transactionResult.value = {
       status: 'warning',
       message: 'Please enter the current fee rate.',
@@ -107,7 +121,7 @@ const popConfirm = async (retryTimes = 0) => {
     isOpenResultModal.value = true
     return
   }
-  if (!currentRateFee.value && asset.value.chain === 'btc') {
+  if (!currentRateFee.value && (asset.value.chain === 'btc' || asset.value.chain === 'doge')) {
     transactionResult.value = {
       status: 'warning',
       message: 'Please select fee rate.',
@@ -143,6 +157,45 @@ const popConfirm = async (retryTimes = 0) => {
       transactionResult.value = {
         status: 'failed',
         message: error as string,
+      }
+      isOpenResultModal.value = true
+    } finally {
+      operationLock.value = false
+    }
+  } else if (symbol.value === 'DOGE') {
+    // DOGE transfer logic
+    if (!currentDogeWallet.value) {
+      await updateDogeWallet()
+    }
+    if (address.value !== dogeAddress.value) {
+      transactionResult.value = {
+        status: 'warning',
+        message: 'You are not the owner of this address.',
+      }
+      isOpenResultModal.value = true
+      operationLock.value = false
+      return
+    }
+    try {
+      // Fetch UTXOs with raw transaction data (required for P2PKH signing)
+      const utxos = await fetchDogeUtxos(address.value, true)
+      const feeRate = currentRateFee.value || 1000000 // DOGE default fee rate (0.01 DOGE/KB)
+
+      const { rawTx, fee } = await currentDogeWallet.value!.signTransaction({
+        utxos,
+        outputs: [{ address: recipient.value.trim(), satoshis: amountInSats.value.toNumber() }],
+        feeRate,
+      })
+
+      cost.value = amountInSats.value.add(fee).toNumber()
+      txHex.value = rawTx
+      totalFee.value = fee
+      isOpenConfirmModal.value = true
+    } catch (error: any) {
+      console.error('Error in DOGE transaction:', error)
+      transactionResult.value = {
+        status: 'failed',
+        message: error.message || String(error),
       }
       isOpenResultModal.value = true
     } finally {
@@ -221,12 +274,44 @@ async function sendBTC(chain: Chain) {
   }
 }
 
+async function sendDOGE() {
+  if (txHex.value) {
+    try {
+      const txId = await broadcastDogeTx(txHex.value)
+      return { txId }
+    } catch (err: any) {
+      isOpenConfirmModal.value = false
+      transactionResult.value = {
+        status: 'failed',
+        message: err.message,
+      }
+      isOpenResultModal.value = true
+      operationLock.value = false
+      throw err
+    }
+  } else {
+    isOpenConfirmModal.value = false
+    transactionResult.value = {
+      status: 'failed',
+      message: 'No transaction hex',
+    }
+    isOpenResultModal.value = true
+    operationLock.value = false
+  }
+}
+
 async function send() {
   if (operationLock.value) return
 
   operationLock.value = true
 
-  const sendRes = await sendBTC(asset.value.chain as Chain)
+  let sendRes
+  if (symbol.value === 'DOGE') {
+    sendRes = await sendDOGE()
+  } else {
+    sendRes = await sendBTC(asset.value.chain as Chain)
+  }
+  
   if (!sendRes || !sendRes.txId) {
     transactionResult.value = {
       status: 'failed',
@@ -290,7 +375,7 @@ async function send() {
         <input min="0" type="number" step="0.00001" v-model="amount" :max="Number(balanceData?.confirmed || 0)"
           class="mt-2 w-full rounded-lg p-3 text-xs border border-gray-soft focus:border-blue-primary focus:outline-none" />
       </div>
-      <div class="flex flex-col w-full gap-2" v-if="asset.chain === 'btc'">
+      <div class="flex flex-col w-full gap-2" v-if="asset.chain === 'btc' || asset.chain === 'doge'">
         <!-- <div class="flex items-center justify-between w-full">
           <span class="text-sm">Total</span>
           <span class="text-xs text-gray-primary">
@@ -318,6 +403,7 @@ async function send() {
       </div>
 
       <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
+      <DOGEFeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-else-if="asset.chain === 'doge'" />
       <MVCFeeRateSelector class="w-full" v-model:currentMVCRateFee="currentMVCRateFee"
         v-else-if="asset.chain === 'mvc'" />
       <!-- <div class="flex items-center justify-between w-full" v-else-if="asset.chain === 'mvc'">

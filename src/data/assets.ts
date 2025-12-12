@@ -8,7 +8,7 @@ export interface Asset {
   symbol: SymbolTicker
   tokenName: string
   isNative: boolean
-  chain: 'btc' | 'mvc'
+  chain: 'btc' | 'mvc' | 'doge'
   queryable: boolean
   decimal: number
   balance?: Balance
@@ -79,6 +79,11 @@ const tags: Tag[] = [
     bg: 'rgba(214, 240, 255, 0.4)',
     color: '#1472FF',
   },
+  {
+    name: 'DOGE',
+    bg: '#C2A633',
+    color: '#ffffff',
+  },
 ]
 
 function getTagInfo(name: string): Tag | undefined {
@@ -112,6 +117,15 @@ const MVCAsset: Asset = {
   decimal: 8,
 }
 
-const allAssets = [BTCAsset, MVCAsset]
+const DOGEAsset: Asset = {
+  symbol: 'DOGE',
+  tokenName: 'DOGE',
+  isNative: true,
+  chain: 'doge',
+  queryable: true,
+  decimal: 8,
+}
 
-export { BTCAsset, MVCAsset, allAssets, getTags, getTagInfo }
+const allAssets = [BTCAsset, MVCAsset, DOGEAsset]
+
+export { BTCAsset, MVCAsset, DOGEAsset, allAssets, getTags, getTagInfo }

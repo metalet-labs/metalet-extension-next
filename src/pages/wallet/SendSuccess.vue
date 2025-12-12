@@ -9,6 +9,7 @@ import { FlexBox, Divider, Button } from '@/components'
 import SuccessPNG from '@/assets/icons-v3/send-success.png'
 import { useIconsStore } from '@/stores/IconsStore'
 import { CoinCategory } from '@/queries/exchange-rates'
+import DogeLogo from '@/assets/icons-v3/doge.svg?url'
 
 const route = useRoute()
 
@@ -21,7 +22,13 @@ const receiver = route.params.address as string
 const coinCategory = route.params.coinCategory as CoinCategory
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
+const logo = computed(() => {
+  // Use local DOGE logo
+  if (symbol === 'DOGE') {
+    return DogeLogo
+  }
+  return getIcon(coinCategory, genesis || symbol) || ''
+})
 
 // const logo = getLogo(symbol, chain)
 

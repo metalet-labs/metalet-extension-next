@@ -11,16 +11,21 @@ import { getAssetManageList } from '@/lib/asset-manage'
 import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { BTCAsset, MVCAsset, type Asset, type MetaContractAsset, type RuneAsset } from '@/data/assets'
+import { useDogeWalletStore } from '@/stores/DogeWalletStore'
+import { BTCAsset, MVCAsset, DOGEAsset, type Asset, type MetaContractAsset, type RuneAsset } from '@/data/assets'
 
 const router = useRouter()
 const { getAddress } = useChainWalletsStore()
+const { dogeAddress, updateWallet: updateDogeWallet } = useDogeWalletStore()
 
 const selectList = ref<string[]>([])
 const serviceNetwork = ref<Service>([])
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
+
+// Initialize DOGE wallet
+updateDogeWallet()
 
 getServiceNetwork().then((_serviceNetwork) => {
   serviceNetwork.value = _serviceNetwork
@@ -145,6 +150,19 @@ function toRune(asset: RuneAsset, address: string) {
             v-for="asset in mvcAssets?.filter(
               (asset) => !selectList.includes(`${CoinCategory.MetaContract}-${asset.symbol}`)
             )"
+          />
+        </div>
+      </template>
+
+      <!-- DOGE Asset -->
+      <template v-if="serviceNetwork.includes('doge') && dogeAddress">
+        <div class="space-y-2 divide-y divide-gray-light">
+          <AssetItem
+            :asset="DOGEAsset"
+            :address="dogeAddress"
+            :coinCategory="CoinCategory.Native"
+            @click="toNative(DOGEAsset, dogeAddress)"
+            v-if="!selectList.includes(`${CoinCategory.Native}-${DOGEAsset.symbol}`)"
           />
         </div>
       </template>

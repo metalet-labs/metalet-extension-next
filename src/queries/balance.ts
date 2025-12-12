@@ -7,6 +7,7 @@ import { SymbolTicker } from '@/lib/asset-symbol'
 import { Balance_QUERY_INTERVAL } from './constants'
 import { metaletApiV3, metaletApiV4 } from './request'
 import { Balance, BTCBalance, BTCBalanceV2, MVCBalance } from './types/balance'
+import { fetchDogeBalance as fetchDogeBalanceFromApi } from './doge/balance'
 
 export const fetchSpaceBalance = async (address: string): Promise<Balance> => {
   const net = getNet()
@@ -54,6 +55,8 @@ export const useBalanceQuery = (
           return fetchSpaceBalance(address.value)
         case 'BTC':
           return fetchBtcBalance(address.value)
+        case 'DOGE':
+          return fetchDogeBalanceFromApi(address.value)
         default: {
           return doNothing()
         }

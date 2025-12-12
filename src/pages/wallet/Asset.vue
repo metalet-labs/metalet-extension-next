@@ -7,9 +7,10 @@ import { Copy, LoadingText } from '@/components'
 import { useRoute, useRouter } from 'vue-router'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { prettifyAddress } from '@/lib/formatters'
-import { BTCAsset, MVCAsset } from '@/data/assets'
+import { BTCAsset, MVCAsset, DOGEAsset } from '@/data/assets'
 import AssetLogo from '@/components/AssetLogo.vue'
 import { useIconsStore } from '@/stores/IconsStore'
+import DogeLogo from '@/assets/icons-v3/doge.svg?url'
 import { useBalanceQuery } from '@/queries/balance'
 import { WalletsStore } from '@/stores/WalletStore'
 import CloseIcon from '@/assets/icons-v3/close.svg?url'
@@ -24,6 +25,7 @@ import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg?url'
 import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
+import { useDogeWalletStore } from '@/stores/DogeWalletStore'
 import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -44,12 +46,18 @@ const route = useRoute()
 const router = useRouter()
 
 const { updateWallet, currentBTCWallet, currentMVCWallet, getAddress } = useChainWalletsStore()
+const { currentDogeWallet } = useDogeWalletStore()
 const address = computed(() => route.params.address as string)
 const mvcAddress = getAddress(Chain.MVC)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
 
 const { getIcon } = useIconsStore()
-const icon = computed(() => getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || '')
+const icon = computed(() => {
+  if (route.params.symbol === 'DOGE') {
+    return DogeLogo
+  }
+  return getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || ''
+})
 
 const asset = computed(() => {
   if (symbol.value === 'BTC') {
@@ -57,6 +65,9 @@ const asset = computed(() => {
   }
   if (symbol.value === 'SPACE') {
     return MVCAsset
+  }
+  if (symbol.value === 'DOGE') {
+    return DOGEAsset
   }
 })
 
@@ -227,6 +238,14 @@ const toReceive = () => {
         <div>{{ currentMVCWallet?.getAddressType() }}</div>
         <div class="flex items-center justify-between text-gray-primary gap-4">
           <div class="break-all">{{ currentMVCWallet?.getAddress() }}</div>
+          <Copy :text="address" class="w-[22px]" />
+        </div>
+      </div>
+
+      <div class="space-y-2 text-xs w-full border-gray-primary" v-else-if="asset.chain === 'doge'">
+        <div>Legacy (P2PKH)</div>
+        <div class="flex items-center justify-between text-gray-primary gap-4">
+          <div class="break-all">{{ currentDogeWallet?.getAddress() }}</div>
           <Copy :text="address" class="w-[22px]" />
         </div>
       </div>

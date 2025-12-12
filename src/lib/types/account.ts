@@ -11,7 +11,11 @@ export interface V1Account {
   btcType?: ScriptType
 }
 
-export type Chain = 'btc' | 'mvc'
+// Core chains supported by @metalet/utxo-wallet-service
+export type CoreChain = 'btc' | 'mvc'
+
+// All supported chains including custom implementations
+export type Chain = CoreChain | 'doge'
 
 export interface DerivedAccountDetail {
   path: string
@@ -34,8 +38,9 @@ export interface V2Account {
   btc: DerivedAccountDetail
 }
 
+// ChainDetail only covers core chains (btc, mvc)
 export type ChainDetail = {
-  [chain in Chain]: Omit<DerivedAccountDetail, 'credential'>
+  [chain in CoreChain]: Omit<DerivedAccountDetail, 'credential'>
 }
 
 export interface V3Account {

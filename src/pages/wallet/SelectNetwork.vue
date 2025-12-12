@@ -10,12 +10,16 @@ import { getCurrentAccountId } from '@/lib/account'
 import { Chain } from '@metalet/utxo-wallet-service'
 import SpaceLogoImg from '@/assets/icons-v3/space.svg?url'
 import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
+import DogeLogoImg from '@/assets/icons-v3/doge.svg?url'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { getServiceNetwork, getServiceNetworkStorage, setServiceNetwork } from '@/lib/network'
 
-const selectedChains = ref<Chain[]>([])
+// Extended chain type to include DOGE
+type ExtendedChain = Chain | 'doge'
 
-const chains = [
+const selectedChains = ref<ExtendedChain[]>([])
+
+const chains: { id: ExtendedChain; name: string; logo: string; tag?: string; tagColor?: string }[] = [
   {
     id: Chain.BTC,
     name: 'Bitcoin',
@@ -25,6 +29,15 @@ const chains = [
     id: Chain.MVC,
     name: 'MicrovisionChain',
     logo: SpaceLogoImg,
+    tag: 'BitcoinSideChain',
+    tagColor: 'bg-[rgba(247,147,26,0.2)] text-[#F7931A]',
+  },
+  {
+    id: 'doge' as ExtendedChain,
+    name: 'Dogecoin',
+    logo: DogeLogoImg,
+    tag: 'Bitcoin sidechain',
+    tagColor: 'bg-[rgba(194,166,51,0.2)] text-[#C2A633]',
   },
 ]
 
@@ -41,24 +54,24 @@ const router = useRouter()
 const { handleSubmit, setFieldValue } = useForm({
   validationSchema: formSchema,
   initialValues: {
-    chains: Object.values(Chain),
+    chains: [...Object.values(Chain), 'doge'] as ExtendedChain[],
   },
 })
 
 getServiceNetwork().then(async (chains) => {
   setFieldValue('chains', chains)
-  selectedChains.value = chains
+  selectedChains.value = chains as ExtendedChain[]
 })
 
 const onSubmit = handleSubmit(({ chains }) => {
-  updateServiceNetwork(chains as Chain[])
+  updateServiceNetwork(chains as ExtendedChain[])
 })
 
-const updateServiceNetwork = async (chains: Chain[]) => {
+const updateServiceNetwork = async (chains: ExtendedChain[]) => {
   const service = await getServiceNetworkStorage()
   const currentAccountId = await getCurrentAccountId()
   if (currentAccountId) {
-    service[currentAccountId] = chains
+    service[currentAccountId] = chains as any
     setServiceNetwork(service)
     router.replace('/wallet')
   } else {
@@ -67,7 +80,7 @@ const updateServiceNetwork = async (chains: Chain[]) => {
   }
 }
 
-const selectChain = (chain: Chain) => {
+const selectChain = (chain: ExtendedChain) => {
   if (selectedChains.value.includes(chain)) {
     selectedChains.value = selectedChains.value.filter((item) => item !== chain)
   } else {
@@ -95,7 +108,7 @@ const selectChain = (chain: Chain) => {
               <div class="flex flex-col items-start gap-x-2">
                 <span class="text-base">{{ chain.name }}</span>
                 <div
-                  v-if="chain.name === 'MicrovisionChain'"
+                  v-if="chain.tag"
                   :class="[
                     'px-1.5',
                     'py-0.5',
@@ -104,10 +117,10 @@ const selectChain = (chain: Chain) => {
                     'inline-block',
                     'scale-75',
                     'origin-left',
-                    'bg-[rgba(247,147,26,0.2)] text-[#F7931A]',
+                    chain.tagColor,
                   ]"
                 >
-                  {{ $t('Common.BitcoinSideChain') }}
+                  {{ chain.tag === 'BitcoinSideChain' ? $t('Common.BitcoinSideChain') : chain.tag }}
                 </div>
               </div>
             </FormLabel>

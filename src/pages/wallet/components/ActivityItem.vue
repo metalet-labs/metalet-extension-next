@@ -13,6 +13,7 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
 import { useI18n } from 'vue-i18n'
+import DogeLogo from '@/assets/icons-v3/doge.svg?url'
 
 const { t } = useI18n()
 
@@ -24,15 +25,20 @@ const props = defineProps<{
 }>()
 
 const { getIcon } = useIconsStore()
-const icon = computed(
-  () =>
+const icon = computed(() => {
+  // Use local DOGE logo
+  if (props.asset.symbol === 'DOGE') {
+    return DogeLogo
+  }
+  return (
     props.icon ||
     getIcon(
       props.coinCategory,
       props.coinCategory === CoinCategory.MetaContract ? (props.asset as MetaContractAsset).genesis : props.asset.symbol
     ) ||
     ''
-)
+  )
+})
 
 const flow = computed(() => {
   const { outcome, income, actionType } = props.activity

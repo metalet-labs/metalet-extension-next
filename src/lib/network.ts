@@ -9,8 +9,13 @@ import { SERVICE_NETWORK_KEY, NETWORK_KEY } from './storage/key'
 
 // TODO: refactor to use global state
 
-export type Service = Chain[]
-export type ServiceStorage = { [accountId: string]: Chain[] }
+// Extended chain type to include DOGE (which is not in @metalet/utxo-wallet-service)
+export type ExtendedChain = Chain | 'doge'
+export type Service = ExtendedChain[]
+export type ServiceStorage = { [accountId: string]: ExtendedChain[] }
+
+// Default chains including DOGE
+const defaultChains: ExtendedChain[] = [...Object.values(Chain), 'doge']
 
 export type Network = 'mainnet' | 'testnet' | 'regtest'
 
@@ -24,13 +29,13 @@ export async function getServiceNetworkStorage(): Promise<ServiceStorage> {
   return await storage.get(SERVICE_NETWORK_KEY, { defaultValue: {} })
 }
 
-export async function getServiceNetwork(): Promise<Chain[]> {
+export async function getServiceNetwork(): Promise<ExtendedChain[]> {
   const currentAccountId = await getCurrentAccountId()
   if (!currentAccountId) {
-    return Object.values(Chain)
+    return defaultChains
   }
   const service = await getServiceNetworkStorage()
-  return service[currentAccountId] || Object.values(Chain)
+  return service[currentAccountId] || defaultChains
 }
 
 export async function hasServiceNetwork(): Promise<boolean> {

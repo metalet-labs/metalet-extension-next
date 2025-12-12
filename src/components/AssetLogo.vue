@@ -5,6 +5,7 @@ import IncomeLogo from '@/assets/icons-v3/income.svg'
 import ExpenseLogo from '@/assets/icons-v3/expense.svg'
 import BTCNetworkLogo from '@/assets/icons-v3/network_btc.svg'
 import MVCNetworkLogo from '@/assets/icons-v3/network_mvc.svg'
+import DOGENetworkLogo from '@/assets/icons-v3/network_doge.svg'
 
 withDefaults(
   defineProps<{
@@ -47,6 +48,7 @@ withDefaults(
     <template v-if="type === 'network'">
       <BTCNetworkLogo v-if="chain === 'btc'" :class="['absolute bottom-0 right-0', logoSize]" />
       <MVCNetworkLogo v-else-if="chain === 'mvc'" :class="['absolute bottom-0 right-0', logoSize]" />
+      <DOGENetworkLogo v-else-if="chain === 'doge'" :class="['absolute bottom-0 right-0', logoSize]" />
     </template>
     <template v-else-if="type === 'activity'">
       <IncomeLogo v-if="flow === 'Receive'" :class="['absolute bottom-0 right-0', logoSize]" />

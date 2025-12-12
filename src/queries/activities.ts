@@ -8,6 +8,7 @@ import { SymbolTicker } from '@/lib/asset-symbol'
 import { Activities_QUERY_INTERVAL } from './constants'
 import { metaletApiV3, metaletApiV4 } from './request'
 import type { MetaContractAsset, Asset, MRC20Asset } from '@/data/assets'
+import { fetchDogeTxList } from './doge'
 
 export type Operation = {
   flag: string
@@ -162,6 +163,19 @@ export const fetchSpaceActivities = async (address: string): Promise<Activities>
   return list.map((item) => ({ ...item, time: item.time * 1000 }))
 }
 
+export const fetchDogeActivities = async (address: string): Promise<Activities> => {
+  const data = await fetchDogeTxList(address, { size: 100 })
+  return data.list.map((item) => ({
+    address: item.address,
+    flag: item.flag || '',
+    time: item.time * 1000,
+    height: item.height,
+    income: item.income,
+    outcome: item.outcome,
+    txid: item.txid,
+  }))
+}
+
 export const fetchTokenActivities = async (address: string, asset: MetaContractAsset): Promise<TokenActivities> => {
   const net = getNet()
   const { list } = await metaletApiV4<PageResult<TokenActivity>>(`/mvc/address/contract/ft/tx-list`).get({
@@ -183,6 +197,8 @@ export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?:
         return fetchBtcActivities(address.value)
       } else if (asset.symbol === 'SPACE') {
         return fetchSpaceActivities(address.value)
+      } else if (asset.symbol === 'DOGE') {
+        return fetchDogeActivities(address.value)
       } else if (asset.contract === CoinCategory.BRC20) {
         return fetchBRC20Activities(address.value, asset.symbol)
       } else if (asset.contract === CoinCategory.MetaContract) {

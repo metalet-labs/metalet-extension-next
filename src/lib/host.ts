@@ -6,6 +6,8 @@ import {
   METASV_TESTNET_HOST,
   MEMPOOL_HOST,
   MEMPOOL_TESTNET_HOST,
+  DOGECHAIN_HOST,
+  DOGECHAIN_TESTNET_HOST,
 } from '../data/hosts'
 import { type Chain } from './types'
 
@@ -14,6 +16,10 @@ export async function getBrowserHost(chain: Chain = 'mvc') {
 
   if (chain === 'btc') {
     return network === 'testnet' ? MEMPOOL_TESTNET_HOST : MEMPOOL_HOST
+  }
+
+  if (chain === 'doge') {
+    return network === 'testnet' ? DOGECHAIN_TESTNET_HOST : DOGECHAIN_HOST
   }
 
   return network === 'testnet' ? TX_BROWSER_TESTNET_HOST : TX_BROWSER_HOST

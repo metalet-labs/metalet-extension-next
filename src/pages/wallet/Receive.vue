@@ -9,6 +9,7 @@ import { CoinCategory } from '@/queries/exchange-rates'
 import { Divider, Copy, AssetLogo } from '@/components'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { ChevronLeftIcon, XMarkIcon } from '@heroicons/vue/24/solid'
+import DogeLogo from '@/assets/icons-v3/doge.svg?url'
 
 const route = useRoute()
 const tag = route.query.tag as string
@@ -27,6 +28,8 @@ const chain = computed(() => {
     return Chain.BTC
   } else if (route.params.symbol === 'SPACE') {
     return Chain.MVC
+  } else if (route.params.symbol === 'DOGE') {
+    return 'doge' as any
   }
 })
 
@@ -35,11 +38,18 @@ const network = computed(() => {
     return 'Bitcoin'
   } else if (symbol === 'SPACE' || chain.value === 'mvc') {
     return 'MicrovisionChain'
+  } else if (symbol === 'DOGE' || chain.value === 'doge') {
+    return 'Dogecoin'
   }
 })
 
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
+const logo = computed(() => {
+  if (symbol === 'DOGE') {
+    return DogeLogo
+  }
+  return getIcon(coinCategory, genesis || symbol) || ''
+})
 </script>
 
 <template>
@@ -55,7 +65,7 @@ const logo = computed(() => getIcon(coinCategory, genesis || symbol) || '')
           class="w-15"
           :chain="chain"
           :symbol="symbol"
-          :type="['SPACE', 'BTC'].includes(symbol) ? undefined : 'network'"
+          :type="['SPACE', 'BTC', 'DOGE'].includes(symbol) ? undefined : 'network'"
         />
         <div class="mt-3 font-medium">
           <span>{{ symbol }}</span>
