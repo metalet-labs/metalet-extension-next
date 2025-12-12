@@ -138,10 +138,14 @@ const setAddressType = async (addressType: AddressType, _address: string) => {
 
 const chainWallets = ref()
 WalletsStore.getAccountChainWallets().then((_chainWallets) => {
-  chainWallets.value = _chainWallets[asset.value!.chain]!.map((wallet) => ({
-    address: wallet.getAddress(),
-    addressType: wallet.getAddressType(),
-  }))
+  const chain = asset.value?.chain
+  // Only BTC and MVC have multiple address types, DOGE only has P2PKH
+  if (chain === 'btc' || chain === 'mvc') {
+    chainWallets.value = _chainWallets[chain]?.map((wallet) => ({
+      address: wallet.getAddress(),
+      addressType: wallet.getAddressType(),
+    })) || []
+  }
 })
 
 const toReceive = () => {
