@@ -2,24 +2,26 @@
 import { ref } from 'vue'
 import useStorage from '@/lib/storage'
 import { useRouter } from 'vue-router'
-import { type Service } from '@/lib/network'
+import { type ExtendedChain } from '@/lib/network'
 import { Chain } from '@metalet/utxo-wallet-service'
-import { SERVICE_NETWORK_KEY } from '@/lib/storage/key'
+import { SERVICE_NETWORK_V2_KEY } from '@/lib/storage/key'
 import BtcLogoImg from '@/assets/icons-v3/btc-logo.svg?url'
 import CheckIcon from '@/assets/icons/check.svg?component'
 import SpaceLogoImg from '@/assets/icons-v3/space.svg?url'
+import DogeLogoImg from '@/assets/icons-v3/doge.svg?url'
 import NetworkIcon from '@/assets/icons/network.svg?component'
 import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
 
 
-const service = ref<Service>(Object.values(Chain))
+// Default to all chains including DOGE
+const service = ref<ExtendedChain[]>([...Object.values(Chain), 'doge'])
 
 const router = useRouter()
 
 const storage = useStorage()
 
 const goOn = async () => {
-  await storage.set(SERVICE_NETWORK_KEY, service.value)
+  await storage.set(SERVICE_NETWORK_V2_KEY, service.value)
   router.push('/wallet/create-success')
 }
 </script>

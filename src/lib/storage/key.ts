@@ -29,6 +29,7 @@ export const V3_ENCRYPTED_WALLETS_STORAGE_BACKUP_KEY = 'encrypted_wallets_v3_bac
 // network
 export const NETWORK_KEY = 'network'
 export const SERVICE_NETWORK_KEY = 'service_network'
+export const SERVICE_NETWORK_V2_KEY = 'service_network_v2' // Includes DOGE support
 
 // password
 export const PASSWORD_KEY = 'password'

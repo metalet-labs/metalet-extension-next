@@ -154,7 +154,7 @@ function toRune(asset: RuneAsset, address: string) {
         </div>
       </template>
 
-      <!-- DOGE Asset -->
+      <!-- DOGE Asset (after SPACE/MVC) -->
       <template v-if="serviceNetwork.includes('doge') && dogeAddress">
         <div class="space-y-2 divide-y divide-gray-light">
           <AssetItem
