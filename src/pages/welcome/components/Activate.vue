@@ -15,6 +15,7 @@ import LoadingIcon from '@/components/LoadingIcon.vue'
 import NetworkIcon from '@/assets/icons-v3/network.svg'
 import SpaceLogoIcon from '@/assets/icons-v3/space.svg?url'
 import BtcLogoIcon from '@/assets/icons-v3/btc-logo.svg?url'
+import DogeLogoIcon from '@/assets/icons-v3/doge.svg?url'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import { useI18n } from 'vue-i18n'
@@ -44,9 +45,11 @@ const loading = ref(false)
 const error = ref<string>()
 const router = useRouter()
 
-const selectedChains = ref<Chain[]>(Object.values(Chain))
+// Extended chain type to include DOGE
+type ExtendedChain = Chain | 'doge'
+const selectedChains = ref<ExtendedChain[]>([...Object.values(Chain), 'doge'])
 
-const chains = [
+const chains: { id: ExtendedChain; name: string; logo: string; tag?: string; tagColor?: string }[] = [
   {
     id: Chain.BTC,
     name: 'Bitcoin',
@@ -56,6 +59,15 @@ const chains = [
     id: Chain.MVC,
     name: 'MicrovisionChain',
     logo: SpaceLogoIcon,
+    tag: 'BitcoinSideChain',
+    tagColor: 'bg-[#F7931A]/20 text-[#F7931A]',
+  },
+  {
+    id: 'doge',
+    name: 'Dogecoin',
+    logo: DogeLogoIcon,
+    tag: 'Bitcoin sidechain',
+    tagColor: 'bg-[#C2A633]/20 text-[#C2A633]',
   },
 ]
 
@@ -70,11 +82,11 @@ const formSchema = toTypedSchema(
 const { handleSubmit } = useForm({
   validationSchema: formSchema,
   initialValues: {
-    chains: Object.values(Chain),
+    chains: [...Object.values(Chain), 'doge'] as ExtendedChain[],
   },
 })
 
-const updateServiceNetwork = async (chains: Chain[]) => {
+const updateServiceNetwork = async (chains: ExtendedChain[]) => {
   const service = await getServiceNetworkStorage()
   const currentAccountId = await getCurrentAccountId()
   if (currentAccountId) {
@@ -87,7 +99,7 @@ const updateServiceNetwork = async (chains: Chain[]) => {
   }
 }
 
-const selectChain = (chain: Chain) => {
+const selectChain = (chain: ExtendedChain) => {
   if (selectedChains.value.includes(chain)) {
     selectedChains.value = selectedChains.value.filter((item) => item !== chain)
   } else {
@@ -102,7 +114,7 @@ const onSubmit = handleSubmit(async ({ chains }) => {
     return
   }
   await addWallet(password)
-  await updateServiceNetwork(chains as Chain[])
+  await updateServiceNetwork(chains as ExtendedChain[])
 })
 
 watch(mnemonic, (mnemonic) => {
@@ -211,10 +223,10 @@ const addWallet = async (password: string) => {
                     <div class="text-xs flex flex-col gap-1">
                       <span>{{ chain.name }}</span>
                       <span
-                        v-if="chain.name === 'MicrovisionChain'"
-                        class="text-xs px-2 py-1 scale-75 origin-left rounded-full bg-[#F7931A]/20 text-[#F7931A]"
+                        v-if="chain.tag"
+                        :class="['text-xs px-2 py-1 scale-75 origin-left rounded-full', chain.tagColor]"
                       >
-                        {{ $t('Common.BitcoinSideChain') }}
+                        {{ chain.name === 'MicrovisionChain' ? $t('Common.BitcoinSideChain') : chain.tag }}
                       </span>
                     </div>
                   </FormLabel>
