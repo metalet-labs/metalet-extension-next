@@ -5,7 +5,7 @@
 import Decimal from 'decimal.js'
 import { getDogeWallet } from './wallet'
 import { fetchDogeUtxos } from '@/queries/doge/utxos'
-import { broadcastDogeTx, getDogeFeeRates } from '@/queries/doge/transaction'
+import { broadcastDogeTx, getDefaultDogeFeeRates, type DogeFeeRate } from '@/queries/doge/transaction'
 
 interface DogeTransferParams {
   toAddress: string
@@ -26,9 +26,9 @@ export async function process(
   let feeRate = params.options?.feeRate
 
   if (!feeRate) {
-    const rates = getDogeFeeRates()
+    const rates: DogeFeeRate[] = getDefaultDogeFeeRates()
     const avgRate = rates.find((item) => item.title === 'Avg')
-    feeRate = avgRate?.feeRate || 200000 // Default to 2 DOGE/KB
+    feeRate = avgRate?.feeRate || 200000 // Default to 0.002 DOGE/KB
   }
 
   feeRate = Number(feeRate)
