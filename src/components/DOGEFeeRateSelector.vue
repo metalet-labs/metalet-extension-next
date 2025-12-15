@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
 import CloseIcon from '@/assets/icons-v3/close.svg'
-import { getDogeFeeRates, type DogeFeeRate } from '@/queries/doge'
+import { useDogeFeeRatesQuery, getDefaultDogeFeeRates, type DogeFeeRate } from '@/queries/doge'
 import { FlexBox, Button } from '@/components'
 import SelectIcon from '@/assets/icons-v3/select_active.svg'
 import ArrowRightIcon from '@/assets/icons-v3/arrow_right.svg'
@@ -14,20 +14,37 @@ const feeRate = ref<number>()
 const rateList = ref<DogeFeeRate[]>([])
 const emit = defineEmits(['update:currentRateFee'])
 
+// Fetch fee rates from API
+const { data: feeRatesData, isLoading } = useDogeFeeRatesQuery()
+
 const rateOnChange = (_feeRate: number | undefined, index: number) => {
   feeRate.value = _feeRate
   selectedIndex.value = index
   emit('update:currentRateFee', _feeRate)
 }
 
-onMounted(() => {
-  rateList.value = getDogeFeeRates()
-  // Default to Avg
-  const avgIndex = rateList.value.findIndex((item) => item.title === 'Avg')
-  if (avgIndex !== -1) {
-    rateOnChange(rateList.value[avgIndex].feeRate, avgIndex)
+// Watch for fee rates data and set default
+watch(feeRatesData, (newData) => {
+  if (newData && newData.length > 0) {
+    rateList.value = newData
+    // Default to Avg
+    const avgIndex = rateList.value.findIndex((item) => item.title === 'Avg')
+    if (avgIndex !== -1 && selectedIndex.value === -1) {
+      rateOnChange(rateList.value[avgIndex].feeRate, avgIndex)
+    }
   }
-})
+}, { immediate: true })
+
+// Use default rates as fallback
+watch(isLoading, (loading) => {
+  if (!loading && (!feeRatesData.value || feeRatesData.value.length === 0)) {
+    rateList.value = getDefaultDogeFeeRates()
+    const avgIndex = rateList.value.findIndex((item) => item.title === 'Avg')
+    if (avgIndex !== -1 && selectedIndex.value === -1) {
+      rateOnChange(rateList.value[avgIndex].feeRate, avgIndex)
+    }
+  }
+}, { immediate: true })
 
 const selectRateFee = (rateFee: number, index: number) => {
   isCustom.value = false

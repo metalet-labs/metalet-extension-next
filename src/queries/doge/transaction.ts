@@ -28,6 +28,10 @@ export interface DogeFeeRate {
   feeRate: number
 }
 
+export interface DogeFeeRateResponse {
+  list: DogeFeeRate[]
+}
+
 /**
  * Broadcast DOGE transaction
  * Uses the /v4/doge/tx/broadcast endpoint
@@ -87,28 +91,58 @@ export async function fetchDogeTxCount(address: string): Promise<number> {
 }
 
 /**
- * Get default DOGE fee rate
+ * Fetch DOGE fee rates from API
+ * Uses the /v4/doge/fee/summary endpoint
+ */
+export async function fetchDogeFeeRates(): Promise<DogeFeeRate[]> {
+  const net = getNet()
+  
+  const data = await metaletApiV4<DogeFeeRateResponse>('/doge/fee/summary', {
+    withCredential: false,
+  }).get({
+    net,
+  })
+
+  return data.list
+}
+
+/**
+ * Get default DOGE fee rates (fallback)
  * DOGE minimum recommended fee is 0.01 DOGE/KB = 1,000,000 sat/KB
  * (1 DOGE = 100,000,000 satoshis)
  */
-export function getDogeFeeRates(): DogeFeeRate[] {
+export function getDefaultDogeFeeRates(): DogeFeeRate[] {
   return [
     {
-      title: 'Slow',
-      desc: '~60 minutes',
-      feeRate: 1000000, // 0.01 DOGE/KB
+      title: 'Fast',
+      desc: 'About 10 minutes',
+      feeRate: 200000,
     },
     {
       title: 'Avg',
-      desc: '~30 minutes', 
-      feeRate: 2000000, // 0.02 DOGE/KB
+      desc: 'About 30 minutes', 
+      feeRate: 250000,
     },
     {
-      title: 'Fast',
-      desc: '~10 minutes',
-      feeRate: 5000000, // 0.05 DOGE/KB
+      title: 'Slow',
+      desc: 'About 1 hours',
+      feeRate: 300000,
     },
   ]
+}
+
+/**
+ * Vue Query hook for DOGE fee rates
+ */
+export const useDogeFeeRatesQuery = (options?: {
+  enabled?: ComputedRef<boolean>
+}) => {
+  return useQuery({
+    queryKey: ['DOGE FeeRates'],
+    queryFn: fetchDogeFeeRates,
+    staleTime: 60 * 1000, // Cache for 1 minute
+    ...options,
+  })
 }
 
 /**
