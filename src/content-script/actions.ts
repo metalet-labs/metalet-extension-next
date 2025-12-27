@@ -304,3 +304,16 @@ export const btcKeys: Omit<Keys, 'event'> = {
   ],
   inscribe: [{ name: 'inscribeTransfer', action: 'InscribeTransfer' }],
 }
+
+export const dogeKeys: Omit<Keys, 'event'> = {
+  query: [
+    { name: 'getBalance', action: 'GetDOGEBalance' },
+    { name: 'getAddress', action: 'GetDOGEAddress' },
+    { name: 'getPublicKey', action: 'GetDOGEPublicKey' },
+    { name: 'getUtxos', action: 'GetDOGEUtxos' },
+  ],
+  authorize: [
+    { name: 'inscribe', action: 'DogeInscribe' },
+  ],
+  inscribe: [],
+}

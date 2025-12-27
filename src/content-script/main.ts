@@ -33,7 +33,7 @@ import {
   getPKHByPath
 } from './actions'
 
-import { btcKeys, createAction, ActionType, on, removeListener } from './actions'
+import { btcKeys, dogeKeys, createAction, ActionType, on, removeListener } from './actions'
 
 // Import package.json to get version
 import packageInfo from '../../package.json'
@@ -85,6 +85,14 @@ type Metalet = {
     getAddress: any
     getPublicKey: any
     getUtxos: any
+  }
+
+  doge: {
+    getBalance: any
+    getAddress: any
+    getPublicKey: any
+    getUtxos: any
+    inscribe: any
   }
 
   // Deprecating
@@ -140,6 +148,8 @@ const metalet: any = {
 
   btc: {},
 
+  doge: {},
+
   // event
   on,
   removeListener,
@@ -157,6 +167,15 @@ Object.keys(btcKeys).forEach((type) => {
   const actionType = type as Exclude<ActionType, 'event'>
   btcKeys[actionType].forEach((item) => {
     metalet['btc'][item.name] = async (params?: any) => {
+      return await createAction(item.action, actionType, params)
+    }
+  })
+})
+
+Object.keys(dogeKeys).forEach((type) => {
+  const actionType = type as Exclude<ActionType, 'event'>
+  dogeKeys[actionType].forEach((item) => {
+    metalet['doge'][item.name] = async (params?: any) => {
       return await createAction(item.action, actionType, params)
     }
   })

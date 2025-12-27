@@ -27,6 +27,9 @@ import * as MRC20TransferWithInscribe from '../lib/actions/btc/mrc20-transfer-wi
 import * as TransferUtxo from '../lib/actions/btc/transfer-utxo'
 import * as TransferNFT from '../lib/actions/transfer-nft'
 
+// DOGE
+import * as DogeInscribe from '../lib/actions/doge/inscribe'
+
 // Common
 import * as OmniConnect from '../lib/actions/common/omniConnect'
 
@@ -256,6 +259,16 @@ export default {
     title: 'Transfer NFT',
     description: '',
     process: TransferNFT.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+
+  // DOGE
+  DogeInscribe: {
+    name: 'DogeInscribe',
+    title: 'DOGE Inscribe',
+    description: 'Create MetaID Pin on Dogecoin',
+    process: DogeInscribe.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

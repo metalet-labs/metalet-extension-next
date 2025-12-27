@@ -100,6 +100,7 @@ function toRune(asset: RuneAsset, address: string) {
 <template>
   <div class="mt-2 space-y-4 text-black">
     <div class="divide-y divide-gray-light space-y-4">
+      <!-- BTC Native Asset -->
       <template v-if="serviceNetwork.includes(Chain.BTC)">
         <div class="space-y-2 divide-y divide-gray-light">
           <AssetItem
@@ -109,6 +110,38 @@ function toRune(asset: RuneAsset, address: string) {
             @click="toNative(BTCAsset, btcAddress)"
             v-if="!selectList.includes(`${CoinCategory.Native}-${BTCAsset.symbol}`)"
           />
+        </div>
+      </template>
+
+      <!-- MVC/SPACE Native Asset -->
+      <template v-if="serviceNetwork.includes(Chain.MVC)">
+        <div class="space-y-2 divide-y divide-gray-light">
+          <AssetItem
+            :asset="MVCAsset"
+            :address="mvcAddress"
+            :coinCategory="CoinCategory.Native"
+            @click="toNative(MVCAsset, mvcAddress)"
+            v-if="!selectList.includes(`${CoinCategory.Native}-${MVCAsset.symbol}`)"
+          />
+        </div>
+      </template>
+
+      <!-- DOGE Native Asset (after SPACE/MVC) -->
+      <template v-if="serviceNetwork.includes('doge') && dogeAddress">
+        <div class="space-y-2 divide-y divide-gray-light">
+          <AssetItem
+            :asset="DOGEAsset"
+            :address="dogeAddress"
+            :coinCategory="CoinCategory.Native"
+            @click="toNative(DOGEAsset, dogeAddress)"
+            v-if="!selectList.includes(`${CoinCategory.Native}-${DOGEAsset.symbol}`)"
+          />
+        </div>
+      </template>
+
+      <!-- BRC20 Tokens -->
+      <template v-if="serviceNetwork.includes(Chain.BTC) && brc20Assets?.length">
+        <div class="space-y-2 divide-y divide-gray-light">
           <AssetItem
             :asset="asset"
             :key="asset.symbol"
@@ -119,6 +152,12 @@ function toRune(asset: RuneAsset, address: string) {
             :coinCategory="CoinCategory.BRC20"
             @click="toBRC20(asset, btcAddress)"
           />
+        </div>
+      </template>
+
+      <!-- Runes Tokens -->
+      <template v-if="serviceNetwork.includes(Chain.BTC) && runeAssets?.length">
+        <div class="space-y-2 divide-y divide-gray-light">
           <AssetItem
             :asset="asset"
             :key="asset.symbol"
@@ -132,15 +171,9 @@ function toRune(asset: RuneAsset, address: string) {
         </div>
       </template>
 
-      <template v-if="serviceNetwork.includes(Chain.MVC)">
+      <!-- MetaContract Tokens -->
+      <template v-if="serviceNetwork.includes(Chain.MVC) && mvcAssets?.length">
         <div class="space-y-2 divide-y divide-gray-light">
-          <AssetItem
-            :asset="MVCAsset"
-            :address="mvcAddress"
-            :coinCategory="CoinCategory.Native"
-            @click="toNative(MVCAsset, mvcAddress)"
-            v-if="!selectList.includes(`${CoinCategory.Native}-${MVCAsset.symbol}`)"
-          />
           <AssetItem
             :asset="asset"
             :key="asset.genesis"
@@ -150,19 +183,6 @@ function toRune(asset: RuneAsset, address: string) {
             v-for="asset in mvcAssets?.filter(
               (asset) => !selectList.includes(`${CoinCategory.MetaContract}-${asset.symbol}`)
             )"
-          />
-        </div>
-      </template>
-
-      <!-- DOGE Asset (after SPACE/MVC) -->
-      <template v-if="serviceNetwork.includes('doge') && dogeAddress">
-        <div class="space-y-2 divide-y divide-gray-light">
-          <AssetItem
-            :asset="DOGEAsset"
-            :address="dogeAddress"
-            :coinCategory="CoinCategory.Native"
-            @click="toNative(DOGEAsset, dogeAddress)"
-            v-if="!selectList.includes(`${CoinCategory.Native}-${DOGEAsset.symbol}`)"
           />
         </div>
       </template>
