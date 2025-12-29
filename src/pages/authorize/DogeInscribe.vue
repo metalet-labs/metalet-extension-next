@@ -39,6 +39,18 @@ const balanceData = ref<DogeBalanceResult | null>(null)
 const metaidDataList = props.params.data.metaidDataList
 const dappCost = Number(props.params.data.service?.satoshis) || 0
 
+// 格式化 feeRate 显示：转换为 DOGE/KB 格式
+const formatFeeRate = computed(() => {
+  const feeRate = props.params.data.feeRate
+  // 1 DOGE = 100,000,000 satoshis
+  const dogePerKB = feeRate / 1e8
+  if (dogePerKB >= 0.001) {
+    return `${dogePerKB.toFixed(4)} DOGE/KB`
+  }
+  // 如果太小则显示 sat/KB
+  return `${(feeRate / 1000).toFixed(0)} sat/vB`
+})
+
 metaidDataList.sort((a: MetaidData, b: MetaidData) => {
   if (a.contentType?.includes('image') && !b.contentType?.includes('image')) {
     return -1
@@ -136,7 +148,7 @@ actions.DogeInscribe.process({ ...props.params, options: { noBroadcast: true } }
       </div>
       <div class="flex justify-between">
         <div class="label">{{ $t('Common.FeeRate') }}</div>
-        <div class="text-xs flex gap-2">{{ params.data.feeRate }} sat/KB</div>
+        <div class="text-xs flex gap-2">{{ formatFeeRate }}</div>
       </div>
       <div class="flex justify-between text-gray-500">
         <div class="label">CommitTx Hex</div>
@@ -179,7 +191,7 @@ actions.DogeInscribe.process({ ...props.params, options: { noBroadcast: true } }
         </div>
         <div class="flex justify-between">
           <div class="label">{{ $t('Common.FeeRate') }}</div>
-          <div class="text-xs flex gap-2">{{ params.data.feeRate }} sat/KB</div>
+          <div class="text-xs flex gap-2">{{ formatFeeRate }}</div>
         </div>
       </div>
       <button

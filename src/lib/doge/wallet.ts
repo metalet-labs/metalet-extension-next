@@ -230,7 +230,10 @@ export class DogeWallet {
     psbt.finalizeAllInputs()
 
     // Extract the transaction
-    const tx = psbt.extractTransaction()
+    // Set a high maximum fee rate because DOGE uses sat/KB (not sat/byte like BTC)
+    // Default limit is 5000 sat/byte, but DOGE can have higher rates
+    // For example: 1,000,000 sat/KB = 1000 sat/byte
+    const tx = psbt.extractTransaction(true) // true = skip fee rate check
     const rawTx = tx.toHex()
     const txId = tx.getId()
 
