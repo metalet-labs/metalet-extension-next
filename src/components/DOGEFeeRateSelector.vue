@@ -91,12 +91,12 @@ const formatFeeRate = (rate: number) => {
               jc="center"
               v-for="(rate, index) in rateList"
               @click="selectRateFee(rate.feeRate, index)"
-              class="rounded-md border cursor-pointer aspect-square relative"
+              class="rounded-md border cursor-pointer aspect-square relative text-center"
               :class="index === selectedIndex ? 'border-blue-primary' : 'border-gary-soft'"
             >
               <SelectIcon v-if="index === selectedIndex" class="absolute top-1 right-1" />
               <span class="text-black-primary">{{ rate.title }}</span>
-              <span :class="index === selectedIndex ? 'text-blue-primary' : 'text-gray-primary'">{{
+              <span class="leading-tight" :class="index === selectedIndex ? 'text-blue-primary' : 'text-gray-primary'">{{
                 formatFeeRate(rate.feeRate)
               }}</span>
               <span class="text-gray-primary">{{ rate.desc }}</span>

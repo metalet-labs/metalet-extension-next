@@ -16,11 +16,20 @@ interface DogeTransferParams {
   }
 }
 
+// Minimum transfer amount: 0.01 DOGE = 1,000,000 satoshis
+const MIN_TRANSFER_SATOSHIS = 1000000
+
 export async function process(
   params: DogeTransferParams
 ): Promise<{ txId: string } | { txHex: string }> {
   const wallet = await getDogeWallet()
   const address = wallet.getAddress()
+
+  // Check minimum transfer amount
+  const transferAmount = new Decimal(params.satoshis)
+  if (transferAmount.lt(MIN_TRANSFER_SATOSHIS)) {
+    throw new Error(`Minimum transfer amount is 0.01 DOGE (${MIN_TRANSFER_SATOSHIS} satoshis)`)
+  }
 
   // Get fee rate
   let feeRate = params.options?.feeRate

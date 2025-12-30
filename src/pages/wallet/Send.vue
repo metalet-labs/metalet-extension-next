@@ -176,6 +176,17 @@ const popConfirm = async (retryTimes = 0) => {
       operationLock.value = false
       return
     }
+    // Minimum transfer amount: 0.01 DOGE = 1,000,000 satoshis
+    const MIN_DOGE_TRANSFER = 1000000
+    if (amountInSats.value.lt(MIN_DOGE_TRANSFER)) {
+      transactionResult.value = {
+        status: 'warning',
+        message: 'Minimum transfer amount is 0.01 DOGE',
+      }
+      isOpenResultModal.value = true
+      operationLock.value = false
+      return
+    }
     try {
       // Fetch UTXOs with raw transaction data (required for P2PKH signing)
       const utxos = await fetchDogeUtxos(address.value, true)

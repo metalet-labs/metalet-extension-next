@@ -67,7 +67,7 @@ const dogeTestnet: bitcoin.Network = {
 // 常量定义
 const MAX_CHUNK_LEN = 240
 const MAX_PAYLOAD_LEN = 1500
-const DEFAULT_OUTPUT_VALUE = 100000 // 0.001 DOGE
+const DEFAULT_OUTPUT_VALUE = 1000000 // 0.01 DOGE
 const DUST_LIMIT = 600 // DOGE dust limit
 
 export type Operation = 'init' | 'create' | 'modify' | 'revoke'
