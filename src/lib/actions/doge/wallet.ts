@@ -15,6 +15,7 @@ export interface GetDogeWalletOptions {
   password?: string
   addressIndex?: number
   addressType?: AddressType
+  coinType?: number
 }
 
 /**
@@ -32,11 +33,16 @@ export async function getDogeWallet(options?: GetDogeWalletOptions): Promise<Dog
   
   const addressIndex = options?.addressIndex ?? activeWallet.accounts[0].addressIndex
   const addressType = options?.addressType ?? (await getV3AddressTypeStorage(Chain.DOGE))
+  
+  // Use custom MVC coinType if addressType is DogeSameAsMvc
+  // This ensures DOGE Default address follows user's custom MVC path
+  const coinType = options?.coinType ?? activeWallet.mvcTypes[0]
 
   return new DogeWallet({
     mnemonic,
     network,
     addressIndex,
     addressType,
+    coinType,
   })
 }
