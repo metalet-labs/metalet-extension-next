@@ -25,7 +25,6 @@ import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
 import ArrowLeftIcon from '@/assets/icons-v3/arrow-left.svg?url'
 import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { useDogeWalletStore } from '@/stores/DogeWalletStore'
 import SuccessCheckedIcon from '@/assets/icons-v3/success-checked.svg'
 import { useExchangeRatesQuery, CoinCategory } from '@/queries/exchange-rates'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -45,8 +44,7 @@ const isOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const { updateWallet, currentBTCWallet, currentMVCWallet, getAddress } = useChainWalletsStore()
-const { currentDogeWallet } = useDogeWalletStore()
+const { updateWallet, currentBTCWallet, currentMVCWallet, currentDOGEWallet, getAddress } = useChainWalletsStore()
 const address = computed(() => route.params.address as string)
 const mvcAddress = getAddress(Chain.MVC)
 const symbol = ref<SymbolTicker>(route.params.symbol as SymbolTicker)
@@ -139,8 +137,8 @@ const setAddressType = async (addressType: AddressType, _address: string) => {
 const chainWallets = ref()
 WalletsStore.getAccountChainWallets().then((_chainWallets) => {
   const chain = asset.value?.chain
-  // Only BTC and MVC have multiple address types, DOGE only has P2PKH
-  if (chain === 'btc' || chain === 'mvc') {
+  // BTC, MVC and DOGE have multiple address types
+  if (chain === 'btc' || chain === 'mvc' || chain === 'doge') {
     chainWallets.value = _chainWallets[chain]?.map((wallet) => ({
       address: wallet.getAddress(),
       addressType: wallet.getAddressType(),
@@ -158,7 +156,7 @@ const toReceive = () => {
     <div class="w-full h-15 -my-3 flex items-center justify-between shrink-0">
       <img :src="ArrowLeftIcon" alt="" class="w-3.5 cursor-pointer" @click="router.push('/wallet')" />
       <span>{{ symbol }}</span>
-      <div class="w-3.5 cursor-pointer" @click="isOpen = true" title="Set Default Address" v-if="asset.chain === 'btc'">
+      <div class="w-3.5 cursor-pointer" @click="isOpen = true" title="Set Default Address" v-if="asset.chain === 'btc' || asset.chain === 'doge'">
         <img :src="ToggleIcon" alt="" />
       </div>
       <div v-else></div>
@@ -247,9 +245,9 @@ const toReceive = () => {
       </div>
 
       <div class="space-y-2 text-xs w-full border-gray-primary" v-else-if="asset.chain === 'doge'">
-        <div>Legacy (P2PKH)</div>
+        <div>{{ currentDOGEWallet?.getAddressType() === 'DOGE Same as MVC' ? 'Default' : currentDOGEWallet?.getAddressType() }}</div>
         <div class="flex items-center justify-between text-gray-primary gap-4">
-          <div class="break-all">{{ currentDogeWallet?.getAddress() }}</div>
+          <div class="break-all">{{ currentDOGEWallet?.getAddress() }}</div>
           <Copy :text="address" class="w-[22px]" />
         </div>
       </div>

@@ -5,6 +5,7 @@ import { AddressType, Chain } from '@metalet/utxo-wallet-service'
 const storage = useStorage()
 const V3_BTC_ADDRESS_TYPE_RECORD__KEY = 'v3_btc_address_type_record'
 const V3_MVC_ADDRESS_TYPE_RECORD_KEY = 'v3_mvc_address_type_record'
+const V3_DOGE_ADDRESS_TYPE_RECORD_KEY = 'v3_doge_address_type_record'
 
 export interface AddressTypeRecord {
   [accountId: string]: AddressType
@@ -19,6 +20,10 @@ export async function getV3AddressTypeRecordStorage(chain: Chain) {
     return await storage.get<AddressTypeRecord>(V3_MVC_ADDRESS_TYPE_RECORD_KEY, {
       defaultValue: {},
     })
+  } else if (chain === Chain.DOGE) {
+    return await storage.get<AddressTypeRecord>(V3_DOGE_ADDRESS_TYPE_RECORD_KEY, {
+      defaultValue: {},
+    })
   }
   throw new Error('Unsupported chain')
 }
@@ -29,7 +34,12 @@ export async function getV3AddressTypeStorage(chain: Chain) {
     throw new Error('No account selected')
   }
   const addressTypeRecord = await getV3AddressTypeRecordStorage(chain)
-  return addressTypeRecord[currentAccountId] || (chain === Chain.MVC ? AddressType.LegacyMvc : AddressType.SameAsMvc)
+  if (chain === Chain.MVC) {
+    return addressTypeRecord[currentAccountId] || AddressType.LegacyMvc
+  } else if (chain === Chain.DOGE) {
+    return addressTypeRecord[currentAccountId] || AddressType.DogeSameAsMvc
+  }
+  return addressTypeRecord[currentAccountId] || AddressType.SameAsMvc
 }
 
 export async function setV3AddressTypeStorage(chain: Chain, addressType: AddressType) {
@@ -43,6 +53,8 @@ export async function setV3AddressTypeStorage(chain: Chain, addressType: Address
     return await storage.set(V3_BTC_ADDRESS_TYPE_RECORD__KEY, addressTypeRecord)
   } else if (chain === Chain.MVC) {
     return await storage.set(V3_MVC_ADDRESS_TYPE_RECORD_KEY, addressTypeRecord)
+  } else if (chain === Chain.DOGE) {
+    return await storage.set(V3_DOGE_ADDRESS_TYPE_RECORD_KEY, addressTypeRecord)
   }
   throw new Error('Unsupported chain')
 }
@@ -56,6 +68,8 @@ export async function migrateV3AddressTypeStorage(chain: Chain, v2AddressTypeRec
     return await storage.set(V3_BTC_ADDRESS_TYPE_RECORD__KEY, addressTypeRecord)
   } else if (chain === Chain.MVC) {
     return await storage.set(V3_MVC_ADDRESS_TYPE_RECORD_KEY, addressTypeRecord)
+  } else if (chain === Chain.DOGE) {
+    return await storage.set(V3_DOGE_ADDRESS_TYPE_RECORD_KEY, addressTypeRecord)
   }
   throw new Error('Unsupported chain')
 }

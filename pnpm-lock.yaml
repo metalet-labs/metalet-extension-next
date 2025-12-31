@@ -24,8 +24,8 @@ importers:
         specifier: ^2.0.16
         version: 2.2.0(vue@3.5.13(typescript@5.7.3))
       '@metalet/utxo-wallet-service':
-        specifier: 0.3.30
-        version: 0.3.30
+        specifier: 0.3.31-beta.0
+        version: link:../utxo-wallet-service
       '@okxweb3/crypto-lib':
         specifier: ^1.0.1
         version: 1.0.10
@@ -658,16 +658,6 @@ packages:
 
   '@juanelas/base64@1.1.5':
     resolution: {integrity: sha512-mjAF27LzwfYobdwqnxZgeucbKT5wRRNvILg3h5OvCWK+3F7mw/A1tnjHnNiTYtLmTvT/bM1jA5AX7eQawDGs1w==}
-
-  '@magiceden-oss/runestone-lib@1.0.2':
-    resolution: {integrity: sha512-C4XoE7tHxxaWQNzovBIEndXGrTesotshnKQA8DXlnoVDvriD6G26ezUoj9AlEb2UAPbEijSga4Dtwd86Z0a1jg==}
-
-  '@metalet/utxo-wallet-sdk@0.5.57':
-    resolution: {integrity: sha512-feKTUIxS5AtC2ofwxH1PROI6IzpF8f8Gk9DGHukAVypI799MpSEdFYhaCjMJ0attHRcK8GsgT2kpCWWERO6rUw==}
-    engines: {node: '>=18'}
-
-  '@metalet/utxo-wallet-service@0.3.30':
-    resolution: {integrity: sha512-aV0XFCvwTLI0gZhj98seLPVItnPoqTGW8JoE7jjp6nqPeqYTJfjmRF6jqvAfbQNShaIRRGh1FyagAaSYaqCCtw==}
 
   '@noble/curves@1.8.1':
     resolution: {integrity: sha512-warwspo+UYUPep0Q+vtdVB4Ugn8GGQj8iyB3gnRWsztmUHTI3S1nhdiWNsPUGL0vud7JlRRk1XEu7Lq1KGTnMQ==}
@@ -4333,10 +4323,6 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  undici@6.21.1:
-    resolution: {integrity: sha512-q/1rj5D0/zayJB2FraXdaWxbhWiNKDvu8naDT2dl1yTlvJp4BLtOcp2a5BvgGNQpYYJzau7tf1WgKv3b+7mqpQ==}
-    engines: {node: '>=18.17'}
-
   unicorn-magic@0.3.0:
     resolution: {integrity: sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==}
     engines: {node: '>=18'}
@@ -5111,28 +5097,6 @@ snapshots:
       tslib: 2.8.1
 
   '@juanelas/base64@1.1.5': {}
-
-  '@magiceden-oss/runestone-lib@1.0.2': {}
-
-  '@metalet/utxo-wallet-sdk@0.5.57':
-    dependencies:
-      '@bitcoinerlab/secp256k1': 1.2.0
-      '@magiceden-oss/runestone-lib': 1.0.2
-      '@okxweb3/crypto-lib': 1.0.10
-      assert: 2.1.0
-      bip32: 4.0.0
-      bip39: 3.1.0
-      bitcoinjs-lib: 6.1.7
-      bitcore-lib: 10.7.0
-      decimal.js: 10.5.0
-      ecpair: 2.1.0
-      undici: 6.21.1
-
-  '@metalet/utxo-wallet-service@0.3.30':
-    dependencies:
-      '@metalet/utxo-wallet-sdk': 0.5.57
-      crypto-js: 4.2.0
-      decimal.js: 10.5.0
 
   '@noble/curves@1.8.1':
     dependencies:
@@ -9167,8 +9131,6 @@ snapshots:
       which-boxed-primitive: 1.1.1
 
   undici-types@5.26.5: {}
-
-  undici@6.21.1: {}
 
   unicorn-magic@0.3.0: {}
 

@@ -292,14 +292,16 @@ interface WalletMap {
   [Chain.MVC]: MvcWallet
 }
 
-export async function getCurrentWallet<T extends Chain>(
+type SupportedChain = Chain.BTC | Chain.MVC
+
+export async function getCurrentWallet<T extends SupportedChain>(
   chain: T,
   options?: {
     mnemonic?: string
     password?: string
     addressIndex?: number
   }
-): Promise<WalletMap[T]> {
+): Promise<T extends Chain.BTC ? BtcWallet : MvcWallet> {
   const network = getNet()
   const activeWallet = await getActiveWalletOnlyAccount()
   let mnemonic = options?.mnemonic
@@ -311,10 +313,10 @@ export async function getCurrentWallet<T extends Chain>(
   const addressType = await getV3AddressTypeStorage(chain)
   if (chain === Chain.BTC) {
     const coinType = addressType === AddressType.SameAsMvc ? activeWallet.mvcTypes[0] : CoinType.BTC
-    return new BtcWallet({ coinType, addressType, addressIndex, network, mnemonic })
+    return new BtcWallet({ coinType, addressType, addressIndex, network, mnemonic }) as any
   } else if (chain === Chain.MVC) {
     const coinType = activeWallet.mvcTypes[0]
-    return new MvcWallet({ coinType, addressType, addressIndex, network, mnemonic })
+    return new MvcWallet({ coinType, addressType, addressIndex, network, mnemonic }) as any
   } else {
     throw new Error(`Chain ${chain} is not supported`)
   }

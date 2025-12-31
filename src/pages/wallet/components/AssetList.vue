@@ -11,21 +11,20 @@ import { getAssetManageList } from '@/lib/asset-manage'
 import { useMetaContractAssetsQuery } from '@/queries/tokens'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { useDogeWalletStore } from '@/stores/DogeWalletStore'
 import { BTCAsset, MVCAsset, DOGEAsset, type Asset, type MetaContractAsset, type RuneAsset } from '@/data/assets'
 
 const router = useRouter()
-const { getAddress } = useChainWalletsStore()
-const { dogeAddress, updateWallet: updateDogeWallet } = useDogeWalletStore()
+const { getAddress, updateWallet } = useChainWalletsStore()
 
 const selectList = ref<string[]>([])
 const serviceNetwork = ref<Service>([])
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
+const dogeAddress = getAddress(Chain.DOGE)
 
 // Initialize DOGE wallet
-updateDogeWallet()
+updateWallet(Chain.DOGE)
 
 getServiceNetwork().then((_serviceNetwork) => {
   serviceNetwork.value = _serviceNetwork

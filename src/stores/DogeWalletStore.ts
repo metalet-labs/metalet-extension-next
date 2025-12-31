@@ -7,7 +7,7 @@
 
 import { ref, computed, toRaw } from 'vue'
 import { createGlobalState } from '@vueuse/core'
-import { DogeWallet } from '@/lib/doge/wallet'
+import { DogeWallet } from '@metalet/utxo-wallet-service'
 import { getDogeWallet } from '@/lib/actions/doge/wallet'
 import { getCurrentWalletId } from '@/lib/wallet'
 import { getCurrentAccountId } from '@/lib/account'

@@ -16,7 +16,6 @@ import { prettifyBalanceFixed } from '@/lib/formatters'
 import { CoinCategory } from '@/queries/exchange-rates'
 import type { TransactionResult } from '@/global-types'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { useDogeWalletStore } from '@/stores/DogeWalletStore'
 import { QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import TransactionResultModal from './components/TransactionResultModal.vue'
 import { Chain, ScriptType, SignType, getAddressFromScript } from '@metalet/utxo-wallet-service'
@@ -50,12 +49,12 @@ const logo = computed(() => {
   return getIcon(CoinCategory.Native, route.params.symbol as SymbolTicker) || ''
 })
 
-const { currentBTCWallet, initMvcWallet } = useChainWalletsStore()
-const { currentDogeWallet, dogeAddress, updateWallet: updateDogeWallet } = useDogeWalletStore()
+const { currentBTCWallet, currentDOGEWallet, initMvcWallet, updateWallet, getAddress } = useChainWalletsStore()
+const dogeAddress = getAddress(Chain.DOGE)
 
 // Initialize DOGE wallet if needed
 if (symbol.value === 'DOGE') {
-  updateDogeWallet()
+  updateWallet(Chain.DOGE)
 }
 
 // amount
@@ -164,8 +163,8 @@ const popConfirm = async (retryTimes = 0) => {
     }
   } else if (symbol.value === 'DOGE') {
     // DOGE transfer logic
-    if (!currentDogeWallet.value) {
-      await updateDogeWallet()
+    if (!currentDOGEWallet.value) {
+      await updateWallet(Chain.DOGE)
     }
     if (address.value !== dogeAddress.value) {
       transactionResult.value = {
@@ -192,7 +191,7 @@ const popConfirm = async (retryTimes = 0) => {
       const utxos = await fetchDogeUtxos(address.value, true)
       const feeRate = currentRateFee.value || 1000000 // DOGE default fee rate (0.01 DOGE/KB)
 
-      const { rawTx, fee } = await currentDogeWallet.value!.signTransaction({
+      const { rawTx, fee } = await currentDOGEWallet.value!.signTransaction({
         utxos,
         outputs: [{ address: recipient.value.trim(), satoshis: amountInSats.value.toNumber() }],
         feeRate,

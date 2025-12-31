@@ -559,7 +559,7 @@ export async function process({
   // 获取当前 DOGE 钱包
   const wallet = await getDogeWallet()
   const address = wallet.getAddress()
-  const privateKeyWIF = wallet.getPrivateKeyWIF()
+  const privateKeyWIF = wallet.getPrivateKey()
   const network = wallet.getNetwork()
   
   // 创建钱包密钥对

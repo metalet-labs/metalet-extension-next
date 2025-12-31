@@ -231,7 +231,13 @@ async function getAccountProperty(chain: CoreChain, key: keyof ChainDetail[CoreC
 
 export async function getAddress(chain: Chain = 'mvc', path?: string, password?: string): Promise<string> {
   const addressIndex = path ? Number(path.charAt(path.length - 1)) : undefined
-  const wallet = await getCurrentWallet(chain as UtxoChain, { addressIndex, password })
+  if (chain === 'doge') {
+    // DOGE uses a different wallet implementation
+    const { getDogeWallet } = await import('@/lib/actions/doge/wallet')
+    const wallet = await getDogeWallet({ addressIndex, password })
+    return wallet.getAddress()
+  }
+  const wallet = await getCurrentWallet(chain as UtxoChain.BTC | UtxoChain.MVC, { addressIndex, password })
   return wallet.getAddress()
 }
 
@@ -258,7 +264,7 @@ export async function getPrivateKey(chain: CoreChain = 'mvc') {
   return derivePrivateKey({ mnemonic, chain, network, path })
 }
 
-export async function getSigner(chain: UtxoChain, treehash?: string) {
+export async function getSigner(chain: UtxoChain.BTC | UtxoChain.MVC, treehash?: string) {
   const wallet = await getCurrentWallet(chain)
   if (wallet.getScriptType() === ScriptType.P2TR) {
     return wallet.tweak(treehash)
@@ -272,7 +278,7 @@ export async function getCredential({
   message = 'metalet.space',
   encoding = 'base64',
 }: {
-  chain?: UtxoChain
+  chain?: UtxoChain.BTC | UtxoChain.MVC
   message?: string
   encoding?: BufferEncoding
 }): Promise<{ address: string; publicKey: string; signature: string }> {
@@ -335,7 +341,7 @@ export async function getXPublicKey(password?: string) {
   return xPublicKey
 }
 
-export async function getBalance(chain: UtxoChain, password?: string) {
+export async function getBalance(chain: UtxoChain.BTC | UtxoChain.MVC, password?: string) {
   const wallet = await getCurrentWallet(chain, { password })
   const address = wallet.getAddress()
 

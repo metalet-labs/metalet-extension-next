@@ -20,7 +20,6 @@ import SettingMenu from '@/components/headers/SettingMenu.vue'
 import { getServiceNetwork, type Service } from '@/lib/network'
 import { Chain, BaseWallet } from '@metalet/utxo-wallet-service'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
-import { useDogeWalletStore } from '@/stores/DogeWalletStore'
 import TriangleDownIcon from '@/assets/icons-v3/triangle-down.svg'
 import DogeLogo from '@/assets/icons-v3/doge.svg?url'
 import { getV3CurrentAccount, getV3CurrentWallet } from '@/lib/wallet'
@@ -45,11 +44,10 @@ const serviceNetwork = ref<Service>([])
 
 const { toast } = useToast()
 const { getAddress } = useChainWalletsStore()
-const dogeWalletStore = useDogeWalletStore()
 
 const btcAddress = getAddress(Chain.BTC)
 const mvcAddress = getAddress(Chain.MVC)
-const dogeAddress = dogeWalletStore.address
+const dogeAddress = getAddress(Chain.DOGE)
 
 getServiceNetwork().then((_serviceNetwork) => {
   serviceNetwork.value = _serviceNetwork
@@ -214,18 +212,20 @@ const copy = (address: string, addressType: string, type: string) => {
             @click="copy(mvcWallet.address, mvcWallet.addressType, 'MicrovisionChain')"
           />
         </FlexBox>
-        <FlexBox ai="center" :gap="2" v-if="dogeAddress">
+        <FlexBox ai="center" :gap="2" v-if="chainWallets.doge" v-for="dogeWallet in chainWallets.doge">
           <img :src="DogeLogo" alt="Dogecoin" class="w-8" />
           <div>
             <div class="space-x-2">
               <span>Dogecoin</span>
-              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">Legacy</span>
+              <span class="text-xs bg-gray-soft px-2 py-0.5 rounded-sm">
+                {{ dogeWallet.addressType === 'DOGE Same as MVC' ? 'Default' : 'Legacy' }}
+              </span>
             </div>
-            <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(dogeAddress) }}</div>
+            <div class="text-xs text-gray-primary w-64">{{ prettifyAddress(dogeWallet.address) }}</div>
           </div>
           <CopyIcon
             class="cursor-pointer hover:text-blue-primary w-4.5"
-            @click="copy(dogeAddress, 'Legacy', 'Dogecoin')"
+            @click="copy(dogeWallet.address, dogeWallet.addressType === 'DOGE Same as MVC' ? 'Default' : 'Legacy', 'Dogecoin')"
           />
         </FlexBox>
       </FlexBox>
