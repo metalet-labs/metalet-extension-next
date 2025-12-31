@@ -30,7 +30,8 @@ import {
   autoPaymentStatus,
   smallPay,
   storageChunk,
-  getPKHByPath
+  getPKHByPath,
+  getGlobalMetaid
 } from './actions'
 
 import { btcKeys, dogeKeys, createAction, ActionType, on, removeListener } from './actions'
@@ -132,6 +133,7 @@ const metalet: any = {
   smallPay,
   storageChunk,
   getPKHByPath,
+  getGlobalMetaid,
 
   eciesEncrypt,
   eciesDecrypt,

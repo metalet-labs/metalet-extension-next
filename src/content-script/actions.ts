@@ -112,6 +112,18 @@ export async function getPKHByPath(params: { path: string; chain?: string }) {
   return await createAction('GetPKHByPath', 'query', params)
 }
 
+/**
+ * 获取当前账户的 GlobalMetaId
+ * GlobalMetaId 是一个跨链统一的身份标识，相同派生路径的 MVC、BTC、DOGE 地址会产生相同的 GlobalMetaId
+ * @returns { globalMetaId, mvcAddress, btcAddress, dogeAddress }
+ * @example
+ * const result = await getGlobalMetaid()
+ * console.log(result.globalMetaId) // idq1tz3ljq763lqsj2wp894h06vxn0ndhnsq3fllnj
+ */
+export async function getGlobalMetaid() {
+  return await createAction('GetGlobalMetaid', 'query')
+}
+
 export async function getXPublicKey() {
   return await createAction('GetXPublicKey', 'query')
 }
