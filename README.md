@@ -509,6 +509,172 @@ await window.metaidwallet.smallPay(params:any)
 
 ---
 
+# BTC APIs
+
+> BTC chain specific APIs. Access via `window.metaidwallet.btc`
+
+## btc.inscribe
+
+Inscribe MetaID data on the BTC blockchain using the Ordinals protocol. This API creates and broadcasts inscription transactions for MetaID protocol operations.
+
+### Parameters
+
+- `data` - `InscriptionRequest` - The inscription request data
+  - `feeRate` - `number`: Fee rate in satoshis per vbyte
+  - `metaidDataList` - `MetaidData[]`: Array of MetaID data to inscribe
+    - `operation` - `'init' | 'create' | 'modify' | 'revoke'`: The operation type
+    - `body?` - `string`: The content body (text or base64 encoded binary)
+    - `path?` - `string`: The MetaID path (e.g., `/info/name`, `/protocols/SimpleBuzz`)
+    - `contentType?` - `string`: MIME type (e.g., `text/plain`, `image/jpeg;binary`)
+    - `encryption?` - `'0' | '1' | '2'`: Encryption level (0=none, 1=ECIES, 2=AES)
+    - `version?` - `string`: Protocol version (default: `1.0.0`)
+    - `encoding?` - `BufferEncoding`: Content encoding (e.g., `utf-8`, `base64`, `hex`)
+    - `revealAddr` - `string`: The address to receive the inscription
+    - `flag?` - `'metaid'`: MetaID protocol flag
+  - `service?` - `object`: Optional service fee configuration
+    - `address` - `string`: Service provider address
+    - `satoshis` - `string`: Service fee amount in satoshis
+  - `outputs?` - `object[]`: Additional outputs
+    - `address` - `string`: Output address
+    - `value` - `number`: Output value in satoshis
+- `options?` - `object`
+  - `noBroadcast` - `boolean`: If `true`, returns raw transaction hex without broadcasting. Default: `false`
+
+### Response
+
+When `noBroadcast` is `false` (default):
+- `commitTxId` - `string`: The commit transaction ID
+- `revealTxIds` - `string[]`: Array of reveal transaction IDs
+- `commitCost` - `number`: Commit transaction fee in satoshis
+- `revealCost` - `number`: Total reveal transactions fee in satoshis
+- `totalCost` - `number`: Total cost including fees and service charge
+
+When `noBroadcast` is `true`:
+- `commitTxHex` - `string`: The raw commit transaction hex
+- `revealTxsHex` - `string[]`: Array of raw reveal transaction hexes
+- `commitCost` - `number`: Commit transaction fee in satoshis
+- `revealCost` - `number`: Total reveal transactions fee in satoshis
+- `totalCost` - `number`: Total cost in satoshis
+
+### Example
+
+```tsx
+// Create a simple text inscription (e.g., a buzz/post)
+const result = await window.metaidwallet.btc.inscribe({
+  data: {
+    feeRate: 2,
+    metaidDataList: [
+      {
+        operation: 'create',
+        body: JSON.stringify({ content: 'Hello MetaID on BTC!' }),
+        path: '/protocols/SimpleBuzz',
+        contentType: 'application/json',
+        encoding: 'utf-8',
+        revealAddr: 'bc1p...your_address',
+        flag: 'metaid',
+      },
+    ],
+  },
+  options: { noBroadcast: false },
+})
+
+console.log('Commit TxId:', result.commitTxId)
+console.log('Reveal TxIds:', result.revealTxIds)
+console.log('Total Cost:', result.totalCost, 'satoshis')
+```
+
+```tsx
+// Inscribe an image (avatar)
+const imageBase64 = 'iVBORw0KGgoAAAANSUhEUgAA...' // Base64 encoded image
+
+const avatarResult = await window.metaidwallet.btc.inscribe({
+  data: {
+    feeRate: 3,
+    metaidDataList: [
+      {
+        operation: 'create',
+        body: imageBase64,
+        path: '/info/avatar',
+        contentType: 'image/jpeg;binary',
+        encoding: 'base64',
+        revealAddr: 'bc1p...your_address',
+        flag: 'metaid',
+      },
+    ],
+  },
+})
+
+// The reveal txid becomes the metafile URI
+const metafileUri = `metafile://${avatarResult.revealTxIds[0]}i0`
+console.log('Avatar URI:', metafileUri)
+```
+
+```tsx
+// Multiple inscriptions in one batch
+const batchResult = await window.metaidwallet.btc.inscribe({
+  data: {
+    feeRate: 2,
+    metaidDataList: [
+      {
+        operation: 'create',
+        body: 'Alice',
+        path: '/info/name',
+        contentType: 'text/plain',
+        revealAddr: 'bc1p...your_address',
+        flag: 'metaid',
+      },
+      {
+        operation: 'create',
+        body: 'Hello, I am Alice!',
+        path: '/info/bio',
+        contentType: 'text/plain',
+        revealAddr: 'bc1p...your_address',
+        flag: 'metaid',
+      },
+    ],
+  },
+})
+
+console.log('Batch inscribe completed:', batchResult.revealTxIds)
+```
+
+```tsx
+// Get transaction hex without broadcasting
+const dryRunResult = await window.metaidwallet.btc.inscribe({
+  data: {
+    feeRate: 2,
+    metaidDataList: [
+      {
+        operation: 'create',
+        body: 'Test content',
+        path: '/protocols/SimpleBuzz',
+        contentType: 'text/plain',
+        revealAddr: 'bc1p...your_address',
+        flag: 'metaid',
+      },
+    ],
+  },
+  options: { noBroadcast: true },
+})
+
+console.log('Commit Tx Hex:', dryRunResult.commitTxHex)
+console.log('Reveal Txs Hex:', dryRunResult.revealTxsHex)
+console.log('Estimated Cost:', dryRunResult.totalCost, 'satoshis')
+```
+
+### Notes
+
+- This API will pop up a confirmation window for user approval
+- The inscription process creates two types of transactions:
+  - **Commit Transaction**: Prepares the inscription by sending funds to a Taproot address
+  - **Reveal Transaction**: Contains the actual inscription data in the witness
+- Each `metaidData` item in the list will generate a separate reveal transaction
+- For binary content (images, files), use `base64` encoding and set appropriate `contentType`
+- The `revealAddr` should typically be the user's BTC address to receive the inscription
+- Use `noBroadcast: true` to preview the transaction cost before committing
+
+---
+
 ## Token
 
 ### list
