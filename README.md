@@ -400,6 +400,88 @@ const signTxRes =
 
 ## pay
 
+Pay for a batch of MVC transactions. This API is used to sign and pay for multiple transactions at once, commonly used in MetaID protocol operations.
+
+### Parameters
+
+- `transactions` - `SigningTransaction[]` - Array of transactions to sign and pay
+  - `txComposer` - `string`: Serialized transaction composer
+  - `message?` - `string`: Optional message describing the transaction purpose
+- `hasMetaid?` - `boolean`: Whether this is a MetaID transaction. If `true`, the OP_RETURN output will be updated with correct txid references. Default: `false`
+- `feeb?` - `number`: Fee rate in satoshis per byte. Default: `1`
+
+### Response
+
+- `payedTransactions` - `string[]`: Array of serialized signed transaction composers
+
+### Example
+
+```tsx
+import { TxComposer, mvc } from 'meta-contract'
+
+// Build a transaction using TxComposer
+const txComposer = new TxComposer()
+
+// Add outputs (e.g., OP_RETURN for MetaID data)
+const opReturnData = ['metaid', 'buzz', JSON.stringify({ content: 'Hello MetaID!' })]
+txComposer.appendOpReturnOutput(mvc.Script.buildSafeDataOut(opReturnData))
+
+// Add P2PKH output if needed
+const receiverAddress = mvc.Address.fromString('your_receiver_address')
+txComposer.appendP2PKHOutput({
+  address: receiverAddress,
+  satoshis: 1000,
+})
+
+// Call pay API to sign and add inputs for the transaction
+const { payedTransactions } = await window.metaidwallet.pay({
+  transactions: [
+    {
+      txComposer: txComposer.serialize(),
+      message: 'Create a buzz',
+    },
+  ],
+  hasMetaid: true,
+  feeb: 1,
+})
+
+// Deserialize the signed transactions
+const signedTxComposer = TxComposer.deserialize(payedTransactions[0])
+
+// Get the raw transaction hex for broadcasting
+const txHex = signedTxComposer.getRawHex()
+const txid = signedTxComposer.getTxId()
+console.log('Transaction ID:', txid)
+```
+
+```tsx
+// Multiple transactions with dependencies
+import { TxComposer, mvc } from 'meta-contract'
+
+const tx1 = new TxComposer()
+tx1.appendOpReturnOutput(mvc.Script.buildSafeDataOut(['metaid', 'root']))
+
+const tx2 = new TxComposer()
+tx2.appendOpReturnOutput(mvc.Script.buildSafeDataOut(['metaid', 'child', tx1.getTxId()])) // References tx1
+
+const { payedTransactions } = await window.metaidwallet.pay({
+  transactions: [
+    { txComposer: tx1.serialize(), message: 'Create root' },
+    { txComposer: tx2.serialize(), message: 'Create child' },
+  ],
+  hasMetaid: true, // Will auto-update txid references in OP_RETURN
+})
+
+console.log('Signed transactions:', payedTransactions)
+```
+
+### Notes
+
+- This API will pop up a confirmation window for user approval
+- When `hasMetaid` is `true`, the wallet will automatically update the OP_RETURN output to reflect correct txid references for dependent transactions
+- Transactions are processed sequentially to handle dependencies between them
+- The returned `payedTransactions` are serialized transaction composers that can be deserialized and broadcast
+
 ## autoPayment
 ### Example
 
