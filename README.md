@@ -940,3 +940,70 @@ const signTxRes =
     ],
   }
 ```
+
+---
+
+## getGlobalMetaid
+
+Get the GlobalMetaId for the current account's addresses across different chains (MVC, BTC, DOGE).
+
+GlobalMetaId is a unified cross-chain identity identifier. It converts blockchain addresses into a standardized format starting with `id`, enabling cross-chain identity recognition.
+
+> Note: Since each chain uses different derivation paths, the GlobalMetaId for each chain's address will typically be different.
+
+### Parameters
+
+None.
+
+### Response
+
+- `mvc` - `object`
+  - `address` - `string`: MVC address
+  - `globalMetaId` - `string`: GlobalMetaId for MVC address
+- `btc` - `object`
+  - `address` - `string`: BTC address
+  - `globalMetaId` - `string`: GlobalMetaId for BTC address
+- `doge` - `object`
+  - `address` - `string`: DOGE address
+  - `globalMetaId` - `string`: GlobalMetaId for DOGE address
+
+### Example
+
+```tsx
+const result = await window.metaidwallet.getGlobalMetaid()
+
+console.log(result)
+// {
+//   mvc: {
+//     address: '195gtuVbW9DsKPnSZLrt9kdJrQmvrAt7e3',
+//     globalMetaId: 'idq1tz3ljq763lqsj2wp894h06vxn0ndhnsq3fllnj'
+//   },
+//   btc: {
+//     address: 'bc1qfxd3xp3q65ulewmzrfx50pxw45qjfvgdsfq4ah',
+//     globalMetaId: 'idz1fxd3xp3q65ulewmzrfx50pxw45qjfvgd0j24uz'
+//   },
+//   doge: {
+//     address: 'DFo712BpLysLsoF6kSjTN6pPmZXxibtWcG',
+//     globalMetaId: 'idq1wnshx9kvz379ssjz38ku4q7vdwz36lg5hlr2gy'
+//   }
+// }
+
+// Use the GlobalMetaId for cross-chain identity
+const mvcGlobalId = result.mvc.globalMetaId
+console.log(`MVC GlobalMetaId: ${mvcGlobalId}`)
+```
+
+### GlobalMetaId Format
+
+The GlobalMetaId format is: `id{version}1{data}{checksum}`
+
+- `id` - Fixed prefix
+- `{version}` - Address type indicator:
+  - `q` - P2PKH (Legacy addresses)
+  - `p` - P2SH
+  - `z` - P2WPKH (SegWit)
+  - `r` - P2WSH
+  - `t` - P2TR (Taproot)
+- `1` - Separator
+- `{data}` - Encoded public key hash
+- `{checksum}` - 6-character checksum
