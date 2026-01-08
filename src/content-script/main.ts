@@ -31,7 +31,8 @@ import {
   smallPay,
   storageChunk,
   getPKHByPath,
-  getGlobalMetaid
+  getGlobalMetaid,
+  createPin
 } from './actions'
 
 import { btcKeys, dogeKeys, createAction, ActionType, on, removeListener } from './actions'
@@ -134,6 +135,7 @@ const metalet: any = {
   storageChunk,
   getPKHByPath,
   getGlobalMetaid,
+  createPin,
 
   eciesEncrypt,
   eciesDecrypt,

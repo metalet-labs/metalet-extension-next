@@ -243,6 +243,10 @@ export async function transferNFT(params: {
   return await createAction('TransferNFT', 'authorize', params)
 }
 
+export async function createPin(params: any) {
+  return await createAction('CreatePin', 'authorize', params)
+}
+
 // export async function transferAll(params: {
 //   receivers: {
 //     address: string

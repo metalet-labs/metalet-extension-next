@@ -6,6 +6,7 @@ import { computed, ref } from 'vue'
 import { toTx } from '@/lib/helpers'
 import Inscribe from './Inscribe.vue'
 import DogeInscribe from './DogeInscribe.vue'
+import CreatePin from './CreatePin.vue'
 import { DEBUG } from '@/data/config'
 import { useRoute } from 'vue-router'
 import Transfer from './Transfer.vue'
@@ -201,6 +202,7 @@ const cancelAction = async () => {
       <SignBTCMessage v-if="actionName === 'SignBTCMessage'" :params="params" />
       <Inscribe v-if="actionName === 'Inscribe'" :params="params" />
       <DogeInscribe v-if="actionName === 'DogeInscribe'" :params="params" />
+      <CreatePin v-if="actionName === 'CreatePin'" :params="params" />
       <BTCTransfer v-if="actionName === 'BTCTransfer'" :params="params" />
       <MRC20Deploy v-if="actionName === 'MRC20Deploy'" :params="params" />
       <MRC20Mint v-if="actionName === 'MRC20Mint'" :params="params" />

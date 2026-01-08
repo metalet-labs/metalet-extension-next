@@ -32,6 +32,7 @@ import * as DogeInscribe from '../lib/actions/doge/inscribe'
 
 // Common
 import * as OmniConnect from '../lib/actions/common/omniConnect'
+import * as CreatePin from '../lib/actions/create-pin'
 
 function doNothing() {}
 
@@ -279,6 +280,16 @@ export default {
     title: 'Omni Connect',
     description: '',
     process: OmniConnect.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+
+  // Create PIN
+  CreatePin: {
+    name: 'CreatePin',
+    title: 'Create PIN',
+    description: 'Create MetaID PIN on blockchain',
+    process: CreatePin.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

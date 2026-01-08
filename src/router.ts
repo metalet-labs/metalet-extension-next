@@ -580,6 +580,10 @@ const routes = [
     path: '/test/doge-inscribe',
     component: () => import('./pages/tests/DogeInscribe.vue'),
   },
+  {
+    path: '/test/create-pin',
+    component: () => import('./pages/tests/CreatePin.vue'),
+  },
 ]
 
 const historyMode = IS_DEV ? VueRouter.createWebHistory() : VueRouter.createWebHashHistory()
