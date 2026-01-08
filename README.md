@@ -502,6 +502,247 @@ await window.metaidwallet.smallPay(params:any)
 
 ```
 
+## createPin
+
+A unified cross-chain MetaID PIN creation API that supports BTC, MVC, and DOGE chains.
+
+### Overview
+
+`createPin` integrates PIN creation functionality across three chains:
+- **BTC**: Taproot-based inscriptions
+- **DOGE**: P2SH-based inscriptions
+- **MVC**: OP_RETURN-based PINs
+
+### Parameters
+
+- `chain` - `'btc' | 'mvc' | 'doge'` - **(required)** Target blockchain
+- `dataList` - `PinDetail[]` - **(required)** Array of PIN data to create
+- `feeRate` - `number` - Fee rate (unit varies by chain)
+- `noBroadcast` - `boolean` - If `true`, returns raw transaction hex without broadcasting
+
+**Fee Rate Units:**
+| Chain | Unit | Example |
+|-------|------|---------|
+| BTC | satoshis/vByte | `2` |
+| DOGE | satoshis/KB | `5000000` (= 0.05 DOGE/KB) |
+| MVC | satoshis/byte | `1` |
+
+#### PinDetail
+
+Each PIN's configuration:
+
+- `metaidData` - `MetaidData` - **(required)** PIN metadata
+- `options` - `PinOptions` - Optional configuration
+
+#### MetaidData
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `operation` | `'init' \| 'create' \| 'modify' \| 'revoke'` | ✅ | Operation type |
+| `path` | `string` | | Path (e.g., `host:/protocols/simplebuzz` or `/protocols/simplebuzz`) |
+| `body` | `string \| Buffer` | | Content |
+| `contentType` | `string` | | MIME type (e.g., `text/plain`, `application/json`) |
+| `encryption` | `'0' \| '1' \| '2'` | | Encryption: 0=none, 1=ECIES, 2=ECDH |
+| `version` | `string` | | Version number |
+| `encoding` | `BufferEncoding` | | Body encoding (`utf-8`, `base64`, `hex`) |
+| `flag` | `'metaid'` | | Protocol flag |
+| `revealAddr` | `string` | | (BTC/DOGE) Reveal transaction recipient address |
+
+#### PinOptions
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `outputs` | `Output[]` | Additional outputs (transfers to other addresses) |
+| `service` | `Output` | Service fee output |
+| `refs` | `Record<string, number>` | Reference replacement rules for transaction dependencies |
+
+```typescript
+type Output = {
+  address: string
+  satoshis: string
+}
+```
+
+**refs Usage:**
+
+Used for transaction dependency scenarios (e.g., posting a Buzz with an image):
+- `key`: Placeholder string in body
+- `value`: Index in dataList, replaced at runtime with that transaction's txid
+
+### Response
+
+| Field | Type | Chains | Description |
+|-------|------|--------|-------------|
+| `commitTxId` | `string` | BTC/DOGE | Commit transaction ID |
+| `revealTxIds` | `string[]` | BTC/DOGE | Reveal transaction IDs |
+| `commitTxHex` | `string` | BTC/DOGE | Commit tx hex (when noBroadcast) |
+| `revealTxsHex` | `string[]` | BTC/DOGE | Reveal txs hex (when noBroadcast) |
+| `txids` | `string[]` | MVC | Transaction IDs |
+| `txHexList` | `string[]` | MVC | Transaction hex list (when noBroadcast) |
+| `commitCost` | `number` | ALL | Commit transaction fee (satoshis) |
+| `revealCost` | `number` | ALL | Reveal transaction fee (satoshis) |
+| `totalCost` | `number` | ALL | Total cost (satoshis) |
+
+### Examples
+
+```tsx
+// Example 1: Create a simple text PIN
+const result = await window.metaidwallet.createPin({
+  chain: 'btc',
+  dataList: [
+    {
+      metaidData: {
+        operation: 'create',
+        path: '/info/name',
+        body: 'Alice',
+        contentType: 'text/plain',
+      }
+    }
+  ],
+  feeRate: 10,
+})
+
+console.log('Commit TxId:', result.commitTxId)
+console.log('Reveal TxIds:', result.revealTxIds)
+console.log('Total Cost:', result.totalCost)
+```
+
+```tsx
+// Example 2: Batch create multiple PINs on MVC
+const result = await window.metaidwallet.createPin({
+  chain: 'mvc',
+  dataList: [
+    {
+      metaidData: {
+        operation: 'create',
+        path: '/info/name',
+        body: 'Alice',
+        contentType: 'text/plain',
+      }
+    },
+    {
+      metaidData: {
+        operation: 'create',
+        path: '/info/bio',
+        body: 'Hello World',
+        contentType: 'text/plain',
+      }
+    }
+  ],
+  feeRate: 1,
+})
+
+console.log('Transaction IDs:', result.txids)
+```
+
+```tsx
+// Example 3: Upload image and post Buzz with dependency reference
+const result = await window.metaidwallet.createPin({
+  chain: 'btc',
+  dataList: [
+    // Index 0: Upload image
+    {
+      metaidData: {
+        operation: 'create',
+        path: '/file',
+        body: imageBase64,
+        contentType: 'image/png',
+        encoding: 'base64',
+      }
+    },
+    // Index 1: Post Buzz referencing the image
+    {
+      metaidData: {
+        operation: 'create',
+        path: '/protocols/simplebuzz',
+        body: JSON.stringify({
+          content: 'Beautiful day!',
+          attachments: ['metafile://{{img}}i0']
+        }),
+        contentType: 'application/json',
+      },
+      options: {
+        refs: {
+          '{{img}}': 0  // Replace {{img}} with index 0's reveal txid
+        }
+      }
+    }
+  ],
+  feeRate: 10,
+})
+```
+
+```tsx
+// Example 4: DOGE with service fee and additional outputs
+const result = await window.metaidwallet.createPin({
+  chain: 'doge',
+  dataList: [
+    {
+      metaidData: {
+        operation: 'create',
+        path: '/protocols/simplebuzz',
+        body: JSON.stringify({ content: 'Hello DOGE!' }),
+        contentType: 'application/json',
+      },
+      options: {
+        service: {
+          address: 'DServiceAddress...',
+          satoshis: '10000000'  // 0.1 DOGE
+        },
+        outputs: [
+          {
+            address: 'DReceiverAddress...',
+            satoshis: '50000000'  // 0.5 DOGE
+          }
+        ]
+      }
+    }
+  ],
+  feeRate: 5000000,  // 0.05 DOGE/KB
+})
+```
+
+```tsx
+// Example 5: Preview without broadcasting
+const result = await window.metaidwallet.createPin({
+  chain: 'btc',
+  dataList: [
+    {
+      metaidData: {
+        operation: 'create',
+        path: '/info/name',
+        body: 'Alice',
+      }
+    }
+  ],
+  feeRate: 10,
+  noBroadcast: true,
+})
+
+console.log('Commit Tx Hex:', result.commitTxHex)
+console.log('Reveal Txs Hex:', result.revealTxsHex)
+console.log('Estimated Cost:', result.totalCost)
+```
+
+### Chain Differences
+
+| Feature | BTC | DOGE | MVC |
+|---------|-----|------|-----|
+| Fee Rate Unit | satoshis/vByte | satoshis/KB | satoshis/byte |
+| Transaction Structure | 1 commit + N reveal | 1 commit + N reveal | N independent txs |
+| Response Fields | commitTxId, revealTxIds | commitTxId, revealTxIds | txids |
+| refs Target | reveal txid | reveal txid | transaction txid |
+| Inscription Method | Taproot | P2SH | OP_RETURN |
+
+### Notes
+
+- This API will pop up a confirmation window for user approval
+- For BTC/DOGE, the process creates commit + reveal transactions
+- For MVC, each PIN generates an independent transaction
+- Use `noBroadcast: true` to preview transaction cost before committing
+- The `revealAddr` defaults to the current wallet address if not specified
+
+---
 
 ## signMessage
 
