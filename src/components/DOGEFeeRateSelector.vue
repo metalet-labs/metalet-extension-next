@@ -51,9 +51,24 @@ const selectRateFee = (rateFee: number, index: number) => {
   rateOnChange(rateFee, index)
 }
 
+const customDogeValue = ref<string>('')
+
 const selectCustom = () => {
   isCustom.value = true
   rateOnChange(undefined, -1)
+}
+
+// Handle custom input in DOGE/KB format
+const onCustomInput = (e: Event) => {
+  const value = (e.target as HTMLInputElement).value
+  customDogeValue.value = value
+  if (value) {
+    // Convert DOGE/KB to sat/KB (1 DOGE = 100000000 satoshis)
+    const satPerKb = Math.round(parseFloat(value) * 100000000)
+    rateOnChange(satPerKb, -1)
+  } else {
+    rateOnChange(undefined, -1)
+  }
 }
 
 // Format fee rate for display (convert from sat/KB to DOGE/KB)
@@ -113,14 +128,18 @@ const formatFeeRate = (rate: number) => {
           >
             <SelectIcon v-if="isCustom" class="absolute top-1 right-1" />
             <span class="text-black-primary">Custom</span>
-            <input
-              v-if="isCustom"
-              type="number"
-              min="100000"
-              placeholder="100000"
-              class="text-center text-gray-primary"
-              @input="(e) => rateOnChange(Number((e.target as HTMLInputElement).value), -1)"
-            />
+            <div v-if="isCustom" class="flex items-center gap-1">
+              <input
+                type="number"
+                min="0.001"
+                step="0.001"
+                placeholder="0.02"
+                :value="customDogeValue"
+                class="text-center text-gray-primary w-16"
+                @input="onCustomInput"
+              />
+              <span class="text-gray-primary">DOGE/KB</span>
+            </div>
           </FlexBox>
         </div>
         <DrawerFooter class="pt-4">
