@@ -208,5 +208,25 @@ export default {
   },
   Transaction: {
     Completed: 'Transaction Completed',
+  },
+  Teleport: {
+    Title: 'Teleport',
+    Subtitle: 'Cross-chain transfer MRC-20 Token',
+    From: 'From',
+    To: 'To',
+    Network: 'Network',
+    Amount: 'Amount',
+    FeeRate: 'Fee Rate',
+    Confirm: 'Confirm Teleport',
+    Processing: 'Processing',
+    ImportantNotice: 'Important Notice',
+    Notice1: 'Teleport will create transactions on both networks',
+    Notice2: 'The transfer may take a few minutes to complete',
+    Notice3: 'Make sure you have enough balance for fees on both networks',
+    NetworkFee: 'Network Fee',
+    Max: 'Max',
+    EnterAmount: 'Enter amount',
+    Success: 'Teleport Successful',
+    CrossChainCompleted: 'Cross-chain transfer completed',
   }
 }

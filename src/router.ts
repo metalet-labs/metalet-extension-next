@@ -177,6 +177,24 @@ const routes = [
         },
       },
       {
+        path: '/wallet/teleportMRC20/:name/:mrc20Id/:fromChain',
+        component: () => import('./pages/wallet/TeleportMRC20.vue'),
+        name: 'TeleportMRC20',
+        meta: {
+          headerTitle: 'Teleport',
+          noFooter: true,
+        },
+      },
+      {
+        path: '/wallet/teleportSuccess/:fromChain/:toChain/:symbol/:amount/:transferTxId/:arrivalTxId',
+        component: () => import('./pages/wallet/TeleportSuccess.vue'),
+        name: 'TeleportSuccess',
+        meta: {
+          headerTitle: 'Teleport Success',
+          noFooter: true,
+        },
+      },
+      {
         path: '/wallet/mintRune/:name/:runeId/:address',
         component: () => import('./pages/wallet/MintRune.vue'),
         name: 'MintRune',

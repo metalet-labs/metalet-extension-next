@@ -14,9 +14,12 @@ import FilterIcon from '@/assets/icons-v3/filter.svg'
 import { useMRC20DetailQuery } from '@/queries/mrc20'
 import { CoinCategory, useExchangeRatesQuery } from '@/queries/exchange-rates'
 import ArrowUpIcon from '@/assets/icons-v3/arrow-up.svg'
+import ArrowDownIcon from '@/assets/icons-v3/arrow-down.svg'
+import TeleportIcon from '@/assets/icons-v3/teleport.svg'
 import SelectorIcon from '@/assets/icons-v3/selector.svg'
 import { calcBalance, truncateStr } from '@/lib/formatters'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,14 +27,46 @@ const symbol = route.params.symbol as string
 const mrc20Id = ref<string>(route.params.mrc20Id as string)
 const address = computed(() => route.params.address as string)
 
+// 多链支持
+type SupportedChain = 'btc' | 'doge' | 'mvc'
+const activeChain = ref<SupportedChain>('btc')
+const { getAddress } = useChainWalletsStore()
+
+// 各链地址
+const btcAddress = getAddress(Chain.BTC)
+const dogeAddress = getAddress(Chain.DOGE)
+const mvcAddress = getAddress(Chain.MVC)
+
+// 当前激活链的地址
+const currentChainAddress = computed(() => {
+  switch (activeChain.value) {
+    case 'btc': return btcAddress.value
+    case 'doge': return dogeAddress.value
+    case 'mvc': return mvcAddress.value
+    default: return btcAddress.value
+  }
+})
+
 const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
   enabled: computed(() => !!address.value && !!mrc20Id.value),
 })
+
+// 各链 MRC20 数量（目前只有 btc 有数据，其他链默认为 0）
+const chainBalances = computed(() => ({
+  btc: asset.value?.balance?.total.toNumber() || 0,
+  doge: 0, // 接口暂不支持
+  mvc: 0,  // 接口暂不支持
+}))
 
 const balance = computed(() => {
   if (asset.value?.balance) {
     return asset.value.balance.total.toNumber()
   }
+})
+
+// 当前链的余额
+const currentChainBalance = computed(() => {
+  return chainBalances.value[activeChain.value]
 })
 
 const tags = getTags(CoinCategory.MRC20)
@@ -71,61 +106,121 @@ const toSend = () => {
     },
   })
 }
+
+const toReceive = () => {
+  router.push({
+    path: `/wallet/receive/${CoinCategory.MRC20}/${symbol}/${currentChainAddress.value}`,
+    query: {
+      chain: activeChain.value,
+    },
+  })
+}
+
+const toTeleport = () => {
+  router.push({
+    name: 'TeleportMRC20',
+    params: {
+      mrc20Id: mrc20Id.value,
+      name: asset.value!.tokenName,
+      fromChain: activeChain.value,
+    },
+  })
+}
+
+// 切换链
+const switchChain = (chain: SupportedChain) => {
+  activeChain.value = chain
+}
+
+// 格式化链上余额显示
+const formatChainBalance = (chain: SupportedChain) => {
+  const bal = chainBalances.value[chain]
+  if (!asset.value) return '0'
+  return calcBalance(bal, asset.value.decimal, '')
+}
+
+// 支持的链列表
+const supportedChains: SupportedChain[] = ['btc', 'doge', 'mvc']
 </script>
 
 <template>
   <div class="flex flex-col items-center space-y-6 w-full">
-    <div class="flex flex-col items-center">
-      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-15" logoSize="size-6" />
-
-      <div v-if="asset?.balance && asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary mt-2">
-        +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}
-      </div>
-
-      <div class="mt-2 text-2xl text-balance max-w-full text-center">
-        <span v-if="asset?.balance" class="break-all">
-          <span>
+    <!-- Token 信息头部 - 横向排列 -->
+    <div class="flex items-center justify-center gap-x-4 w-full">
+      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-12" logoSize="size-5" />
+      <div class="flex flex-col">
+        <div class="text-xl font-medium">
+          <span v-if="asset?.balance" class="break-all">
             {{ calcBalance(asset.balance.confirmed.toNumber(), asset.decimal, '') }}
           </span>
-          <!-- <span v-if="asset?.balance?.unconfirmed.toNumber()" class="text-gray-primary">
-            +{{ calcBalance(asset.balance.unconfirmed.toNumber(), asset.decimal, asset.symbol) }}
-          </span> -->
-        </span>
-        <span v-else>-- {{ symbol }}</span>
-        <!-- <span class="text-gray-primary ml-2" v-if="assetUSD !== undefined">
+          <span v-else>--</span>
+          <span class="text-gray-primary ml-1">{{ symbol }}</span>
+        </div>
+        <div class="text-sm text-gray-primary" v-if="assetUSD !== undefined">
           ≈ ${{ assetUSD?.toNumber().toFixed(2) }}
-        </span> -->
+        </div>
       </div>
-
-      <div class="text-gray-primary ml-2" v-if="assetUSD !== undefined">≈ ${{ assetUSD?.toNumber().toFixed(2) }}</div>
-
       <div
         :key="tag.name"
         v-for="tag in tags"
         :style="`background-color:${tag.bg};color:${tag.color};`"
-        :class="['px-1', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'mt-2']"
+        :class="['px-1.5', 'py-0.5', 'rounded', 'text-xs', 'inline-block', 'self-start']"
       >
         {{ tag.name }}
       </div>
     </div>
 
+    <!-- 多链 Tab -->
+    <div class="flex items-center justify-center gap-x-2 w-full">
+      <button
+        v-for="chain in supportedChains"
+        :key="chain"
+        @click="switchChain(chain)"
+        :class="[
+          'flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors',
+          activeChain === chain 
+            ? 'bg-blue-primary text-white' 
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+        ]"
+      >
+        <div class="flex flex-col items-center">
+          <span class="uppercase">{{ chain }}</span>
+          <span class="text-xs mt-0.5" :class="activeChain === chain ? 'text-blue-100' : 'text-gray-400'">
+            {{ formatChainBalance(chain) }}
+          </span>
+        </div>
+      </button>
+    </div>
+
+    <!-- 操作按钮 -->
     <div class="flex items-center justify-center gap-x-2">
-      <!-- TODO: mintable -->
-      <!-- <button @click="toMint" :disabled="true" :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': true }]">
-        <PencilIcon class="w-3" />
-        <span>Mint</span>
-      </button> -->
       <button
         @click="toSend"
-        :disabled="!balance"
-        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !balance }]"
+        :disabled="!currentChainBalance"
+        :class="['btn-blue-light', { 'opacity-50 cursor-not-allowed': !currentChainBalance }]"
       >
         <ArrowUpIcon class="w-3" />
         <span>Send</span>
       </button>
+      <button
+        @click="toReceive"
+        class="btn-blue-light"
+      >
+        <ArrowDownIcon class="w-3" />
+        <span>Receive</span>
+      </button>
+      <button
+        @click="toTeleport"
+        :disabled="!currentChainBalance"
+        :class="['btn-blue-primary', { 'opacity-50 cursor-not-allowed': !currentChainBalance }]"
+      >
+        <TeleportIcon class="w-3" />
+        <span>Teleport</span>
+      </button>
     </div>
 
-    <div class="mt-8 flex flex-col items-center gap-y-2 w-full">
+    <!-- Token 详情 -->
+    <div class="mt-4 flex flex-col items-center gap-y-2 w-full">
       <div class="flex items-center justify-between w-full">
         <div class="text-xs text-gray-500">Deployer</div>
         <div class="flex items-center gap-x-2">
@@ -177,7 +272,7 @@ const toSend = () => {
 
 <style scoped lang="css">
 .btn {
-  @apply w-[119px] h-12 rounded-3xl flex items-center justify-center gap-x-2;
+  @apply w-[100px] h-11 rounded-3xl flex items-center justify-center gap-x-2 text-sm;
 }
 
 .btn-blue-light {

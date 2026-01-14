@@ -56,7 +56,7 @@ const logo = computed(() => {
   <div class="flex flex-col w-full h-full absolute top-0 left-0 bg-gray-secondary">
     <div class="w-full h-15 flex items-center justify-between px-4">
       <ChevronLeftIcon class="w-4.5 cursor-pointer" @click="$router.go(-1)" />
-      <XMarkIcon class="w-4.5 cursor-pointer" @click="$router.replace('/wallet')" />
+      <XMarkIcon class="w-4.5 cursor-pointer" @click="$router.go(-1)" />
     </div>
     <div class="p-4 grow">
       <div class="w-full h-full rounded-xl bg-white flex flex-col items-center py-6">
