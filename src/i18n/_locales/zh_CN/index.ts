@@ -217,5 +217,6 @@ export default {
     EnterAmount: '请输入数量',
     Success: '跃迁成功',
     CrossChainCompleted: '跨链转移已完成',
+    Prepare: '预处理',
   },
 }

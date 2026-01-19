@@ -181,6 +181,9 @@ const executeTeleport = async () => {
       arrivalTxId = result.arrivalResult.txids[0]
     }
     
+    // 预处理交易 ID（如果有）
+    const prepareTxId = result.prepareResult?.revealTx.txId || ''
+    
     // 跳转到 Teleport 成功页面
     router.replace({
       name: 'TeleportSuccess',
@@ -194,6 +197,7 @@ const executeTeleport = async () => {
       },
       query: {
         genesis: mrc20Id.value,
+        prepareTxId: prepareTxId || undefined,
       },
     })
   } catch (error) {
@@ -220,7 +224,7 @@ const setMaxAmount = () => {
 </script>
 
 <template>
-  <FlexBox d="col" ai="center" class="w-full h-full relative space-y-6" v-if="asset">
+  <FlexBox d="col" ai="center" class="w-full h-full relative space-y-6 overflow-y-auto pb-4" v-if="asset">
     <!-- 结果弹窗 -->
     <TransactionResultModal v-model:is-open-result="isResultModalOpen" :result="transactionResult" />
     
@@ -358,7 +362,7 @@ const setMaxAmount = () => {
       :disabled="btnDisabled"
       :class="[
         { 'opacity-50 cursor-not-allowed': btnDisabled },
-        'w-full h-12 mt-4',
+        'w-full h-12 mt-4 flex-shrink-0',
       ]"
     >
       <div class="flex items-center gap-2" v-if="operationLock">

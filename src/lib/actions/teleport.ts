@@ -40,6 +40,11 @@ export interface TeleportMRC20Params {
 }
 
 export interface TeleportResult {
+  // 预处理交易（拆分或合并），如果不需要则为 null
+  prepareResult: {
+    commitTx: { txId: string; rawTx: string }
+    revealTx: { txId: string; rawTx: string }
+  } | null
   // 源链 transfer 交易
   transferResult: {
     commitTx: { txId: string; rawTx: string }
@@ -96,12 +101,84 @@ function buildArrivalPinData(params: {
 }
 
 /**
- * 从 MRC-20 UTXO 列表中查找合适的 UTXO
- * 找到 amount 足够的单个 UTXO
- * 
- * @throws 如果没有足够余额的单个 UTXO，抛出错误（TODO: 后续需要支持归集）
+ * UTXO 检查结果类型
  */
-async function findMRC20AssetOutpoint(
+type UTXOCheckResult = 
+  | { type: 'exact'; utxo: MRC20UTXO; assetOutpoint: string }  // 精确匹配
+  | { type: 'split'; utxo: MRC20UTXO; assetOutpoint: string }  // 需要拆分（UTXO 金额 > 所需金额）
+  | { type: 'merge'; utxos: MRC20UTXO[]; totalAmount: bigint } // 需要合并（多个小 UTXO）
+  | { type: 'insufficient'; totalAmount: bigint }              // 余额不足
+
+/**
+ * 检查 MRC-20 UTXO 情况，决定是否需要预处理
+ */
+async function checkMRC20UTXOs(
+  address: string,
+  mrc20Id: string,
+  requiredAmount: string
+): Promise<UTXOCheckResult> {
+  const utxos = await getMRC20Utxos(address, mrc20Id)
+  
+  if (!utxos || utxos.length === 0) {
+    return { type: 'insufficient', totalAmount: BigInt(0) }
+  }
+  
+  const requiredAmountNum = BigInt(requiredAmount)
+  let totalAmount = BigInt(0)
+  const eligibleUtxos: { utxo: MRC20UTXO; mrc20Amount: bigint; txPoint: string }[] = []
+  
+  // 遍历所有 UTXO，收集信息
+  for (const utxo of utxos) {
+    for (const mrc20 of utxo.mrc20s) {
+      if (mrc20.mrc20Id === mrc20Id) {
+        const utxoAmount = BigInt(mrc20.amount)
+        totalAmount += utxoAmount
+        eligibleUtxos.push({ utxo, mrc20Amount: utxoAmount, txPoint: mrc20.txPoint })
+      }
+    }
+  }
+  
+  // 检查总余额是否足够
+  if (totalAmount < requiredAmountNum) {
+    return { type: 'insufficient', totalAmount }
+  }
+  
+  // 按金额从小到大排序
+  eligibleUtxos.sort((a, b) => Number(a.mrc20Amount - b.mrc20Amount))
+  
+  // 1. 先找精确匹配的
+  for (const item of eligibleUtxos) {
+    if (item.mrc20Amount === requiredAmountNum) {
+      return { type: 'exact', utxo: item.utxo, assetOutpoint: item.txPoint }
+    }
+  }
+  
+  // 2. 再找可以拆分的（金额 > 所需）
+  for (const item of eligibleUtxos) {
+    if (item.mrc20Amount > requiredAmountNum) {
+      return { type: 'split', utxo: item.utxo, assetOutpoint: item.txPoint }
+    }
+  }
+  
+  // 3. 需要合并多个 UTXO
+  // 贪心算法：选择最少数量的 UTXO 来满足金额
+  const selectedUtxos: MRC20UTXO[] = []
+  let selectedAmount = BigInt(0)
+  
+  // 从大到小选择
+  for (let i = eligibleUtxos.length - 1; i >= 0 && selectedAmount < requiredAmountNum; i--) {
+    selectedUtxos.push(eligibleUtxos[i].utxo)
+    selectedAmount += eligibleUtxos[i].mrc20Amount
+  }
+  
+  return { type: 'merge', utxos: selectedUtxos, totalAmount: selectedAmount }
+}
+
+/**
+ * 从 MRC-20 UTXO 列表中查找合适的 UTXO
+ * 找到 amount 精确匹配的单个 UTXO（已经过预处理）
+ */
+async function findExactMRC20AssetOutpoint(
   address: string,
   mrc20Id: string,
   requiredAmount: string
@@ -114,13 +191,12 @@ async function findMRC20AssetOutpoint(
   
   const requiredAmountNum = BigInt(requiredAmount)
   
-  // 遍历所有 UTXO，找到合适的
+  // 遍历所有 UTXO，找精确匹配的
   for (const utxo of utxos) {
     for (const mrc20 of utxo.mrc20s) {
       if (mrc20.mrc20Id === mrc20Id) {
         const utxoAmount = BigInt(mrc20.amount)
-        if (utxoAmount >= requiredAmountNum) {
-          // txPoint 格式为 "txid:vout"，直接使用
+        if (utxoAmount === requiredAmountNum) {
           const assetOutpoint = mrc20.txPoint
           return { assetOutpoint, utxo }
         }
@@ -128,17 +204,71 @@ async function findMRC20AssetOutpoint(
     }
   }
   
-  // TODO: 如果没有单个 UTXO 足够，需要先归集再转移
-  throw new Error(`No single MRC-20 UTXO has enough balance (required: ${requiredAmount}). Please merge UTXOs first.`)
+  throw new Error(`No exact MRC-20 UTXO found (required: ${requiredAmount}). Prepare transaction may have failed.`)
+}
+
+/**
+ * 执行预处理交易（拆分或合并 UTXO）
+ * 转账精确金额给自己，生成一个精确匹配的 UTXO
+ */
+async function executePrepareTransaction(
+  fromAddress: string,
+  mrc20Id: string,
+  amount: string,
+  feeRate: number,
+  noBroadcast: boolean
+): Promise<{ commitTx: { txId: string; rawTx: string }; revealTx: { txId: string; rawTx: string } }> {
+  console.log('[Teleport] Executing prepare transaction (split/merge)...')
+  
+  const wallet = await getCurrentWallet(Chain.BTC)
+  const needRawTx = wallet.getScriptType() === ScriptType.P2PKH
+  const utxos = await getBtcUtxos(fromAddress, needRawTx, true)
+  const mrc20Utxos = await getMRC20Utxos(fromAddress, mrc20Id, needRawTx)
+
+  // 普通 Transfer body：转给自己
+  const transferBody = JSON.stringify([
+    {
+      vout: 1, // 输出到 reveal 的第 1 个 vout
+      id: mrc20Id,
+      amount: new Decimal(amount).toFixed(),
+    },
+  ])
+
+  const { commitTx, revealTx } = wallet.signTx(SignType.MRC20_TRANSFER, {
+    utxos,
+    amount: new Decimal(amount).toFixed(),
+    flag: 'metaid',
+    commitFeeRate: feeRate,
+    revealFeeRate: feeRate,
+    mrc20Utxos,
+    body: transferBody,
+  })
+  
+  console.log('[Teleport] Prepare transaction created:', { commitTxId: commitTx.txId, revealTxId: revealTx.txId })
+
+  // 广播预处理交易
+  if (!noBroadcast) {
+    console.log('[Teleport] Broadcasting prepare transactions...')
+    
+    const broadcastedCommitTxId = await broadcastBTCTx(commitTx.rawTx)
+    console.log('[Teleport] Prepare commit tx broadcasted:', broadcastedCommitTxId)
+    
+    const broadcastedRevealTxId = await broadcastBTCTx(revealTx.rawTx)
+    console.log('[Teleport] Prepare reveal tx broadcasted:', broadcastedRevealTxId)
+  }
+
+  return { commitTx, revealTx }
 }
 
 /**
  * 执行 MRC20 Teleport 跨链转移
  * 
- * 正确的 Teleport 流程：
- * 1. 获取 MRC-20 资产的 UTXO 信息（assetOutpoint）
- * 2. 在目标链创建 Arrival 交易（包含 assetOutpoint）
- * 3. 在源链创建 Transfer 交易（使用 MRC20TransferTool，coord 指向 Arrival）
+ * Teleport 约束：Transfer 交易必须使用精确匹配的单个 UTXO
+ * 
+ * 完整流程（最多 3 笔交易）：
+ * 1. [可选] 预处理交易：如果没有精确匹配的 UTXO，先转给自己进行拆分或合并
+ * 2. Arrival 交易：在目标链创建接收位置
+ * 3. Transfer 交易：在源链执行 teleport（使用精确匹配的 UTXO）
  */
 export async function teleportMRC20(params: TeleportMRC20Params): Promise<TeleportResult> {
   const {
@@ -152,10 +282,46 @@ export async function teleportMRC20(params: TeleportMRC20Params): Promise<Telepo
     noBroadcast = false,
   } = params
 
-  // 1. 获取 MRC-20 资产的 UTXO 信息
-  const { assetOutpoint } = await findMRC20AssetOutpoint(fromAddress, mrc20Id, amount)
-  
-  console.log('[Teleport] Found MRC-20 asset:', { assetOutpoint, amount })
+  // TODO: 目前只支持 BTC 链作为源链
+  if (fromChain !== 'btc') {
+    throw new Error(`Teleport from ${fromChain} chain is not supported yet. Only BTC is supported as source chain.`)
+  }
+
+  // 1. 检查 UTXO 情况
+  const checkResult = await checkMRC20UTXOs(fromAddress, mrc20Id, amount)
+  console.log('[Teleport] UTXO check result:', checkResult.type)
+
+  let prepareResult: { commitTx: { txId: string; rawTx: string }; revealTx: { txId: string; rawTx: string } } | null = null
+  let assetOutpoint: string
+
+  switch (checkResult.type) {
+    case 'insufficient':
+      throw new Error(`Insufficient MRC-20 balance. Total: ${checkResult.totalAmount.toString()}, Required: ${amount}`)
+    
+    case 'exact':
+      // 精确匹配，无需预处理
+      console.log('[Teleport] Found exact matching UTXO, no prepare needed')
+      assetOutpoint = checkResult.assetOutpoint
+      break
+    
+    case 'split':
+      // 需要拆分：UTXO 金额 > 所需金额
+      console.log('[Teleport] Need to split UTXO, executing prepare transaction...')
+      prepareResult = await executePrepareTransaction(fromAddress, mrc20Id, amount, fromFeeRate, noBroadcast)
+      // 预处理后，新的 UTXO 的 outpoint 是 reveal 交易的第 1 个输出
+      assetOutpoint = `${prepareResult.revealTx.txId}:1`
+      break
+    
+    case 'merge':
+      // 需要合并：多个小 UTXO
+      console.log('[Teleport] Need to merge UTXOs, executing prepare transaction...')
+      prepareResult = await executePrepareTransaction(fromAddress, mrc20Id, amount, fromFeeRate, noBroadcast)
+      // 预处理后，新的 UTXO 的 outpoint 是 reveal 交易的第 1 个输出
+      assetOutpoint = `${prepareResult.revealTx.txId}:1`
+      break
+  }
+
+  console.log('[Teleport] Using asset outpoint:', assetOutpoint)
 
   // 2. 在目标链创建 Arrival Pin
   const arrivalPinData = buildArrivalPinData({
@@ -186,13 +352,8 @@ export async function teleportMRC20(params: TeleportMRC20Params): Promise<Telepo
   
   console.log('[Teleport] Arrival created, coord:', coord)
 
-  // 3. 在源链创建 Transfer 交易（使用 MRC20TransferTool）
-  // TODO: 目前只支持 BTC 链作为源链，DOGE 和 MVC 需要后续实现
-  if (fromChain !== 'btc') {
-    throw new Error(`Teleport from ${fromChain} chain is not supported yet. Only BTC is supported as source chain.`)
-  }
-
-  // Transfer body 是一个数组，包含 teleport 特有字段
+  // 3. 在源链创建 Teleport Transfer 交易
+  // Transfer body 包含 teleport 特有字段
   const transferBody = JSON.stringify([
     {
       vout: 1, // 输出到 reveal 的第 1 个 vout
@@ -208,16 +369,70 @@ export async function teleportMRC20(params: TeleportMRC20Params): Promise<Telepo
   const wallet = await getCurrentWallet(Chain.BTC)
   const needRawTx = wallet.getScriptType() === ScriptType.P2PKH
   const utxos = await getBtcUtxos(fromAddress, needRawTx, true)
-  const mrc20Utxos = await getMRC20Utxos(fromAddress, mrc20Id, needRawTx)
+  
+  // 获取 MRC-20 UTXO
+  // 如果执行了预处理交易，需要构造新的 MRC20UTXO（基于预处理交易的输出）
+  // 因为 API 可能还没有索引到新的 UTXO
+  let mrc20Utxos: MRC20UTXO[]
+  
+  if (prepareResult) {
+    // 预处理交易已执行，构造新的 MRC20UTXO
+    // 预处理的 reveal 交易 vout 1 包含精确金额的 MRC-20
+    console.log('[Teleport] Using prepared MRC20 UTXO from prepare transaction')
+    
+    const preparedMrc20Utxo: MRC20UTXO = {
+      txId: prepareResult.revealTx.txId,
+      outputIndex: 1,
+      satoshis: 546, // MRC-20 dust size
+      confirmed: false, // 刚广播的交易
+      rawTx: needRawTx ? prepareResult.revealTx.rawTx : undefined,
+      chain: Chain.BTC,
+      address: fromAddress,
+      scriptPk: '', // 不需要，Transfer 工具不使用这个字段
+      timestamp: Date.now(),
+      blockHeight: 0,
+      mrc20s: [{
+        tick: '', // 不需要
+        mrc20Id: mrc20Id,
+        txPoint: assetOutpoint, // 使用构造的 assetOutpoint
+        amount: amount,
+        balance: amount,
+        decimals: '0',
+        metaData: '',
+        tokenName: '',
+        unsafeAmount: '0',
+        unsafeBalance: '0',
+        deployAddress: '',
+        deployUserInfo: { name: '', avatar: '' },
+        tag: '',
+      }],
+    }
+    
+    mrc20Utxos = [preparedMrc20Utxo]
+    
+    // 同时需要从普通 UTXO 中排除预处理交易的 commit 输出（如果有被使用的话）
+    // 这里不需要特殊处理，因为 commit 输出已经被 reveal 花费了
+  } else {
+    // 没有预处理，从 API 获取，但需要找到精确匹配的 UTXO
+    const allMrc20Utxos = await getMRC20Utxos(fromAddress, mrc20Id, needRawTx)
+    // 找到与 assetOutpoint 匹配的 UTXO
+    const matchingUtxo = allMrc20Utxos.find(utxo => 
+      utxo.mrc20s.some(mrc20 => mrc20.txPoint === assetOutpoint)
+    )
+    if (!matchingUtxo) {
+      throw new Error(`Cannot find MRC-20 UTXO with txPoint: ${assetOutpoint}`)
+    }
+    mrc20Utxos = [matchingUtxo]
+  }
 
-  // 使用现有的 MRC20_TRANSFER 签名类型
-  const { commitTx, revealTx } = wallet.signTx(SignType.MRC20_TRANSFER, {
+  // 使用 MRC20_TELEPORT 签名类型（单个精确匹配 UTXO，不支持拆分）
+  const { commitTx, revealTx } = wallet.signTx(SignType.MRC20_TELEPORT, {
     utxos,
     amount: new Decimal(amount).toFixed(),
     flag: 'metaid',
     commitFeeRate: fromFeeRate,
     revealFeeRate: fromFeeRate,
-    mrc20Utxos,
+    mrc20Utxo: mrc20Utxos[0],
     body: transferBody,
   })
   
@@ -237,6 +452,7 @@ export async function teleportMRC20(params: TeleportMRC20Params): Promise<Telepo
   }
 
   return {
+    prepareResult,
     transferResult: { commitTx, revealTx },
     arrivalResult,
   }

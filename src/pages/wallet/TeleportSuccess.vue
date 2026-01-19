@@ -21,6 +21,7 @@ const toChain = route.params.toChain as SupportedChain
 const symbol = route.params.symbol as string
 const amount = route.params.amount as string
 const genesis = route.query.genesis as string
+const prepareTxId = route.query.prepareTxId as string | undefined
 
 const { getIcon } = useIconsStore()
 const logo = computed(() => {
@@ -88,6 +89,21 @@ const toScanUrl = async (txId: string, chain: SupportedChain) => {
     
     <!-- 交易详情 -->
     <div class="w-full space-y-2 text-sm">
+      <!-- Prepare 交易 (源链，如果有) -->
+      <div 
+        v-if="prepareTxId" 
+        class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+      >
+        <div class="text-gray-600">{{ fromChain.toUpperCase() }} {{ $t('Teleport.Prepare') }}</div>
+        <div 
+          class="flex items-center gap-1 text-blue-primary hover:underline cursor-pointer text-xs"
+          @click="toScanUrl(prepareTxId, fromChain)"
+        >
+          <span>{{ prepareTxId.slice(0, 8) }}...{{ prepareTxId.slice(-8) }}</span>
+          <LinkIcon class="w-3 h-3" />
+        </div>
+      </div>
+      
       <!-- Transfer 交易 (源链) -->
       <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
         <div class="text-gray-600">{{ fromChain.toUpperCase() }} Transfer</div>

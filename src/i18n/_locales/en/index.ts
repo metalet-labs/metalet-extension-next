@@ -228,5 +228,6 @@ export default {
     EnterAmount: 'Enter amount',
     Success: 'Teleport Successful',
     CrossChainCompleted: 'Cross-chain transfer completed',
+    Prepare: 'Prepare',
   }
 }
