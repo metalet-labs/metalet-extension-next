@@ -4,6 +4,7 @@ import { PageResult } from './types'
 import { Ref, ComputedRef } from 'vue'
 import { metaletApiV3 } from './request'
 import { fetchBtcTxHex } from './transaction'
+import { fetchDogeTxHex } from './doge/utxos'
 import { COMMON_INTERVAL } from './constants'
 import { getNet, network } from '@/lib/network'
 import { type MRC20Asset } from '@/data/assets'
@@ -83,6 +84,8 @@ interface MRC20Info {
   tokenName: string
   unsafeAmount: string
   unsafeBalance: string
+  pendingInBalance: string
+  pendingOutBalance: string
   deployAddress: string
   deployUserInfo: {
     name: string
@@ -91,7 +94,7 @@ interface MRC20Info {
   tag: 'id-coins' | string
 }
 
-export async function getMRC20Utxos(address: string, tickId: string, needRawTx = false) {
+export async function getMRC20Utxos(address: string, tickId: string, needRawTx = false, chain: 'btc' | 'doge' = 'btc') {
   const net = getNet()
   const { list: mrc20Utxos } = await metaletApiV3<{
     total: number
@@ -100,11 +103,15 @@ export async function getMRC20Utxos(address: string, tickId: string, needRawTx =
     net,
     address,
     tickId,
+    source: 'mrc20-v2',
   })
 
   if (needRawTx) {
     for (let utxo of mrc20Utxos) {
-      utxo.rawTx = await fetchBtcTxHex(utxo.txId)
+      // 根据链类型使用不同的接口获取 rawTx
+      utxo.rawTx = chain === 'doge' 
+        ? await fetchDogeTxHex(utxo.txId)
+        : await fetchBtcTxHex(utxo.txId)
     }
   }
   return mrc20Utxos
@@ -122,6 +129,7 @@ export async function fetchMRC20List(
     address,
     cursor: cursor.toString(),
     size: size.toString(),
+    source: 'mrc20-v2',
   })
 
   const mrc20Assets = list.map((data) => ({
@@ -135,6 +143,8 @@ export async function fetchMRC20List(
       confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
       unconfirmed: new Decimal(data.unsafeBalance).mul(10 ** Number(data.decimals)),
       total: new Decimal(data.balance).add(data.unsafeBalance).mul(10 ** Number(data.decimals)),
+      pendingIn: new Decimal(data.pendingInBalance || '0').mul(10 ** Number(data.decimals)),
+      pendingOut: new Decimal(data.pendingOutBalance || '0').mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
     contract: CoinCategory.MRC20,
@@ -166,6 +176,7 @@ export async function fetchMRC20Detail(address: string, tickId: string): Promise
     net,
     address,
     tickId,
+    source: 'mrc20-v2',
   })
 
   if (!data) {
@@ -183,11 +194,13 @@ export async function fetchMRC20Detail(address: string, tickId: string): Promise
       confirmed: new Decimal(data.balance).mul(10 ** Number(data.decimals)),
       unconfirmed: new Decimal(data.unsafeBalance).mul(10 ** Number(data.decimals)),
       total: new Decimal(data.balance).add(data.unsafeBalance).mul(10 ** Number(data.decimals)),
+      pendingIn: new Decimal(data.pendingInBalance || '0').mul(10 ** Number(data.decimals)),
+      pendingOut: new Decimal(data.pendingOutBalance || '0').mul(10 ** Number(data.decimals)),
     },
     mrc20Id: data.mrc20Id,
     deployAddress: data.deployAddress,
-    deployName: data.deployUserInfo.name,
-    deployAvatar: data.deployUserInfo.avatar,
+    deployName: data.deployUserInfo?.name,
+    deployAvatar: data.deployUserInfo?.avatar,
     contract: CoinCategory.MRC20,
     icon:
       data?.metaData && JSON.parse(data.metaData).icon

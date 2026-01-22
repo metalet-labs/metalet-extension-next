@@ -36,6 +36,8 @@ export default {
     Receiver: '接收者',
     Amount: '金额',
     Pending: '待处理',
+    PendingIn: '待转入',
+    PendingOut: '待转出',
     Transferable: '可转账',
     NoTransactionsFound: '暂无交易记录',
     Available: '可用',

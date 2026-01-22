@@ -6,6 +6,11 @@ export interface Balance {
   unconfirmed: Decimal
 }
 
+export interface MRC20Balance extends Balance {
+  pendingIn: Decimal
+  pendingOut: Decimal
+}
+
 export interface BTCBalanceV2 extends Balance {
   safeBalance: Decimal
 }

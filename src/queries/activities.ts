@@ -123,13 +123,14 @@ interface MRC20Activity {
   height: number
 }
 
-export const fetchMRC20Activities = async (address: string, tickId: string): Promise<Activities> => {
+export const fetchMRC20Activities = async (address: string, tickId: string, source?: string): Promise<Activities> => {
   const net = getNet()
   return metaletApiV3<PageResult<MRC20Activity>>(`/mrc20/address/activities`)
     .get({
       net,
       tickId,
       address,
+      ...(source ? { source } : {}),
     })
     .then((data) => data.list)
     .then((activities) => {
@@ -189,9 +190,9 @@ export const fetchTokenActivities = async (address: string, asset: MetaContractA
   return list.map((item) => ({ ...item, time: item.time * 1000 }))
 }
 
-export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean> }) => {
+export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean>; source?: Ref<string> }) => {
   return useQuery({
-    queryKey: ['activities', { address, symbol: asset.symbol, genesis: (asset as MetaContractAsset).genesis }],
+    queryKey: ['activities', { address, symbol: asset.symbol, genesis: (asset as MetaContractAsset).genesis, source: options?.source }],
     queryFn: async () => {
       if (asset.symbol === 'BTC') {
         return fetchBtcActivities(address.value)
@@ -204,7 +205,7 @@ export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?:
       } else if (asset.contract === CoinCategory.MetaContract) {
         return fetchTokenActivities(address.value, asset as MetaContractAsset)
       } else if (asset.contract === CoinCategory.MRC20) {
-        return fetchMRC20Activities(address.value, (asset as MRC20Asset).mrc20Id)
+        return fetchMRC20Activities(address.value, (asset as MRC20Asset).mrc20Id, options?.source?.value)
       } else {
         return []
       }

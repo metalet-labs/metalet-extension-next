@@ -2,7 +2,7 @@ import { TokenTransfer } from '@/queries/brc20'
 import { SymbolTicker } from '@/lib/asset-symbol'
 import { Protocol } from './../lib/types/protocol'
 import { CoinCategory } from '@/queries/exchange-rates'
-import { Balance, BRC20Balance } from '@/queries/types/balance'
+import { Balance, BRC20Balance, MRC20Balance } from '@/queries/types/balance'
 
 export interface Asset {
   symbol: SymbolTicker
@@ -34,6 +34,7 @@ export interface MRC20Asset extends Asset {
   deployAddress: string
   deployName: string
   deployAvatar: string
+  balance?: MRC20Balance
 }
 
 export interface MetaContractAsset extends Asset {

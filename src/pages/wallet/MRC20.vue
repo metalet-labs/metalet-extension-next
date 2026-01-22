@@ -47,21 +47,54 @@ const currentChainAddress = computed(() => {
   }
 })
 
-const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
-  enabled: computed(() => !!address.value && !!mrc20Id.value),
+// 查询 BTC 链上的 MRC20 详情
+const { data: btcAsset } = useMRC20DetailQuery(computed(() => btcAddress.value), mrc20Id, {
+  enabled: computed(() => !!btcAddress.value && !!mrc20Id.value),
 })
 
-// 各链 MRC20 数量（目前只有 btc 有数据，其他链默认为 0）
+// 查询 DOGE 链上的 MRC20 详情
+const { data: dogeAsset } = useMRC20DetailQuery(computed(() => dogeAddress.value), mrc20Id, {
+  enabled: computed(() => !!dogeAddress.value && !!mrc20Id.value),
+})
+
+// 合并后的资产信息（用于显示 token 基本信息）
+const asset = computed(() => btcAsset.value || dogeAsset.value)
+
+// 各链 MRC20 数量
 const chainBalances = computed(() => ({
-  btc: asset.value?.balance?.total.toNumber() || 0,
-  doge: 0, // 接口暂不支持
+  btc: btcAsset.value?.balance?.total.toNumber() || 0,
+  doge: dogeAsset.value?.balance?.total.toNumber() || 0,
   mvc: 0,  // 接口暂不支持
 }))
 
-const balance = computed(() => {
-  if (asset.value?.balance) {
-    return asset.value.balance.total.toNumber()
+// 合并后的总余额
+const mergedBalance = computed(() => {
+  const btcBalance = btcAsset.value?.balance
+  const dogeBalance = dogeAsset.value?.balance
+  
+  if (!btcBalance && !dogeBalance) return null
+  
+  const decimal = asset.value?.decimal || 0
+  
+  return {
+    confirmed: (btcBalance?.confirmed || new Decimal(0)).add(dogeBalance?.confirmed || new Decimal(0)),
+    unconfirmed: (btcBalance?.unconfirmed || new Decimal(0)).add(dogeBalance?.unconfirmed || new Decimal(0)),
+    total: (btcBalance?.total || new Decimal(0)).add(dogeBalance?.total || new Decimal(0)),
+    pendingIn: (btcBalance?.pendingIn || new Decimal(0)).add(dogeBalance?.pendingIn || new Decimal(0)),
+    pendingOut: (btcBalance?.pendingOut || new Decimal(0)).add(dogeBalance?.pendingOut || new Decimal(0)),
   }
+})
+
+const balance = computed(() => {
+  return mergedBalance.value?.total.toNumber()
+})
+
+// 包含 pending 的总余额（confirmed + pendingIn - pendingOut）
+const displayBalance = computed(() => {
+  if (!mergedBalance.value) return null
+  return mergedBalance.value.confirmed
+    .add(mergedBalance.value.pendingIn || new Decimal(0))
+    .sub(mergedBalance.value.pendingOut || new Decimal(0))
 })
 
 // 当前链的余额
@@ -78,8 +111,8 @@ const { data: exchangeRate } = useExchangeRatesQuery(ref(`${mrc20Id.value}/${sym
 
 const assetUSD = computed(() => {
   const usdRate = new Decimal(exchangeRate.value?.price || 0)
-  if (asset.value?.balance) {
-    const balanceInStandardUnit = asset.value.balance.total.dividedBy(10 ** asset.value.decimal)
+  if (mergedBalance.value && asset.value) {
+    const balanceInStandardUnit = mergedBalance.value.total.dividedBy(10 ** asset.value.decimal)
     return usdRate.mul(balanceInStandardUnit)
   }
 })
@@ -101,8 +134,11 @@ const toSend = () => {
     name: 'SendMRC20',
     params: {
       mrc20Id: mrc20Id.value,
-      address: address.value,
+      address: currentChainAddress.value,
       name: asset.value!.tokenName,
+    },
+    query: {
+      chain: activeChain.value,
     },
   })
 }
@@ -139,19 +175,39 @@ const formatChainBalance = (chain: SupportedChain) => {
   return calcBalance(bal, asset.value.decimal, '')
 }
 
-// 支持的链列表
-const supportedChains: SupportedChain[] = ['btc', 'doge', 'mvc']
+// 获取各链的 pending 余额
+const getChainPending = (chain: SupportedChain) => {
+  const assetData = chain === 'btc' ? btcAsset.value : chain === 'doge' ? dogeAsset.value : null
+  if (!assetData?.balance || !asset.value) {
+    return { pendingIn: '', pendingOut: '' }
+  }
+  const decimal = asset.value.decimal
+  const pendingIn = assetData.balance.pendingIn?.toNumber() || 0
+  const pendingOut = assetData.balance.pendingOut?.toNumber() || 0
+  return {
+    pendingIn: pendingIn ? calcBalance(pendingIn, decimal, '') : '',
+    pendingOut: pendingOut ? calcBalance(pendingOut, decimal, '') : '',
+  }
+}
+
+// 支持的链列表（MVC 暂不支持 mrc20-v2，暂时禁用）
+const supportedChains: SupportedChain[] = ['btc', 'doge']
+
+// 当前链的 source 参数（用于 activities 接口）
+const currentSource = computed(() => {
+  return activeChain.value === 'doge' ? 'mrc20-v2' : undefined
+})
 </script>
 
 <template>
   <div class="flex flex-col items-center space-y-6 w-full">
     <!-- Token 信息头部 - 横向排列 -->
     <div class="flex items-center justify-center gap-x-4 w-full">
-      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" type="network" class="w-12" logoSize="size-5" />
+      <AssetLogo :logo="logo" :chain="Chain.BTC" :symbol="symbol" class="w-12" logoSize="size-5" />
       <div class="flex flex-col">
         <div class="text-xl font-medium">
-          <span v-if="asset?.balance" class="break-all">
-            {{ calcBalance(asset.balance.confirmed.toNumber(), asset.decimal, '') }}
+          <span v-if="displayBalance" class="break-all">
+            {{ calcBalance(displayBalance.toNumber(), asset?.decimal || 0, '') }}
           </span>
           <span v-else>--</span>
           <span class="text-gray-primary ml-1">{{ symbol }}</span>
@@ -185,9 +241,17 @@ const supportedChains: SupportedChain[] = ['btc', 'doge', 'mvc']
       >
         <div class="flex flex-col items-center">
           <span class="uppercase">{{ chain }}</span>
-          <span class="text-xs mt-0.5" :class="activeChain === chain ? 'text-blue-100' : 'text-gray-400'">
-            {{ formatChainBalance(chain) }}
-          </span>
+          <div class="flex items-center gap-x-1 text-xs mt-0.5" :class="activeChain === chain ? 'text-blue-100' : 'text-gray-400'">
+            <span>{{ formatChainBalance(chain) }}</span>
+            <span v-if="getChainPending(chain).pendingIn" 
+                  :class="activeChain === chain ? 'text-green-200' : 'text-green-500'">
+              +{{ getChainPending(chain).pendingIn }}
+            </span>
+            <span v-if="getChainPending(chain).pendingOut" 
+                  :class="activeChain === chain ? 'text-orange-200' : 'text-orange-500'">
+              -{{ getChainPending(chain).pendingOut }}
+            </span>
+          </div>
         </div>
       </button>
     </div>
@@ -262,7 +326,8 @@ const supportedChains: SupportedChain[] = ['btc', 'doge', 'mvc']
         :asset="asset"
         :exchangeRate="0"
         :icon="asset.icon"
-        :address="address"
+        :address="currentChainAddress"
+        :source="currentSource"
         :coinCategory="CoinCategory.MRC20"
       />
       <LoadingText text="Activities Loading..." v-else />

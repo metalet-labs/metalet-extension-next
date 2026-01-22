@@ -73,11 +73,34 @@ const { isLoading: isExchangeRateLoading, data: exchangeRate } = useExchangeRate
 
 const assetPrice = computed(() => {
   if (asset.value?.balance) {
+    // 对于 MRC20，使用 confirmed + pendingIn - pendingOut
+    if (coinCategory.value === CoinCategory.MRC20) {
+      const mrc20Balance = asset.value.balance as any
+      const displayBalance = mrc20Balance.confirmed
+        .add(mrc20Balance.pendingIn || new Decimal(0))
+        .sub(mrc20Balance.pendingOut || new Decimal(0))
+      return `${displayBalance.dividedBy(10 ** asset.value.decimal).toFixed()} ${asset.value.symbol}`
+    }
     return `${asset.value.balance.total.dividedBy(10 ** asset.value.decimal).toFixed()} ${asset.value.symbol}`
   } else if (balance.value) {
     return `${balance.value.total.dividedBy(10 ** asset.value.decimal).toFixed()} ${asset.value.symbol}`
   }
   return `-- ${asset.value.symbol}`
+})
+
+// 获取 MRC20 的 pending 余额用于显示
+const mrc20Pending = computed(() => {
+  if (coinCategory.value !== CoinCategory.MRC20 || !asset.value?.balance) {
+    return { pendingIn: '', pendingOut: '' }
+  }
+  const mrc20Balance = asset.value.balance as any
+  const decimal = asset.value.decimal
+  const pendingIn = mrc20Balance.pendingIn?.toNumber() || 0
+  const pendingOut = mrc20Balance.pendingOut?.toNumber() || 0
+  return {
+    pendingIn: pendingIn ? new Decimal(pendingIn).dividedBy(10 ** decimal).toFixed() : '',
+    pendingOut: pendingOut ? new Decimal(pendingOut).dividedBy(10 ** decimal).toFixed() : '',
+  }
 })
 
 const loading = computed(() => isBalanceLoading.value && isExchangeRateLoading.value)
@@ -112,7 +135,7 @@ watch(
     <div class="flex gap-2 cursor-pointer items-center justify-between rounded-full py-3">
       <div class="flex flex-shrink-0 items-center gap-x-3">
         <AssetLogo :chain="asset.chain" logo-size="size-4" class="size-10" :symbol="asset.symbol" :logo="icon"
-          :type="asset.isNative ? undefined : 'network'" />
+          :type="asset.isNative || coinCategory === CoinCategory.MRC20 ? undefined : 'network'" />
         <div class="flex flex-col gap-y-1 items-start">
           <div :title="asset.tokenName" class="flex items-center gap-x-0.5 text-base">
             <span :title="asset.tokenName"
@@ -132,8 +155,10 @@ watch(
 
       <div class="flex grow overflow-hidden flex-col items-end text-xs gap-y-1">
         <div class="w-full flex flex-col items-end">
-          <div class="text-black-primary text-sm truncate max-w-full" :title="assetPrice">
-            {{ assetPrice }}
+          <div class="flex items-center gap-x-1 text-black-primary text-sm truncate max-w-full" :title="assetPrice">
+            <span>{{ assetPrice }}</span>
+            <span v-if="mrc20Pending.pendingIn" class="text-green-500 text-xs">+{{ mrc20Pending.pendingIn }}</span>
+            <span v-if="mrc20Pending.pendingOut" class="text-orange-500 text-xs">-{{ mrc20Pending.pendingOut }}</span>
           </div>
           <div class="text-xs text-gray-primary">
             <span v-if="assetUSD">
@@ -162,7 +187,7 @@ watch(
         <span class="text-[#909399]">{{ $t('Common.Pending') }}</span>
       </div>
     </div>
-    <div v-else-if="asset?.contract === CoinCategory.MRC20 && asset.balance?.unconfirmed.toNumber()"
+    <div v-else-if="asset?.contract === CoinCategory.MRC20 && (asset.balance?.unconfirmed.toNumber() || (asset as MRC20Asset).balance?.pendingIn?.toNumber() || (asset as MRC20Asset).balance?.pendingOut?.toNumber())"
       class="w-full flex items-center justify-around bg-[#F9FBFC] py-3 rounded-lg">
       <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">
@@ -170,11 +195,23 @@ watch(
         </span>
         <span class="text-[#909399]">{{ $t('Common.Confirmed') }}</span>
       </div>
-      <div class="text-xs flex flex-col gap-1 items-center justify-between w-full">
+      <div v-if="asset.balance?.unconfirmed.toNumber()" class="text-xs flex flex-col gap-1 items-center justify-between w-full">
         <span class="text-black-primary truncate">
           {{ asset.balance?.unconfirmed.dividedBy(10 ** asset.decimal).toNumber() }}
         </span>
         <span class="text-[#909399]">{{ $t('Common.Unconfirmed') }}</span>
+      </div>
+      <div v-if="(asset as MRC20Asset).balance?.pendingIn?.toNumber()" class="text-xs flex flex-col gap-1 items-center justify-between w-full">
+        <span class="text-green-500 truncate">
+          +{{ (asset as MRC20Asset).balance?.pendingIn?.dividedBy(10 ** asset.decimal).toNumber() }}
+        </span>
+        <span class="text-[#909399]">{{ $t('Common.PendingIn') }}</span>
+      </div>
+      <div v-if="(asset as MRC20Asset).balance?.pendingOut?.toNumber()" class="text-xs flex flex-col gap-1 items-center justify-between w-full">
+        <span class="text-orange-500 truncate">
+          -{{ (asset as MRC20Asset).balance?.pendingOut?.dividedBy(10 ** asset.decimal).toNumber() }}
+        </span>
+        <span class="text-[#909399]">{{ $t('Common.PendingOut') }}</span>
       </div>
     </div>
   </div>

@@ -36,6 +36,8 @@ export default {
     Receiver: 'Receiver',
     Amount: 'Amount',
     Pending: 'Pending',
+    PendingIn: 'Pending In',
+    PendingOut: 'Pending Out',
     Transferable: 'Transferable',
     NoTransactionsFound: 'No transactions found',
     Available: 'Available',

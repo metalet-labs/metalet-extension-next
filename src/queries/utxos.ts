@@ -164,6 +164,7 @@ export async function getMRC20Utxos(address: string, mrc20TickId: string, needRa
     net,
     address,
     tickId: mrc20TickId,
+    source: 'mrc20-v2',
   })
 
   if (needRawTx) {

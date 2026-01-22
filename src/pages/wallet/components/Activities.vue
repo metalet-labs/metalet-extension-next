@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, toRef } from 'vue'
 import { type Asset } from '@/data/assets'
 import { LoadingText } from '@/components'
 import ActivityItem from './ActivityItem.vue'
@@ -13,12 +13,14 @@ const props = defineProps<{
   address: string
   exchangeRate?: number
   coinCategory: CoinCategory
+  source?: string
 }>()
 
 const address = computed(() => props.address)
+const source = toRef(props, 'source')
 const enabled = computed(() => !!address.value)
 
-const { isLoading, data: activities } = useActivitiesQuery(address, props.asset, { enabled })
+const { isLoading, data: activities } = useActivitiesQuery(address, props.asset, { enabled, source })
 </script>
 
 <template>

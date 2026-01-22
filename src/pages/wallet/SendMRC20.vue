@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 import { getTags } from '@/data/assets'
 import { addSafeUtxo } from '@/lib/utxo'
 import { getBtcUtxos } from '@/queries/utxos'
+import { fetchDogeUtxos, broadcastDogeTx } from '@/queries/doge'
 import { transferToNumber } from '@/lib/helpers'
 import { useRoute, useRouter } from 'vue-router'
 import { useIconsStore } from '@/stores/IconsStore'
@@ -15,8 +16,8 @@ import type { TransactionResult } from '@/global-types'
 import { useChainWalletsStore } from '@/stores/ChainWalletsStore'
 import { useMRC20DetailQuery, getMRC20Utxos } from '@/queries/mrc20'
 import TransactionResultModal from './components/TransactionResultModal.vue'
-import { AssetLogo, Divider, FlexBox, FeeRateSelector, Button, LoadingText } from '@/components'
-import { ScriptType, SignType, Transaction, getAddressFromScript } from '@metalet/utxo-wallet-service'
+import { AssetLogo, Divider, FlexBox, FeeRateSelector, DOGEFeeRateSelector, Button, LoadingText } from '@/components'
+import { ScriptType, SignType, Transaction, getAddressFromScript, Chain } from '@metalet/utxo-wallet-service'
 import { Drawer, DrawerClose, DrawerContent, DrawerFooter, DrawerHeader } from '@/components/ui/drawer'
 
 const route = useRoute()
@@ -34,14 +35,23 @@ const tags = getTags(CoinCategory.MRC20)
 const mrc20Id = ref(route.params.mrc20Id as string)
 const address = ref(route.params.address as string)
 
+// 获取链类型：btc 或 doge
+type SupportedChain = 'btc' | 'doge'
+const chain = computed<SupportedChain>(() => (route.query.chain as SupportedChain) || 'btc')
+
 const { getIcon } = useIconsStore()
-const logo = computed(() => getIcon(CoinCategory.MRC20, mrc20Id.value) || '')
+const logo = computed(() => asset.value?.icon || getIcon(CoinCategory.MRC20, mrc20Id.value) || '')
 
 const { data: asset } = useMRC20DetailQuery(address, mrc20Id, {
   enabled: computed(() => !!address.value && !!mrc20Id.value),
 })
 
-const { currentBTCWallet } = useChainWalletsStore()
+const { currentBTCWallet, currentDOGEWallet } = useChainWalletsStore()
+
+// 根据链类型获取当前钱包
+const currentWallet = computed(() => {
+  return chain.value === 'doge' ? currentDOGEWallet.value : currentBTCWallet.value
+})
 
 const amount = ref<string>()
 
@@ -120,7 +130,7 @@ const popConfirm = async () => {
     return
   }
   operationLock.value = true
-  if (address.value !== currentBTCWallet.value!.getAddress()) {
+  if (address.value !== currentWallet.value!.getAddress()) {
     transactionResult.value = {
       status: 'warning',
       message: 'You are not the owner of this address.',
@@ -130,31 +140,60 @@ const popConfirm = async () => {
     return
   }
   try {
-    const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
-    const utxos = await getBtcUtxos(address.value, needRawTx, true)
-    const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, needRawTx)
+    if (chain.value === 'doge') {
+      // DOGE MRC20 Transfer
+      const utxos = await fetchDogeUtxos(address.value, true)
+      const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, true, 'doge')
 
-    const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_TRANSFER, {
-      utxos,
-      amount: new Decimal(amount.value).toFixed(),
-      flag: 'metaid',
-      commitFeeRate: currentRateFee.value,
-      revealFeeRate: currentRateFee.value,
-      mrc20Utxos,
-      body: JSON.stringify([
-        {
-          vout: 1,
-          id: mrc20Id.value,
-          amount: new Decimal(amount.value).toFixed(),
-        },
-      ]),
-      revealAddr: recipient.value,
-    })
+      const { commitTx, revealTx } = currentDOGEWallet.value!.signTx(SignType.MRC20_TRANSFER, {
+        utxos,
+        amount: new Decimal(amount.value).toFixed(),
+        flag: 'metaid',
+        commitFeeRate: currentRateFee.value,
+        revealFeeRate: currentRateFee.value,
+        mrc20Utxos,
+        body: JSON.stringify([
+          {
+            vout: 1,
+            id: mrc20Id.value,
+            amount: new Decimal(amount.value).toFixed(),
+          },
+        ]),
+        revealAddr: recipient.value,
+      })
 
-    commitTxHex.value = commitTx.rawTx
-    revealTxHex.value = revealTx.rawTx
-    totalFee.value = Number(commitTx.fee) + Number(revealTx.fee)
-    isOpenConfirmModal.value = true
+      commitTxHex.value = commitTx.rawTx
+      revealTxHex.value = revealTx.rawTx
+      totalFee.value = Number(commitTx.fee) + Number(revealTx.fee)
+      isOpenConfirmModal.value = true
+    } else {
+      // BTC MRC20 Transfer
+      const needRawTx = currentBTCWallet.value!.getScriptType() === ScriptType.P2PKH
+      const utxos = await getBtcUtxos(address.value, needRawTx, true)
+      const mrc20Utxos = await getMRC20Utxos(address.value, asset.value!.mrc20Id, needRawTx, 'btc')
+
+      const { commitTx, revealTx } = currentBTCWallet.value!.signTx(SignType.MRC20_TRANSFER, {
+        utxos,
+        amount: new Decimal(amount.value).toFixed(),
+        flag: 'metaid',
+        commitFeeRate: currentRateFee.value,
+        revealFeeRate: currentRateFee.value,
+        mrc20Utxos,
+        body: JSON.stringify([
+          {
+            vout: 1,
+            id: mrc20Id.value,
+            amount: new Decimal(amount.value).toFixed(),
+          },
+        ]),
+        revealAddr: recipient.value,
+      })
+
+      commitTxHex.value = commitTx.rawTx
+      revealTxHex.value = revealTx.rawTx
+      totalFee.value = Number(commitTx.fee) + Number(revealTx.fee)
+      isOpenConfirmModal.value = true
+    }
   } catch (error) {
     console.error('Error in BTC transaction:', error)
     transactionResult.value = {
@@ -214,12 +253,47 @@ async function sendBTC() {
   }
 }
 
+async function sendDOGE() {
+  if (commitTxHex.value && revealTxHex.value) {
+    const commitTxId = await broadcastDogeTx(commitTxHex.value).catch((err: Error) => {
+      isOpenConfirmModal.value = false
+      transactionResult.value = {
+        status: 'failed',
+        message: err.message,
+      }
+      isOpenResultModal.value = true
+      operationLock.value = false
+      throw err
+    })
+
+    const revealTxId = await broadcastDogeTx(revealTxHex.value).catch((err: Error) => {
+      isOpenConfirmModal.value = false
+      transactionResult.value = {
+        status: 'failed',
+        message: err.message,
+      }
+      isOpenResultModal.value = true
+      operationLock.value = false
+      throw err
+    })
+
+    return { commitTxId, revealTxId }
+  } else {
+    isOpenConfirmModal.value = false
+    transactionResult.value = {
+      status: 'failed',
+      message: 'No Psbt',
+    }
+    isOpenResultModal.value = true
+  }
+}
+
 async function send() {
   if (operationLock.value) return
 
   operationLock.value = true
 
-  const sendProcessor = sendBTC
+  const sendProcessor = chain.value === 'doge' ? sendDOGE : sendBTC
   const sendRes = await sendProcessor()
   if (!sendRes || !sendRes.revealTxId) {
     transactionResult.value = {
@@ -236,7 +310,7 @@ async function send() {
     name: 'SendSuccess',
     params: {
       txId: sendRes.revealTxId,
-      chain: 'btc',
+      chain: chain.value,
       symbol: asset.value!.symbol,
       amount: amount.value,
       address: recipient.value,
@@ -255,7 +329,7 @@ async function send() {
         <AssetLogo
           :logo="logo"
           :symbol="asset.symbol"
-          :chain="asset.chain"
+          :chain="chain"
           type="network"
           class="w-15"
           logo-size="size-6"
@@ -321,7 +395,8 @@ async function send() {
       /> -->
     </div>
 
-    <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="asset.chain === 'btc'" />
+    <FeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="chain === 'btc'" />
+    <DOGEFeeRateSelector class="w-full" v-model:currentRateFee="currentRateFee" v-if="chain === 'doge'" />
 
     <Button
       type="primary"
@@ -343,7 +418,7 @@ async function send() {
       <DrawerContent class="bg-white">
         <DrawerHeader>
           <FlexBox d="col" ai="center" :gap="4">
-            <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="asset.chain" type="network" class="w-15" />
+            <AssetLogo :logo="logo" :symbol="asset.symbol" :chain="chain" type="network" class="w-15" />
             <div class="text-base">{{ transferToNumber(amount || 0) }} {{ asset.symbol }}</div>
           </FlexBox>
         </DrawerHeader>
@@ -363,7 +438,7 @@ async function send() {
           </FlexBox>
           <FlexBox ai="center" jc="between">
             <div class="text-gray-primary">{{ $t('Common.Fee') }} ({{ $t('Common.Estimated') }})</div>
-            <div>{{ prettifyBalanceFixed(totalFee, 'BTC', 8) }}</div>
+            <div>{{ prettifyBalanceFixed(totalFee, chain === 'doge' ? 'DOGE' : 'BTC', 8) }}</div>
           </FlexBox>
         </div>
         <DrawerFooter>
