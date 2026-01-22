@@ -17,7 +17,7 @@ const props = defineProps<{
 }>()
 
 const address = computed(() => props.address)
-const source = toRef(props, 'source')
+const source = computed(() => props.source)
 const enabled = computed(() => !!address.value)
 
 const { isLoading, data: activities } = useActivitiesQuery(address, props.asset, { enabled, source })

@@ -190,7 +190,7 @@ export const fetchTokenActivities = async (address: string, asset: MetaContractA
   return list.map((item) => ({ ...item, time: item.time * 1000 }))
 }
 
-export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean>; source?: Ref<string> }) => {
+export const useActivitiesQuery = (address: Ref<string>, asset: Asset, options?: { enabled: ComputedRef<boolean>; source?: Ref<string | undefined> }) => {
   return useQuery({
     queryKey: ['activities', { address, symbol: asset.symbol, genesis: (asset as MetaContractAsset).genesis, source: options?.source }],
     queryFn: async () => {

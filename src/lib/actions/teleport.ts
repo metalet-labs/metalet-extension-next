@@ -466,6 +466,8 @@ export async function teleportMRC20(params: TeleportMRC20Params): Promise<Telepo
         tokenName: '',
         unsafeAmount: '0',
         unsafeBalance: '0',
+        pendingInBalance: '0',
+        pendingOutBalance: '0',
         deployAddress: '',
         deployUserInfo: { name: '', avatar: '' },
         tag: '',
