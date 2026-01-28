@@ -135,6 +135,7 @@ export const fetchMRC20Activities = async (address: string, tickId: string, sour
     .then((data) => data.list)
     .then((activities) => {
       return activities.map((activity) => {
+        const amount = activity.amount || '0' // 处理空字符串
         return {
           flag: '',
           height: activity.height,
@@ -143,10 +144,10 @@ export const fetchMRC20Activities = async (address: string, tickId: string, sour
           time: Number(activity.timestamp * 1000),
           actionType: activity.txType === 2 ? 'Mint' : activity.txType === 3 ? 'Deploy' : '',
           income:
-            activity.to === address ? new Decimal(activity.amount).mul(10 ** Number(activity.decimals)).toNumber() : 0,
+            activity.to === address ? new Decimal(amount).mul(10 ** Number(activity.decimals)).toNumber() : 0,
           outcome:
             activity.from === address && activity.txType !== 2
-              ? new Decimal(activity.amount).mul(10 ** Number(activity.decimals)).toNumber()
+              ? new Decimal(amount).mul(10 ** Number(activity.decimals)).toNumber()
               : 0,
         }
       })
