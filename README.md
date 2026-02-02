@@ -750,6 +750,162 @@ console.log('Estimated Cost:', result.totalCost)
 
 ---
 
+# Utils APIs
+
+> Utility functions for cryptographic operations. Access via `window.metaidwallet.utils`
+>
+> These are **synchronous** functions that do NOT require wallet connection or popup authorization.
+
+## utils.encrypt
+
+AES encrypt a string using CBC mode with PKCS7 padding.
+
+### Parameters
+
+- `data` - `string`: The plaintext string to encrypt
+- `key` - `string`: The encryption key (16 characters recommended)
+
+### Response
+
+- `string`: Encrypted data in hex format
+
+### Example
+
+```tsx
+const encrypted = window.metaidwallet.utils.encrypt('hello world', 'e836d1b5d05a59c1')
+// Returns: "8a3b2c1d4e5f6789..." (hex string)
+```
+
+---
+
+## utils.decrypt
+
+AES decrypt a hex string using CBC mode with PKCS7 padding.
+
+### Parameters
+
+- `encryptedHex` - `string`: The encrypted data in hex format
+- `key` - `string`: The decryption key (must match the encryption key)
+
+### Response
+
+- `string`: Decrypted plaintext string
+
+### Example
+
+```tsx
+const decrypted = window.metaidwallet.utils.decrypt('8a3b2c1d4e5f6789...', 'e836d1b5d05a59c1')
+// Returns: "hello world"
+```
+
+---
+
+## utils.sha256
+
+Calculate SHA256 hash of a string.
+
+### Parameters
+
+- `data` - `string`: The data to hash
+
+### Response
+
+- `string`: Hash in hex format
+
+### Example
+
+```tsx
+const hash = window.metaidwallet.utils.sha256('hello')
+// Returns: "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+```
+
+---
+
+## utils.md5
+
+Calculate MD5 hash of a string.
+
+### Parameters
+
+- `data` - `string`: The data to hash
+
+### Response
+
+- `string`: Hash in hex format
+
+### Example
+
+```tsx
+const hash = window.metaidwallet.utils.md5('hello')
+// Returns: "5d41402abc4b2a76b9719d911017c592"
+```
+
+---
+
+## utils.base64Encode
+
+Encode a string to Base64.
+
+### Parameters
+
+- `data` - `string`: The string to encode
+
+### Response
+
+- `string`: Base64 encoded string
+
+### Example
+
+```tsx
+const encoded = window.metaidwallet.utils.base64Encode('hello')
+// Returns: "aGVsbG8="
+```
+
+---
+
+## utils.base64Decode
+
+Decode a Base64 string.
+
+### Parameters
+
+- `data` - `string`: The Base64 string to decode
+
+### Response
+
+- `string`: Decoded string
+
+### Example
+
+```tsx
+const decoded = window.metaidwallet.utils.base64Decode('aGVsbG8=')
+// Returns: "hello"
+```
+
+---
+
+## utils.hmacSha256
+
+Calculate HMAC-SHA256 signature.
+
+### Parameters
+
+- `data` - `string`: The data to sign
+- `key` - `string`: The secret key
+
+### Response
+
+- `string`: HMAC signature in hex format
+
+### Example
+
+```tsx
+const signature = window.metaidwallet.utils.hmacSha256('hello', 'secret')
+// Returns: "88aab3ede8d3adf94d26ab90d3bafd4a2083070c3bcce9c014ee04a443847c0b"
+```
+
+---
+
 # BTC APIs
 
 > BTC chain specific APIs. Access via `window.metaidwallet.btc`
