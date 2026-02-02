@@ -40,6 +40,9 @@ import { btcKeys, dogeKeys, createAction, ActionType, on, removeListener } from 
 // Import package.json to get version
 import packageInfo from '../../package.json'
 
+// Import utils for crypto functions
+import utils from './utils'
+
 type Metalet = {
   ping: any
   connect: any
@@ -95,6 +98,19 @@ type Metalet = {
     getPublicKey: any
     getUtxos: any
     inscribe: any
+  }
+
+  // utils for crypto functions (no wallet account required)
+  utils: {
+    encrypt: (data: string, key: string) => string
+    decrypt: (encryptedData: string, key: string) => string
+    encryptAesCBC: (data: string, key: string, iv?: string) => string
+    decryptAesCBC: (encryptedData: string, key: string, iv?: string) => string
+    sha256: (data: string) => string
+    md5: (data: string) => string
+    base64Encode: (data: string) => string
+    base64Decode: (data: string) => string
+    hmacSha256: (data: string, key: string) => string
   }
 
   // Deprecating
@@ -154,6 +170,9 @@ const metalet: any = {
 
   doge: {},
 
+  // utils for crypto functions (no wallet account required)
+  utils: {},
+
   // event
   on,
   removeListener,
@@ -184,5 +203,8 @@ Object.keys(dogeKeys).forEach((type) => {
     }
   })
 })
+
+// Add utils methods (sync, no popup, no wallet account required)
+metalet.utils = utils
 
 window.metaidwallet = metalet
