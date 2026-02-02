@@ -29,6 +29,7 @@ import * as TransferNFT from '../lib/actions/transfer-nft'
 
 // DOGE
 import * as DogeInscribe from '../lib/actions/doge/inscribe'
+import * as SignDOGEMessage from '../lib/actions/doge/sign-message'
 
 // Common
 import * as OmniConnect from '../lib/actions/common/omniConnect'
@@ -270,6 +271,14 @@ export default {
     title: 'DOGE Inscribe',
     description: 'Create MetaID Pin on Dogecoin',
     process: DogeInscribe.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  SignDOGEMessage: {
+    name: 'Sign DOGE Message',
+    title: 'Signature request',
+    description: 'Only sign this message if you fully understand the content and trust the requesting site.',
+    process: SignDOGEMessage.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

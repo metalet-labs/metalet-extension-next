@@ -330,6 +330,7 @@ export const dogeKeys: Omit<Keys, 'event'> = {
   ],
   authorize: [
     { name: 'inscribe', action: 'DogeInscribe' },
+    { name: 'signMessage', action: 'SignDOGEMessage' },
   ],
   inscribe: [],
 }
