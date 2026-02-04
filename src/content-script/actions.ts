@@ -331,6 +331,7 @@ export const dogeKeys: Omit<Keys, 'event'> = {
   authorize: [
     { name: 'inscribe', action: 'DogeInscribe' },
     { name: 'signMessage', action: 'SignDOGEMessage' },
+    { name: 'signPsbt', action: 'SignDOGEPsbt' },
   ],
   inscribe: [],
 }

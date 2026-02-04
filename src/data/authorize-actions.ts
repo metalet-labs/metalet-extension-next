@@ -30,6 +30,7 @@ import * as TransferNFT from '../lib/actions/transfer-nft'
 // DOGE
 import * as DogeInscribe from '../lib/actions/doge/inscribe'
 import * as SignDOGEMessage from '../lib/actions/doge/sign-message'
+import * as SignDOGEPsbt from '../lib/actions/doge/sign-psbt'
 
 // Common
 import * as OmniConnect from '../lib/actions/common/omniConnect'
@@ -279,6 +280,14 @@ export default {
     title: 'Signature request',
     description: 'Only sign this message if you fully understand the content and trust the requesting site.',
     process: SignDOGEMessage.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  SignDOGEPsbt: {
+    name: 'SignDOGEPsbt',
+    title: 'Sign Psbt',
+    description: ['A third party app is requesting to sign the PSBT.'],
+    process: SignDOGEPsbt.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },
