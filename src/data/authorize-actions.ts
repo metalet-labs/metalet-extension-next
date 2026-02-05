@@ -31,6 +31,7 @@ import * as TransferNFT from '../lib/actions/transfer-nft'
 import * as DogeInscribe from '../lib/actions/doge/inscribe'
 import * as SignDOGEMessage from '../lib/actions/doge/sign-message'
 import * as SignDOGEPsbt from '../lib/actions/doge/sign-psbt'
+import * as DogeMRC20Transfer from '../lib/actions/doge/mrc20-transfer'
 
 // Common
 import * as OmniConnect from '../lib/actions/common/omniConnect'
@@ -288,6 +289,14 @@ export default {
     title: 'Sign Psbt',
     description: ['A third party app is requesting to sign the PSBT.'],
     process: SignDOGEPsbt.process,
+    estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  DogeMRC20Transfer: {
+    name: 'DogeMRC20Transfer',
+    title: 'DOGE MRC20 Transfer',
+    description: '',
+    process: DogeMRC20Transfer.process,
     estimate: doNothing,
     closeAfterProcess: true,
   },

@@ -332,6 +332,7 @@ export const dogeKeys: Omit<Keys, 'event'> = {
     { name: 'inscribe', action: 'DogeInscribe' },
     { name: 'signMessage', action: 'SignDOGEMessage' },
     { name: 'signPsbt', action: 'SignDOGEPsbt' },
+    { name: 'transferMRC20', action: 'DogeMRC20Transfer' },
   ],
   inscribe: [],
 }

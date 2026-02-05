@@ -26,6 +26,7 @@ import TransferToken from './TransferToken.vue'
 import SignBTCMessage from './SignBTCMessage.vue'
 import SignDOGEMessage from './SignDOGEMessage.vue'
 import SignDOGEPsbt from './SignDOGEPsbt.vue'
+import DogeMRC20Transfer from './DogeMRC20Transfer.vue'
 import { LinkIcon } from '@heroicons/vue/20/solid'
 import SignTransaction from './SignTransaction.vue'
 import { Chain } from '@metalet/utxo-wallet-service'
@@ -212,6 +213,7 @@ const cancelAction = async () => {
       <MRC20Mint v-if="actionName === 'MRC20Mint'" :params="params" />
       <MRC20Transfer v-if="actionName === 'MRC20Transfer'" :params="params" />
       <MRC20TransferWithInscribe v-if="actionName === 'MRC20TransferWithInscribe'" :params="params" />
+      <DogeMRC20Transfer v-if="actionName === 'DogeMRC20Transfer'" :params="params" />
     </div>
 
     <!-- buttons -->
