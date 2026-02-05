@@ -51,12 +51,44 @@ const currentFromAddress = computed(() => {
   }
 })
 
-// 获取 MRC20 详情
+// 获取 MRC20 详情（当前 from 链）
 const { data: asset } = useMRC20DetailQuery(
   computed(() => currentFromAddress.value),
   mrc20Id,
   { enabled: computed(() => !!currentFromAddress.value && !!mrc20Id.value) }
 )
+
+// 获取 BTC 链上的 MRC20 详情
+const { data: btcMRC20Asset } = useMRC20DetailQuery(
+  btcAddress,
+  mrc20Id,
+  { enabled: computed(() => !!btcAddress.value && !!mrc20Id.value) }
+)
+
+// 获取 DOGE 链上的 MRC20 详情
+const { data: dogeMRC20Asset } = useMRC20DetailQuery(
+  dogeAddress,
+  mrc20Id,
+  { enabled: computed(() => !!dogeAddress.value && !!mrc20Id.value) }
+)
+
+// From 链 token 余额
+const fromChainTokenBalance = computed(() => {
+  switch (fromChain.value) {
+    case 'btc': return btcMRC20Asset.value?.balance?.confirmed?.toNumber() || 0
+    case 'doge': return dogeMRC20Asset.value?.balance?.confirmed?.toNumber() || 0
+    default: return 0
+  }
+})
+
+// To 链 token 余额
+const toChainTokenBalance = computed(() => {
+  switch (toChain.value) {
+    case 'btc': return btcMRC20Asset.value?.balance?.confirmed?.toNumber() || 0
+    case 'doge': return dogeMRC20Asset.value?.balance?.confirmed?.toNumber() || 0
+    default: return 0
+  }
+})
 
 // 表单数据
 const amount = ref<string>('')
@@ -198,6 +230,7 @@ const executeTeleport = async () => {
       query: {
         genesis: mrc20Id.value,
         prepareTxId: prepareTxId || undefined,
+        icon: asset.value?.icon || undefined,
       },
     })
   } catch (error) {
@@ -306,6 +339,11 @@ const setMaxAmount = () => {
             v-else-if="fromChain === 'mvc'" 
             v-model:currentMVCRateFee="fromFeeRate" 
           />
+          <!-- From Chain Balance -->
+          <div class="flex items-center justify-between text-xs text-gray-500 mt-2">
+            <span>Balance</span>
+            <span>{{ prettifyBalanceFixed(fromChainTokenBalance, asset?.symbol || '', asset?.decimal || 0) }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -351,6 +389,11 @@ const setMaxAmount = () => {
             v-else-if="toChain === 'mvc'" 
             v-model:currentMVCRateFee="toFeeRate" 
           />
+          <!-- To Chain Balance -->
+          <div class="flex items-center justify-between text-xs text-gray-500 mt-2">
+            <span>Balance</span>
+            <span>{{ prettifyBalanceFixed(toChainTokenBalance, asset?.symbol || '', asset?.decimal || 0) }}</span>
+          </div>
         </div>
       </div>
     </div>

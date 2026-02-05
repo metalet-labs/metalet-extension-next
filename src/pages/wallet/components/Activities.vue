@@ -6,6 +6,7 @@ import ActivityItem from './ActivityItem.vue'
 import { CoinCategory } from '@/queries/exchange-rates'
 import { useActivitiesQuery } from '@/queries/activities'
 import NoActivitiesPNG from '@/assets/icons-v3/no_activities.png'
+import { Chain } from '@metalet/utxo-wallet-service'
 
 const props = defineProps<{
   asset: Asset
@@ -14,6 +15,7 @@ const props = defineProps<{
   exchangeRate?: number
   coinCategory: CoinCategory
   source?: string
+  chain?: Chain  // 可选，用于覆盖 asset.chain（如 MRC20 多链场景）
 }>()
 
 const address = computed(() => props.address)
@@ -35,6 +37,7 @@ const { isLoading, data: activities } = useActivitiesQuery(address, props.asset,
       :key="activity.txid"
       :activity="activity"
       :coinCategory="coinCategory"
+      :chain="chain"
       v-for="activity in activities"
     />
   </div>

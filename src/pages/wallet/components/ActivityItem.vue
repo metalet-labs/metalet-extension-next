@@ -14,6 +14,7 @@ import { CoinCategory } from '@/queries/exchange-rates'
 import { prettifyTimestamp, prettifyTxId } from '@/lib/formatters'
 import { useI18n } from 'vue-i18n'
 import DogeLogo from '@/assets/icons-v3/doge.svg?url'
+import { Chain as ServiceChain } from '@metalet/utxo-wallet-service'
 
 const { t } = useI18n()
 
@@ -22,6 +23,7 @@ const props = defineProps<{
   icon?: string
   activity: Activity
   coinCategory: CoinCategory
+  chain?: ServiceChain  // 可选，用于覆盖 asset.chain
 }>()
 
 const { getIcon } = useIconsStore()
@@ -102,7 +104,8 @@ const difference = computed(() => {
 
 const toActivityTx = async () => {
   const { txid } = props.activity
-  const chain = props.asset.chain as Chain
+  // 优先使用传入的 chain prop，否则使用 asset.chain
+  const chain = (props.chain || props.asset.chain) as Chain
   const host = await getBrowserHost(chain)
   toTx(txid, host as string)
 }

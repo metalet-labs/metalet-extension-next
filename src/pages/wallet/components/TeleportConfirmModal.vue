@@ -62,8 +62,8 @@ const formatFee = (chain: SupportedChain, fee: number) => {
 
 <template>
   <Drawer v-model:open="isOpen">
-    <DrawerContent class="bg-white">
-      <DrawerHeader class="pb-2">
+    <DrawerContent class="bg-white max-h-[85vh] overflow-y-auto">
+      <DrawerHeader class="pb-2 flex-shrink-0">
         <div class="text-center">
           <div class="text-lg font-medium">Confirm Teleport</div>
           <div class="text-sm text-gray-500 mt-1">
@@ -72,55 +72,55 @@ const formatFee = (chain: SupportedChain, fee: number) => {
         </div>
       </DrawerHeader>
       
-      <div class="px-4 pb-4">
+      <div class="px-4 pb-4 flex-1 overflow-y-auto">
         <!-- Token 信息 -->
-        <div class="flex items-center justify-center gap-3 py-4">
+        <div class="flex items-center justify-center gap-3 py-3">
           <AssetLogo
             :logo="asset.icon"
             :symbol="asset.symbol"
             :chain="fromChain"
             type="network"
-            class="w-12"
+            class="w-10"
           />
-          <div class="text-xl font-medium">
+          <div class="text-lg font-medium">
             {{ amount }} {{ asset.symbol }}
           </div>
         </div>
 
-        <Divider class="my-3" />
+        <Divider class="my-2" />
 
         <!-- 链路信息 -->
-        <div class="flex items-center justify-center gap-4 py-4">
+        <div class="flex items-center justify-center gap-4 py-3">
           <!-- From Chain -->
           <div class="flex flex-col items-center">
             <div 
-              class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
               :style="{ backgroundColor: getChainColor(fromChain) }"
             >
               {{ fromChain.toUpperCase().charAt(0) }}
             </div>
-            <div class="text-sm mt-2">{{ getChainDisplayName(fromChain) }}</div>
+            <div class="text-xs mt-1">{{ getChainDisplayName(fromChain) }}</div>
           </div>
           
           <!-- Arrow -->
-          <ArrowRightIcon class="w-6 h-6 text-gray-400" />
+          <ArrowRightIcon class="w-5 h-5 text-gray-400" />
           
           <!-- To Chain -->
           <div class="flex flex-col items-center">
             <div 
-              class="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
               :style="{ backgroundColor: getChainColor(toChain) }"
             >
               {{ toChain.toUpperCase().charAt(0) }}
             </div>
-            <div class="text-sm mt-2">{{ getChainDisplayName(toChain) }}</div>
+            <div class="text-xs mt-1">{{ getChainDisplayName(toChain) }}</div>
           </div>
         </div>
 
-        <Divider class="my-3" />
+        <Divider class="my-2" />
 
         <!-- 费用详情 -->
-        <div class="space-y-3 text-sm">
+        <div class="space-y-2 text-sm">
           <FlexBox ai="center" jc="between">
             <div class="text-gray-500">Amount</div>
             <div>{{ amount }} {{ asset.symbol }}</div>
@@ -136,7 +136,7 @@ const formatFee = (chain: SupportedChain, fee: number) => {
             <div>{{ formatFeeRate(toChain, toFeeRate) }}</div>
           </FlexBox>
           
-          <Divider class="my-2" />
+          <Divider class="my-1" />
           
           <FlexBox ai="center" jc="between" v-if="estimatedFee">
             <div class="text-gray-500">{{ fromChain.toUpperCase() }} Network Fee</div>
@@ -150,19 +150,14 @@ const formatFee = (chain: SupportedChain, fee: number) => {
         </div>
 
         <!-- 提示信息 -->
-        <div class="mt-4 p-3 bg-yellow-50 rounded-lg">
+        <div class="mt-3 p-2 bg-yellow-50 rounded-lg">
           <div class="text-xs text-yellow-700">
-            <p class="font-medium mb-1">⚠️ Important Notice</p>
-            <ul class="list-disc list-inside space-y-1">
-              <li>Teleport will create transactions on both networks</li>
-              <li>The transfer may take a few minutes to complete</li>
-              <li>Make sure you have enough balance for fees on both networks</li>
-            </ul>
+            <p>⚠️ Teleport creates transactions on both networks. Make sure you have enough balance for fees.</p>
           </div>
         </div>
       </div>
 
-      <DrawerFooter>
+      <DrawerFooter class="flex-shrink-0 pt-2 pb-4">
         <FlexBox ai="center" jc="center" :gap="3">
           <DrawerClose>
             <Button type="light" class="w-[120px] h-11">

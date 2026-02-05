@@ -329,6 +329,7 @@ const currentSource = computed(() => {
         :address="currentChainAddress"
         :source="currentSource"
         :coinCategory="CoinCategory.MRC20"
+        :chain="activeChain === 'doge' ? Chain.DOGE : Chain.BTC"
       />
       <LoadingText text="Activities Loading..." v-else />
     </div>

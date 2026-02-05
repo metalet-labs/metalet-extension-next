@@ -22,10 +22,12 @@ const symbol = route.params.symbol as string
 const amount = route.params.amount as string
 const genesis = route.query.genesis as string
 const prepareTxId = route.query.prepareTxId as string | undefined
+const iconFromQuery = route.query.icon as string | undefined
 
 const { getIcon } = useIconsStore()
 const logo = computed(() => {
-  return getIcon(CoinCategory.MRC20, genesis || symbol) || ''
+  // 优先使用传递的 icon，否则从 store 获取
+  return iconFromQuery || getIcon(CoinCategory.MRC20, genesis) || ''
 })
 
 // 跳转到区块浏览器
@@ -129,9 +131,9 @@ const toScanUrl = async (txId: string, chain: SupportedChain) => {
       </div>
     </div>
     
-    <div class="flex-1"></div>
+    <div class="flex-1 min-h-4"></div>
     
-    <Button type="primary" @click="$router.replace('/wallet')" class="w-full h-12 mb-4">
+    <Button type="primary" @click="$router.replace('/wallet')" class="w-full h-12 mb-4 flex-shrink-0">
       {{ $t('Common.Done') }}
     </Button>
   </FlexBox>
