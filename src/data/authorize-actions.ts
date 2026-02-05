@@ -32,6 +32,7 @@ import * as DogeInscribe from '../lib/actions/doge/inscribe'
 import * as SignDOGEMessage from '../lib/actions/doge/sign-message'
 import * as SignDOGEPsbt from '../lib/actions/doge/sign-psbt'
 import * as DogeMRC20Transfer from '../lib/actions/doge/mrc20-transfer'
+import * as DogeCompleteTx from '../lib/actions/doge/complete-tx'
 
 // Common
 import * as OmniConnect from '../lib/actions/common/omniConnect'
@@ -298,6 +299,17 @@ export default {
     description: '',
     process: DogeMRC20Transfer.process,
     estimate: doNothing,
+    closeAfterProcess: true,
+  },
+  DogeCompleteTx: {
+    name: 'DogeCompleteTx',
+    title: 'Complete DOGE Transaction',
+    description: [
+      'Build and sign a DOGE transaction with custom outputs.',
+      'Inputs and change will be automatically selected based on fee rate.',
+    ],
+    process: DogeCompleteTx.process,
+    estimate: DogeCompleteTx.estimate,
     closeAfterProcess: true,
   },
 

@@ -1404,3 +1404,100 @@ The GlobalMetaId format is: `id{version}1{data}{checksum}`
 - `1` - Separator
 - `{data}` - Encoded public key hash
 - `{checksum}` - 6-character checksum
+
+---
+
+## doge.completeTx
+
+Complete a partial DOGE transaction by automatically selecting inputs (UTXOs) and adding change output based on fee rate.
+
+This API is designed for scenarios where you want to specify custom outputs and let the wallet handle input selection and change calculation automatically.
+
+### Parameters
+
+- `txHex` - `string` - **(required)** Partial transaction hex containing only outputs
+- `feeRate` - `number` - **(required)** Fee rate in satoshis/KB (e.g., 200000 = 0.002 DOGE/KB)
+- `options` - `object` - (optional)
+  - `noBroadcast` - `boolean`: If true, return signed tx without broadcasting
+  - `changeAddress` - `string`: Custom change address (defaults to wallet address)
+
+### Response
+
+- `txId` - `string`: Transaction ID
+- `rawTx` - `string`: Signed raw transaction hex
+- `fee` - `number`: Actual fee in satoshis
+- `inputs` - `array`: Selected inputs
+  - `txId` - `string`: Input transaction ID
+  - `outputIndex` - `number`: Input output index
+  - `address` - `string`: Input address
+  - `satoshis` - `number`: Input value in satoshis
+- `outputs` - `array`: Transaction outputs
+  - `address` - `string`: Output address
+  - `satoshis` - `number`: Output value in satoshis
+
+### Example
+
+```tsx
+// Build a partial transaction with only outputs
+// This example creates a tx with 2 outputs: 0.5 DOGE and 0.3 DOGE
+const txHex = "02000000000280f0fa02000000001976a9142a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b88ac80c3c901000000001976a9141b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c88ac00000000"
+
+const result = await window.metaidwallet.doge.completeTx({
+  txHex: txHex,
+  feeRate: 200000,  // 0.002 DOGE/KB
+  options: {
+    noBroadcast: true  // Set to false to broadcast immediately
+  }
+})
+
+console.log(result)
+// {
+//   txId: "abc123...",
+//   rawTx: "0200000001...",
+//   fee: 45000,
+//   inputs: [
+//     { txId: "def456...", outputIndex: 0, address: "D...", satoshis: 100000000 }
+//   ],
+//   outputs: [
+//     { address: "D...", satoshis: 50000000 },
+//     { address: "D...", satoshis: 30000000 },
+//     { address: "D...", satoshis: 19955000 }  // change
+//   ]
+// }
+```
+
+### How to Build txHex with Custom Outputs
+
+You can use `bitcoinjs-lib` to build a partial transaction:
+
+```typescript
+import * as bitcoin from 'bitcoinjs-lib'
+
+// Create transaction with only outputs
+const tx = new bitcoin.Transaction()
+tx.version = 2
+
+// Build P2PKH output script for DOGE address
+function buildP2PKHScript(pubkeyHash: Buffer): Buffer {
+  return Buffer.concat([
+    Buffer.from([0x76, 0xa9, 0x14]), // OP_DUP OP_HASH160 PUSH20
+    pubkeyHash,
+    Buffer.from([0x88, 0xac]) // OP_EQUALVERIFY OP_CHECKSIG
+  ])
+}
+
+// Add outputs
+tx.addOutput(buildP2PKHScript(recipientPubkeyHash1), 50000000)  // 0.5 DOGE
+tx.addOutput(buildP2PKHScript(recipientPubkeyHash2), 30000000)  // 0.3 DOGE
+
+const txHex = tx.toHex()
+```
+
+### Fee Rate Reference
+
+| Level | Fee Rate (sat/KB) | DOGE/KB |
+|-------|-------------------|---------|
+| Slow | 100000 | 0.001 |
+| Avg | 200000 | 0.002 |
+| Fast | 500000 | 0.005 |
+
