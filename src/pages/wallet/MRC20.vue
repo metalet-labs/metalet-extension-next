@@ -194,8 +194,9 @@ const getChainPending = (chain: SupportedChain) => {
 const supportedChains: SupportedChain[] = ['btc', 'doge']
 
 // 当前链的 source 参数（用于 activities 接口）
+// MRC20 是跨链协议，所有链都需要传 source=mrc20-v2 来获取完整的活动记录
 const currentSource = computed(() => {
-  return activeChain.value === 'doge' ? 'mrc20-v2' : undefined
+  return 'mrc20-v2'
 })
 </script>
 
