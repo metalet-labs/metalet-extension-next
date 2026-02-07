@@ -16,6 +16,10 @@ const toBTCSafeMark = () => {
 const toSpaceMerge = () => {
   router.push('/settings/toolkit/space-merge')
 }
+
+const toMeltdownPINs = () => {
+  window.open('https://www.metalet.space/pin/management', '_blank')
+}
 </script>
 
 <template>
@@ -26,6 +30,12 @@ const toSpaceMerge = () => {
       <div class="divide-y divide-gray-100">
         <div class="setting-item group cursor-pointer" @click="toBTCMerge">
           <div class="text-gray-500 group-hover:underline">BTC Merge</div>
+          <div class="">
+            <ChevronRightIcon class="link-icon" />
+          </div>
+        </div>
+        <div class="setting-item group cursor-pointer" @click="toMeltdownPINs">
+          <div class="text-gray-500 group-hover:underline">Meltdown PINs</div>
           <div class="">
             <ChevronRightIcon class="link-icon" />
           </div>
