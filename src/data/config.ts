@@ -1,4 +1,4 @@
-export const VERSION = '3.4.26'
+export const VERSION = '3.4.28'
 
 export const FEEB = 5
 export const P2PKH_UNLOCK_SIZE = 1 + 1 + 72 + 1 + 33
