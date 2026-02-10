@@ -180,6 +180,64 @@ Nope.
 const xPublicKey = (await metaidwallet.getXPublicKey()) > 'xxxxxxxthisisaextendedpubkeyxxxxx'
 ```
 
+## ecdh
+
+Perform ECDH (Elliptic Curve Diffie-Hellman) key exchange to derive a shared secret with an external party. This API uses the `prime256v1` (P-256/secp256r1) elliptic curve.
+
+### Parameters
+
+- `path?` - `string`: The BIP32 derivation path for the private key. Default: `"m/100'/0'/0'/0/0"`
+- `externalPubKey` - `string`: The external party's public key in hex format (uncompressed, 65 bytes starting with `04`)
+
+### Response
+
+- `sharedSecret` - `string`: The derived shared secret (SHA256 hash of the ECDH result) in hex format
+- `externalPubKey` - `string`: Echo of the input external public key
+- `ecdhPubKey` - `string`: The wallet's ECDH public key (on prime256v1 curve) in hex format
+- `creatorPubkey` - `string`: The wallet's public key derived from the specified path in hex format
+
+### Example
+
+```tsx
+// Basic ECDH key exchange
+const result = await window.metaidwallet.ecdh({
+  externalPubKey: '04a5c3e02c32f5d67b8c9e1a2b3c4d5e6f7890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef12345678'
+})
+
+console.log('Shared Secret:', result.sharedSecret)
+console.log('ECDH Public Key:', result.ecdhPubKey)
+console.log('Creator Public Key:', result.creatorPubkey)
+
+// Example response:
+// {
+//   sharedSecret: '8a3b2c1d4e5f67890abcdef1234567890abcdef1234567890abcdef12345678',
+//   externalPubKey: '04a5c3e02c32f5d67b8c9e1a2b3c4d5e6f7890abcdef...',
+//   ecdhPubKey: '04b6d4f13e43a6e78d0b1c2d3e4f5a6b7c8d9e0f1234567890abcdef...',
+//   creatorPubkey: '02c7e5f24f54b7f89e1c2d3e4f5a6b7c8d9e0f1234567890abcdef1234567890ab'
+// }
+```
+
+```tsx
+// ECDH with custom derivation path
+const result = await window.metaidwallet.ecdh({
+  path: "m/44'/0'/0'/0/0",
+  externalPubKey: '04...'
+})
+```
+
+### Use Cases
+
+- **End-to-end encryption**: Derive a shared secret for encrypting private messages between users
+- **MetaID encryption**: Used with `encryption: '2'` in createPin for ECDH-based content encryption
+- **Secure key exchange**: Establish shared secrets without transmitting private keys
+
+### Notes
+
+- This API uses the `prime256v1` (NIST P-256) elliptic curve, NOT secp256k1 used by Bitcoin
+- The external public key must be in uncompressed format (65 bytes, starting with `04`)
+- The shared secret is the SHA256 hash of the raw ECDH result for additional security
+- This is a `query` action type, so it will prompt for user confirmation
+
 ---
 
 > Native Token - aka. SPACE / BTC and so on…
